@@ -120,6 +120,9 @@ LINES = {
   "stamp": {
     "intro":  ("वाक्य में सही स्थान पर ठप्पा लगाइए।", None),
     "sent":   ("नमस्ते दादाजी, आप कैसे हैं", None),
+    # [stamp-rounds] the second round (frame 579:47): the sentence read with its comma and danda; shown on two rows (the frame's
+    # 448-wide box), the comma's place an empty slot between खिलौने and पेन, the danda after a space as the frame has it
+    "sent2":  ("माँ ने मुझे मेरे जन्मदिन पर कई सारे खिलौने, पेन और किताबें दिलाई हैं।", "माँ ने मुझे मेरे जन्मदिन पर कई सारे\nखिलौने पेन और किताबें दिलाई हैं ।"),
   },
 }
 SCR = pathlib.Path(__file__).resolve().parent

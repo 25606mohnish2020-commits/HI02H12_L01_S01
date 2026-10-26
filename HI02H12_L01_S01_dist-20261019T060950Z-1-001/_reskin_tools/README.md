@@ -668,6 +668,47 @@ and the box disappears but not the symbol")
   themselves (the inline drag: 12 mouse moves from the stamp's handle). 32/32, letter_check, gate 11/11, smoke 38/38.
   `../_before_stamp_drag/` holds the dist's three files, build.py and the four checks from before (the self-stamping page);
   `../_before_stamp_fixes/` the drag build before the blink/white-box/pop fixes.
+- Later 2026-10-26, [stamp-rounds] (asked: "after the confetti the stamps in the holder will disappear with the opposite of the
+  animation in which they appeared and the complete sentence will also disappear and the new stamps will appear with the exact
+  same animation as before as shown in this figma reference and the new sentence ... with the same synced animation as before and
+  the blank box, stamps will again follow the exact same flow"): a SECOND ROUND from frame 579:47
+  (https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=579-47 — the next "G3 guided story question" under
+  565:28 on the page; four more such frames follow it: 592:89, 592:110, 593:130, 593:151 — not asked for). The card's L2 data now
+  holds `rounds` (both frames: sentence + clip + word times, mark, pick, the two stamps' pictures, boxes and print points, the
+  sentence's box, the slot's box and dash runs); the module runs them in turn (setRound builds the round's sentence p and slot,
+  swaps the stamps' pictures; `.stp[data-round]` says which). Round 2's frame: the same table, title bar, sheet, tray; the stamps
+  । (the same picture) and the comma — "stamp-apostrophe 1" (72x115 at 677,541; its print point measured (36,114) like the ?'s)
+  — saved lossless as stamp_assets/img_stamp_comma.webp (172x272); the sentence "माँ ने मुझे मेरे जन्मदिन पर कई सारे खिलौने [7
+  spaces] पेन और किताबें दिलाई हैं ।" in a 448-wide centred box at 416,287 98 tall, Baloo Bhai 2 SemiBold 30 black = TWO rows of 49
+  (the frame's "\n" is in the shown text, sfigLine's <br>): row 1 ink 293..327 x 456..824 on the render, row 2 342..373 x 436..517
+  and 560..840 (the gap for the slot: 43 px of ink gap = a space + a 37 px .stp-gap span before word #9 "पेन"); the box set at y 289
+  (the +2 of round 1) with line-height 49 lands row 1 at 294..327 x 456..823 and row 2 at 343..373 x 436..517 / 560..840; NO
+  right padding (box-sizing is border-box here: it shrank the content and pulled the rows 6 px left) and no trailing span (the
+  danda's own side bearing already centres row 2 2 px left of row 1, as the render). The slot 525,355 29x30, the same fill, radius
+  and 2px dashed stroke, its runs read off the render: 4 9 3 9 4 across, 4 9 4 9 4 down. The spoken line: "माँ ने मुझे मेरे
+  जन्मदिन पर कई सारे खिलौने, पेन और किताबें दिलाई हैं।" (recap_vo.py stamp sent2, the same voice; the shown text's "।" takes हैं's
+  time: 15 shown words, the clip 6.66 s) — a placeholder until recorded, like the others.
+  The flow between rounds (data.pace): at done_at (4.4 s after the right drop, the confetti fallen) clearRound: the stamps shrink
+  away — `img.unpop` = the pop keyframes played in reverse (animation-direction reverse, the same .45 s curve), 350 ms apart, no
+  sound — the words go out in reverse order 40 ms apart (words_out; their arrival's own transition backwards), the slot fades with
+  its printed mark (.out, .3 s); at next_at (1.3 s) the round's sentence and slot are removed, setRound(1) builds the new ones
+  and sets the pictures, and stage 3 runs again: the pops (on their sound, .48), the sentence word by word on its clip, the slot's
+  3.5 s blink, .live, the guidance 0.5 s later (to the small slot: hover point 539.5,356), 7 s idle repeats, the drags (print
+  point within 50/70 of the slot's centre; the । on it = wrong), the comma printed (centreInk on ","), the box gone on the chime,
+  confetti; after the LAST round the end screen at done_at. The round-2 pictures and clip are fetched at mount.
+- Checked: stamp_check.py now plays both rounds (48 steps): round 1 as before, then the clearing (unpop at 4.4 s ± .12, 350 apart,
+  no pop sound; the word count only falls, 5 -> 0 within .5 s; the slot's opacity < .05; round 2 set at 1.3 s with 15 words built,
+  none shown, a fresh slot at 525,355 29x30, the comma picture on s1), round 2 (the pops on their sounds, the clip .7 s after the
+  second, 15 reveals within -60..+40 on the clip's clock, the slot at the clip's end with dmfBlink to .2, .live), its guidance
+  (500 after the blink, the hover point within 4 px, home at 2.9 s, nothing printed), the । on the slot (buzz, wiggle, home), the
+  comma dropped 10/8 off (snap to the press point within 4 px, thud 280, mark 400, home by 1.8 s, gone 1600 on the chime, confetti
+  2100 on its sound, the comma's ink on the slot's centre within 3 px), the end screen 4.4 s after, 4 + 2 lifts; both slot moments
+  against their renders (565:28: frame 4.4, sheet 6.3; 579:47: frame < 12, sheet < 20 — the two-row text's edges — each row's ink
+  rows within 3 px and its runs within 4 px of the render's, the slot fill at 525..553 x 355..384); a re-run (round 0 again) and a
+  mid-way exit with a stamp in hand. `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out
+  stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png`. smoke.py / gate_check.py drop the right stamp once per round
+  (stamp_drop(ri) from data.rounds). `../_before_stamp_rounds/` holds the dist's three files, build.py, recap_vo.py and the three
+  checks from before (one round).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

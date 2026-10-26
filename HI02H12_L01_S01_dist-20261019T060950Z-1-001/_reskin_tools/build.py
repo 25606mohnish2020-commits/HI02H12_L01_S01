@@ -401,11 +401,16 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
 # the kit's correct chime (= the user's standard sfx_correct_feedback), the mark stays; the kit's confetti on its own sound (= the
 # user's standard sfx confetti); then the end screen. (The three kit sounds and the user's files are the same recordings:
 # correlation 1.000, the same lengths — checked 2026-10-26.)
+# [stamp-rounds] (later 2026-10-26) a SECOND ROUND follows the confetti, frame 579:47: the stamps shrink away (their pop played
+# backwards), the sentence goes word by word in reverse with the slot and its mark; the round's two stamps (। and the comma) pop
+# in on their pops, its sentence "माँ ने मुझे मेरे जन्मदिन पर कई सारे / खिलौने [ ] पेन और किताबें दिलाई हैं ।" is read word by word
+# (vo_stamp_sent2) on two rows in the frame's 448-wide box, the small slot (29x30 at 525,355) blinks, the guidance and the drags
+# follow as before, the comma is printed; after that round's confetti, the end screen. data.rounds holds both frames.
 # Numbers measured on the frame (get_metadata) and its render; the clips + timings from stamp_assets/ (recap_vo.py stamp); the
 # bitmaps = the frame's own assets (scratchpad make_stamp_assets.py: the sheet "image 238" turned as the frame shows it).
-STAMP_KEYS = ["intro", "sent"]
+STAMP_KEYS = ["intro", "sent", "sent2"]   # [stamp-rounds] sent2 = the second round's sentence (frame 579:47)
 sl_ = {k: json.loads((SCR / "stamp_assets" / f"vo_stamp_{k}.words.json").read_text(encoding="utf-8")) for k in STAMP_KEYS}
-STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?"}
+STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?", "img_stamp_comma": ","}
 STAMP_SND = ["sfx_stamp_pop", "sfx_stamp_press"]
 for k, emo in STAMP_IMGS.items():
     card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
@@ -418,22 +423,37 @@ assert card["slides"][i_l1 + 1]["id"] == "CEL"
 card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enactive", "type": "STAMP_DEMO", "prompt_hi": sl_["intro"]["shown"],
     "audio": {"prompt": "vo_stamp_intro"},
     "data": {"band_hi": sl_["intro"]["shown"], "intro_audio": "vo_stamp_intro",
-             "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
-             "mark": "?", "pick": 1,
-             "images": {"wood": "img_stamp_wood", "sheet": "img_stamp_sheet", "tray": "img_stamp_tray", "stamps": ["img_stamp_danda", "img_stamp_question"]},
+             "images": {"wood": "img_stamp_wood", "sheet": "img_stamp_sheet", "tray": "img_stamp_tray"},
              "sfx": {"pop": "sfx_stamp_pop", "press": "sfx_stamp_press"},
-             "layout": {"sheet": [355, 64, 571, 594], "tray": [427, 565, 426, 142], "stamps": [[532, 541, 74, 116], [677, 540, 72, 115]],
-                        "tips": [[36, 113], [35, 114]], "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},   # the frame's box is at 336; Noto's ink sits 2 px above Figma's fallback's
-                        "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
+             "layout": {"sheet": [355, 64, 571, 594], "tray": [427, 565, 426, 142]},
+             # [stamp-rounds] the rounds, one per frame: the sentence (its clip and word times), the mark, which stamp is right (pick),
+             # the two stamps' pictures, their boxes in the tray and print points (the middle of the face's bottom edge, in the box),
+             # the sentence's box (the frame's, 2 px lower: Noto's ink sits 2 px above Figma's fallback's; lh = the frame's row height
+             # when there are two rows, gap = an empty span before word #before, w wide, where the slot sits, tail = an empty span
+             # after the last word, the frame's trailing space: the last row centres 2 px left of the first), the slot's box and
+             # its dash runs read off the frame's render
+             "rounds": [
+               {"frame": "565:28", "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
+                "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question"],
+                "boxes": [[532, 541, 74, 116], [677, 540, 72, 115]], "tips": [[36, 113], [35, 114]],
+                "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},
+                "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
+               {"frame": "579:47", "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]]},
+                "mark": ",", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_comma"],
+                "boxes": [[532, 541, 74, 116], [677, 541, 72, 115]], "tips": [[36, 113], [36, 114]],
+                "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 37}},   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
+                "slot": {"x": 525, "y": 355, "w": 29, "h": 30, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 9, 4, 9, 4]}}],
              "pace": {"intro_at": 400, "after_intro": 500, "sheet_in": 0, "tray_in": 150, "stamps_at": 700, "pop_gap": 350, "sent_at": 700,
                       "blink_ms": 3500,
                       # [stamp-drag] the guidance: hint_at after the blink, the glide out, the hover, the glide home; again after idle_ms
                       "hint_at": 500, "glide": 1500, "hover_up": 34, "hold": 450, "back": 1100, "idle_ms": 7000,
                       # the child's drop: the print point within tol of the slot's centre; a move under tap_px is a touch, not a placing
                       "tol_x": 50, "tol_y": 70, "tap_px": 10, "wiggle": 450, "reset": 500,
-                      # the right drop: over the slot (snap), down (press) on the thud, the mark, up, home; the box goes; confetti; the end
+                      # the right drop: over the slot (snap), down (press) on the thud, the mark, up, home; the box goes; confetti; then at
+                      # done_at the end — or, with a round to follow [stamp-rounds], the clearing: the words out words_out apart (in
+                      # reverse), the stamps' pop backwards pop_gap apart, the next round's stamps popping in at next_at
                       "snap": 220, "press": 140, "press_down": 20, "thud_at": 280, "mark_at": 400, "lift_at": 560, "back_at": 800, "back_home": 800,
-                      "gone_at": 1600, "confetti_at": 2100, "done_at": 4400}},
+                      "gone_at": 1600, "confetti_at": 2100, "done_at": 4400, "words_out": 40, "next_at": 1300}},
     "signals": {"on_complete": []}})
 assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]
 pd = {}
@@ -1274,64 +1294,57 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
 
 """
 js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: letter_mod + m.group(0), re.M, "PHASE_TRANSITION anchor (letter)")
-stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter (FLN-by-MJ frame 565:28 "G3 guided story question"): the
-     letter's sentence on a sheet on the wooden table, a tray with two stamps (। and ?), the demos' title bar (.dmf-band). It
-     drives itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts
-     to sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; 3. the two stamps pop into the tray,
-     each on its pop; 4. the sentence is read without a pause, WORD BY WORD on the clip's clock; 5. the empty slot appears and
-     blinks for 3.5 s (the demos' three slow blinks) — from now on the two stamps are the child's to drag; 6. [stamp-drag] the guidance,
-     0.5 s after the blink: the right stamp lifts, glides slowly over the slot, hovers and glides home WITHOUT printing; it comes
-     again after every 7 s without a touch. A stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back
-     it glides. The right stamp on the slot: it snaps over the slot and presses on the thud — the mark is printed on the slot's
-     CENTRE (its ink, as on the demos) — lifts and glides home; the slot's box goes on the correct chime, the mark stays; the
-     kit's confetti on its sound; then the page moves on (no आगे). Places in data.layout (frame px), moments in data.pace (ms). ===== */
+stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter (FLN-by-MJ frames 565:28 and 579:47, "G3 guided story
+     question"): a sentence on a sheet on the wooden table, a tray with two stamps, the demos' title bar (.dmf-band). It drives
+     itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts to
+     sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; then ROUND BY ROUND (data.rounds,
+     [stamp-rounds]): 3. the round's two stamps pop into the tray, each on its pop; 4. the sentence is read without a pause,
+     WORD BY WORD on the clip's clock; 5. the empty slot appears and blinks for 3.5 s (the demos' three slow blinks) — from now
+     on the two stamps are the child's to drag; 6. [stamp-drag] the guidance, 0.5 s after the blink: the right stamp lifts,
+     glides slowly over the slot, hovers and glides home WITHOUT printing; it comes again after every 7 s without a touch. A
+     stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back it glides. The right stamp on the slot:
+     it snaps over the slot and presses on the thud — the mark is printed on the slot's CENTRE (its ink, as on the demos) —
+     lifts and glides home; the slot's box goes on the correct chime, the mark stays; the kit's confetti on its sound. With a
+     round to follow: the stamps shrink away (their pop played backwards), the sentence goes word by word in reverse with the
+     slot and its mark, and the next round's stamps pop in (3. again). After the last round the page moves on (no आगे). Places
+     in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
-      const d = slide.data || {}, S = d.sentence || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
+      const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
+      const rounds = Array.isArray(d.rounds) && d.rounds.length ? d.rounds : [{}];
       const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
         hint_at: 500, glide: 1500, hover_up: 34, hold: 450, back: 1100, idle_ms: 7000, tol_x: 50, tol_y: 70, tap_px: 10, wiggle: 450, reset: 500,
-        snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400 }, d.pace || {});
+        snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400,
+        words_out: 40, next_at: 1300 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
-      const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142], st = LY.stamps || [[532, 541, 74, 116], [677, 540, 72, 115]],
-            tips = LY.tips || [[36, 113], [35, 114]], se = LY.sent || { x: 63, y: 336, w: 1075, h: 48, size: 30 }, sl = LY.slot || { x: 751, y: 331, w: 36, h: 58 };
+      const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142];
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
-      // the slot's dashed stroke, one line per side carrying the render's own dash runs ([margin, dash, gap, ...]); the rounded
-      // corners stay open, as in the render (the demos' way)
-      const da = (r)=> r && r.length ? '0 ' + r.join(' ') : '10 5';
-      const side = (x1, y1, x2, y2, r)=> '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke-dasharray="' + da(r) + '"/>';
-      const w = sl.w, h = sl.h, lh = Math.round(se.size * 1.714 * 10) / 10;   // Baloo Bhai 2's line box, as on every Figma page
+      const BX0 = [[532, 541, 74, 116], [677, 540, 72, 115]], TIPS0 = [[36, 113], [35, 114]];
+      const boxes0 = rounds[0].boxes || BX0;
       const fig = sfigMount(host,
-        '<div class="stp">' +
+        '<div class="stp" data-round="0">' +
           '<img class="stp-wood" src="' + imgSrc(im.wood) + '" alt="" draggable="false">' +
           '<div class="dmf-band"><div class="dmf-pill"><p></p></div><div class="dmf-head"><img src="assets/UI/demo1_head.webp" alt="" draggable="false"></div></div>' +
           '<img class="stp-sheet" src="' + imgSrc(im.sheet) + '" alt="" draggable="false" style="' + box(sh) + '">' +
           '<img class="stp-tray" src="' + imgSrc(im.tray) + '" alt="" draggable="false" style="' + box(tr) + '">' +
-          (im.stamps || []).map((id, k)=> '<div class="stp-stamp s' + k + '" style="' + box(st[k] || st[0]) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join('') +
-          '<p class="stp-sent" style="left:' + se.x + 'px;top:' + (se.y - (lh - se.h) / 2) + 'px;width:' + se.w + 'px;height:' + lh + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px"></p>' +
-          '<div class="stp-slot" style="' + box([sl.x, sl.y, w, h]) + '"><svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
-            side(0, 1, w, 1, sl.dash_h) + side(w - 1, 0, w - 1, h, sl.dash_v) + side(0, h - 1, w, h - 1, sl.dash_h) + side(1, 0, 1, h, sl.dash_v) + '</svg>' +
-            '<span class="stp-mark" style="font-size:' + se.size + 'px">' + (d.mark || '?') + '</span></div>' +
+          (rounds[0].stamps || []).map((id, k)=> '<div class="stp-stamp s' + k + '" style="' + box(boxes0[k] || boxes0[0]) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join('') +
           '<div class="stp-veil"></div>' +
         '</div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
       const root = fig.querySelector(".stp"), band = fig.querySelector(".dmf-band"), sheet = fig.querySelector(".stp-sheet"), tray = fig.querySelector(".stp-tray"),
-            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), sentEl = fig.querySelector(".stp-sent"), slot = fig.querySelector(".stp-slot"), mark = fig.querySelector(".stp-mark");
+            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), veil = fig.querySelector(".stp-veil");
       fig.querySelector(".dmf-pill p").textContent = d.band_hi || "";
-      const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
-      // the right stamp's print point (the middle of its face's bottom edge, in its box: data.layout.tips) lands press_down px
-      // under the slot's centre — the stamp standing on the slot — after hovering hover_up px above that
-      const pick = d.pick != null ? d.pick : 1, stamp = stamps[pick] || stamps[0], tip = tips[pick] || tips[0], sb = st[pick] || st[0];
-      const dx = sl.x + w / 2 - (sb[0] + tip[0]), dy = sl.y + h / 2 + P.press_down - (sb[1] + tip[1]);
-      const HOVER = "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(1.08)", PRESS = "translate(" + dx + "px, " + dy + "px) scale(1)";
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
       setSwMood("talk");
       const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
       const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
-      // the page's own sounds (two pops, the thud), fetched now so each starts on its beat — online too
+      // the page's own sounds (two pops, the thud), fetched now so each starts on its beat — online too; every round's pictures and
+      // clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
       const pops = [mk(sfx.pop), mk(sfx.pop)], thud = mk(sfx.press);
-      [d.intro_audio, S.audio].forEach(id=>{ const src = A(id); if(src) try{ new Audio(src).load(); }catch(e){} });   // the two clips fetched now: the bar and the sheet follow the sound without a load gap
+      [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
+      rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
       const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops
       window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); if(idleIv) clearInterval(idleIv); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} });
@@ -1356,6 +1369,38 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         };
         if(times.length) tick();
       };
+      // [stamp-rounds] the round at hand (R): its sentence — p.stp-sent built by sfigLine (a word span per word, <br> per row) with
+      // the gap span where the slot sits —, its slot with the mark, its stamps' pictures and boxes, the right stamp and its two
+      // places over the slot: its print point (the middle of its face's bottom edge, in its box: tips) lands press_down px under
+      // the slot's centre (the stamp standing on the slot) after hovering hover_up px above that
+      let R = null, r = -1;
+      // the slot's dashed stroke, one line per side carrying the render's own dash runs ([margin, dash, gap, ...]); the rounded
+      // corners stay open, as in the render (the demos' way)
+      const da = (q)=> q && q.length ? '0 ' + q.join(' ') : '10 5';
+      const side = (x1, y1, x2, y2, q)=> '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke-dasharray="' + da(q) + '"/>';
+      function setRound(i){
+        r = i; root.dataset.round = i;
+        const D = rounds[i] || {}, S = D.sentence || {}, bx = D.boxes || BX0, tips = D.tips || TIPS0,
+              se = D.sent || { x: 63, y: 338, w: 1075, h: 48, size: 30 }, sl = D.slot || { x: 751, y: 331, w: 36, h: 58 }, w = sl.w, h = sl.h;
+        (D.stamps || []).forEach((id, k)=>{ const s = stamps[k]; if(!s) return; s.style.cssText = box(bx[k] || bx[0]); s.className = "stp-stamp s" + k; s.querySelector("img").src = imgSrc(id); });
+        const rows = String(S.text_hi || "").split("\n").length, lh = se.lh || Math.round(se.size * 1.714 * 10) / 10;   // Baloo Bhai 2's line box, as on every Figma page
+        const sentEl = document.createElement("p"); sentEl.className = "stp-sent";
+        sentEl.style.cssText = 'left:' + se.x + 'px;top:' + (se.y - (lh * rows - se.h) / 2) + 'px;width:' + se.w + 'px;height:' + (lh * rows) + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px';
+        const slot = document.createElement("div"); slot.className = "stp-slot"; slot.style.cssText = box([sl.x, sl.y, w, h]);
+        slot.innerHTML = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
+            side(0, 1, w, 1, sl.dash_h) + side(w - 1, 0, w - 1, h, sl.dash_v) + side(0, h - 1, w, h - 1, sl.dash_h) + side(1, 0, 1, h, sl.dash_v) + '</svg>' +
+            '<span class="stp-mark" style="font-size:' + se.size + 'px">' + (D.mark || '?') + '</span>';
+        root.insertBefore(sentEl, veil); root.insertBefore(slot, veil);
+        const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
+        const gapEl = (wpx)=>{ const g = document.createElement("span"); g.className = "stp-gap"; g.style.width = wpx + "px"; return g; };
+        if(se.gap && L.words[se.gap.before]) L.words[se.gap.before].before(gapEl(se.gap.w));   // the room the slot sits in
+        if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
+        const pick = D.pick != null ? D.pick : 1, stamp = stamps[pick] || stamps[0], tip = tips[pick] || tips[0], sb = bx[pick] || bx[0];
+        const dx = sl.x + w / 2 - (sb[0] + tip[0]), dy = sl.y + h / 2 + P.press_down - (sb[1] + tip[1]);
+        R = { D, S, bx, tips, sl, w, h, sentEl, slot, mark: slot.querySelector(".stp-mark"), L, pick, stamp,
+              HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(1.08)", PRESS: "translate(" + dx + "px, " + dy + "px) scale(1)" };
+        live = false; acted = false; solved = false; hinting = false; hintT = []; lastAct = Date.now();
+      }
       // 1. the table shows as the letter page's veil lifts; then the title bar appears the moment its line starts to sound
       nextFrame(()=> nextFrame(()=>{ if(alive()) root.classList.add("lit"); }));
       const introSrc = A(d.intro_audio);
@@ -1370,28 +1415,30 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         at(1500, showBand);   // a clip that is slow to start never keeps the bar away
         at(authoredVoHoldMs(introSrc) + 10000, ()=>{ if(!introDone){ stopAudio(); afterIntro(); } });
       });
-      // 2. the sheet settles onto the table, the tray slides up under it
+      // 2. the sheet settles onto the table, the tray slides up under it; the first round is set
       function stage2(){
         at(P.sheet_in, ()=> sheet.classList.add("in"));
         at(P.tray_in, ()=> tray.classList.add("in"));
-        at(P.stamps_at, stage3);
+        at(P.stamps_at, ()=>{ setRound(0); stage3(); });
       }
-      // 3. the two stamps pop into the tray, each on its pop
+      // 3. the round's two stamps pop into the tray, each on its pop
       function stage3(){
         stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((stamps.length - 1) * P.pop_gap + P.sent_at, stage4);
       }
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
-      function stage4(){ narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
+      function stage4(){ const L = R.L; narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
       // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
       //    to drag (.live); 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
+        const slot = R.slot;
         slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
         live = true; root.classList.add("live"); lastAct = Date.now();
         at(P.blink_ms, ()=> slot.classList.remove("blink"));
         at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
         // the guidance again after idle_ms without a touch (the count starts over after a drop and after each guidance)
+        if(idleIv) clearInterval(idleIv);
         idleIv = setInterval(()=>{
           if(!alive()){ clearInterval(idleIv); return; }
           if(!live || solved) return;
@@ -1408,16 +1455,16 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
       const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
       function hint(){
-        if(hinting || solved || drag || !live) return;
-        hinting = true; hintT = [];
-        stamp.classList.add("lift"); move(stamp, HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
+        if(hinting || solved || drag || !live || !R) return;
+        const stamp = R.stamp; hinting = true; hintT = [];
+        stamp.classList.add("lift"); move(stamp, R.HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
         hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));
         hat(P.glide + P.hold + P.back - 150, ()=> stamp.classList.remove("lift"));
         hat(P.glide + P.hold + P.back + 50, ()=>{ hinting = false; lastAct = Date.now(); });
       }
       function stopHint(taken){   // taken = the child took hold of the guiding stamp itself (it stays where it is, in hand)
         if(!hinting) return; hinting = false; hintT.forEach(clearTimeout); hintT = [];
-        if(!taken) putBack(stamp, 350);
+        if(!taken) putBack(R.stamp, 350);
       }
       // the child's drags: a stamp follows the finger from where it is (even mid-guidance, mid-return) at the lifted size; the
       // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's PRINT POINT against the slot
@@ -1427,9 +1474,9 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       const setTf = (el, tx, ty, s)=>{ el.style.transform = "translate(" + tx.toFixed(2) + "px, " + ty.toFixed(2) + "px) scale(" + s + ")"; };
       stamps.forEach((s, k)=>{
         s.addEventListener("pointerdown", (e)=>{
-          if(!live || solved || drag || (e.button != null && e.button > 0)) return;
+          if(!live || solved || drag || !R || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
-          if(hinting) stopHint(s === stamp);
+          if(hinting) stopHint(s === R.stamp);
           const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
@@ -1445,9 +1492,9 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
           const dr = drag; drag = null; try{ s.releasePointerCapture(e.pointerId); }catch(err){}
           s.classList.remove("drag"); lastAct = Date.now();
           if(e.type === "pointercancel" || dr.moved < P.tap_px){ putBack(s, 220); return; }   // a touch (or the browser took the pointer), not a placing
-          const b = st[k] || st[0], tp = tips[k] || tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its base: the tip rides the translate
-          const onSlot = Math.abs(tipX - (sl.x + w / 2)) <= P.tol_x && Math.abs(tipY - (sl.y + h / 2)) <= P.tol_y;
-          if(onSlot && k === pick) solve(); else wrong(s);
+          const b = R.bx[k] || R.bx[0], tp = R.tips[k] || R.tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its base: the tip rides the translate
+          const onSlot = Math.abs(tipX - (R.sl.x + R.w / 2)) <= P.tol_x && Math.abs(tipY - (R.sl.y + R.h / 2)) <= P.tol_y;
+          if(onSlot && k === R.pick) solve(); else wrong(s);
         };
         s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);
       });
@@ -1461,18 +1508,29 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       }
       // the right drop: the stamp snaps over the slot and presses onto it on the thud — the mark is printed, its ink on the slot's
       // centre — lifts and glides home; the slot's box goes on the correct chime (the user's standard sfx_correct_feedback), the
-      // mark stays; the kit's confetti on its sound (the user's standard sfx confetti); the page moves on
+      // mark stays; the kit's confetti on its sound (the user's standard sfx confetti); then the next round, or the page moves on
       function solve(){
-        solved = true; live = false; root.classList.remove("live"); slot.classList.remove("blink"); hintT.forEach(clearTimeout);
-        move(stamp, HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
-        at(P.snap, ()=> move(stamp, PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
+        const C = R, stamp = C.stamp;
+        solved = true; live = false; root.classList.remove("live"); C.slot.classList.remove("blink"); hintT.forEach(clearTimeout);
+        if(idleIv){ clearInterval(idleIv); idleIv = null; }
+        move(stamp, C.HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
+        at(P.snap, ()=> move(stamp, C.PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
         at(P.thud_at, ()=> sound(thud, 0.9));
-        at(P.mark_at, ()=>{ centreInk(mark); mark.classList.add("in"); });
-        at(P.lift_at, ()=> move(stamp, HOVER, 180, "cubic-bezier(0,0,.3,1)"));
+        at(P.mark_at, ()=>{ centreInk(C.mark); C.mark.classList.add("in"); });
+        at(P.lift_at, ()=> move(stamp, C.HOVER, 180, "cubic-bezier(0,0,.3,1)"));
         at(P.back_at, ()=> putBack(stamp, P.back_home));
-        at(P.gone_at, ()=>{ slot.classList.add("gone"); sfxCorrect(); });
+        at(P.gone_at, ()=>{ C.slot.classList.add("gone"); sfxCorrect(); });
         at(P.confetti_at, ()=> confettiCannon());
-        at(P.done_at, ()=>{ state.demoRunning = false; completeSlide(true); });
+        at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else { state.demoRunning = false; completeSlide(true); } });
+      }
+      // [stamp-rounds] between rounds: the stamps shrink away (their pop played backwards, pop_gap apart), the sentence goes word by
+      // word in reverse (the arrival's opposite) and the slot's box fades with its mark; then the next round is set and its stamps pop in
+      function clearRound(C){
+        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); img.classList.remove("shown");
+          img.addEventListener("animationend", ()=>{ img.classList.remove("unpop"); }, { once: true }); img.classList.add("unpop"); }));
+        C.L.words.slice().reverse().forEach((wd, i)=> at(i * P.words_out, ()=> wd.classList.remove("on")));
+        C.slot.classList.add("out");
+        at(P.next_at, ()=>{ C.sentEl.remove(); C.slot.remove(); setRound(r + 1); stage3(); });
       }
       // the mark's INK on the slot's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
       // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy)
@@ -1975,12 +2033,14 @@ stamp_css = """
 .stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 100%;}
 .stp-stamp img.pop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both;}
 .stp-stamp img.shown{opacity:1;}
+.stp-stamp img.unpop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both reverse;}   /* [stamp-rounds] shrinks away: the pop backwards */
 @keyframes stpPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
 .stp-stamp.lift{z-index:5;filter:drop-shadow(0 16px 8px rgba(0,0,0,.28));}                 /* lifted off the table, over the sheet */
 /* the sentence: Noto Sans Devanagari SemiBold in Baloo Bhai 2's line box, black, centred; each word arrives as it is read */
 .stp-sent{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;word-spacing:-2px;color:#000;margin:0;}
 .stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sent .sfig-w.on{opacity:1;transform:none;}
+.stp-sent .stp-gap{display:inline-block;height:1px;vertical-align:baseline;}            /* [stamp-rounds] the room the slot sits in, between two words */
 /* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms — asked to be just like the pages
    before); .gone = the box goes, the mark stays */
 .stp-slot{background:#FFF1B6;border-radius:8px;opacity:0;transition:opacity .3s,background-color .4s;}
@@ -1989,6 +2049,7 @@ stamp_css = """
 .stp-slot svg{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;transition:opacity .4s;}
 .stp-slot.gone{background:transparent;}
 .stp-slot.gone svg{opacity:0;}
+.stp-slot.out{opacity:0;}                                                                /* [stamp-rounds] between rounds: fades with its mark */
 /* the printed mark: the sentence's own letter (its font, size and black), its INK on the slot's centre (--ix / --iy measured by the
    module), pressed in: it lands from a little large and tilted, as a stamp's print */
 .stp-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;line-height:normal;

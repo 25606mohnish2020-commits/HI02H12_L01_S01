@@ -3184,12 +3184,14 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 100%;}
 .stp-stamp img.pop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both;}
 .stp-stamp img.shown{opacity:1;}
+.stp-stamp img.unpop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both reverse;}   /* [stamp-rounds] shrinks away: the pop backwards */
 @keyframes stpPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
 .stp-stamp.lift{z-index:5;filter:drop-shadow(0 16px 8px rgba(0,0,0,.28));}                 /* lifted off the table, over the sheet */
 /* the sentence: Noto Sans Devanagari SemiBold in Baloo Bhai 2's line box, black, centred; each word arrives as it is read */
 .stp-sent{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;word-spacing:-2px;color:#000;margin:0;}
 .stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sent .sfig-w.on{opacity:1;transform:none;}
+.stp-sent .stp-gap{display:inline-block;height:1px;vertical-align:baseline;}            /* [stamp-rounds] the room the slot sits in, between two words */
 /* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms — asked to be just like the pages
    before); .gone = the box goes, the mark stays */
 .stp-slot{background:#FFF1B6;border-radius:8px;opacity:0;transition:opacity .3s,background-color .4s;}
@@ -3198,6 +3200,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .stp-slot svg{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;transition:opacity .4s;}
 .stp-slot.gone{background:transparent;}
 .stp-slot.gone svg{opacity:0;}
+.stp-slot.out{opacity:0;}                                                                /* [stamp-rounds] between rounds: fades with its mark */
 /* the printed mark: the sentence's own letter (its font, size and black), its INK on the slot's centre (--ix / --iy measured by the
    module), pressed in: it lands from a little large and tilted, as a stamp's print */
 .stp-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;line-height:normal;
