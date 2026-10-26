@@ -751,8 +751,8 @@ and the box disappears but not the symbol")
   are the child's again from that moment (.live back, NO confetti yet, the idle count starts over: the title's line after 7 s);
   the confetti and the hand-over come after the last slot. The wrong stamp on a slot, or any stamp off the empty slots (a solved
   slot counts as off): the buzz, the wiggle, back. guide false (the title's line after 7 s idle, as rounds 2-3). The page's rounds:
-  ? (guided) -> , -> । -> ? ? (two slots); after the fourth confetti the end screen. One frame remains on the page (593:151) — not
-  asked for.
+  ? (guided) -> , -> । -> ? ? (two slots); after the fourth confetti the end screen. One frame remained on the page (593:151 —
+  done next, below).
 - Fixed on the way: the letter page's fadeTo (its music's fade-in) clamps its progress at 0 — rAF's timestamp can precede the
   performance.now() taken when the frame was requested, and that negative progress once set a negative volume (DOMException "The
   volume provided (-0.000274917) is outside the range [0, 1]", caught by gate_check's "no page errors" on the three-round build).
@@ -771,6 +771,40 @@ and the box disappears but not the symbol")
   stamp4_figma_render_1280x720.png`. smoke.py / gate_check.py / the live check drop the right stamp on each of a round's slots in
   turn (the second once the first's box has gone and .stp.live is back; a round's marks counted). The committed state before this
   round is commit 13c5c87 (three rounds).
+- Later 2026-10-26 again, a FIFTH round, frame 593:151 (https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=593-151;
+  asked word for word as the fourth — "after the fourth sentences ... the blank boxes, stamps will again follow the exact same
+  flow"). Its frame: the same table, title bar and tray, round 3's three stamps; the letter's closing lines on FIVE rows in a
+  339-wide centred box at 468,180 — "उनके आम [ ] केले और / अमरूद के पौधे बड़े हुए या नहीं [ ] / आप मुझे पत्र लिखकर बताना [ ] / मैं आपके
+  पत्र का इंतज़ार / करूँगी [ ]" — with FOUR slots wanting DIFFERENT stamps: the comma's "Rectangle 147848" 29x30 at 633,198 (between
+  आम and केले), the ?'s "Rectangle 147849" 30x45 at 804,228, the dandas' "Rectangle 147850" 30x45 at 798,280 and "Rectangle
+  147851" 30x45 at 679,376; under them the letter's sign-off "आपकी प्यारी" / "पिंकी 🩷" (16 px, 81-wide centred boxes at 427,449 and
+  427,481). The frame draws the sheet 6 px higher than every other round (925,58): the sheet stays where the page has it. The
+  render's rows' ink 186..212, 235..271, 284..318, 333..364, 382..408; the text set at y 181 (lh 49, five rows) lies on them
+  exactly; the comma's room is a 30 px gap span before केले (आम ends at 629, केले starts at 665/666, as the render); the sign-off at
+  y 451 / 483 (its rows' ink on the render's; "पिंकी" sits 3 px left of the render's because the system's 🩷 glyph is wider than
+  Figma's). The 30x45 slots' dash runs read off the render: dash_h [4, 10, 2, 10, 4], dash_v [4, 10, 3, 11, 3, 10, 4]; the 29x30
+  one's [4, 9, 3, 9, 4] / [4, 10, 2, 10, 4]. The spoken line "उनके आम, केले और अमरूद के पौधे बड़े हुए या नहीं? आप मुझे पत्र लिखकर बताना।
+  मैं आपके पत्र का इंतज़ार करूँगी।" (recap_vo.py stamp sent5, 12.6 s, 22 words; the synthesiser pauses at the comma, the ? and the
+  dandas) — a placeholder until recorded; the sign-off is shown, not read. The module: a slot may carry its OWN mark and pick
+  (sl.mark, sl.pick; the round's are the fall-back) — its mark span and its stamp's HOVER / PRESS places are its own, a drop is
+  judged against the hit slot's own stamp (the danda on the comma's slot is wrong, right on the dandas'), the press uses that
+  stamp; data.sign = small text lines (p.stp-sign, Noto in the frame's 26 px line box) shown the moment the sentence's last word
+  arrives, gone first in the clearing (they came last), removed with the sentence. guide false. The page's rounds: ? (guided) -> ,
+  -> । -> ? ? -> , ? । । (four slots); after the fifth confetti the end screen. The page's frames are all in now.
+- Checked: stamp_check.py plays all five rounds (118 steps, ALL PASS; round 5: all four slots traced and blinking together as the
+  clip ends, the sign-off's two lines built with the round and arriving with the 22nd word, no guidance, the title's line at 7 s
+  idle, the danda dropped on the comma's slot buzzes and wiggles, then each slot's own stamp in turn — the comma (+8, +6 px off
+  the centre), the ? (-10, +10), the danda (+12, -8), the danda (-8, -12) — each snapping, pressing on the thud at 0.28 s, printing
+  its own mark at 0.4 s, home by 1.6 s, its box gone at 1.6 s on the chime with .live back the same frame and NO confetti until
+  the fourth, then the confetti at 2.1 s and the hand-over at 4.4 s; each mark's ink within 1 px of its slot's centre; the stamps
+  lifted exactly once per slot they are right for plus the wrong drop (the danda 3x, the ? 1x, the comma 1x); the sign-off gone
+  first in the clearing; the page's own sounds 2 + 2 + 3 + 3 + 3 pops and 9 thuds, all stopped on leaving) and its slot moment
+  against the 593:151 render (frame mean 7.24, sheet 14.52 — the frame's sheet sits 6 px higher —, each row's ink rows exact and
+  its runs within 2 px, each slot's fill where the render's is: the fill test now erodes the #FFF1B6 mask by a pixel and compares
+  mine with the render's found the same way, since the fill shows through the stroke's 2 px gaps in the render and Chrome's
+  LCD-antialiased text fringes 3 px from a slot passed the colour test). smoke.py / gate_check.py / the live check drag each
+  slot's own stamp. The committed state before rounds 4 and 5 is commit 13c5c87 (three rounds); `_before_stamp_rounds/` still
+  holds the one-round files.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
