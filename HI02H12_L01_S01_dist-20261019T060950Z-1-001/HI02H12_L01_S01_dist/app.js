@@ -6817,8 +6817,10 @@ const SlideModules = {
      slots or more (data.slots, frames 593:130 and 593:151): all blink together; the right stamp on one prints there and that
      box goes on the chime, then the stamps are the child's again for the rest; the confetti after the last. A slot may want
      its own stamp (sl.mark, sl.pick — 593:151: the comma, the ?, the danda twice). data.sign: small text lines (the letter's
-     sign-off) shown with the sentence's last word, gone with it. After the last round the page moves on (no आगे). Places in
-     frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+     sign-off) shown with the sentence's last word, gone with it. After the LAST round's confetti [stamp-final] the finale: the
+     stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds, the envelope in it glitters
+     gold (a glow and fin_sparks sparks over layout.envelope) for fin_glitter_ms on the second chime, and at fin_done the page
+     moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
@@ -6826,7 +6828,7 @@ const SlideModules = {
       const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
         hint_at: 500, glide: 1500, hover_up: 34, hold: 450, back: 1100, idle_ms: 7000, tol_x: 50, tol_y: 70, tap_px: 10, wiggle: 450, reset: 500,
         snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400,
-        words_out: 40, next_at: 1300 }, d.pace || {});
+        words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142];
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
@@ -6853,9 +6855,10 @@ const SlideModules = {
       // clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
-      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press);
+      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter);   // [stamp-final] the finale's two chimes
       [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
       rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
+      if(im.final) try{ const i = new Image(); i.src = imgSrc(im.final); }catch(e){}   // [stamp-final] the final picture, fetched now
       const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops
       window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); if(idleIv) clearInterval(idleIv); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} });
@@ -7055,7 +7058,32 @@ const SlideModules = {
         at(P.gone_at, ()=>{ o.el.classList.add("gone"); sfxCorrect(); if(!last && R === C){ solved = false; live = true; root.classList.add("live"); lastAct = Date.now(); } });
         if(!last) return;
         at(P.confetti_at, ()=> confettiCannon());
-        at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else { state.demoRunning = false; completeSlide(true); } });
+        at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else finale(); });   // [stamp-final] after the last round, the finale
+      }
+      // [stamp-final] after the last round's confetti: the stage dissolves into the final picture (the girl holding up her stamped
+      // letter) over fin_fade as its chime sounds (started together), the envelope glitters gold for fin_glitter_ms on the second
+      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything (the title
+      // bar too); its picture was fetched at mount
+      function finale(){
+        const EB = LY.envelope || [783, 168, 112, 102];
+        const fin = document.createElement("div"); fin.className = "stp-final"; fin.style.transitionDuration = P.fin_fade + "ms";
+        fin.innerHTML = '<img src="' + imgSrc(im.final) + '" alt="" draggable="false"><div class="stp-glit" style="' + box(EB) + '"></div>';
+        root.appendChild(fin);
+        nextFrame(()=> nextFrame(()=>{ if(!alive()) return; fin.classList.add("in"); sound(finSnd, 0.9); }));
+        at(P.fin_glitter_at, ()=>{ glitter(fin.querySelector(".stp-glit"), EB[2], EB[3]); sound(glitSnd, 0.7); });
+        at(P.fin_done, ()=>{ state.demoRunning = false; completeSlide(true); });
+      }
+      // the glitter: a soft gold glow over the envelope and fin_sparks four-point sparks scattered over it, each twinkling once (up and
+      // away in .65 s) at its own moment within the chime
+      function glitter(g, W, H){
+        if(!g) return; let html = '<div class="stp-glow"></div>';
+        for(let i = 0; i < P.fin_sparks; i++){
+          const a = Math.random() * Math.PI * 2, rr = 0.3 + Math.random() * 0.7, x = W / 2 + Math.cos(a) * rr * W / 2, y = H / 2 + Math.sin(a) * rr * H / 2,
+                s = 7 + Math.random() * 9, d = Math.random() * Math.max(0, P.fin_glitter_ms - 650);
+          html += '<svg class="stp-spark" viewBox="0 0 24 24" aria-hidden="true" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;animation-delay:' + d.toFixed(0) + 'ms">' +
+                  '<path d="M12 0L14.6 9.4 24 12 14.6 14.6 12 24 9.4 14.6 0 12 9.4 9.4Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        }
+        g.style.setProperty("--glit", P.fin_glitter_ms + "ms"); g.innerHTML = html; g.classList.add("on");
       }
       // [stamp-rounds] between rounds: the stamps shrink away (their pop played backwards, pop_gap apart), the sentence goes word by
       // word in reverse (the arrival's opposite) and the slot's box fades with its mark; then the next round is set and its stamps pop in

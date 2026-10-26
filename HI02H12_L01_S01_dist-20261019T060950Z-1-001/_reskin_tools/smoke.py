@@ -180,6 +180,9 @@ with sync_playwright() as p:
         stamp_drop(ri); nsl = len(R.get("slots") or [R["slot"]])
         pg.wait_for_function(f"document.querySelectorAll('.stp-mark.in').length === {nsl}", timeout=5000)
         check(f"L2 round {ri + 1}: the {R['mark']} stamp dropped on {'the slot' if nsl == 1 else 'each of the ' + str(nsl) + ' slots'} is pressed and the {R['mark']} printed {'there' if nsl == 1 else 'in each'}", pg.evaluate(f"document.querySelectorAll('.stp-mark.in').length === {nsl}"))
+    pg.wait_for_function("!!document.querySelector('.stp-final.in')", timeout=12000)   # [stamp-final] after the last round's confetti the final picture dissolves in
+    check("L2 finale: after the last round's confetti the final picture (the girl with her letter) dissolves in over the whole stage, its asset served at 1280 px, before the end screen",
+          pg.evaluate("document.querySelector('.stp-final img').src.endsWith('img_stamp_final.webp') && document.querySelector('.stp-final img').naturalWidth === 1280"))
     pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=15000)
     log = pg.evaluate("window._gate"); opens = [log[i]["slide"] for i in range(len(log)) if log[i]["show"] and (i == 0 or not log[i - 1]["show"])]
     check("the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last",

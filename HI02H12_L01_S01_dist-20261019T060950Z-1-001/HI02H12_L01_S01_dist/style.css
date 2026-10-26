@@ -3211,6 +3211,19 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
   transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
 .stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
+/* [stamp-final] the finale: the final picture over the whole stage (the title bar too), dissolving in over fin_fade (the module sets
+   the duration); over the envelope a soft gold glow (fin_glitter_ms, --glit) and the sparks, each twinkling once (fill both: gone when done) */
+.stp-final{left:0;top:0;width:1280px;height:720px;z-index:20;opacity:0;transition:opacity 3s ease-in-out;pointer-events:none;}
+.stp-final.in{opacity:1;}
+.stp-final > img{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+.stp-glit{position:absolute;--glit:1300ms;}
+.stp-glit .stp-glow{position:absolute;left:-25%;top:-25%;width:150%;height:150%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,226,130,.6),rgba(255,226,130,0));opacity:0;}
+.stp-glit.on .stp-glow{animation:stpGlow var(--glit) ease-in-out both;}
+.stp-glit .stp-spark{position:absolute;opacity:0;transform:translate(-50%,-50%) scale(0);fill:#FFD54F;filter:drop-shadow(0 0 3px rgba(255,214,0,.9));overflow:visible;}
+.stp-glit .stp-spark circle{fill:#FFF8DC;}
+.stp-glit.on .stp-spark{animation:stpSpark .65s ease-in-out both;}
+@keyframes stpSpark{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:0;}45%{transform:translate(-50%,-50%) scale(1) rotate(60deg);opacity:1;}100%{transform:translate(-50%,-50%) scale(0) rotate(120deg);opacity:0;}}
+@keyframes stpGlow{0%{opacity:0;}35%{opacity:1;}100%{opacity:0;}}
 /* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
 .stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;}
 .stp.lit .stp-veil{opacity:0;}

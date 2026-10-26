@@ -414,13 +414,20 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
 # "उनके आम [ ] केले और / अमरूद के पौधे बड़े हुए या नहीं [ ] / आप मुझे पत्र लिखकर बताना [ ] / मैं आपके पत्र का इंतज़ार / करूँगी [ ]" on five
 # rows with FOUR slots, each wanting its own stamp (the comma, the ?, the danda twice — a slot carries its own mark and pick), the
 # sign-off "आपकी प्यारी / पिंकी 🩷" shown under them with the last word (not read); the same three stamps; each box goes on its own
-# chime as its stamp is pressed, the confetti after the fourth; then the end screen. data.rounds holds the page's five frames.
+# chime as its stamp is pressed, the confetti after the fourth. data.rounds holds the page's five frames.
+# [stamp-final] (later 2026-10-26) after the LAST round's confetti, the finale: the whole stage dissolves slowly and smoothly (3 s)
+# into the user's picture (the girl at her desk holding up the stamped letter, images.final) as its chime sounds (sfx.final, the
+# user's "simple notification", 3.4 s, started with the dissolve); then the envelope in the picture glitters gold — a soft glow and
+# sparks over it (layout.envelope) — for 1.3 s on the second chime (sfx.glitter, the user's "new notification 037"); 0.7 s later the
+# end screen.
 # Numbers measured on the frame (get_metadata) and its render; the clips + timings from stamp_assets/ (recap_vo.py stamp); the
 # bitmaps = the frame's own assets (scratchpad make_stamp_assets.py: the sheet "image 238" turned as the frame shows it).
 STAMP_KEYS = ["intro", "sent", "sent2", "sent3", "sent4", "sent5"]   # [stamp-rounds] sent2..sent5 = the later rounds' sentences (frames 579:47, 592:89, 593:130, 593:151)
 sl_ = {k: json.loads((SCR / "stamp_assets" / f"vo_stamp_{k}.words.json").read_text(encoding="utf-8")) for k in STAMP_KEYS}
-STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?", "img_stamp_comma": ","}
-STAMP_SND = ["sfx_stamp_pop", "sfx_stamp_press"]
+STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?", "img_stamp_comma": ",",
+              "img_stamp_final": "💌"}   # [stamp-final] the finale's picture (the user's 1672x941 PNG at 1280x720, lossless)
+STAMP_SND = ["sfx_stamp_pop", "sfx_stamp_press",
+             "sfx_stamp_final", "sfx_stamp_glitter"]   # [stamp-final] the user's universfield-simple-notification-152054 (3.4 s) and universfield-new-notification-037-485898 (1.3 s), as ogg
 for k, emo in STAMP_IMGS.items():
     card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
 for k in STAMP_SND:
@@ -432,9 +439,10 @@ assert card["slides"][i_l1 + 1]["id"] == "CEL"
 card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enactive", "type": "STAMP_DEMO", "prompt_hi": sl_["intro"]["shown"],
     "audio": {"prompt": "vo_stamp_intro"},
     "data": {"band_hi": sl_["intro"]["shown"], "intro_audio": "vo_stamp_intro",
-             "images": {"wood": "img_stamp_wood", "sheet": "img_stamp_sheet", "tray": "img_stamp_tray"},
-             "sfx": {"pop": "sfx_stamp_pop", "press": "sfx_stamp_press"},
-             "layout": {"sheet": [355, 64, 571, 594], "tray": [427, 565, 426, 142]},
+             "images": {"wood": "img_stamp_wood", "sheet": "img_stamp_sheet", "tray": "img_stamp_tray", "final": "img_stamp_final"},
+             "sfx": {"pop": "sfx_stamp_pop", "press": "sfx_stamp_press", "final": "sfx_stamp_final", "glitter": "sfx_stamp_glitter"},
+             # [stamp-final] envelope = the glitter's box over the envelope in the final picture (its paper x 795..883, y 182..258 at 1280x720)
+             "layout": {"sheet": [355, 64, 571, 594], "tray": [427, 565, 426, 142], "envelope": [783, 168, 112, 102]},
              # [stamp-rounds] the rounds, one per frame: the sentence (its clip and word times), the mark, which stamp is right (pick),
              # the two stamps' pictures, their boxes in the tray and print points (the middle of the face's bottom edge, in the box),
              # the sentence's box (the frame's, 2 px lower: Noto's ink sits 2 px above Figma's fallback's; lh = the frame's row height
@@ -498,7 +506,10 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                       # done_at the end — or, with a round to follow [stamp-rounds], the clearing: the words out words_out apart (in
                       # reverse), the stamps' pop backwards pop_gap apart, the next round's stamps popping in at next_at
                       "snap": 220, "press": 140, "press_down": 20, "thud_at": 280, "mark_at": 400, "lift_at": 560, "back_at": 800, "back_home": 800,
-                      "gone_at": 1600, "confetti_at": 2100, "done_at": 4400, "words_out": 40, "next_at": 1300}},
+                      "gone_at": 1600, "confetti_at": 2100, "done_at": 4400, "words_out": 40, "next_at": 1300,
+                      # [stamp-final] from the finale's start (done_at after the last drop): the dissolve's length (with its 3.4 s chime), the
+                      # glitter's start and length (with its 1.3 s chime), its sparks, and the hand-over to the end screen
+                      "fin_fade": 3000, "fin_glitter_at": 3400, "fin_glitter_ms": 1300, "fin_sparks": 16, "fin_done": 5400}},
     "signals": {"on_complete": []}})
 assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]
 pd = {}
@@ -1356,8 +1367,10 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
      slots or more (data.slots, frames 593:130 and 593:151): all blink together; the right stamp on one prints there and that
      box goes on the chime, then the stamps are the child's again for the rest; the confetti after the last. A slot may want
      its own stamp (sl.mark, sl.pick — 593:151: the comma, the ?, the danda twice). data.sign: small text lines (the letter's
-     sign-off) shown with the sentence's last word, gone with it. After the last round the page moves on (no आगे). Places in
-     frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+     sign-off) shown with the sentence's last word, gone with it. After the LAST round's confetti [stamp-final] the finale: the
+     stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds, the envelope in it glitters
+     gold (a glow and fin_sparks sparks over layout.envelope) for fin_glitter_ms on the second chime, and at fin_done the page
+     moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
@@ -1365,7 +1378,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
         hint_at: 500, glide: 1500, hover_up: 34, hold: 450, back: 1100, idle_ms: 7000, tol_x: 50, tol_y: 70, tap_px: 10, wiggle: 450, reset: 500,
         snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400,
-        words_out: 40, next_at: 1300 }, d.pace || {});
+        words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142];
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
@@ -1392,9 +1405,10 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       // clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
-      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press);
+      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter);   // [stamp-final] the finale's two chimes
       [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
       rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
+      if(im.final) try{ const i = new Image(); i.src = imgSrc(im.final); }catch(e){}   // [stamp-final] the final picture, fetched now
       const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops
       window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); if(idleIv) clearInterval(idleIv); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} });
@@ -1594,7 +1608,32 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         at(P.gone_at, ()=>{ o.el.classList.add("gone"); sfxCorrect(); if(!last && R === C){ solved = false; live = true; root.classList.add("live"); lastAct = Date.now(); } });
         if(!last) return;
         at(P.confetti_at, ()=> confettiCannon());
-        at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else { state.demoRunning = false; completeSlide(true); } });
+        at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else finale(); });   // [stamp-final] after the last round, the finale
+      }
+      // [stamp-final] after the last round's confetti: the stage dissolves into the final picture (the girl holding up her stamped
+      // letter) over fin_fade as its chime sounds (started together), the envelope glitters gold for fin_glitter_ms on the second
+      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything (the title
+      // bar too); its picture was fetched at mount
+      function finale(){
+        const EB = LY.envelope || [783, 168, 112, 102];
+        const fin = document.createElement("div"); fin.className = "stp-final"; fin.style.transitionDuration = P.fin_fade + "ms";
+        fin.innerHTML = '<img src="' + imgSrc(im.final) + '" alt="" draggable="false"><div class="stp-glit" style="' + box(EB) + '"></div>';
+        root.appendChild(fin);
+        nextFrame(()=> nextFrame(()=>{ if(!alive()) return; fin.classList.add("in"); sound(finSnd, 0.9); }));
+        at(P.fin_glitter_at, ()=>{ glitter(fin.querySelector(".stp-glit"), EB[2], EB[3]); sound(glitSnd, 0.7); });
+        at(P.fin_done, ()=>{ state.demoRunning = false; completeSlide(true); });
+      }
+      // the glitter: a soft gold glow over the envelope and fin_sparks four-point sparks scattered over it, each twinkling once (up and
+      // away in .65 s) at its own moment within the chime
+      function glitter(g, W, H){
+        if(!g) return; let html = '<div class="stp-glow"></div>';
+        for(let i = 0; i < P.fin_sparks; i++){
+          const a = Math.random() * Math.PI * 2, rr = 0.3 + Math.random() * 0.7, x = W / 2 + Math.cos(a) * rr * W / 2, y = H / 2 + Math.sin(a) * rr * H / 2,
+                s = 7 + Math.random() * 9, d = Math.random() * Math.max(0, P.fin_glitter_ms - 650);
+          html += '<svg class="stp-spark" viewBox="0 0 24 24" aria-hidden="true" style="left:' + x.toFixed(1) + 'px;top:' + y.toFixed(1) + 'px;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;animation-delay:' + d.toFixed(0) + 'ms">' +
+                  '<path d="M12 0L14.6 9.4 24 12 14.6 14.6 12 24 9.4 14.6 0 12 9.4 9.4Z"/><circle cx="12" cy="12" r="3"/></svg>';
+        }
+        g.style.setProperty("--glit", P.fin_glitter_ms + "ms"); g.innerHTML = html; g.classList.add("on");
       }
       // [stamp-rounds] between rounds: the stamps shrink away (their pop played backwards, pop_gap apart), the sentence goes word by
       // word in reverse (the arrival's opposite) and the slot's box fades with its mark; then the next round is set and its stamps pop in
@@ -2134,6 +2173,19 @@ stamp_css = """
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
   transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
 .stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
+/* [stamp-final] the finale: the final picture over the whole stage (the title bar too), dissolving in over fin_fade (the module sets
+   the duration); over the envelope a soft gold glow (fin_glitter_ms, --glit) and the sparks, each twinkling once (fill both: gone when done) */
+.stp-final{left:0;top:0;width:1280px;height:720px;z-index:20;opacity:0;transition:opacity 3s ease-in-out;pointer-events:none;}
+.stp-final.in{opacity:1;}
+.stp-final > img{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+.stp-glit{position:absolute;--glit:1300ms;}
+.stp-glit .stp-glow{position:absolute;left:-25%;top:-25%;width:150%;height:150%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,226,130,.6),rgba(255,226,130,0));opacity:0;}
+.stp-glit.on .stp-glow{animation:stpGlow var(--glit) ease-in-out both;}
+.stp-glit .stp-spark{position:absolute;opacity:0;transform:translate(-50%,-50%) scale(0);fill:#FFD54F;filter:drop-shadow(0 0 3px rgba(255,214,0,.9));overflow:visible;}
+.stp-glit .stp-spark circle{fill:#FFF8DC;}
+.stp-glit.on .stp-spark{animation:stpSpark .65s ease-in-out both;}
+@keyframes stpSpark{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:0;}45%{transform:translate(-50%,-50%) scale(1) rotate(60deg);opacity:1;}100%{transform:translate(-50%,-50%) scale(0) rotate(120deg);opacity:0;}}
+@keyframes stpGlow{0%{opacity:0;}35%{opacity:1;}100%{opacity:0;}}
 /* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
 .stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;}
 .stp.lit .stp-veil{opacity:0;}
