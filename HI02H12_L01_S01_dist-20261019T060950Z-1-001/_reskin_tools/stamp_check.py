@@ -20,7 +20,7 @@ LEAVE = """() => { const sg = document.getElementById('startGate'); if (sg) sg.c
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); }"""
 HOOK = """(() => { window._plays = []; const P = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function(){ try{ window._plays.push({ src: String(this.src || '').split('/').pop().split('?')[0], t: performance.now(), el: this }); }catch(e){} return P.apply(this, arguments); }; })()"""
-PLAYS = "() => window._plays.map(p => ({ src: p.src, t: p.t, paused: p.el.paused, cur: p.el.currentTime, dur: p.el.duration }))"
+PLAYS = "() => window._plays.map(p => ({ src: p.src, t: p.t, paused: p.el.paused, cur: p.el.currentTime, dur: p.el.duration, vol: p.el.volume }))"
 RECT = """(sel) => { const e = document.querySelector(sel); if(!e) return null; const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280, r = e.getBoundingClientRect();
   return [(r.left - b.left) / k, (r.top - b.top) / k, r.width / k, r.height / k]; }"""
 TRACE = """() => { window.__tr = []; const st = document.getElementById('stage');
@@ -75,6 +75,7 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.stp-tray.in')", timeout=15000); until(now(), 550); shot(pg, "l2_table.png")
     pg.wait_for_function("document.querySelectorAll('.stp-stamp img.shown').length === 2", timeout=8000); until(now(), 200); shot(pg, "l2_stamps.png")
     pg.wait_for_function("!!document.querySelector('.stp-slot.in')", timeout=12000); ta = pg.evaluate("getComputedStyle(document.querySelector('.stp-stamp.s0')).touchAction")
+    bk = pg.evaluate("getComputedStyle(document.querySelector('.stp-slot')).animationName")
     pg.evaluate("document.querySelector('.stp-slot').style.animationPlayState = 'paused'"); until(now(), 350)
     z = shot(pg, "l2_slot.png"); pg.evaluate("document.querySelector('.stp-slot').style.animationPlayState = ''")
     # the child's part: the guidance runs, comes again after 7 s; a grab mid-guidance; the drops
@@ -84,7 +85,8 @@ with sync_playwright() as p:
     r = pg.evaluate(RECT, ".stp-stamp.s1"); x, y = fp(r[0] + r[2] / 2, r[1] + 40); pg.mouse.move(x, y); pg.mouse.down(); t_grab = now(); pg.wait_for_timeout(120)
     x1, y1 = fp(300, 250)
     for i in range(1, 13): pg.mouse.move(x + (x1 - x) * i / 12, y + (y1 - y) * i / 12); pg.wait_for_timeout(16)
-    pg.wait_for_timeout(60); pg.mouse.up(); t_d1 = now(); until(t_d1, 150); shot(pg, "l2_wrong.png"); until(t_d1, P["wiggle"] + P["reset"] + 300)
+    pg.wait_for_timeout(60); pg.mouse.up(); t_d1 = now(); until(t_d1, 150); wbox = pg.evaluate(RECT, ".stp-stamp.s1"); wbg = pg.evaluate("getComputedStyle(document.querySelector('.stp-stamp.s1')).backgroundColor")
+    wshot = shot(pg, "l2_wrong.png"); until(t_d1, P["wiggle"] + P["reset"] + 300)
     drag(g0, on0); t_d2 = now(); until(t_d2, P["wiggle"] + P["reset"] + 300)
     xt, yt = fp(*g1); pg.mouse.move(xt, yt); pg.mouse.down(); pg.wait_for_timeout(80); pg.mouse.move(xt + 3, yt + 2); pg.mouse.up(); t_tap = now(); until(t_tap, 450)
     drag(g1, on1); t_d3 = now(); until(t_d3, P["snap"] + P["press"] - 30); shot(pg, "l2_press.png")
@@ -112,8 +114,9 @@ with sync_playwright() as p:
           (T(fs_), T(ft), T(f_ie)))
     # 3. the two stamps pop in, each on its pop
     fp_ = [first(tr, lambda f, k=k: len(f["stamps"]) > k and ("pop" in f["stamps"][k] or "shown" in f["stamps"][k])) for k in (0, 1)]; pops = snd("sfx_stamp_pop")
-    check("the two stamps pop into the tray 0.7 s after the sheet, 350 ms apart, each as its pop sounds", all(fp_) and len(pops) == 2 and abs(fp_[0]["t"] - fs_["t"] - P["stamps_at"]) < 120
-          and abs(fp_[1]["t"] - fp_[0]["t"] - P["pop_gap"]) < 70 and all(abs(pops[k]["t"] - fp_[k]["t"]) < 60 for k in (0, 1)), ([T(f) for f in fp_], [round(x["t"] - t0) for x in pops]))
+    check("the two stamps pop into the tray 0.7 s after the sheet, 350 ms apart, each as its pop sounds — the pops at 60 % of the first build's volume (.48)", all(fp_) and len(pops) == 2 and abs(fp_[0]["t"] - fs_["t"] - P["stamps_at"]) < 120
+          and abs(fp_[1]["t"] - fp_[0]["t"] - P["pop_gap"]) < 70 and all(abs(pops[k]["t"] - fp_[k]["t"]) < 60 for k in (0, 1)) and all(abs(x["vol"] - 0.48) < 0.01 for x in pops),
+          ([T(f) for f in fp_], [round(x["t"] - t0) for x in pops], [round(x["vol"], 2) for x in pops]))
     # 4. the sentence, word by word on the clip's clock
     sent = snd("vo_stamp_sent"); fw = [first(tr, lambda f, n=n: f["words"] >= n) for n in range(1, len(WT) + 1)]
     check("the sentence's clip starts 0.7 s after the second pop", len(sent) == 1 and abs(sent[0]["t"] - fp_[1]["t"] - P["sent_at"]) < 150, round(sent[0]["t"] - fp_[1]["t"]) if sent else None)
@@ -125,10 +128,9 @@ with sync_playwright() as p:
     f_se = first(tr, lambda f: f["vo"] and f["vo"][0].startswith("vo_stamp_sent") and f["vo"][2]); s_end = f_se["t"] if f_se else None   # the clip's first ended frame
     fbe = first(tr, lambda f: has(f["slot"], "in") and not has(f["slot"], "blink"), since=fsl["t"] + 500) if fsl else None
     ops = [f["slotOp"] for f in tr if fsl and fbe and fsl["t"] + 200 < f["t"] < fbe["t"]]; dim = min(ops, default=1)
-    steps = max((abs(b_ - a_) for a_, b_ in zip(ops, ops[1:])), default=1)   # the biggest opacity step between frames: a soft breath, not a flash
-    check("the empty slot appears as the clip ends (within 300 ms) and breathes for 3.5 s: three soft blinks, its opacity down to ~.45 (never below .4) and back, no step over .05 a frame",
-          fsl and fbe and s_end and abs(fsl["t"] - s_end) < 300 and abs(fbe["t"] - fsl["t"] - P["blink_ms"]) < 150 and 0.4 <= dim <= 0.5 and steps < 0.05,
-          (T(fsl), round(fsl["t"] - s_end) if fsl and s_end else None, round(fbe["t"] - fsl["t"]) if fbe else None, round(dim, 2), round(steps, 3)))
+    check("the empty slot appears as the clip ends (within 300 ms) and blinks for 3.5 s just as the pages before (the demos' dmfBlink: three slow blinks, its opacity down to .2 and back)",
+          fsl and fbe and s_end and abs(fsl["t"] - s_end) < 300 and abs(fbe["t"] - fsl["t"] - P["blink_ms"]) < 150 and bk == "dmfBlink" and 0.15 <= dim <= 0.3,
+          (T(fsl), round(fsl["t"] - s_end) if fsl and s_end else None, round(fbe["t"] - fsl["t"]) if fbe else None, bk, round(dim, 2)))
     fli = first(tr, lambda f: f["live"])
     check("the stamps are the child's from the moment the slot appears (.live, the drag handles' cursor), not before", fli and fsl and abs(fli["t"] - fsl["t"]) < 40
           and ta == "none", (T(fli), T(fsl), ta))
@@ -162,19 +164,27 @@ with sync_playwright() as p:
           fg and 0.5 < (fg["t"] - fh2["t"]) / 1000 < 1.3 and jump is not None and jump < 10 and moved and abs(moved[0] - want_move[0]) < 8 and abs(moved[1] - want_move[1]) < 8,
           (round(fg["t"] - fh2["t"]) if fg and fh2 else None, round(jump, 1) if jump is not None else None, [round(v) for v in moved] if moved else None, [round(v) for v in want_move]))
     # a drop far off the slot: the kit's incorrect buzz (the user's standard sfx_incorrect_feedback), a wiggle where it was dropped, back it glides
-    wrongs = snd("sfx_wrong_new"); fw1 = first(tr, lambda f: has(f["c1"], "wrong"), since=fg["t"]) if fg else None
+    wrongs = snd("sfx_wrong_new"); fw1 = first(tr, lambda f: has(f["c1"], "stp-wrong"), since=fg["t"]) if fg else None
     fback1 = first(tr, lambda f: home1(f) and not has(f["c1"], "lift"), since=fd1["t"]) if fd1 else None
-    check("dropped far off the slot: the incorrect buzz sounds as it lands (within 60 ms), it wiggles there (.wrong, the kit's wgNo on its picture), then glides back to its place (set down within 1.4 s), nothing printed",
+    check("dropped far off the slot: the incorrect buzz sounds as it lands (within 60 ms), it wiggles there (.stp-wrong, the kit's wgNo on its picture), then glides back to its place (set down within 1.4 s), nothing printed",
           fd1 and fw1 and abs(fw1["t"] - fd1["t"]) < 60 and len(wrongs) >= 1 and abs(wrongs[0]["t"] - fw1["t"]) < 60 and fback1 and fback1["t"] - fd1["t"] < P["wiggle"] + P["reset"] + 450 and not fback1["mark"]
-          and pg.evaluate("(() => { const s = document.createElement('div'); s.className = 'stp-stamp wrong'; const i = document.createElement('img'); i.className = 'shown'; s.appendChild(i); document.body.appendChild(s); const a = getComputedStyle(i).animationName; s.remove(); return a; })()") == "wgNo",
+          and pg.evaluate("(() => { const s = document.createElement('div'); s.className = 'stp-stamp stp-wrong'; const i = document.createElement('img'); i.className = 'shown'; s.appendChild(i); document.body.appendChild(s); const a = getComputedStyle(i).animationName; s.remove(); return a; })()") == "wgNo",
           (round(wrongs[0]["t"] - fd1["t"]) if wrongs and fd1 else None, round(fback1["t"] - fd1["t"]) if fback1 and fd1 else None))
+    # no box behind the dropped stamp: its element stays transparent (the engine paints any bare .wrong white — the page's class is stp-wrong)
+    # and, on the shot over the bare wood, the top-left corner of its box (no picture there) is the wood's colour, not white
+    from PIL import Image
+    import numpy as np
+    WA = np.asarray(Image.open(wshot).convert("RGB").resize((1280, 720), Image.LANCZOS)).astype(float); wx, wy, ww, wh = [int(round(v)) for v in wbox]
+    corner = WA[wy + 2:wy + 14, wx + 2:wx + 14].mean(); beside = WA[wy:wy + wh, max(0, wx - 12 - ww):wx - 12].mean()   # the wood to the LEFT of the box (the sheet begins to its right)
+    check("no white box behind a stamp dropped on the bare wood: its element's background stays transparent while it wiggles, and the corner of its box in the shot is the wood's colour (not white)",
+          wbg in ("rgba(0, 0, 0, 0)", "transparent") and corner < 200 and abs(corner - beside) < 25, (wbg, round(corner, 1), round(beside, 1)))
     # the wrong stamp on the slot: the same
     fg2 = first(tr, lambda f: has(f["c0"], "drag"), since=fd1["t"] if fd1 else 0); fd2 = first(tr, lambda f: not has(f["c0"], "drag"), since=fg2["t"] + 100) if fg2 else None
     tip2 = tipof(tr[tr.index(fd2) - 1]["st0"]) if fd2 else None
     home0 = lambda f: f["st0"] and all(abs(f["st0"][i] - S0[i]) < 1.5 for i in range(4))
     fback2 = first(tr, lambda f: home0(f) and not has(f["c0"], "lift"), since=fd2["t"]) if fd2 else None
     check("the । stamp dropped ON the slot (its print point on the slot's centre): the incorrect buzz, the wiggle, back to its place — nothing printed, the slot still there",
-          fd2 and near(tip2, sc, 6) and len(wrongs) == 2 and abs(wrongs[1]["t"] - fd2["t"]) < 60 and first(tr, lambda f: has(f["c0"], "wrong"), since=fd2["t"] - 20)
+          fd2 and near(tip2, sc, 6) and len(wrongs) == 2 and abs(wrongs[1]["t"] - fd2["t"]) < 60 and first(tr, lambda f: has(f["c0"], "stp-wrong"), since=fd2["t"] - 20)
           and fback2 and fback2["t"] - fd2["t"] < P["wiggle"] + P["reset"] + 450 and not fback2["mark"] and not has(fback2["slot"], "gone"),
           ([round(v) for v in tip2] if tip2 else None, round(wrongs[1]["t"] - fd2["t"]) if len(wrongs) > 1 and fd2 else None, round(fback2["t"] - fd2["t"]) if fback2 and fd2 else None))
     # a tap on a stamp (no move): nothing — no buzz, it stays

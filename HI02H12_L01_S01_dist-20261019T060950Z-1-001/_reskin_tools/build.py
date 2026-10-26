@@ -393,7 +393,7 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
 # sheet on a wooden table, a tray with two stamps (। and ?), the demos' title bar. It drives itself: the table (under the letter
 # page's veil, which lifts) and the title bar on its line (vo_stamp_intro); the sheet settles and the tray slides up; the two
 # stamps pop in, each on the user's pop sound; the sentence is read without a pause, word by word (vo_stamp_sent); the empty
-# slot appears and blinks 3.5 s (a soft breathing blink) — from that moment both stamps are the child's to drag. [stamp-drag]
+# slot appears and blinks 3.5 s (the demos' blink) — from that moment both stamps are the child's to drag. [stamp-drag]
 # 0.5 s after the blink the guidance: the right stamp (?) lifts, glides slowly over the slot, hovers and glides home WITHOUT
 # printing; it comes again after every 7 s without a touch. A stamp dropped anywhere but the slot, or the wrong stamp on the
 # slot: the kit's incorrect buzz (= the user's standard sfx_incorrect_feedback), a wiggle, and it glides back. The right stamp on
@@ -1279,7 +1279,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
      drives itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts
      to sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; 3. the two stamps pop into the tray,
      each on its pop; 4. the sentence is read without a pause, WORD BY WORD on the clip's clock; 5. the empty slot appears and
-     breathes for 3.5 s (three soft blinks) — from now on the two stamps are the child's to drag; 6. [stamp-drag] the guidance,
+     blinks for 3.5 s (the demos' three slow blinks) — from now on the two stamps are the child's to drag; 6. [stamp-drag] the guidance,
      0.5 s after the blink: the right stamp lifts, glides slowly over the slot, hovers and glides home WITHOUT printing; it comes
      again after every 7 s without a touch. A stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back
      it glides. The right stamp on the slot: it snaps over the slot and presses on the thud — the mark is printed on the slot's
@@ -1378,13 +1378,13 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       }
       // 3. the two stamps pop into the tray, each on its pop
       function stage3(){
-        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.8);
+        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((stamps.length - 1) * P.pop_gap + P.sent_at, stage4);
       }
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
       function stage4(){ narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
-      // 5. the empty slot appears and breathes (3.5 s: three soft blinks, stpBlink); from this moment the two stamps are the child's
+      // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
       //    to drag (.live); 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
         slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
@@ -1430,7 +1430,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
           if(!live || solved || drag || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
           if(hinting) stopHint(s === stamp);
-          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
+          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
         });
@@ -1452,11 +1452,12 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);
       });
       // a wrong drop (off the slot, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
-      // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's
+      // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's. The class is stp-wrong, never
+      // a bare "wrong": the engine's style.css paints ANY .wrong element white (:is(.wrong,...){background-color:#fff!important})
       function wrong(s){
         state.attempts = (state.attempts || 0) + 1; sfxWrongSoft();
-        s.classList.remove("wrong"); void s.offsetWidth; s.classList.add("wrong");
-        at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("wrong"); putBack(s, P.reset); } });
+        s.classList.remove("stp-wrong"); void s.offsetWidth; s.classList.add("stp-wrong");
+        at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("stp-wrong"); putBack(s, P.reset); } });
       }
       // the right drop: the stamp snaps over the slot and presses onto it on the thud — the mark is printed, its ink on the slot's
       // centre — lifts and glides home; the slot's box goes on the correct chime (the user's standard sfx_correct_feedback), the
@@ -1965,11 +1966,12 @@ stamp_css = """
 .stp-tray.in{opacity:1;transform:none;}
 /* a stamp: its box glides (the module sets the transform), its picture pops in (about its base); once the slot is up (.live) it
    is a drag handle (touch-action none: the finger's move is the drag, not a scroll); .drag = in hand (no transition: it follows
-   the finger); .wrong = the kit's wiggle (wgNo) on its picture, so its box keeps the place it was dropped at [stamp-drag] */
+   the finger); .stp-wrong = the kit's wiggle (wgNo) on its picture, so its box keeps the place it was dropped at [stamp-drag] —
+   stp-wrong, not "wrong": the engine's :is(.wrong,.wrong-flash,.ocean-wrong){background-color:#fff!important} would box it white */
 .stp-stamp{transform-origin:50% 100%;transition:filter .3s;touch-action:none;}
 .stp.live .stp-stamp{cursor:grab;}
 .stp-stamp.drag{transition:none!important;cursor:grabbing;}
-.stp-stamp.wrong img.shown{animation:wgNo var(--fx-beat) ease-in-out both;}
+.stp-stamp.stp-wrong img.shown{animation:wgNo var(--fx-beat) ease-in-out both;}
 .stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 100%;}
 .stp-stamp img.pop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both;}
 .stp-stamp img.shown{opacity:1;}
@@ -1979,12 +1981,11 @@ stamp_css = """
 .stp-sent{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;word-spacing:-2px;color:#000;margin:0;}
 .stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sent .sfig-w.on{opacity:1;transform:none;}
-/* the empty slot: the frame's box; its blink = three soft breaths over blink_ms (stpBlink: the opacity eases down to .45 and back on
-   a gentle curve — softer than the demos' dip to .2); .gone = the box goes, the mark stays */
+/* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms — asked to be just like the pages
+   before); .gone = the box goes, the mark stays */
 .stp-slot{background:#FFF1B6;border-radius:8px;opacity:0;transition:opacity .3s,background-color .4s;}
 .stp-slot.in{opacity:1;}
-.stp-slot.blink{animation:stpBlink 1.16667s cubic-bezier(.45,0,.55,1) 3;}
-@keyframes stpBlink{0%,100%{opacity:1;}50%{opacity:.45;}}
+.stp-slot.blink{animation:dmfBlink 1.16667s ease-in-out 3;}
 .stp-slot svg{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;transition:opacity .4s;}
 .stp-slot.gone{background:transparent;}
 .stp-slot.gone svg{opacity:0;}

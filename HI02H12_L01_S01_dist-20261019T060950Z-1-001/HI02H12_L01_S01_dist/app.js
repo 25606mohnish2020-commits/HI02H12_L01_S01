@@ -6805,7 +6805,7 @@ const SlideModules = {
      drives itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts
      to sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; 3. the two stamps pop into the tray,
      each on its pop; 4. the sentence is read without a pause, WORD BY WORD on the clip's clock; 5. the empty slot appears and
-     breathes for 3.5 s (three soft blinks) — from now on the two stamps are the child's to drag; 6. [stamp-drag] the guidance,
+     blinks for 3.5 s (the demos' three slow blinks) — from now on the two stamps are the child's to drag; 6. [stamp-drag] the guidance,
      0.5 s after the blink: the right stamp lifts, glides slowly over the slot, hovers and glides home WITHOUT printing; it comes
      again after every 7 s without a touch. A stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back
      it glides. The right stamp on the slot: it snaps over the slot and presses on the thud — the mark is printed on the slot's
@@ -6904,13 +6904,13 @@ const SlideModules = {
       }
       // 3. the two stamps pop into the tray, each on its pop
       function stage3(){
-        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.8);
+        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((stamps.length - 1) * P.pop_gap + P.sent_at, stage4);
       }
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
       function stage4(){ narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
-      // 5. the empty slot appears and breathes (3.5 s: three soft blinks, stpBlink); from this moment the two stamps are the child's
+      // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
       //    to drag (.live); 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
         slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
@@ -6956,7 +6956,7 @@ const SlideModules = {
           if(!live || solved || drag || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
           if(hinting) stopHint(s === stamp);
-          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
+          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
         });
@@ -6978,11 +6978,12 @@ const SlideModules = {
         s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);
       });
       // a wrong drop (off the slot, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
-      // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's
+      // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's. The class is stp-wrong, never
+      // a bare "wrong": the engine's style.css paints ANY .wrong element white (:is(.wrong,...){background-color:#fff!important})
       function wrong(s){
         state.attempts = (state.attempts || 0) + 1; sfxWrongSoft();
-        s.classList.remove("wrong"); void s.offsetWidth; s.classList.add("wrong");
-        at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("wrong"); putBack(s, P.reset); } });
+        s.classList.remove("stp-wrong"); void s.offsetWidth; s.classList.add("stp-wrong");
+        at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("stp-wrong"); putBack(s, P.reset); } });
       }
       // the right drop: the stamp snaps over the slot and presses onto it on the thud — the mark is printed, its ink on the slot's
       // centre — lifts and glides home; the slot's box goes on the correct chime (the user's standard sfx_correct_feedback), the
