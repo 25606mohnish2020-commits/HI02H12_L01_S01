@@ -149,9 +149,18 @@ with sync_playwright() as p:
     pg.wait_for_function("CARD.slides[state.idx].id==='L2' && !!document.querySelector('.stp')", timeout=15000)
     check("the tap opens the envelope (zoom, flap, dive, veil) and L2, the stamp page, follows ([stamp-fig], stamp_check.py has it beat by beat)",
           pg.evaluate("getComputedStyle(document.getElementById('navBtn')).display === 'none' && !document.getElementById('phaseGate').classList.contains('show')"))
-    pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=40000)
-    check("L2: the title, the sheet and the tray, the two stamps, the sentence, the blinking slot, then the ? stamped into the slot",
-          pg.evaluate("!!document.querySelector('.dmf-band.in') && !!document.querySelector('.stp-sheet.in') && !!document.querySelector('.stp-tray.in') && document.querySelectorAll('.stp-stamp img.shown').length === 2 && document.querySelectorAll('.stp-sent .sfig-w.on').length === 5"))
+    pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=40000)
+    check("L2: the title, the sheet and the tray, the two stamps, the sentence, then the blinking slot — the stamps now the child's to drag",
+          pg.evaluate("!!document.querySelector('.dmf-band.in') && !!document.querySelector('.stp-sheet.in') && !!document.querySelector('.stp-tray.in') && document.querySelectorAll('.stp-stamp img.shown').length === 2 && document.querySelectorAll('.stp-sent .sfig-w.on').length === 5 && !!document.querySelector('.stp-slot.in')"))
+    # the child's drop ([stamp-drag]): the ? stamp dragged from the tray onto the slot, its print point on the slot's centre
+    LY = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data.layout"); s1 = LY["stamps"][1]; tp = LY["tips"][1]
+    fpx = lambda x, y: pg.evaluate("([x, y]) => { const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280; return [b.left + x * k, b.top + y * k]; }", [x, y])
+    g = fpx(s1[0] + s1[2] / 2, s1[1] + 40); d = fpx(s1[0] + s1[2] / 2 + LY["slot"]["x"] + LY["slot"]["w"] / 2 - (s1[0] + tp[0]), s1[1] + 40 + LY["slot"]["y"] + LY["slot"]["h"] / 2 - (s1[1] + tp[1]))
+    pg.mouse.move(g[0], g[1]); pg.mouse.down(); pg.wait_for_timeout(80)
+    for i in range(1, 13): pg.mouse.move(g[0] + (d[0] - g[0]) * i / 12, g[1] + (d[1] - g[1]) * i / 12); pg.wait_for_timeout(16)
+    pg.wait_for_timeout(60); pg.mouse.up()
+    pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=5000)
+    check("L2: the ? stamp dropped on the slot is pressed and the ? printed (stamp_check.py has the page beat by beat: the guidance, the wrong drops, the sounds)", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=15000)
     log = pg.evaluate("window._gate"); opens = [log[i]["slide"] for i in range(len(log)) if log[i]["show"] and (i == 0 or not log[i - 1]["show"])]
     check("the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last",

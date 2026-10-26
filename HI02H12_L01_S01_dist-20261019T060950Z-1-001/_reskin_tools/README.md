@@ -631,6 +631,38 @@ and the box disappears but not the symbol")
   mid-way exit. letter_check.py: L1's tap now hands over to L2 (~4 s). gate_check 11/11 (P2 -> gate -> L1 -> L2 -> end screen,
   no further gate), smoke 37/37. `../_before_stamp/` holds the dist's three files, build.py, recap_vo.py and the three checks from
   before (14 pages, L1 -> the end screen).
+- Later 2026-10-26, [stamp-drag] (asked: "the blinking of the empty box a little smoother, the auto drag a little slower; the stamp
+  should NOT apply — only shown as a guidance 0.5 s after [the blink], repeated only after 7 s of inactivity; both stamps draggable;
+  a stamp placed at a wrong place, or the wrong stamp on the box: this incorrect sound + a wiggle + reset; the correct stamp on the
+  box: applied with the same sound as now, the box disappears with this correct sound, and confetti with this sound"): the page is
+  the child's from the moment the slot appears (.stp.live — before that the stamps take no drags). The blink is now stpBlink (the
+  opacity eases to .45 and back on cubic-bezier(.45,0,.55,1), three breaths over the same 3.5 s; the demos' dmfBlink dips to .2).
+  The guidance (data.pace: hint_at 500 after the blink; glide 1500, hold 450, back 1100): the ? stamp lifts, glides over the slot,
+  hovers hover_up above the press point and glides home — it never presses or prints; it does not run if the child has already
+  taken hold of a stamp, and it comes again after idle_ms (7000) without a touch (a 200 ms tick; the count starts over at every
+  drop and after each guidance). Drags: pointer events with capture on each .stp-stamp (touch-action none); a stamp is taken from
+  where it IS (the computed matrix: mid-guidance, mid-return — the guidance stops where it is), follows the finger at the lifted
+  size (1.08, the frame's px through the stage's scale), and is judged on its PRINT POINT (data.layout.tips) against the slot's
+  centre (tol_x 50, tol_y 70); a move under tap_px (10) is a touch, set back down silently. Wrong (off the slot, or the । stamp on
+  it): sfxWrongSoft() — the kit's sfx_wrong_new.ogg IS the user's "standard sfx_incorrect_feedback.wav" (the same recording:
+  correlation 1.000, 0.72 s; likewise sfx_correct_new.ogg = "standard sfx_correct_feedback.ogg" and sfx_celebrate.ogg = "standard
+  sfx confetti.wav", so nothing new is shipped) — the kit's wgNo wiggle on the stamp's picture (its box keeps the drop place),
+  then it glides home (wiggle 450 + reset 500); state.attempts counts it. Right (the ? stamp's print point within tol of the slot's
+  centre): it snaps over the slot (snap 220) and presses (press 140) on the thud (thud_at 280), the mark is printed at 400 (its ink
+  on the slot's centre, as before), lifts at 560, glides home from 800 (back_home 800); the box goes at 1600 on sfxCorrect(); the
+  engine's confettiCannon() at 2100 (it plays sfxConfetti itself; fixed, z 100001, so over the whole stage); the end screen at
+  4400 (completeSlide's afterConfetti only waits for .conf-shot, not this confetti — so the page waits itself). Leaving mid-drag:
+  oceanCleanup releases the pointer capture, clears the idle tick.
+- Checked: stamp_check.py is now the child too (after the setup beats, read from the page's own trace as before): the slot's breath
+  (opacity to .45, no step over .05 a frame), .live with the slot, the guidance 500 after the blink, 1500 to the hover point
+  (within 4 px; 15+ px away two thirds in), home at 2900, no thud/mark/gone; the guidance again at 7.0–7.5 s; a grab mid-glide (no
+  jump over 10 px across the grab frame, the box moves with the finger within 8 px); the far drop (the buzz within 60 ms, .wrong,
+  home within 1.4 s); the । stamp on the slot (the same); a 3 px tap (nothing); the ? dropped 30 px right / 20 px low (the snap to
+  the press point within 4 px at ~360, the thud at 280, the mark at 400, home by 1.8 s, the box gone at 1600 on the chime, confetti
+  at 2100 on its sound, the ? ink on the centre within 3 px, the end screen at 4400, four lifts of the ? in all); the Figma render
+  comparison as before; a re-run; leaving mid-way WITH a stamp in hand. smoke.py and gate_check.py drop the ? stamp on the slot
+  themselves (the inline drag: 12 mouse moves from the stamp's handle). 31/31, letter_check, gate 11/11, smoke 38/38.
+  `../_before_stamp_drag/` holds the dist's three files, build.py and the four checks from before (the self-stamping page).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

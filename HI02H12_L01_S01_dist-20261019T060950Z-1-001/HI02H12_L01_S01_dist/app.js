@@ -6805,15 +6805,18 @@ const SlideModules = {
      drives itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts
      to sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; 3. the two stamps pop into the tray,
      each on its pop; 4. the sentence is read without a pause, WORD BY WORD on the clip's clock; 5. the empty slot appears and
-     blinks for 3.5 s (the demos' three slow blinks); 6. the right stamp lifts, glides over the slot, presses onto it on the thud
-     — the mark is printed on the slot's CENTRE (its ink, as on the demos) — lifts and glides home; the slot's box goes, the mark
-     stays; then the page moves on by itself (no आगे). Places in data.layout (frame px), moments in data.pace (ms). ===== */
+     breathes for 3.5 s (three soft blinks) — from now on the two stamps are the child's to drag; 6. [stamp-drag] the guidance,
+     0.5 s after the blink: the right stamp lifts, glides slowly over the slot, hovers and glides home WITHOUT printing; it comes
+     again after every 7 s without a touch. A stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back
+     it glides. The right stamp on the slot: it snaps over the slot and presses on the thud — the mark is printed on the slot's
+     CENTRE (its ink, as on the demos) — lifts and glides home; the slot's box goes on the correct chime, the mark stays; the
+     kit's confetti on its sound; then the page moves on (no आगे). Places in data.layout (frame px), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
       const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
-        glide: 900, hover_up: 34, press_down: 20, press_at: 950, press: 140, thud_at: 1010, mark_at: 1050, lift_at: 1200, back_at: 1450, back: 800,
-        gone_at: 2300, done_at: 3300 }, d.pace || {});
+        hint_at: 500, glide: 1500, hover_up: 34, hold: 450, back: 1100, idle_ms: 7000, tol_x: 50, tol_y: 70, tap_px: 10, wiggle: 450, reset: 500,
+        snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142], st = LY.stamps || [[532, 541, 74, 116], [677, 540, 72, 115]],
             tips = LY.tips || [[36, 113], [35, 114]], se = LY.sent || { x: 63, y: 336, w: 1075, h: 48, size: 30 }, sl = LY.slot || { x: 751, y: 331, w: 36, h: 58 };
@@ -6857,7 +6860,8 @@ const SlideModules = {
       [d.intro_audio, S.audio].forEach(id=>{ const src = A(id); if(src) try{ new Audio(src).load(); }catch(e){} });   // the two clips fetched now: the bar and the sheet follow the sound without a load gap
       const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops
-      window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} }); state.demoRunning = false; };
+      window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); if(idleIv) clearInterval(idleIv); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} });
+        if(drag){ try{ drag.el.releasePointerCapture(drag.id); }catch(e){} drag = null; } state.demoRunning = false; };
       // plays a clip and reports, on the clip's own clock, how many of `times` it has reached (the demos' narrate); onEnd runs
       // once — a clip that never reports its end is stopped by the watchdog, so the page never strands
       const narrate = (src, times, onIndex, onEnd)=>{
@@ -6906,22 +6910,93 @@ const SlideModules = {
       }
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
       function stage4(){ narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
-      // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink)
+      // 5. the empty slot appears and breathes (3.5 s: three soft blinks, stpBlink); from this moment the two stamps are the child's
+      //    to drag (.live); 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
         slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
-        at(P.blink_ms, ()=>{ slot.classList.remove("blink"); stage6(); });
+        live = true; root.classList.add("live"); lastAct = Date.now();
+        at(P.blink_ms, ()=> slot.classList.remove("blink"));
+        at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
+        // the guidance again after idle_ms without a touch (the count starts over after a drop and after each guidance)
+        idleIv = setInterval(()=>{
+          if(!alive()){ clearInterval(idleIv); return; }
+          if(!live || solved) return;
+          if(drag || hinting){ lastAct = Date.now(); return; }
+          if(Date.now() - lastAct >= P.idle_ms) hint();
+        }, 200);
       }
-      // 6. the right stamp lifts and glides over the slot, presses onto it on the thud — the mark is printed, its ink on the slot's
-      //    centre — lifts and glides home; the slot's box goes, the mark stays; the page moves on
-      function stage6(){
-        const move = (tf, ms, ease)=>{ stamp.style.transition = "transform " + ms + "ms " + ease + ", filter .3s"; stamp.style.transform = tf; };
-        stamp.classList.add("lift"); move(HOVER, P.glide, "cubic-bezier(.4,0,.2,1)");
-        at(P.press_at, ()=> move(PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
+      // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand
+      let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
+      const move = (el, tf, ms, ease)=>{ el.style.transition = "transform " + ms + "ms " + ease + ", filter .3s"; el.style.transform = tf; };
+      // glides a stamp home and sets it down (its shadow goes as it lands) — unless the child has taken hold of it again
+      const putBack = (s, ms)=>{ move(s, "none", ms, "cubic-bezier(.4,0,.2,1)"); at(Math.max(0, ms - 150), ()=>{ if(!(drag && drag.el === s)) s.classList.remove("lift"); }); };
+      // 6. the guidance: the right stamp lifts, glides SLOWLY over the slot, hovers there and glides home — it does not print (that
+      //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
+      const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
+      function hint(){
+        if(hinting || solved || drag || !live) return;
+        hinting = true; hintT = [];
+        stamp.classList.add("lift"); move(stamp, HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
+        hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));
+        hat(P.glide + P.hold + P.back - 150, ()=> stamp.classList.remove("lift"));
+        hat(P.glide + P.hold + P.back + 50, ()=>{ hinting = false; lastAct = Date.now(); });
+      }
+      function stopHint(taken){   // taken = the child took hold of the guiding stamp itself (it stays where it is, in hand)
+        if(!hinting) return; hinting = false; hintT.forEach(clearTimeout); hintT = [];
+        if(!taken) putBack(stamp, 350);
+      }
+      // the child's drags: a stamp follows the finger from where it is (even mid-guidance, mid-return) at the lifted size; the
+      // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's PRINT POINT against the slot
+      const scaleNow = ()=> (root.getBoundingClientRect().width || 1280) / 1280;
+      const curXY = (el)=>{ const m = getComputedStyle(el).transform, v = m && m !== "none" ? m.match(/matrix\(([^)]+)\)/) : null;
+        if(!v) return [0, 0]; const a = v[1].split(",").map(Number); return [a[4] || 0, a[5] || 0]; };
+      const setTf = (el, tx, ty, s)=>{ el.style.transform = "translate(" + tx.toFixed(2) + "px, " + ty.toFixed(2) + "px) scale(" + s + ")"; };
+      stamps.forEach((s, k)=>{
+        s.addEventListener("pointerdown", (e)=>{
+          if(!live || solved || drag || (e.button != null && e.button > 0)) return;
+          e.preventDefault(); acted = true; lastAct = Date.now();
+          if(hinting) stopHint(s === stamp);
+          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
+          drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
+          try{ s.setPointerCapture(e.pointerId); }catch(err){}
+        });
+        s.addEventListener("pointermove", (e)=>{
+          if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
+          const dx = (e.clientX - drag.x0) / drag.sc, dy = (e.clientY - drag.y0) / drag.sc;
+          drag.moved = Math.max(drag.moved, Math.hypot(dx, dy)); drag.lx = drag.tx + dx; drag.ly = drag.ty + dy;
+          setTf(s, drag.lx, drag.ly, 1.08);
+        });
+        const up = (e)=>{
+          if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
+          const dr = drag; drag = null; try{ s.releasePointerCapture(e.pointerId); }catch(err){}
+          s.classList.remove("drag"); lastAct = Date.now();
+          if(e.type === "pointercancel" || dr.moved < P.tap_px){ putBack(s, 220); return; }   // a touch (or the browser took the pointer), not a placing
+          const b = st[k] || st[0], tp = tips[k] || tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its base: the tip rides the translate
+          const onSlot = Math.abs(tipX - (sl.x + w / 2)) <= P.tol_x && Math.abs(tipY - (sl.y + h / 2)) <= P.tol_y;
+          if(onSlot && k === pick) solve(); else wrong(s);
+        };
+        s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);
+      });
+      // a wrong drop (off the slot, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
+      // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's
+      function wrong(s){
+        state.attempts = (state.attempts || 0) + 1; sfxWrongSoft();
+        s.classList.remove("wrong"); void s.offsetWidth; s.classList.add("wrong");
+        at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("wrong"); putBack(s, P.reset); } });
+      }
+      // the right drop: the stamp snaps over the slot and presses onto it on the thud — the mark is printed, its ink on the slot's
+      // centre — lifts and glides home; the slot's box goes on the correct chime (the user's standard sfx_correct_feedback), the
+      // mark stays; the kit's confetti on its sound (the user's standard sfx confetti); the page moves on
+      function solve(){
+        solved = true; live = false; root.classList.remove("live"); slot.classList.remove("blink"); hintT.forEach(clearTimeout);
+        move(stamp, HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
+        at(P.snap, ()=> move(stamp, PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
         at(P.thud_at, ()=> sound(thud, 0.9));
         at(P.mark_at, ()=>{ centreInk(mark); mark.classList.add("in"); });
-        at(P.lift_at, ()=> move(HOVER, 180, "cubic-bezier(0,0,.3,1)"));
-        at(P.back_at, ()=>{ move("none", P.back, "cubic-bezier(.4,0,.2,1)"); at(P.back - 150, ()=> stamp.classList.remove("lift")); });
-        at(P.gone_at, ()=> slot.classList.add("gone"));
+        at(P.lift_at, ()=> move(stamp, HOVER, 180, "cubic-bezier(0,0,.3,1)"));
+        at(P.back_at, ()=> putBack(stamp, P.back_home));
+        at(P.gone_at, ()=>{ slot.classList.add("gone"); sfxCorrect(); });
+        at(P.confetti_at, ()=> confettiCannon());
         at(P.done_at, ()=>{ state.demoRunning = false; completeSlide(true); });
       }
       // the mark's INK on the slot's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
