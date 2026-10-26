@@ -404,8 +404,9 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
 # [stamp-rounds] (later 2026-10-26) a SECOND ROUND follows the confetti, frame 579:47: the stamps shrink away (their pop played
 # backwards), the sentence goes word by word in reverse with the slot and its mark; the round's two stamps (। and the comma) pop
 # in on their pops, its sentence "माँ ने मुझे मेरे जन्मदिन पर कई सारे / खिलौने [ ] पेन और किताबें दिलाई हैं ।" is read word by word
-# (vo_stamp_sent2) on two rows in the frame's 448-wide box, the small slot (29x30 at 525,355) blinks, the guidance and the drags
-# follow as before, the comma is printed; after that round's confetti, the end screen. data.rounds holds both frames.
+# (vo_stamp_sent2) on two rows in the frame's 448-wide box, the small slot (29x30 at 525,355) blinks, the drags follow as before
+# — but NO guidance in this round [stamp-remind]: after 7 s without a touch the title's line is said again (and again after every
+# further 7 s) — the comma is printed; after that round's confetti, the end screen. data.rounds holds both frames.
 # Numbers measured on the frame (get_metadata) and its render; the clips + timings from stamp_assets/ (recap_vo.py stamp); the
 # bitmaps = the frame's own assets (scratchpad make_stamp_assets.py: the sheet "image 238" turned as the frame shows it).
 STAMP_KEYS = ["intro", "sent", "sent2"]   # [stamp-rounds] sent2 = the second round's sentence (frame 579:47)
@@ -433,12 +434,14 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
              # after the last word, the frame's trailing space: the last row centres 2 px left of the first), the slot's box and
              # its dash runs read off the frame's render
              "rounds": [
-               {"frame": "565:28", "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
+               # guide: the right stamp's guidance glide 0.5 s after the blink and after every 7 s idle (round 1 only); a round
+               # without it says the title's line again after every 7 s without a touch instead [stamp-remind]
+               {"frame": "565:28", "guide": True, "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
                 "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question"],
                 "boxes": [[532, 541, 74, 116], [677, 540, 72, 115]], "tips": [[36, 113], [35, 114]],
                 "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},
                 "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
-               {"frame": "579:47", "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]]},
+               {"frame": "579:47", "guide": False, "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]]},
                 "mark": ",", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_comma"],
                 "boxes": [[532, 541, 74, 116], [677, 541, 72, 115]], "tips": [[36, 113], [36, 114]],
                 "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 37}},   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
@@ -1306,8 +1309,9 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
      it snaps over the slot and presses on the thud — the mark is printed on the slot's CENTRE (its ink, as on the demos) —
      lifts and glides home; the slot's box goes on the correct chime, the mark stays; the kit's confetti on its sound. With a
      round to follow: the stamps shrink away (their pop played backwards), the sentence goes word by word in reverse with the
-     slot and its mark, and the next round's stamps pop in (3. again). After the last round the page moves on (no आगे). Places
-     in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+     slot and its mark, and the next round's stamps pop in (3. again) — a round without `guide` has NO guidance [stamp-remind]:
+     after 7 s without a touch the title's line is said again instead (and again after every further 7 s). After the last round
+     the page moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
@@ -1430,21 +1434,27 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
       function stage4(){ const L = R.L; narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
       // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
-      //    to drag (.live); 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
+      //    to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
-        const slot = R.slot;
+        const slot = R.slot, guide = R.D.guide !== false;
         slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
         live = true; root.classList.add("live"); lastAct = Date.now();
         at(P.blink_ms, ()=> slot.classList.remove("blink"));
-        at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
-        // the guidance again after idle_ms without a touch (the count starts over after a drop and after each guidance)
+        if(guide) at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
+        // after idle_ms without a touch: the guidance again (the count starts over after a drop and after each guidance) — or, in a
+        // round without guidance [stamp-remind], the title's line again (the count starts over after it)
         if(idleIv) clearInterval(idleIv);
         idleIv = setInterval(()=>{
           if(!alive()){ clearInterval(idleIv); return; }
           if(!live || solved) return;
-          if(drag || hinting){ lastAct = Date.now(); return; }
-          if(Date.now() - lastAct >= P.idle_ms) hint();
+          if(drag || hinting || (!guide && isPlaying)){ lastAct = Date.now(); return; }
+          if(Date.now() - lastAct >= P.idle_ms){ if(guide) hint(); else remind(); }
         }, 200);
+      }
+      // [stamp-remind] the title's line said again (never over another clip, never with a stamp in hand); the idle count starts over
+      function remind(){
+        if(solved || drag || !live || isPlaying){ lastAct = Date.now(); return; }
+        lastAct = Date.now(); play(introSrc, ()=>{ lastAct = Date.now(); });
       }
       // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand
       let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
@@ -1455,7 +1465,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
       const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
       function hint(){
-        if(hinting || solved || drag || !live || !R) return;
+        if(hinting || solved || drag || !live || !R || R.D.guide === false) return;
         const stamp = R.stamp; hinting = true; hintT = [];
         stamp.classList.add("lift"); move(stamp, R.HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
         hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));

@@ -6812,8 +6812,9 @@ const SlideModules = {
      it snaps over the slot and presses on the thud — the mark is printed on the slot's CENTRE (its ink, as on the demos) —
      lifts and glides home; the slot's box goes on the correct chime, the mark stays; the kit's confetti on its sound. With a
      round to follow: the stamps shrink away (their pop played backwards), the sentence goes word by word in reverse with the
-     slot and its mark, and the next round's stamps pop in (3. again). After the last round the page moves on (no आगे). Places
-     in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+     slot and its mark, and the next round's stamps pop in (3. again) — a round without `guide` has NO guidance [stamp-remind]:
+     after 7 s without a touch the title's line is said again instead (and again after every further 7 s). After the last round
+     the page moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
@@ -6936,21 +6937,27 @@ const SlideModules = {
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
       function stage4(){ const L = R.L; narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
       // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
-      //    to drag (.live); 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
+      //    to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
-        const slot = R.slot;
+        const slot = R.slot, guide = R.D.guide !== false;
         slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
         live = true; root.classList.add("live"); lastAct = Date.now();
         at(P.blink_ms, ()=> slot.classList.remove("blink"));
-        at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
-        // the guidance again after idle_ms without a touch (the count starts over after a drop and after each guidance)
+        if(guide) at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
+        // after idle_ms without a touch: the guidance again (the count starts over after a drop and after each guidance) — or, in a
+        // round without guidance [stamp-remind], the title's line again (the count starts over after it)
         if(idleIv) clearInterval(idleIv);
         idleIv = setInterval(()=>{
           if(!alive()){ clearInterval(idleIv); return; }
           if(!live || solved) return;
-          if(drag || hinting){ lastAct = Date.now(); return; }
-          if(Date.now() - lastAct >= P.idle_ms) hint();
+          if(drag || hinting || (!guide && isPlaying)){ lastAct = Date.now(); return; }
+          if(Date.now() - lastAct >= P.idle_ms){ if(guide) hint(); else remind(); }
         }, 200);
+      }
+      // [stamp-remind] the title's line said again (never over another clip, never with a stamp in hand); the idle count starts over
+      function remind(){
+        if(solved || drag || !live || isPlaying){ lastAct = Date.now(); return; }
+        lastAct = Date.now(); play(introSrc, ()=>{ lastAct = Date.now(); });
       }
       // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand
       let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
@@ -6961,7 +6968,7 @@ const SlideModules = {
       //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
       const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
       function hint(){
-        if(hinting || solved || drag || !live || !R) return;
+        if(hinting || solved || drag || !live || !R || R.D.guide === false) return;
         const stamp = R.stamp; hinting = true; hintT = [];
         stamp.classList.add("lift"); move(stamp, R.HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
         hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));

@@ -693,16 +693,20 @@ and the box disappears but not the symbol")
   sound — the words go out in reverse order 40 ms apart (words_out; their arrival's own transition backwards), the slot fades with
   its printed mark (.out, .3 s); at next_at (1.3 s) the round's sentence and slot are removed, setRound(1) builds the new ones
   and sets the pictures, and stage 3 runs again: the pops (on their sound, .48), the sentence word by word on its clip, the slot's
-  3.5 s blink, .live, the guidance 0.5 s later (to the small slot: hover point 539.5,356), 7 s idle repeats, the drags (print
-  point within 50/70 of the slot's centre; the । on it = wrong), the comma printed (centreInk on ","), the box gone on the chime,
-  confetti; after the LAST round the end screen at done_at. The round-2 pictures and clip are fetched at mount.
+  3.5 s blink, .live, the drags (print point within 50/70 of the slot's centre; the । on it = wrong), the comma printed (centreInk
+  on ","), the box gone on the chime, confetti; after the LAST round the end screen at done_at. The round-2 pictures and clip are
+  fetched at mount. [stamp-remind] (asked right after: "the auto drag animation should not come from the second sentence, not
+  even in the case of inactivity; from the second sentence the title instruction VO should repeat after 7 seconds of inactivity"):
+  each round carries `guide` — round 1 true (the guidance 0.5 s after the blink and after every 7 s idle, as before), round 2 false:
+  no guidance at all; the idle tick says the title's line (vo_stamp_intro, play()) again 7 s after the slot appeared without a
+  touch, and again after every further 7 s (never over another clip, never with a stamp in hand; the count starts over after it).
 - Checked: stamp_check.py now plays both rounds (48 steps): round 1 as before, then the clearing (unpop at 4.4 s ± .12, 350 apart,
   no pop sound; the word count only falls, 5 -> 0 within .5 s; the slot's opacity < .05; round 2 set at 1.3 s with 15 words built,
   none shown, a fresh slot at 525,355 29x30, the comma picture on s1), round 2 (the pops on their sounds, the clip .7 s after the
-  second, 15 reveals within -60..+40 on the clip's clock, the slot at the clip's end with dmfBlink to .2, .live), its guidance
-  (500 after the blink, the hover point within 4 px, home at 2.9 s, nothing printed), the । on the slot (buzz, wiggle, home), the
+  second, 15 reveals within -60..+40 on the clip's clock, the slot at the clip's end with dmfBlink to .2, .live), NO guidance (no
+  stamp lifts before the child's drop) and the title's line again 7.0..7.6 s after the slot, once; the । on the slot (buzz, wiggle, home), the
   comma dropped 10/8 off (snap to the press point within 4 px, thud 280, mark 400, home by 1.8 s, gone 1600 on the chime, confetti
-  2100 on its sound, the comma's ink on the slot's centre within 3 px), the end screen 4.4 s after, 4 + 2 lifts; both slot moments
+  2100 on its sound, the comma's ink on the slot's centre within 3 px), the end screen 4.4 s after, 4 + 1 lifts; both slot moments
   against their renders (565:28: frame 4.4, sheet 6.3; 579:47: frame < 12, sheet < 20 — the two-row text's edges — each row's ink
   rows within 3 px and its runs within 4 px of the render's, the slot fill at 525..553 x 355..384); a re-run (round 0 again) and a
   mid-way exit with a stamp in hand. `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out

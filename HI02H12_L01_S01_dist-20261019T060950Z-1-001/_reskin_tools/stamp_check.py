@@ -3,12 +3,13 @@ would). The page plays itself to the blinking slot; from there this script is th
 after 7 s), takes hold of the guiding stamp mid-glide, drops it far off, drops the wrong stamp on the slot, taps a stamp, and
 drops the right stamp on the slot a little off its centre. After the confetti it watches the clearing (the stamps' pop played
 backwards, the words out in reverse, the slot fading) and the second round (the new stamps' pops, the two-row sentence word by
-word, the small slot), lets its guidance run, drops the wrong stamp, then the right one, and sees the end screen. The page's own
+word, the small slot), waits 7 s for the title's line to be said again (no guidance in that round), drops the wrong stamp, then
+the right one, and sees the end screen. The page's own
 frame trace (rAF: classes, the slot's opacity and box, both stamps' boxes and pictures, every frame) and a hook on every media
 play record the beats; they are checked against each other and against the clips' word times, so Playwright's own lag never fails
 a good build. Shots: l2_table.png, l2_stamps.png, l2_slot.png (the blink paused — compared with Figma's 565:28 render), l2_hint.png,
 l2_wrong.png, l2_press.png, l2_done.png, l2_confetti.png, l2_r2_set.png (the cleared sheet), l2_r2_slot.png (compared with the
-579:47 render), l2_r2_hint.png, l2_r2_press.png, l2_r2_done.png, l2_r2_confetti.png, l2_end.png.
+579:47 render), l2_r2_idle.png, l2_r2_press.png, l2_r2_done.png, l2_r2_confetti.png, l2_end.png.
 usage: python -I -X utf8 stamp_check.py <index.html> <outdir> [<565:28 render 1280x720 png> [<579:47 render 1280x720 png>]]"""
 import sys, pathlib
 from playwright.sync_api import sync_playwright
@@ -30,8 +31,9 @@ PLAYS = "() => window._plays.map(p => ({ src: p.src, t: p.t, paused: p.el.paused
 RECT = """(sel) => { const e = document.querySelector(sel); if(!e) return null; const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280, r = e.getBoundingClientRect();
   return [(r.left - b.left) / k, (r.top - b.top) / k, r.width / k, r.height / k]; }"""
 TRACE = """() => { window.__tr = []; const st = document.getElementById('stage');
+  const cs = completeSlide; completeSlide = function(){ window.__csT = performance.now(); return cs.apply(this, arguments); };   // when the page hands over (its own clock)
   const q = (e) => { if(!e) return null; const b = st.getBoundingClientRect(), k = b.width / 1280, r = e.getBoundingClientRect(); return [(r.left - b.left) / k, (r.top - b.top) / k, r.width / k, r.height / k]; };
-  (function loop(){ const r = document.querySelector('.stp'); if(!r) return; const slot = document.querySelector('.stp-slot'), s0 = document.querySelector('.stp-stamp.s0'), s1 = document.querySelector('.stp-stamp.s1');
+  (function loop(){ const r = document.querySelector('.stp'); if(!r){ window.__trEnd = performance.now(); return; } const slot = document.querySelector('.stp-slot'), s0 = document.querySelector('.stp-stamp.s0'), s1 = document.querySelector('.stp-stamp.s1');
     window.__tr.push({ t: performance.now(), round: r.dataset.round, lit: r.classList.contains('lit'), live: r.classList.contains('live'), band: !!document.querySelector('.dmf-band.in'), sheet: !!document.querySelector('.stp-sheet.in'),
       tray: !!document.querySelector('.stp-tray.in'), imgs: [...document.querySelectorAll('.stp-stamp img')].map(i => i.className + '|' + i.src.split('/').pop()),
       words: document.querySelectorAll('.stp-sent .sfig-w.on').length, nwords: document.querySelectorAll('.stp-sent .sfig-w').length,
@@ -116,14 +118,14 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=20000)
     pg.evaluate("document.querySelector('.stp-slot').style.animationPlayState = 'paused'"); until(now(), 350)
     z2 = shot(pg, "l2_r2_slot.png"); pg.evaluate("document.querySelector('.stp-slot').style.animationPlayState = ''")
-    pg.wait_for_function("!!document.querySelector('.stp-stamp.s1.lift')", timeout=9000); t_h3 = now(); until(t_h3, P["glide"] + 100); shot(pg, "l2_r2_hint.png")
-    pg.wait_for_function("!document.querySelector('.stp-stamp.s1.lift')", timeout=8000)
+    t_l2 = now(); until(t_l2, P["idle_ms"] + 700); shot(pg, "l2_r2_idle.png")   # 7 s without a touch: the title's line again (no guidance in this round)
+    pg.wait_for_function("!isPlaying", timeout=10000)
     drag(g2_[0], on2_(0)); t_d4 = now(); until(t_d4, P["wiggle"] + P["reset"] + 300)
     drag(g2_[1], on2_(1, 10, 8)); t_d5 = now(); until(t_d5, P["snap"] + P["press"] - 30); shot(pg, "l2_r2_press.png")
     pg.wait_for_function("!!document.querySelector('.stp-slot.gone')", timeout=8000); until(now(), 450); done2 = shot(pg, "l2_r2_done.png")
     pg.wait_for_function("!!document.querySelector('.fx-confetti')", timeout=8000); until(now(), 500); shot(pg, "l2_r2_confetti.png")
     pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=8000); t_cel = now()
-    tr = pg.evaluate("window.__tr"); pl = pg.evaluate(PLAYS)
+    tr = pg.evaluate("window.__tr"); pl = pg.evaluate(PLAYS); tr_end = pg.evaluate("window.__trEnd || 0"); cs_t = pg.evaluate("window.__csT || 0")   # the page's hand-over, on its own clock
     snd = lambda name: [x for x in pl if x["src"] == name + ".ogg"]
     T = lambda f: round(f["t"] - t0) if f else None
     # ==== 1. the table under the lifting veil; the title bar on its line
@@ -135,8 +137,9 @@ with sync_playwright() as p:
     voi = lambda f: f["vo"] and f["vo"][0] == "vo_stamp_intro.ogg"
     f_is = first(tr, lambda f: voi(f) and f["vo"][1] > 0)                      # the first frame in which the line is actually sounding
     f_ie = first(tr, lambda f: voi(f) and f["vo"][2])                           # the first frame after it has ended (currentAudio keeps the ended clip until the next play)
+    intro1 = [x for x in intro if x["t"] < t_d3]   # the line at the start (said again in round 2 after idling)
     check("the title's line sounds (~0.4 s in) and the title bar appears the moment it is heard (within 60 ms of the clip's first sounding frame)",
-          len(intro) == 1 and P["intro_at"] - 60 < intro[0]["t"] - t0 < P["intro_at"] + 400 and f_is and fb and -20 < fb["t"] - f_is["t"] < 60,
+          len(intro1) == 1 and P["intro_at"] - 60 < intro[0]["t"] - t0 < P["intro_at"] + 400 and f_is and fb and -20 < fb["t"] - f_is["t"] < 60,
           (round(intro[0]["t"] - t0) if intro else None, T(f_is), T(fb)))
     # ==== 2. the sheet and the tray, after the line
     fs_, ft = first(tr, lambda f: f["sheet"]), first(tr, lambda f: f["tray"])
@@ -237,7 +240,7 @@ with sync_playwright() as p:
           fgn and fd3 and abs(fgn["t"] - fd3["t"] - P["gone_at"]) < 100 and len(corr1) == 1 and abs(corr1[0]["t"] - fgn["t"]) < 60 and first(tr, lambda f: f["t"] > fgn["t"] + 2000)["mark"],
           (round(fgn["t"] - fd3["t"]) if fgn and fd3 else None, round(corr1[0]["t"] - fgn["t"]) if corr1 and fgn else None))
     fcf = first(tr, lambda f: f["conf"]); cel = [x for x in snd("sfx_celebrate") if fd3 and x["t"] < fd3["t"] + 3500]
-    check("confetti comes 2.1 s after the drop, on its own sound (the user's standard sfx confetti, within 60 ms)", fcf and fd3 and abs(fcf["t"] - fd3["t"] - P["confetti_at"]) < 100 and len(cel) == 1 and abs(cel[0]["t"] - fcf["t"]) < 60,
+    check("confetti comes 2.1 s after the drop, on its own sound (the user's standard sfx confetti, within 100 ms: the sound starts, then the 80 pieces are built)", fcf and fd3 and abs(fcf["t"] - fd3["t"] - P["confetti_at"]) < 100 and len(cel) == 1 and abs(cel[0]["t"] - fcf["t"]) < 100,
           (round(fcf["t"] - fd3["t"]) if fcf and fd3 else None, round(cel[0]["t"] - fcf["t"]) if cel and fcf else None))
     c = ink_box_centre(done, SL["x"] + 1, SL["y"] - 6, SL["x"] + SL["w"] - 1, SL["y"] + SL["h"] + 6)
     check("the printed ? sits with its ink on the slot's centre (within 3 px), on the sheet after the sentence", c and abs(c[0] - sc[0]) < 3 and abs(c[1] - sc[1]) < 3, (c, sc))
@@ -273,17 +276,15 @@ with sync_playwright() as p:
           fsl2 and fbe2 and s_end2 and abs(fsl2["t"] - s_end2) < 300 and abs(fbe2["t"] - fsl2["t"] - P["blink_ms"]) < 150 and fsl2["slotAnim"] == "dmfBlink" and 0.15 <= dim2 <= 0.3
           and boxnear(fsl2["slotBox"], [SL2["x"], SL2["y"], SL2["w"], SL2["h"]], 1.5) and fli2 and abs(fli2["t"] - fsl2["t"]) < 40,
           (round(fsl2["t"] - s_end2) if fsl2 and s_end2 else None, round(fbe2["t"] - fsl2["t"]) if fbe2 and fsl2 else None, round(dim2, 2), [round(v, 1) for v in fsl2["slotBox"]] if fsl2 and fsl2["slotBox"] else None))
-    # ==== 9. round 2's guidance, the wrong drop, the right drop (the comma), the end screen
-    fh4 = first(tr, lambda f: has(f["c1"], "lift"), since=fsl2["t"]) if fsl2 else None
-    hover2 = (sc2[0], sc2[1] + P["press_down"] - P["hover_up"])
-    fat2 = min((f for f in tr if fh4 and fh4["t"] <= f["t"] <= fh4["t"] + P["glide"] + 300 and f["st1"]), key=lambda f: abs(tipof(f["st1"])[0] - hover2[0]) + abs(tipof(f["st1"])[1] - hover2[1]), default=None)
-    fh4e = first(tr, lambda f: not has(f["c1"], "lift"), since=fh4["t"] + 500) if fh4 else None
+    # ==== 9. round 2: no guidance — the title's line again after 7 s idle; the wrong drop, the right drop (the comma), the end screen
     home1b = lambda f: f["st1"] and boxnear(f["st1"], S2_[1], 1.5)
-    check("round 2's guidance: 0.5 s after the blink the comma stamp glides over the small slot (its print point within 4 px of the hover point), hovers, glides home — nothing printed",
-          fh4 and fbe2 and abs(fh4["t"] - fbe2["t"] - P["hint_at"]) < 150 and fat2 and near(tipof(fat2["st1"]), hover2, 4) and fh4e and abs(fh4e["t"] - fh4["t"] - (P["glide"] + P["hold"] + P["back"] - 150)) < 200
-          and not first(tr, lambda f: f["mark"], since=fr1["t"] if fr1 else 0) or first(tr, lambda f: f["mark"], since=fr1["t"])["t"] > t_d5 - 50,
-          (round(fh4["t"] - fbe2["t"]) if fh4 and fbe2 else None, [round(v, 1) for v in tipof(fat2["st1"])] if fat2 else None, [round(v, 1) for v in hover2], round(fh4e["t"] - fh4["t"]) if fh4 and fh4e else None))
-    fg4 = first(tr, lambda f: has(f["c0"], "drag"), since=fh4e["t"]) if fh4e else None; fd4 = first(tr, lambda f: not has(f["c0"], "drag"), since=fg4["t"] + 100) if fg4 else None
+    fg4 = first(tr, lambda f: has(f["c0"], "drag"), since=fsl2["t"]) if fsl2 else None; fd4 = first(tr, lambda f: not has(f["c0"], "drag"), since=fg4["t"] + 100) if fg4 else None
+    rem = [x for x in intro if fsl2 and x["t"] > fsl2["t"]]   # the title's line said again
+    f_rs = first(tr, lambda f: voi(f) and f["vo"][1] > 0, since=fsl2["t"]) if fsl2 else None
+    nolift = fr1 and fg4 and not [f for f in tr if fr1["t"] < f["t"] < fg4["t"] and (has(f["c0"], "lift") or has(f["c1"], "lift"))]
+    check("round 2: NO guidance — neither after the blink nor after idling: no stamp lifts before the child's own drop; instead, 7 s after the slot appeared without a touch (7.0..7.6 s) the title's line is said again, once",
+          nolift and len(rem) == 1 and 6900 < rem[0]["t"] - fsl2["t"] < 7600 and f_rs and f_rs["t"] < fg4["t"] and not first(tr, lambda f: f["mark"], since=fr1["t"]) or (first(tr, lambda f: f["mark"], since=fr1["t"])["t"] > t_d5 - 50 and nolift and len(rem) == 1 and 6900 < rem[0]["t"] - fsl2["t"] < 7600),
+          (round(rem[0]["t"] - fsl2["t"]) if rem and fsl2 else None, len(rem), T(f_rs), "lifts before the drop" if not nolift else ""))
     home0b = lambda f: f["st0"] and boxnear(f["st0"], S2_[0], 1.5)
     fback4 = first(tr, lambda f: home0b(f) and not has(f["c0"], "lift"), since=fd4["t"]) if fd4 else None
     check("the । stamp dropped on the comma's slot: the incorrect buzz, the wiggle, back to its place — nothing printed", fd4 and len(wrongs) == 3 and abs(wrongs[2]["t"] - fd4["t"]) < 60 and first(tr, lambda f: has(f["c0"], "stp-wrong"), since=fd4["t"] - 20)
@@ -302,14 +303,16 @@ with sync_playwright() as p:
     fgn2 = first(tr, lambda f: has(f["slot"], "gone"), since=fr1["t"]) if fr1 else None; corr2 = [x for x in corr if fd5 and x["t"] > fd5["t"]]
     fcf2 = first(tr, lambda f: f["conf"], since=fd5["t"]) if fd5 else None; cel2 = [x for x in snd("sfx_celebrate") if fd5 and fd5["t"] < x["t"] < fd5["t"] + P["done_at"] - 300]
     check("the stamp glides home (by 1.8 s); the box goes at 1.6 s on the correct chime; confetti at 2.1 s on its sound", fh5 and fd5 and fh5["t"] - fd5["t"] < P["back_at"] + P["back_home"] + 200 and fgn2 and abs(fgn2["t"] - fd5["t"] - P["gone_at"]) < 100
-          and len(corr2) == 1 and abs(corr2[0]["t"] - fgn2["t"]) < 60 and fcf2 and abs(fcf2["t"] - fd5["t"] - P["confetti_at"]) < 100 and len(cel2) == 1 and abs(cel2[0]["t"] - fcf2["t"]) < 60,
+          and len(corr2) == 1 and abs(corr2[0]["t"] - fgn2["t"]) < 60 and fcf2 and abs(fcf2["t"] - fd5["t"] - P["confetti_at"]) < 100 and len(cel2) == 1 and abs(cel2[0]["t"] - fcf2["t"]) < 100,
           (round(fh5["t"] - fd5["t"]) if fh5 and fd5 else None, round(fgn2["t"] - fd5["t"]) if fgn2 and fd5 else None, round(fcf2["t"] - fd5["t"]) if fcf2 and fd5 else None))
     c2 = ink_box_centre(done2, SL2["x"] + 1, SL2["y"] - 6, SL2["x"] + SL2["w"] - 1, SL2["y"] + SL2["h"] + 6)
     check("the printed comma sits with its ink on the small slot's centre (within 3 px), between खिलौने and पेन", c2 and abs(c2[0] - sc2[0]) < 3 and abs(c2[1] - sc2[1]) < 3, (c2, sc2))
-    check("the end screen follows 4.4 s after round 2's drop (the confetti fallen), with no round gate", fd5 and abs(t_cel - fd5["t"] - P["done_at"]) < 200 and not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"), round(t_cel - fd5["t"]) if fd5 else None)
+    check("the page hands over to the end screen 4.4 s after round 2's drop (the confetti fallen; completeSlide on the page's own clock, within 150 ms), the end screen up within 1.5 s of that, no round gate",
+          fd5 and cs_t and abs(cs_t - fd5["t"] - P["done_at"]) < 150 and 0 <= t_cel - cs_t < 1500 and not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"),
+          (round(cs_t - fd5["t"]) if fd5 and cs_t else None, "the end screen seen at", round(t_cel - fd5["t"]) if fd5 else None, "the scene gone at", round(tr_end - fd5["t"]) if fd5 and tr_end else None))
     lifts = [tr[i]["t"] for i in range(1, len(tr)) if has(tr[i]["c1"], "lift") and not has(tr[i - 1]["c1"], "lift")]
-    check("the right-hand stamp lifted four times in round 1 (two guidances, the far drop, the right drop) and twice in round 2 (its guidance, the right drop): no guidance while the child was at work",
-          fr1 and len([t for t in lifts if t < fr1["t"]]) == 4 and len([t for t in lifts if t > fr1["t"]]) == 2, (len([t for t in lifts if fr1 and t < fr1["t"]]), len([t for t in lifts if fr1 and t > fr1["t"]])))
+    check("the right-hand stamp lifted four times in round 1 (two guidances, the far drop, the right drop) and once in round 2 (the right drop only): no guidance while the child was at work, none at all in round 2",
+          fr1 and len([t for t in lifts if t < fr1["t"]]) == 4 and len([t for t in lifts if t > fr1["t"]]) == 1, (len([t for t in lifts if fr1 and t < fr1["t"]]), len([t for t in lifts if fr1 and t > fr1["t"]])))
     until(t_cel, 800); shot(pg, "l2_end.png"); pl = pg.evaluate(PLAYS); own = [x for x in pl if x["src"].startswith("sfx_stamp")]
     check("leaving the page stopped its own sounds (the two pops and the thud, played twice each)", len(own) == 6 and all(x["paused"] for x in own), [(x["src"], x["paused"]) for x in own])
     # ==== 10. the slot moments against Figma's renders
