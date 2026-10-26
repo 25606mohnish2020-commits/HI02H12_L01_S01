@@ -406,10 +406,12 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
 # in on their pops, its sentence "माँ ने मुझे मेरे जन्मदिन पर कई सारे / खिलौने [ ] पेन और किताबें दिलाई हैं ।" is read word by word
 # (vo_stamp_sent2) on two rows in the frame's 448-wide box, the small slot (29x30 at 525,355) blinks, the drags follow as before
 # — but NO guidance in this round [stamp-remind]: after 7 s without a touch the title's line is said again (and again after every
-# further 7 s) — the comma is printed; after that round's confetti, the end screen. data.rounds holds both frames.
+# further 7 s) — the comma is printed; after that round's confetti, a THIRD round the same way, frame 592:89: three stamps (। ? ,)
+# pop in, "मुझे उपहार बहुत पसंद हैं" is read, the danda's slot blinks, the danda is printed; then the end screen. data.rounds holds
+# the three frames (two more exist on the page, 593:130 and 593:151).
 # Numbers measured on the frame (get_metadata) and its render; the clips + timings from stamp_assets/ (recap_vo.py stamp); the
 # bitmaps = the frame's own assets (scratchpad make_stamp_assets.py: the sheet "image 238" turned as the frame shows it).
-STAMP_KEYS = ["intro", "sent", "sent2"]   # [stamp-rounds] sent2 = the second round's sentence (frame 579:47)
+STAMP_KEYS = ["intro", "sent", "sent2", "sent3"]   # [stamp-rounds] sent2 / sent3 = the second and third rounds' sentences (frames 579:47, 592:89)
 sl_ = {k: json.loads((SCR / "stamp_assets" / f"vo_stamp_{k}.words.json").read_text(encoding="utf-8")) for k in STAMP_KEYS}
 STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?", "img_stamp_comma": ","}
 STAMP_SND = ["sfx_stamp_pop", "sfx_stamp_press"]
@@ -445,7 +447,15 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                 "mark": ",", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_comma"],
                 "boxes": [[532, 541, 74, 116], [677, 541, 72, 115]], "tips": [[36, 113], [36, 114]],
                 "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 37}},   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
-                "slot": {"x": 525, "y": 355, "w": 29, "h": 30, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 9, 4, 9, 4]}}],
+                "slot": {"x": 525, "y": 355, "w": 29, "h": 30, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 9, 4, 9, 4]}},
+               # the third round (frame 592:89): a statement, the danda's slot after it (round 1's box and dashes: the same group), THREE
+               # stamps in the tray — । 462,541 (the right one), ? 607,540, the comma 750,540; the sentence's 1075-wide box at 78,336 (its
+               # ink 483..747 x 342..378 on the render), set 2 px lower like the others
+               {"frame": "592:89", "guide": False, "sentence": {"text_hi": sl_["sent3"]["shown"], "audio": "vo_stamp_sent3", "word_times": [t[0] for t in sl_["sent3"]["word_times"]]},
+                "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
+                "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
+                "sent": {"x": 78, "y": 338, "w": 1075, "h": 48, "size": 30},
+                "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}}],
              "pace": {"intro_at": 400, "after_intro": 500, "sheet_in": 0, "tray_in": 150, "stamps_at": 700, "pop_gap": 350, "sent_at": 700,
                       "blink_ms": 3500,
                       # [stamp-drag] the guidance: hint_at after the blink, the glide out, the hover, the glide home; again after idle_ms
@@ -1324,14 +1334,14 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142];
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
       const BX0 = [[532, 541, 74, 116], [677, 540, 72, 115]], TIPS0 = [[36, 113], [35, 114]];
-      const boxes0 = rounds[0].boxes || BX0;
+      const boxes0 = rounds[0].boxes || BX0, maxN = Math.max(1, ...rounds.map(R=> (R.stamps || []).length));   // divs for the most stamps any round has
       const fig = sfigMount(host,
         '<div class="stp" data-round="0">' +
           '<img class="stp-wood" src="' + imgSrc(im.wood) + '" alt="" draggable="false">' +
           '<div class="dmf-band"><div class="dmf-pill"><p></p></div><div class="dmf-head"><img src="assets/UI/demo1_head.webp" alt="" draggable="false"></div></div>' +
           '<img class="stp-sheet" src="' + imgSrc(im.sheet) + '" alt="" draggable="false" style="' + box(sh) + '">' +
           '<img class="stp-tray" src="' + imgSrc(im.tray) + '" alt="" draggable="false" style="' + box(tr) + '">' +
-          (rounds[0].stamps || []).map((id, k)=> '<div class="stp-stamp s' + k + '" style="' + box(boxes0[k] || boxes0[0]) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join('') +
+          Array.from({ length: maxN }, (_, k)=> '<div class="stp-stamp s' + k + '" style="' + (k < (rounds[0].stamps || []).length ? box(boxes0[k] || boxes0[0]) : 'display:none') + '"><img src="' + (rounds[0].stamps && rounds[0].stamps[k] ? imgSrc(rounds[0].stamps[k]) : '') + '" alt="" draggable="false"></div>').join('') +
           '<div class="stp-veil"></div>' +
         '</div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
@@ -1346,7 +1356,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       // clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
-      const pops = [mk(sfx.pop), mk(sfx.pop)], thud = mk(sfx.press);
+      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press);
       [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
       rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
       const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
@@ -1386,7 +1396,8 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         r = i; root.dataset.round = i;
         const D = rounds[i] || {}, S = D.sentence || {}, bx = D.boxes || BX0, tips = D.tips || TIPS0,
               se = D.sent || { x: 63, y: 338, w: 1075, h: 48, size: 30 }, sl = D.slot || { x: 751, y: 331, w: 36, h: 58 }, w = sl.w, h = sl.h;
-        (D.stamps || []).forEach((id, k)=>{ const s = stamps[k]; if(!s) return; s.style.cssText = box(bx[k] || bx[0]); s.className = "stp-stamp s" + k; s.querySelector("img").src = imgSrc(id); });
+        const n = (D.stamps || []).length;   // this round's stamps; the divs beyond them are hidden
+        stamps.forEach((s, k)=>{ s.className = "stp-stamp s" + k; if(k < n){ s.style.cssText = box(bx[k] || bx[0]); s.querySelector("img").src = imgSrc(D.stamps[k]); } else s.style.cssText = "display:none"; });
         const rows = String(S.text_hi || "").split("\n").length, lh = se.lh || Math.round(se.size * 1.714 * 10) / 10;   // Baloo Bhai 2's line box, as on every Figma page
         const sentEl = document.createElement("p"); sentEl.className = "stp-sent";
         sentEl.style.cssText = 'left:' + se.x + 'px;top:' + (se.y - (lh * rows - se.h) / 2) + 'px;width:' + se.w + 'px;height:' + (lh * rows) + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px';
@@ -1401,7 +1412,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
         const pick = D.pick != null ? D.pick : 1, stamp = stamps[pick] || stamps[0], tip = tips[pick] || tips[0], sb = bx[pick] || bx[0];
         const dx = sl.x + w / 2 - (sb[0] + tip[0]), dy = sl.y + h / 2 + P.press_down - (sb[1] + tip[1]);
-        R = { D, S, bx, tips, sl, w, h, sentEl, slot, mark: slot.querySelector(".stp-mark"), L, pick, stamp,
+        R = { D, S, n, bx, tips, sl, w, h, sentEl, slot, mark: slot.querySelector(".stp-mark"), L, pick, stamp,
               HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(1.08)", PRESS: "translate(" + dx + "px, " + dy + "px) scale(1)" };
         live = false; acted = false; solved = false; hinting = false; hintT = []; lastAct = Date.now();
       }
@@ -1425,11 +1436,12 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         at(P.tray_in, ()=> tray.classList.add("in"));
         at(P.stamps_at, ()=>{ setRound(0); stage3(); });
       }
-      // 3. the round's two stamps pop into the tray, each on its pop
+      // 3. the round's stamps (two, or three) pop into the tray, each on its pop
       function stage3(){
-        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
+        const n = R.n;
+        stamps.slice(0, n).forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
-        at((stamps.length - 1) * P.pop_gap + P.sent_at, stage4);
+        at((n - 1) * P.pop_gap + P.sent_at, stage4);
       }
       // 4. the sentence, read without a pause, its words arriving one by one with the clip
       function stage4(){ const L = R.L; narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
@@ -1536,7 +1548,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       // [stamp-rounds] between rounds: the stamps shrink away (their pop played backwards, pop_gap apart), the sentence goes word by
       // word in reverse (the arrival's opposite) and the slot's box fades with its mark; then the next round is set and its stamps pop in
       function clearRound(C){
-        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); img.classList.remove("shown");
+        stamps.slice(0, C.n).forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); img.classList.remove("shown");
           img.addEventListener("animationend", ()=>{ img.classList.remove("unpop"); }, { once: true }); img.classList.add("unpop"); }));
         C.L.words.slice().reverse().forEach((wd, i)=> at(i * P.words_out, ()=> wd.classList.remove("on")));
         C.slot.classList.add("out");

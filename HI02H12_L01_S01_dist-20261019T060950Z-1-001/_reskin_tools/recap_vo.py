@@ -122,6 +122,8 @@ LINES = {
     "sent":   ("नमस्ते दादाजी, आप कैसे हैं", None),
     # [stamp-rounds] the second round (frame 579:47): the sentence read with its comma and danda; shown on two rows (the frame's
     # 448-wide box), the comma's place an empty slot between खिलौने and पेन, the danda after a space as the frame has it
+    # [stamp-rounds] the third round (frame 592:89): a statement — its danda is the slot; three stamps in the tray
+    "sent3":  ("मुझे उपहार बहुत पसंद हैं।", "मुझे उपहार बहुत पसंद हैं"),
     "sent2":  ("माँ ने मुझे मेरे जन्मदिन पर कई सारे खिलौने, पेन और किताबें दिलाई हैं।", "माँ ने मुझे मेरे जन्मदिन पर कई सारे\nखिलौने पेन और किताबें दिलाई हैं ।"),
   },
 }

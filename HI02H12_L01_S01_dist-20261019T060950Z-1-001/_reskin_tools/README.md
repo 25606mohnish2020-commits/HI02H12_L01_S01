@@ -713,6 +713,29 @@ and the box disappears but not the symbol")
   stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png`. smoke.py / gate_check.py drop the right stamp once per round
   (stamp_drop(ri) from data.rounds). `../_before_stamp_rounds/` holds the dist's three files, build.py, recap_vo.py and the three
   checks from before (one round).
+- Later 2026-10-26, a THIRD round, frame 592:89 (https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=592-89;
+  asked word for word as the second). Its frame: the same table, title bar, sheet and tray; THREE stamps — । 462,541 74x116 (the
+  right one: pick 0), ? 607,540 72x115, the comma 750,540 72x115 — the three pictures already in stamp_assets/; the sentence "मुझे
+  उपहार बहुत पसंद हैं" in a 1075-wide centred box at 78,336 (its ink 483..747 x 342..378 on the render; set at y 338 like the others),
+  the slot 751,331 36x58 = round 1's box and dash runs (the same Figma group). The spoken line "मुझे उपहार बहुत पसंद हैं।" (recap_vo.py
+  stamp sent3, 2.83 s, 5 words) — a placeholder until recorded. The module takes ANY number of stamps per round now: divs for the
+  most any round has (3), the extra hidden (display:none) in rounds with fewer; the round's count drives the pops (one Audio per
+  div), the clearing and the sentence's start ((n - 1) x pop_gap + sent_at after the first pop). guide false (the title's line
+  after 7 s idle, as round 2). The page's rounds: ? (guided) -> , -> ।; after the third confetti the end screen. Two more frames
+  exist on the page (593:130, 593:151) — not asked for.
+- Checked: stamp_check.py plays all three rounds (63 steps; the later rounds through one loop: the clearing — the previous round's
+  n stamps unpop 350 apart, the words out, the slot fades, the round set at 1.3 s with its n pictures shown and the rest hidden —
+  the n pops on their sounds, the clip .7 s after the LAST pop, every word on the clip's clock, the slot's box and blink, .live, no
+  guidance + the title's line at 7.0..7.6 s, the wrong stamp on the slot, the right one dropped off-centre, the thud/mark/home/
+  chime/confetti beats, the mark's ink on the slot's centre, each stamp lifted only in hand); the hand-over to the end screen is
+  judged on the page's own clock (completeSlide wrapped: 4.4 s after the last drop) — Playwright's wait lags 200-300 ms behind it;
+  each round's slot moment against its render (round 3: frame 3.9, sheet 3.9, the sentence's ink rows within 3 px and its run
+  within 4 px of the render's, the slot fill at 751..786 x 331..388). `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/
+  index.html out stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png stamp3_figma_render_1280x720.png`. smoke.py /
+  gate_check.py / the live check drop the right stamp once per round (a loop over data.rounds). letter_check.py now judges L1's
+  hand-over to L2 on the page's clock too (its 3 s screenshot of the dive's scaled layers can take 0.6 s+ and made the old
+  Playwright-timed step read 7.5 s); its "bubbles popped at 3.65 s" step is timer-driven on L1 and has been seen to miss once
+  under load — a re-run passes. The committed state before all the rounds is `_before_stamp_rounds/`.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

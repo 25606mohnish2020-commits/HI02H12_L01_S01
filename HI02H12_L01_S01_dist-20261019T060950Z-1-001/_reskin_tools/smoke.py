@@ -164,14 +164,17 @@ with sync_playwright() as p:
     stamp_drop(0)
     pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=5000)
     check("L2 round 1: the ? stamp dropped on the slot is pressed and the ? printed (stamp_check.py has the page beat by beat: the guidance, the wrong drops, the sounds)", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
-    # [stamp-rounds] after the confetti the stamps and the sentence go, round 2 (frame 579:47) comes: its stamps, its two-row sentence, its small slot
-    pg.wait_for_function("document.querySelector('.stp').dataset.round === '1'", timeout=12000)
-    pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=25000)
-    check("L2 round 2: the । and the comma stamp, the birthday sentence on two rows (15 words), the small slot blinking — the stamps the child's again",
-          pg.evaluate("document.querySelectorAll('.stp-stamp img.shown').length === 2 && document.querySelectorAll('.stp-sent .sfig-w.on').length === 15 && !!document.querySelector('.stp-slot.in') && document.querySelector('.stp-stamp.s1 img').src.endsWith('img_stamp_comma.webp')"))
-    stamp_drop(1)
-    pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=5000)
-    check("L2 round 2: the comma stamp dropped on the slot is pressed and the comma printed", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
+    # [stamp-rounds] after each confetti the stamps and the sentence go and the next round comes: round 2 (frame 579:47: the । and the
+    # comma, the two-row sentence, the small slot), round 3 (592:89: three stamps, "मुझे उपहार बहुत पसंद हैं", the danda's slot)
+    for ri in range(1, len(RS)):
+        R = RS[ri]; nw = len(R["sentence"]["word_times"]); ns = len(R["stamps"]); pict = R["stamps"][R["pick"]]
+        pg.wait_for_function(f"document.querySelector('.stp').dataset.round === '{ri}'", timeout=12000)
+        pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=25000)
+        check(f"L2 round {ri + 1} ({R['frame']}): its {ns} stamps shown, its sentence's {nw} words read and shown, its slot blinking — the stamps the child's again",
+              pg.evaluate(f"document.querySelectorAll('.stp-stamp img.shown').length === {ns} && document.querySelectorAll('.stp-sent .sfig-w.on').length === {nw} && !!document.querySelector('.stp-slot.in') && document.querySelector('.stp-stamp.s{R['pick']} img').src.endsWith('{pict}.webp')"))
+        stamp_drop(ri)
+        pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=5000)
+        check(f"L2 round {ri + 1}: the {R['mark']} stamp dropped on the slot is pressed and the {R['mark']} printed", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=15000)
     log = pg.evaluate("window._gate"); opens = [log[i]["slide"] for i in range(len(log)) if log[i]["show"] and (i == 0 or not log[i - 1]["show"])]
     check("the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last",

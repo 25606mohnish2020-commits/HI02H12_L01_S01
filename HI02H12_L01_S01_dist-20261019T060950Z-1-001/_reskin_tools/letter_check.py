@@ -106,6 +106,7 @@ with sync_playwright() as p:
     if cmp_l: print("INFO the letter stage against Figma's 558:2 render (the designer's cloud differs from the kept one; informative only):", cmp_l)
     # 5. the tap: the pop, the zoom to 610:6, the loop fades out
     bb = pg.locator(".ltr-env-pos").bounding_box()
+    pg.evaluate("(() => { const cs = completeSlide; completeSlide = function(){ window.__csT = performance.now(); return cs.apply(this, arguments); }; })()")   # the hand-over, on the page's own clock
     t_tap = pg.evaluate("performance.now()"); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)
     until(t_tap, 150); pl = pg.evaluate(PLAYS); s = pg.evaluate(STATE); pop = first(pl, "sfx_letter_pop")
     check("the tap: the pop sounds at once and the zoom begins", pop is not None and pop["t"] - t_tap < 250 and "zoom" in s["cls"] and "ready" not in s["cls"], (round(pop["t"] - t_tap) if pop else None, s["cls"]))
@@ -156,14 +157,15 @@ with sync_playwright() as p:
     check("the paper crackle started as the envelope finished zooming (1.2 s) and the top flap is opening", paper is not None and 1150 < paper["t"] - t_tap < 1450 and "open" in s["cls"], (round(paper["t"] - t_tap) if paper else None, s["cls"]))
     until(t_tap, 2250); shot(pg, "l1_flap.png")
     until(t_tap, 3000); t_shot = pg.evaluate("performance.now()") - t_tap
-    o = shot(pg, "l1_open.png")
+    t_s0 = pg.evaluate("performance.now()"); o = shot(pg, "l1_open.png"); print("INFO the 3 s shot took", round(pg.evaluate("performance.now()") - t_s0), "ms (the dive's scaled layers)")
     from PIL import Image as _Im
     import numpy as _np
     O = _np.asarray(_Im.open(o).convert("RGB").resize((1280, 720), _Im.LANCZOS)).astype(int)
     sheet = float(((O[..., 0] > 228) & (O[..., 2] > 222)).mean())   # the sheet's white (255,253,248) and its fading lilac lines; not the envelope's cream (b ~ 205), not the room
     pg.wait_for_function("CARD.slides[state.idx].id === 'L2' && !!document.querySelector('.stp')", timeout=6000)
-    t_end = pg.evaluate("performance.now()")
-    check("the stamp page (L2) follows (about 3.65 s after the tap, after the dive and the veil; stamp_check.py has that page)", 3300 < t_end - t_tap < 4300, round(t_end - t_tap))
+    t_end = pg.evaluate("performance.now()"); cs_t = pg.evaluate("window.__csT || 0")
+    check("the page hands over to the stamp page (L2) about 3.65 s after the tap (completeSlide on the page's own clock, after the dive and the veil; stamp_check.py has that page)", cs_t and 3300 < cs_t - t_tap < 4300 and t_end >= cs_t,
+          (round(cs_t - t_tap) if cs_t else None, "seen by the test at", round(t_end - t_tap)))
     tr = pg.evaluate("window.__trace")
     def frame_at(ms): return min(tr, key=lambda f: abs(f["t"] - (t_tap + ms)))
     f = frame_at(3000)
