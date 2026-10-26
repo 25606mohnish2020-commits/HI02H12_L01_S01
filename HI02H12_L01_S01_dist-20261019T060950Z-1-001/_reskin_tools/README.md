@@ -565,6 +565,26 @@ L1, the letter page after P2's gate (2026-10-26)
   transforms; the frame's 4 px border unchanged between the zoomed and the open shots (0 px); the end screen ~4.1 s after the
   tap. gate_check 11/11, smoke 35/35. `../_before_letter_open/` holds the dist's three files, build.py, letter_check.py and the
   previous envelope layers (one flap + body).
+- Later 2026-10-26, the opening REDONE ([letter-dive]; asked: "why did you disturb the design of the envelope? keep the design of the
+  envelope exactly as before, and the opening effect should be at the whole screen as a transition screen, smoothly"). The four-flap
+  cut is gone: it had ADDED two fold lines (BL-apex, BR-apex) and a shaded inside to the drawing, and its pull-back shrank the
+  envelope. The envelope is again the drawing's own two-layer cut — body (the pocket), ONE flap, the inside, the heart — now stored
+  LOSSLESS with the drawing's own pixels (scratchpad make_env_layers_exact.py: the seal's footprint filled by the push-pull method
+  in BOTH the flap and the body, so the seal lives in the heart layer only); painting order inner < sheet < body < flap < heart, so
+  closed it IS the drawing (the layers stacked vs 2.png: mean 0.36/765, 0 px over 30). After the tap: pop + zoom to 610:6 (1.2 s)
+  -> paper crackle: the seal pops and the flap lifts TOWARD the viewer to 80 deg (1 s) — standing up, almost edge-on as a thin band
+  under the top edge, so no part of it ever rises above that edge and nothing can be cut by the frame — and the sheet rises 35 px
+  in the mouth (+0.35 s) -> the view DIVES into the envelope (+0.7 s, over 1.7 s): the box scaled 5.2x about the mouth's centre
+  (layout.mouth = the incentre of the top-edge / fold-apex triangle, (568.8, 292.4) box px) onto the frame's centre, until only
+  the sheet fills the screen, its ruled lines fading -> veil (+1.9 s) -> end screen (+2.45 s, ~3.7 s after the tap). The envelope
+  never gets smaller than 610:6's box. letter_check.py: the layers; the closed envelope against the DRAWING itself (the dist's
+  layers stacked over the blurred room, judged on the flat parts: mean 3.0, 0 px over 40; Figma's 610:6 render stays the frame
+  target, mean 9.4 — its hard-edged heart resamples a little differently in the browser, a ring the earlier versions had too);
+  the opening read from the page's OWN frame trace (rAF — Playwright's polls lag while the renderer is busy): the flap lifting at
+  1.7 s, standing at 2.25 s with its tip 31 box px under the hinge and in no frame above it, the box >= 1138 in every frame after
+  the zoom, the dive at 3.0 s (4.1x, 98 % sheet pixels in the shot), the end screen ~3.7 s after the tap; and a second opening
+  with nothing else running: 151 frames, max gap 18 ms (60 fps). gate_check 11/11, smoke 35/35. `../_before_letter_dive/` holds
+  the dist's three files, build.py, letter_check.py and the four-flap layers.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

@@ -370,8 +370,7 @@ assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.ge
 # measured on the renders (scratchpad measure_*.py): the cloud = 1.png at 0.2508 x (862.09, 8.61); bubbles (centre, diameter);
 # the envelope 188.9 px wide in 558:2, centred in the cloud. Phase practice = round 3 continues (no second gate before CEL).
 LETTER_IMGS = {"img_letter_scene_a": "✏️", "img_letter_scene_b": "✏️", "img_letter_blur": "✏️", "img_letter_cloud_grandpa": "💭",
-               "img_letter_cloud_white": "💭", "img_letter_env_flap": "✉️", "img_letter_env_fl": "✉️", "img_letter_env_fr": "✉️", "img_letter_env_fb": "✉️",
-               "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}
+               "img_letter_cloud_white": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}
 LETTER_SND = ["sfx_letter_magic", "sfx_letter_idea", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]
 for k, emo in LETTER_IMGS.items():
     card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
@@ -382,15 +381,14 @@ assert card["slides"][i_p2 + 1]["id"] == "CEL"
 card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic", "type": "LETTER_STORY", "prompt_hi": "", "audio": {},
     "data": {"scene_a": "img_letter_scene_a", "scene_b": "img_letter_scene_b", "blur": "img_letter_blur",
              "cloud": "img_letter_cloud_grandpa", "cloud_white": "img_letter_cloud_white",
-             "env": {"flap": "img_letter_env_flap", "fl": "img_letter_env_fl", "fr": "img_letter_env_fr", "fb": "img_letter_env_fb",
-                     "inner": "img_letter_env_inner", "heart": "img_letter_env_heart"},
+             "env": {"body": "img_letter_env_body", "flap": "img_letter_env_flap", "inner": "img_letter_env_inner", "heart": "img_letter_env_heart"},
              "sfx": {"magic": "sfx_letter_magic", "idea": "sfx_letter_idea", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},
              "music": "bgm_letter_nostalgia",
              "layout": {"cloud": [862.09, 8.61, 314.5], "bubbles": [[814.7, 242.8, 8], [831.4, 230.5, 16], [854.0, 211.2, 26]],
-                        "letter": [1020, 166, 189], "full": [71, -50, 1138, 758]},
+                        "letter": [1020, 166, 189], "full": [71, -50, 1138, 758], "mouth": [568.8, 292.4]},
              "pace": {"a_hold": 2000, "xfade": 650, "bub_start": 2600, "bub_gap": 230, "cloud_start": 3300, "cloud_in": 1600, "hold": 2600,
-                      "dissolve": 1500, "letter_in": 450, "zoom": 1200, "open_sides_at": 450, "open_bottom_at": 750, "paper_at": 950,
-                      "veil_at": 2300, "done_at": 2850, "back_scale": 0.56}}})
+                      "dissolve": 1500, "letter_in": 450, "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2,
+                      "veil_at": 1900, "done_at": 2450}}})
 assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "CEL"]
 pd = {}
 for s in card["slides"]: pd[s["phase"]] = pd.get(s["phase"], 0) + 1
@@ -1125,11 +1123,12 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
   LETTER_STORY: {
     mount(host, slide){
       const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ a_hold: 2000, xfade: 650, bub_start: 2600, bub_gap: 230,
-        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 450, zoom: 1200, open_sides_at: 450, open_bottom_at: 750,
-        paper_at: 950, veil_at: 2300, done_at: 2850, back_scale: 0.56 }, d.pace || {});
+        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 450, zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700,
+        dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {};
-      const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758];
+      const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758],
+            mo = L.mouth || [568.8, 292.4];
       const fig = sfigMount(host,
         '<div class="ltr">' +
           '<img class="ltr-scene a" src="' + imgSrc(d.scene_a) + '" alt="" draggable="false">' +
@@ -1142,10 +1141,8 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
             '<div class="ltr-env-pulse"><div class="ltr-env3d">' +
               '<img class="ltr-inner" src="' + imgSrc(env.inner) + '" alt="" draggable="false">' +
               '<div class="ltr-paper"></div>' +
-              '<div class="ltr-fold ltr-fb"><img src="' + imgSrc(env.fb) + '" alt="" draggable="false"></div>' +
-              '<div class="ltr-fold ltr-fl"><img src="' + imgSrc(env.fl) + '" alt="" draggable="false"></div>' +
-              '<div class="ltr-fold ltr-fr"><img src="' + imgSrc(env.fr) + '" alt="" draggable="false"></div>' +
-              '<div class="ltr-fold ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
+              '<img class="ltr-body" src="' + imgSrc(env.body) + '" alt="" draggable="false">' +
+              '<div class="ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
               '<img class="ltr-heart" src="' + imgSrc(env.heart) + '" alt="" draggable="false">' +
             '</div></div>' +
           '</div>' +
@@ -1157,10 +1154,12 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
       // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud at 558:2's size, so the zoom moves the same element
       const s = li[2] / full[2];
       envPos.style.setProperty("--ltr-icon", "translate(" + (li[0] - li[2] / 2 - full[0]) + "px, " + (li[1] - (li[2] * full[3] / full[2]) / 2 - full[1]) + "px) scale(" + s + ")");
-      // [letter-open] while it opens, the view pulls back: the box scaled by back_scale about the frame's centre, so the four
-      // unfolded flaps stay whole on the screen
-      const bs = P.back_scale;
-      envPos.style.setProperty("--ltr-back", "translate(" + (640 - full[2] * bs / 2 - full[0]) + "px, " + (360 - full[3] * bs / 2 - full[1]) + "px) scale(" + bs + ")");
+      // [letter-dive] the opening is a whole-screen transition: the view dives INTO the open envelope, onto the sheet — the box
+      // scaled by dive_scale about the mouth's centre (layout.mouth, box px: the incentre of the triangle top edge / fold apex,
+      // the sheet behind it), which lands on the frame's centre, so at the end only the sheet is on the screen
+      const ds = P.dive_scale;
+      envPos.style.setProperty("--ltr-dive", "translate(" + (640 - full[0] - ds * mo[0]) + "px, " + (360 - full[1] - ds * mo[1]) + "px) scale(" + ds + ")");
+      envPos.style.setProperty("--ltr-dive-ms", P.dive + "ms");
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
       const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
       const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
@@ -1217,10 +1216,9 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
         sound(sfx.pop, 0.7, null);
         fadeTo(music, 0, 1300, ()=>{ if(music) music.pause(); bgmBack(); });
         at(P.zoom, ()=>{
-          sound(sfx.paper, 0.7, ()=> root.classList.add("open"));        // the seal pops, the top flap swings back, the view pulls back
-          at(P.open_sides_at, ()=> root.classList.add("open-sides"));     // the two side flaps fold out ...
-          at(P.open_bottom_at, ()=> root.classList.add("open-bottom"));   // ... then the bottom flap: the envelope lies fully open
-          at(P.paper_at, ()=> root.classList.add("paper"));               // the sheet comes out over it
+          sound(sfx.paper, 0.7, ()=> root.classList.add("open"));        // the seal pops and the flap swings open as the paper crackles
+          at(P.paper_at, ()=> root.classList.add("paper"));               // the sheet rises out of the pocket
+          at(P.dive_at, ()=> root.classList.add("dive"));                 // the view dives into the envelope, onto the sheet: the whole screen
           at(P.veil_at, ()=> root.classList.add("veil"));
           at(P.done_at, ()=>{ state.demoRunning = false; completeSlide(true); });
         });
@@ -1658,33 +1656,31 @@ letter_css = """
 @keyframes ltrPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
 .ltr-env3d{position:absolute;inset:0;perspective:2600px;}
 .ltr-env3d > *{position:absolute;left:0;top:0;width:100%;height:100%;}
-.ltr-fold img{position:absolute;left:0;top:0;width:100%;height:100%;}
-/* [letter-open] the four flaps of the drawn envelope (they meet at the fold lines' apex), each hinged on its own edge: the hinge is
-   that edge's midpoint in the 1138x758 box and the edge's own angle (the drawing is not quite a rectangle); rotateX about the
-   re-aligned edge, with the sign that folds the flap AWAY from the viewer. Closed = the picture as drawn. */
+.ltr-flap img{position:absolute;left:0;top:0;width:100%;height:100%;}
+/* [letter-dive] the drawing as drawn, in its painting order: inner (behind), the sheet, the body (the pocket), the flap, the heart
+   — closed, the flap covers the sheet exactly as drawn. The flap is hinged on the top edge (its midpoint in the 1138x758 box, the
+   edge's own -12.72 deg tilt): rotate(t) rotateX(a) rotate(-t), the sign that lifts it TOWARD the viewer — up and out, as a real
+   flap (the envelope's body and the sheet are behind it, which is also the painting order). It opens to 80 deg — standing up,
+   seen almost edge-on as a thin band under the top edge — so no part of it ever rises above that edge: nothing of it can be cut
+   by the frame, not even as the dive carries the top edge out of view; the sheet rises in the mouth to just under that band (its
+   top edge is parallel to the envelope's). */
 .ltr-flap{transform-origin:538.6px 154.1px;transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}
-.ltr-fl{transform-origin:189.7px 474.9px;transform:rotate(78.23deg) rotateX(0deg) rotate(-78.23deg);}
-.ltr-fr{transform-origin:993.9px 304.1px;transform:rotate(76.36deg) rotateX(0deg) rotate(-76.36deg);}
-.ltr-fb{transform-origin:644.9px 624.9px;transform:rotate(-11.27deg) rotateX(0deg) rotate(11.27deg);}
-.ltr.open .ltr-flap{animation:ltrFlapT 1.1s cubic-bezier(.5,0,.3,1) both;}
-.ltr.open-sides .ltr-fl{animation:ltrFlapL 1s cubic-bezier(.5,0,.3,1) both;}
-.ltr.open-sides .ltr-fr{animation:ltrFlapR 1s cubic-bezier(.5,0,.3,1) both;}
-.ltr.open-bottom .ltr-fb{animation:ltrFlapB .9s cubic-bezier(.5,0,.3,1) both;}
-@keyframes ltrFlapT{from{transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}to{transform:rotate(-12.72deg) rotateX(-166deg) rotate(12.72deg);}}
-@keyframes ltrFlapL{from{transform:rotate(78.23deg) rotateX(0deg) rotate(-78.23deg);}to{transform:rotate(78.23deg) rotateX(170deg) rotate(-78.23deg);}}
-@keyframes ltrFlapR{from{transform:rotate(76.36deg) rotateX(0deg) rotate(-76.36deg);}to{transform:rotate(76.36deg) rotateX(-170deg) rotate(-76.36deg);}}
-@keyframes ltrFlapB{from{transform:rotate(-11.27deg) rotateX(0deg) rotate(11.27deg);}to{transform:rotate(-11.27deg) rotateX(170deg) rotate(11.27deg);}}
-/* the view pulls back as the side flaps fold (the same element: a second transform transition), so no flap leaves the screen;
-   610:6's full-screen frame is held while the seal pops and the top flap starts to turn */
-.ltr.open-sides .ltr-env-pos{transform:var(--ltr-back);transition-duration:1.4s;transition-timing-function:cubic-bezier(.4,0,.2,1);}
+.ltr.open .ltr-flap{animation:ltrFlap 1s cubic-bezier(.5,0,.3,1) both;}
+@keyframes ltrFlap{from{transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}to{transform:rotate(-12.72deg) rotateX(80deg) rotate(12.72deg);}}
+/* the whole-screen transition: the view dives INTO the open envelope (the same element: a second transform transition; --ltr-dive,
+   set by the module, = the box scaled by pace.dive_scale about the mouth's centre, which lands on the frame's centre) until only
+   the sheet fills the screen; the veil then takes it to the end screen */
+.ltr.dive .ltr-env-pos{transform:var(--ltr-dive);transition-duration:var(--ltr-dive-ms,1.7s);transition-timing-function:cubic-bezier(.45,0,.55,1);}
 .ltr-heart{transform-origin:603.2px 398.2px;}
 .ltr.open .ltr-heart{animation:ltrSeal .35s ease-in both;}
 @keyframes ltrSeal{0%{transform:scale(1);opacity:1;}40%{transform:scale(1.18);opacity:1;}100%{transform:scale(.55);opacity:0;}}
 /* the sheet inside: a plain white letter with faint lines, in the envelope's own tilt, rising out of the pocket */
 .ltr-paper{left:279px;top:205px;width:635px;height:378px;border-radius:10px;background:#FFFDF8;box-shadow:0 2px 10px rgba(120,80,40,.18);
-  background-image:repeating-linear-gradient(to bottom,transparent 0 46px,#E9DCF2 46px 50px);background-origin:content-box;padding:60px 48px 0;box-sizing:border-box;
   transform:rotate(-12.72deg);transition:transform .9s cubic-bezier(.3,.7,.3,1);}
-.ltr.paper .ltr-paper{transform:rotate(-12.72deg) translateY(-210px) scale(1.05);z-index:5;}   /* out of the open envelope, over its folded flaps */
+.ltr-paper::after{content:"";position:absolute;inset:0;border-radius:inherit;transition:opacity 1.2s ease-in;   /* its ruled lines ... */
+  background:repeating-linear-gradient(to bottom,transparent 0 46px,#E9DCF2 46px 50px) 0 10px;}
+.ltr.paper .ltr-paper{transform:rotate(-12.72deg) translateY(-35px);}                    /* risen in the mouth, to just under the standing flap */
+.ltr.dive .ltr-paper::after{opacity:0;}                                                  /* ... fade as the view dives onto the sheet */
 .ltr-veil{inset:0;background:#FDE9A8;opacity:0;pointer-events:none;transition:opacity .5s ease-in;}   /* the end screen's base colour */
 .ltr.veil .ltr-veil{opacity:1;}
 """

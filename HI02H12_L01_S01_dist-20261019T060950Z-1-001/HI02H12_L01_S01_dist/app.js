@@ -6697,11 +6697,12 @@ const SlideModules = {
   LETTER_STORY: {
     mount(host, slide){
       const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ a_hold: 2000, xfade: 650, bub_start: 2600, bub_gap: 230,
-        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 450, zoom: 1200, open_sides_at: 450, open_bottom_at: 750,
-        paper_at: 950, veil_at: 2300, done_at: 2850, back_scale: 0.56 }, d.pace || {});
+        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 450, zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700,
+        dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {};
-      const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758];
+      const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758],
+            mo = L.mouth || [568.8, 292.4];
       const fig = sfigMount(host,
         '<div class="ltr">' +
           '<img class="ltr-scene a" src="' + imgSrc(d.scene_a) + '" alt="" draggable="false">' +
@@ -6714,10 +6715,8 @@ const SlideModules = {
             '<div class="ltr-env-pulse"><div class="ltr-env3d">' +
               '<img class="ltr-inner" src="' + imgSrc(env.inner) + '" alt="" draggable="false">' +
               '<div class="ltr-paper"></div>' +
-              '<div class="ltr-fold ltr-fb"><img src="' + imgSrc(env.fb) + '" alt="" draggable="false"></div>' +
-              '<div class="ltr-fold ltr-fl"><img src="' + imgSrc(env.fl) + '" alt="" draggable="false"></div>' +
-              '<div class="ltr-fold ltr-fr"><img src="' + imgSrc(env.fr) + '" alt="" draggable="false"></div>' +
-              '<div class="ltr-fold ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
+              '<img class="ltr-body" src="' + imgSrc(env.body) + '" alt="" draggable="false">' +
+              '<div class="ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
               '<img class="ltr-heart" src="' + imgSrc(env.heart) + '" alt="" draggable="false">' +
             '</div></div>' +
           '</div>' +
@@ -6729,10 +6728,12 @@ const SlideModules = {
       // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud at 558:2's size, so the zoom moves the same element
       const s = li[2] / full[2];
       envPos.style.setProperty("--ltr-icon", "translate(" + (li[0] - li[2] / 2 - full[0]) + "px, " + (li[1] - (li[2] * full[3] / full[2]) / 2 - full[1]) + "px) scale(" + s + ")");
-      // [letter-open] while it opens, the view pulls back: the box scaled by back_scale about the frame's centre, so the four
-      // unfolded flaps stay whole on the screen
-      const bs = P.back_scale;
-      envPos.style.setProperty("--ltr-back", "translate(" + (640 - full[2] * bs / 2 - full[0]) + "px, " + (360 - full[3] * bs / 2 - full[1]) + "px) scale(" + bs + ")");
+      // [letter-dive] the opening is a whole-screen transition: the view dives INTO the open envelope, onto the sheet — the box
+      // scaled by dive_scale about the mouth's centre (layout.mouth, box px: the incentre of the triangle top edge / fold apex,
+      // the sheet behind it), which lands on the frame's centre, so at the end only the sheet is on the screen
+      const ds = P.dive_scale;
+      envPos.style.setProperty("--ltr-dive", "translate(" + (640 - full[0] - ds * mo[0]) + "px, " + (360 - full[1] - ds * mo[1]) + "px) scale(" + ds + ")");
+      envPos.style.setProperty("--ltr-dive-ms", P.dive + "ms");
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
       const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
       const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
@@ -6789,10 +6790,9 @@ const SlideModules = {
         sound(sfx.pop, 0.7, null);
         fadeTo(music, 0, 1300, ()=>{ if(music) music.pause(); bgmBack(); });
         at(P.zoom, ()=>{
-          sound(sfx.paper, 0.7, ()=> root.classList.add("open"));        // the seal pops, the top flap swings back, the view pulls back
-          at(P.open_sides_at, ()=> root.classList.add("open-sides"));     // the two side flaps fold out ...
-          at(P.open_bottom_at, ()=> root.classList.add("open-bottom"));   // ... then the bottom flap: the envelope lies fully open
-          at(P.paper_at, ()=> root.classList.add("paper"));               // the sheet comes out over it
+          sound(sfx.paper, 0.7, ()=> root.classList.add("open"));        // the seal pops and the flap swings open as the paper crackles
+          at(P.paper_at, ()=> root.classList.add("paper"));               // the sheet rises out of the pocket
+          at(P.dive_at, ()=> root.classList.add("dive"));                 // the view dives into the envelope, onto the sheet: the whole screen
           at(P.veil_at, ()=> root.classList.add("veil"));
           at(P.done_at, ()=>{ state.demoRunning = false; completeSlide(true); });
         });
