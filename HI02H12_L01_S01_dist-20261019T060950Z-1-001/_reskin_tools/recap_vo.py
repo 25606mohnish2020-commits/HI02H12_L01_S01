@@ -127,6 +127,11 @@ LINES = {
     # [stamp-rounds] the fourth round (frame 593:130): two questions read one after the other, each with its "?" (the synthesiser
     # lifts at each); shown on two rows (the frame's 402-wide box), each row ending in an empty slot for its "?"
     "sent4":  ("क्या आपको भी उपहार अच्छे लगते हैं? दादी जी कैसी हैं?", "क्या आपको भी उपहार अच्छे लगते हैं\nदादी जी कैसी हैं"),
+    # [stamp-rounds] the fifth round (frame 593:151): the letter's closing lines read with their comma, question mark and dandas (the
+    # synthesiser pauses at each); shown on five rows (the frame's 339-wide box), the four marks' places empty slots; the sign-off
+    # "आपकी प्यारी / पिंकी" under them is shown, not read
+    "sent5":  ("उनके आम, केले और अमरूद के पौधे बड़े हुए या नहीं? आप मुझे पत्र लिखकर बताना। मैं आपके पत्र का इंतज़ार करूँगी।",
+               "उनके आम केले और\nअमरूद के पौधे बड़े हुए या नहीं\nआप मुझे पत्र लिखकर बताना\nमैं आपके पत्र का इंतज़ार\nकरूँगी"),
     "sent2":  ("माँ ने मुझे मेरे जन्मदिन पर कई सारे खिलौने, पेन और किताबें दिलाई हैं।", "माँ ने मुझे मेरे जन्मदिन पर कई सारे\nखिलौने पेन और किताबें दिलाई हैं ।"),
   },
 }

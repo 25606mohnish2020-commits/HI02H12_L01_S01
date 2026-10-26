@@ -1,22 +1,22 @@
-"""The stamp page L2 ([stamp-fig] + [stamp-drag] + [stamp-rounds] + [stamp-remind]; frames 565:28, 579:47, 592:89, 593:130): mounted straight
+"""The stamp page L2 ([stamp-fig] + [stamp-drag] + [stamp-rounds] + [stamp-remind]; frames 565:28, 579:47, 592:89, 593:130, 593:151): mounted straight
 (as the dev nav would). The page plays itself to the blinking slot; from there this script is the child: round 1 — it lets the
 guidance run (and come again after 7 s), takes hold of the guiding stamp mid-glide, drops it far off, drops the wrong stamp on the
 slot, taps a stamp, and drops the right stamp on the slot a little off its centre. After the confetti it watches the clearing (the
 stamps' pop played backwards, the words out in reverse, the slot fading) and each later round (the new stamps' pops, the sentence
 word by word, the slot): no guidance there — it waits 7 s for the title's line to be said again — drops a wrong stamp on the slot,
-then the right one — on each of the round's slots in turn when it has two (593:130: no confetti between, the stamps the child's again as the first box goes); after the last round the end screen. The page's own frame trace (rAF: classes, the slot's opacity and box, the
+then the right one — on each of the round's slots in turn when it has several (593:130: two; 593:151: four, each wanting its own stamp — no confetti between, the stamps the child's again as each box goes); after the last round the end screen. The page's own frame trace (rAF: classes, the slot's opacity and box, the
 stamps' boxes and pictures, every frame) and a hook on every media play record the beats; they are checked against each other and
 against the clips' word times, so Playwright's own lag never fails a good build. Shots: l2_table.png, l2_stamps.png, l2_slot.png
 (the blink paused — compared with Figma's 565:28 render), l2_hint.png, l2_wrong.png, l2_press.png, l2_done.png, l2_confetti.png,
 then per later round r: l2_r<r>_set.png (the cleared sheet), l2_r<r>_slot.png (compared with the frame's render), l2_r<r>_idle.png,
 l2_r<r>_press.png, l2_r<r>_done.png, l2_r<r>_confetti.png; l2_end.png.
-usage: python -I -X utf8 stamp_check.py <index.html> <outdir> [<565:28 render> [<579:47 render> [<592:89 render> [<593:130 render>]]]]  (1280x720 pngs)"""
+usage: python -I -X utf8 stamp_check.py <index.html> <outdir> [<565:28 render> [<579:47 render> [<592:89 render> [<593:130 render> [<593:151 render>]]]]]  (1280x720 pngs)"""
 import sys, pathlib
 from playwright.sync_api import sync_playwright
 from PIL import Image, ImageChops
 import numpy as np
 html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).resolve(); out.mkdir(parents=True, exist_ok=True)
-refs = [pathlib.Path(a).resolve() for a in sys.argv[3:7]]
+refs = [pathlib.Path(a).resolve() for a in sys.argv[3:8]]
 fails = []
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
@@ -37,7 +37,7 @@ TRACE = """() => { window.__tr = []; const st = document.getElementById('stage')
       tray: !!document.querySelector('.stp-tray.in'), imgs: ss.map(s => s.querySelector('img').className + '|' + s.querySelector('img').src.split('/').pop() + '|' + getComputedStyle(s).display),
       words: document.querySelectorAll('.stp-sent .sfig-w.on').length, nwords: document.querySelectorAll('.stp-sent .sfig-w').length,
       slot: slot ? slot.className : null, slotOp: slot ? +getComputedStyle(slot).opacity : null, slotAnim: slot ? getComputedStyle(slot).animationName : null, slotBox: q(slot),
-      slots: [...document.querySelectorAll('.stp-slot')].map(s => ({ cl: s.className, op: +getComputedStyle(s).opacity, anim: getComputedStyle(s).animationName, box: q(s), mark: !!s.querySelector('.stp-mark.in') })),   // every slot (two in frame 593:130's round)
+      slots: [...document.querySelectorAll('.stp-slot')].map(s => ({ cl: s.className, op: +getComputedStyle(s).opacity, anim: getComputedStyle(s).animationName, box: q(s), mark: !!s.querySelector('.stp-mark.in') })), signs: [...document.querySelectorAll('.stp-sign')].map(s => s.className),   // every slot (two in 593:130's round, four in 593:151's); the sign-off lines (593:151)
       mark: !!document.querySelector('.stp-mark.in'), st: ss.map(q), cl: ss.map(s => s.className), conf: !!document.querySelector('.fx-confetti'),
       veil: +getComputedStyle(document.querySelector('.stp-veil')).opacity, nav: getComputedStyle(document.getElementById('navBtn')).display,
       vo: (typeof currentAudio !== 'undefined' && currentAudio) ? [String(currentAudio.src).split('/').pop(), currentAudio.currentTime, currentAudio.ended] : null });
@@ -84,21 +84,27 @@ with sync_playwright() as p:
     ids = pg.evaluate("CARD.slides.map(s => s.id)")
     check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (15)", ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
     D = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data"); P = D["pace"]; RS = D["rounds"]
-    check("four rounds: 565:28 (the ? for the letter's sentence, with the guidance), 579:47 (the comma for the birthday sentence on two rows), 592:89 (the danda for 'मुझे उपहार बहुत पसंद हैं', three stamps), 593:130 (the ? for two questions on two rows: TWO slots, three stamps) — no guidance after the first",
-          len(RS) == 4 and [R["mark"] for R in RS] == ["?", ",", "।", "?"] and [R["pick"] for R in RS] == [1, 1, 0, 1] and [len(R["stamps"]) for R in RS] == [2, 2, 3, 3] and RS[0]["guide"] is True and all(R["guide"] is False for R in RS[1:])
-          and "\n" in RS[1]["sentence"]["text_hi"] and "\n" in RS[3]["sentence"]["text_hi"] and [len(R["sentence"]["word_times"]) for R in RS] == [5, 15, 5, 11] and [len(R.get("slots") or [R["slot"]]) for R in RS] == [1, 1, 1, 2],
-          [(R["frame"], R["mark"], R["pick"], len(R["stamps"]), len(R["sentence"]["word_times"]), len(R.get("slots") or [R["slot"]])) for R in RS])
+    slots_of = lambda R: R.get("slots") or [R["slot"]]
+    check("five rounds: 565:28 (the ? for the letter's sentence, with the guidance), 579:47 (the comma for the birthday sentence on two rows), 592:89 (the danda for 'मुझे उपहार बहुत पसंद हैं', three stamps), 593:130 (the ? for two questions on two rows: TWO slots), 593:151 (the letter's closing lines on five rows: FOUR slots — the comma, the ?, the danda twice — and the sign-off) — no guidance after the first",
+          len(RS) == 5 and [R["mark"] for R in RS] == ["?", ",", "।", "?", "।"] and [R["pick"] for R in RS] == [1, 1, 0, 1, 0] and [len(R["stamps"]) for R in RS] == [2, 2, 3, 3, 3] and RS[0]["guide"] is True and all(R["guide"] is False for R in RS[1:])
+          and "\n" in RS[1]["sentence"]["text_hi"] and "\n" in RS[3]["sentence"]["text_hi"] and RS[4]["sentence"]["text_hi"].count("\n") == 4 and [len(R["sentence"]["word_times"]) for R in RS] == [5, 15, 5, 11, 22] and [len(slots_of(R)) for R in RS] == [1, 1, 1, 2, 4]
+          and [S_.get("mark", RS[4]["mark"]) for S_ in RS[4]["slots"]] == [",", "?", "।", "।"] and [S_.get("pick", RS[4]["pick"]) for S_ in RS[4]["slots"]] == [2, 1, 0, 0] and [sg["text"] for sg in RS[4]["sign"]] == ["आपकी प्यारी", "पिंकी 🩷"],
+          [(R["frame"], R["mark"], R["pick"], len(R["stamps"]), len(R["sentence"]["word_times"]), len(slots_of(R))) for R in RS])
     def geo(R):
-        SLS = R.get("slots") or [R["slot"]]; SCS = [(S_["x"] + S_["w"] / 2, S_["y"] + S_["h"] / 2) for S_ in SLS]; SL, sc = SLS[0], SCS[0]; bx = R["boxes"]; tp = R["tips"]   # the round's slots (two in 593:130's), the first standing for the round
+        SLS = R.get("slots") or [R["slot"]]; SCS = [(S_["x"] + S_["w"] / 2, S_["y"] + S_["h"] / 2) for S_ in SLS]; SL, sc = SLS[0], SCS[0]; bx = R["boxes"]; tp = R["tips"]   # the round's slots (two in 593:130's, four in 593:151's), the first standing for the round
+        PKS = [S_.get("pick", R["pick"]) for S_ in SLS]; MKS = [S_.get("mark", R["mark"]) for S_ in SLS]   # each slot's right stamp and mark (its own, or the round's)
         handles = [(bb[0] + bb[2] / 2, bb[1] + 40) for bb in bx]   # where the child takes hold: the stamps' handles
         onto = lambda k, ox=0, oy=0, j=0: (handles[k][0] + SCS[j][0] - (bx[k][0] + tp[k][0]) + ox, handles[k][1] + SCS[j][1] - (bx[k][1] + tp[k][1]) + oy)   # the finger's place that puts the print point on slot j's centre (+ offset)
-        return dict(SL=SL, sc=sc, SLS=SLS, SCS=SCS, bx=bx, tp=tp, h=handles, onto=onto)
+        return dict(SL=SL, sc=sc, SLS=SLS, SCS=SCS, PKS=PKS, MKS=MKS, bx=bx, tp=tp, h=handles, onto=onto)
     G = [geo(R) for R in RS]; SL, sc, S0, S1, g0, g1, on_ = G[0]["SL"], G[0]["sc"], G[0]["bx"][0], G[0]["bx"][1], G[0]["h"][0], G[0]["h"][1], G[0]["onto"]; WT = RS[0]["sentence"]["word_times"]
     # the later rounds: which stamp is dropped wrong, where the right one is dropped (off its centre), the render's ink to compare
-    LATER = [dict(ri=1, wrong=0, off=(10, 8), lines=[(280, 335, 380, 900, 12), (338, 392, 380, 900, 12)], fills=[(525, 553, 355, 384)], sheet_tol=20),
-             dict(ri=2, wrong=1, off=(-20, 15), lines=[(325, 395, 300, 900, 400)], fills=[(751, 786, 331, 388)], sheet_tol=12),
+    LATER = [dict(ri=1, wrong=0, offs=[(10, 8)], lines=[(280, 335, 380, 900, 12), (338, 392, 380, 900, 12)], fills=[(525, 553, 355, 384)], sheet_tol=20),
+             dict(ri=2, wrong=1, offs=[(-20, 15)], lines=[(325, 395, 300, 900, 400)], fills=[(751, 786, 331, 388)], sheet_tol=12),
              # round 4 (593:130): the comma dropped wrong on the first slot; the ? on the first slot off its centre, then on the second
-             dict(ri=3, wrong=2, off=(15, -10), off2=(-12, 12), lines=[(300, 352, 380, 900, 12), (353, 405, 380, 900, 12)], fills=[(822, 857, 305, 362), (707, 742, 354, 411)], sheet_tol=20)]
+             dict(ri=3, wrong=2, offs=[(15, -10), (-12, 12)], lines=[(300, 352, 380, 900, 12), (353, 405, 380, 900, 12)], fills=[(822, 857, 305, 362), (707, 742, 354, 411)], sheet_tol=20),
+             # round 5 (593:151): the danda dropped wrong on the comma's slot; then each slot's own stamp in turn (the comma, the ?, the danda, the danda)
+             dict(ri=4, wrong=0, offs=[(8, 6), (-10, 10), (12, -8), (-8, -12)], lines=[(175, 228, 440, 870, 10), (228, 277, 440, 870, 10), (277, 326, 440, 870, 10), (326, 375, 440, 870, 10), (375, 425, 440, 870, 10)],
+                  fills=[(633, 661, 198, 227), (804, 833, 228, 272), (798, 827, 280, 324), (679, 708, 376, 420)], sheet_tol=20)]
     t0 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L2')); return t; })()")
     pg.evaluate(TRACE)
     # ---- live shots at the beats (informative; the checks read the page's own trace)
@@ -124,7 +130,7 @@ with sync_playwright() as p:
     # ---- the later rounds: the clearing, the round set, the slot; 7 s idle (the title's line again), a wrong drop, the right drop
     LT = []
     for L_ in LATER:
-        ri = L_["ri"]; g = G[ri]; rec = dict(L_); nsl = len(g["SLS"]); pk = RS[ri]["pick"]
+        ri = L_["ri"]; g = G[ri]; rec = dict(L_); nsl = len(g["SLS"])
         pg.wait_for_function(f"document.querySelector('.stp').dataset.round === '{ri}'", timeout=9000); t_set = now(); until(t_set, 150); shot(pg, f"l2_r{ri}_set.png")
         pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=25000); t_live = now()
         pg.evaluate("document.querySelectorAll('.stp-slot').forEach(s => s.style.animationPlayState = 'paused')"); until(now(), 350)
@@ -136,7 +142,7 @@ with sync_playwright() as p:
         for j in range(nsl):   # the right stamp on each slot in turn (two in 593:130's round: the second once the first's box has gone and the stamps are the child's again)
             if j: pg.wait_for_function(f"document.querySelectorAll('.stp-slot.gone').length >= {j} && !!document.querySelector('.stp.live')", timeout=8000); until(now(), 300)
             sfx_ = "" if j == 0 else str(j + 1)
-            drag(g["h"][pk], g["onto"](pk, *(L_["off"] if j == 0 else L_["off2"]), j)); rec["t_drop"] = now(); until(rec["t_drop"], P["snap"] + P["press"] - 30); shot(pg, f"l2_r{ri}_press{sfx_}.png")
+            pk = g["PKS"][j]; drag(g["h"][pk], g["onto"](pk, *L_["offs"][j], j)); rec["t_drop"] = now(); until(rec["t_drop"], P["snap"] + P["press"] - 30); shot(pg, f"l2_r{ri}_press{sfx_}.png")
             pg.wait_for_function(f"document.querySelectorAll('.stp-slot.gone').length >= {j + 1}", timeout=8000); until(now(), 450); rec["dones"].append(shot(pg, f"l2_r{ri}_done{sfx_}.png"))
         rec["done"] = rec["dones"][-1]
         pg.wait_for_function("!!document.querySelector('.fx-confetti')", timeout=8000); until(now(), 500); shot(pg, f"l2_r{ri}_confetti.png")
@@ -265,7 +271,7 @@ with sync_playwright() as p:
     #         the title's line again after 7 s; the wrong drop; the right drop; the box gone, confetti
     prev_drop = fd3; prev_n = len(RS[0]["stamps"])
     for L_ in LT:
-        ri = L_["ri"]; R = RS[ri]; g = G[ri]; SLS, SCS = g["SLS"], g["SCS"]; nsl = len(SLS); WTr = R["sentence"]["word_times"]; n = len(R["stamps"]); wk, pk = L_["wrong"], R["pick"]
+        ri = L_["ri"]; R = RS[ri]; g = G[ri]; SLS, SCS = g["SLS"], g["SCS"]; nsl = len(SLS); WTr = R["sentence"]["word_times"]; n = len(R["stamps"]); wk = L_["wrong"]; PKS, MKS = g["PKS"], g["MKS"]
         slotz = lambda f, j: f["slots"][j] if len(f["slots"]) > j else None   # slot j's trace in a frame
         unp = lambda f, k: "unpop" in imgcls(f, k)
         fu = [first(tr, lambda f, k=k: unp(f, k), since=prev_drop["t"]) for k in range(prev_n)] if prev_drop else []
@@ -316,14 +322,14 @@ with sync_playwright() as p:
         # a slot still empty (593:130), no confetti yet and the stamps the child's again as the box goes; the confetti after the last
         since_ = fdw["t"] if fdw else 0; fdrs = []
         for j in range(nsl):
-            SLj, scj = SLS[j], SCS[j]; ox, oy = L_["off"] if j == 0 else L_["off2"]; tag = f"round {ri + 1}" + (f", slot {j + 1}" if nsl > 1 else "")
+            SLj, scj = SLS[j], SCS[j]; ox, oy = L_["offs"][j]; pk, mk = PKS[j], MKS[j]; tag = f"round {ri + 1}" + (f", slot {j + 1}" if nsl > 1 else "")
             fgr = first(tr, lambda f: has(f["cl"][pk], "drag"), since=since_); fdr = first(tr, lambda f: not has(f["cl"][pk], "drag"), since=fgr["t"] + 100) if fgr else None
             wantr = (scj[0], scj[1] + P["press_down"])
             winr = [f for f in tr if fdr and fdr["t"] <= f["t"] <= fdr["t"] + P["snap"] + P["press"] + 300 and f["st"][pk]]
             fpressr = min(winr, key=lambda f: abs(tipof(f["st"][pk])[0] - wantr[0]) + abs(tipof(f["st"][pk])[1] - wantr[1])) if winr else None
             tipr = tipof(fpressr["st"][pk]) if fpressr else None; tipdr = tipof(tr[tr.index(fdr) - 1]["st"][pk]) if fdr else None
             fmr = first(tr, lambda f: slotz(f, j) and slotz(f, j)["mark"], since=fr["t"]) if fr else None; thudr = [x for x in thud if fdr and abs(x["t"] - fdr["t"] - P["thud_at"]) < 400]
-            check(f"{tag}: the {R['mark']} stamp dropped on the slot ({ox:+} px, {oy:+} px off its centre) snaps over it and presses (its print point 20 px under the centre, within 4 px); the thud at 0.28 s, the mark printed there at 0.4 s",
+            check(f"{tag}: the {mk} stamp (its own) dropped on the slot ({ox:+} px, {oy:+} px off its centre) snaps over it and presses (its print point 20 px under the centre, within 4 px); the thud at 0.28 s, the mark printed there at 0.4 s",
                   fdr and near(tipdr, (scj[0] + ox, scj[1] + oy), 8) and fpressr and near(tipr, wantr, 4) and abs(fpressr["t"] - fdr["t"] - (P["snap"] + P["press"])) < 150
                   and len(thudr) == 1 and abs(thudr[0]["t"] - fdr["t"] - P["thud_at"]) < 80 and fmr and abs(fmr["t"] - fdr["t"] - P["mark_at"]) < 80,
                   ([round(v) for v in tipdr] if tipdr else None, [round(v, 1) for v in tipr] if tipr else None, [round(v, 1) for v in wantr], round(thudr[0]["t"] - fdr["t"]) if thudr and fdr else None, round(fmr["t"] - fdr["t"]) if fmr and fdr else None))
@@ -332,7 +338,7 @@ with sync_playwright() as p:
             check(f"{tag}: the stamp glides home (by 1.8 s); the box goes at 1.6 s on the correct chime (within 60 ms)", fhr and fdr and fhr["t"] - fdr["t"] < P["back_at"] + P["back_home"] + 200 and fgnr and abs(fgnr["t"] - fdr["t"] - P["gone_at"]) < 100
                   and len(corrr) == 1 and abs(corrr[0]["t"] - fgnr["t"]) < 60, (round(fhr["t"] - fdr["t"]) if fhr and fdr else None, round(fgnr["t"] - fdr["t"]) if fgnr and fdr else None, round(corrr[0]["t"] - fgnr["t"]) if corrr and fgnr else None))
             cr = ink_box_centre(L_["dones"][j], SLj["x"] + 1, SLj["y"] - 6, SLj["x"] + SLj["w"] - 1, SLj["y"] + SLj["h"] + 6)
-            check(f"{tag}: the printed {R['mark']} sits with its ink on the slot's centre (within 3 px)", cr and abs(cr[0] - scj[0]) < 3 and abs(cr[1] - scj[1]) < 3, (cr, scj))
+            check(f"{tag}: the printed {mk} sits with its ink on the slot's centre (within 3 px)", cr and abs(cr[0] - scj[0]) < 3 and abs(cr[1] - scj[1]) < 3, (cr, scj))
             if j < nsl - 1:
                 fre = first(tr, lambda f: f["live"], since=fdr["t"] + 500) if fdr else None
                 celx = [x for x in snd("sfx_celebrate") if fdr and fdr["t"] < x["t"] < fdr["t"] + 3000]; confx = [f for f in tr if fdr and fdr["t"] < f["t"] < fdr["t"] + 3000 and f["conf"]]
@@ -343,12 +349,19 @@ with sync_playwright() as p:
                 since_ = fdr["t"] + 100
             fdrs.append(fdr)
         fdr = fdrs[-1]
+        if R.get("sign"):
+            fsg = first(tr, lambda f: f["signs"] and all("on" in c_.split() for c_ in f["signs"]), since=fr["t"]) if fr else None; fwl = fwr[-1] if fwr and all(fwr) else None
+            nxt_ = first(tr, lambda f: f["round"] == str(ri + 1)); fsgo = first(tr, lambda f: f["signs"] and not any("on" in c_.split() for c_ in f["signs"]), since=fdr["t"] + P["done_at"] - 200) if fdr else None
+            check(f"round {ri + 1}: the sign-off's {len(R['sign'])} lines ({' / '.join(sg['text'] for sg in R['sign'])}) are built with the round, arrive with the sentence's last word (within 60 ms) and go first in the clearing, before the words",
+                  fr and len(fr["signs"]) == len(R["sign"]) and not any("on" in c_.split() for c_ in fr["signs"]) and fsg and fwl and abs(fsg["t"] - fwl["t"]) < 60 and fsgo and fdr and abs(fsgo["t"] - fdr["t"] - P["done_at"]) < 120 and (not nxt_ or fsgo["t"] < nxt_["t"]),
+                  (round(fsg["t"] - fwl["t"]) if fsg and fwl else None, round(fsgo["t"] - fdr["t"]) if fsgo and fdr else None))
         fcfr = first(tr, lambda f: f["conf"], since=fdr["t"]) if fdr else None; celr = [x for x in snd("sfx_celebrate") if fdr and fdr["t"] < x["t"] < fdr["t"] + P["done_at"] - 300]
         check(f"round {ri + 1}: confetti 2.1 s after the {'last ' if nsl > 1 else ''}drop, on its own sound (within 100 ms)", fcfr and fdr and abs(fcfr["t"] - fdr["t"] - P["confetti_at"]) < 100 and len(celr) == 1 and abs(celr[0]["t"] - fcfr["t"]) < 100,
               (round(fcfr["t"] - fdr["t"]) if fcfr and fdr else None, round(celr[0]["t"] - fcfr["t"]) if celr and fcfr else None))
         nxt = first(tr, lambda f: f["round"] == str(ri + 1)); t_hi = nxt["t"] if nxt else 1e12
         liftsr = {k: len([i for i in range(1, len(tr)) if fr and fr["t"] < tr[i]["t"] < t_hi and has(tr[i]["cl"][k], "lift") and not has(tr[i - 1]["cl"][k], "lift")]) for k in range(n)}
-        check(f"round {ri + 1}: each stamp lifted only in the child's hand — the wrong one once, the right one {nsl} time{'s' if nsl > 1 else ''}, the rest never", liftsr.get(wk) == 1 and liftsr.get(pk) == nsl and all(v == 0 for k, v in liftsr.items() if k not in (wk, pk)), liftsr)
+        expl = {k: sum(1 for j in range(nsl) if PKS[j] == k) + (1 if k == wk else 0) for k in range(n)}   # each stamp: once per slot it is right for, once more for the wrong drop
+        check(f"round {ri + 1}: each stamp lifted only in the child's hand — once per slot it is right for, plus the wrong drop's: {expl}", liftsr == expl, liftsr)
         L_["fdr"] = fdr; prev_drop = fdr; prev_n = n
     fr1 = first(tr, lambda f: f["round"] == "1")
     check("the right-hand stamp lifted four times in round 1 (two guidances, the far drop, the right drop): no guidance while the child was at work", fr1 and len([t for t in lifts1 if t < fr1["t"]]) == 4, len([t for t in lifts1 if fr1 and t < fr1["t"]]))
@@ -357,7 +370,7 @@ with sync_playwright() as p:
           fdl and cs_t and abs(cs_t - fdl["t"] - P["done_at"]) < 150 and 0 <= t_cel - cs_t < 1500 and not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"),
           (round(cs_t - fdl["t"]) if fdl and cs_t else None, "the end screen seen at", round(t_cel - fdl["t"]) if fdl else None, "the scene gone at", round(tr_end - fdl["t"]) if fdl and tr_end else None))
     until(t_cel, 800); shot(pg, "l2_end.png"); pl = pg.evaluate(PLAYS); own = [x for x in pl if x["src"].startswith("sfx_stamp")]
-    check("leaving the page stopped its own sounds (the pops: 2 + 2 + 3 + 3, and the thud five times: once a slot)", len(own) == 15 and all(x["paused"] for x in own), [(x["src"], x["paused"]) for x in own])
+    check("leaving the page stopped its own sounds (the pops: 2 + 2 + 3 + 3 + 3, and the thud nine times: once a slot)", len(own) == 22 and all(x["paused"] for x in own), [(x["src"], x["paused"]) for x in own])
     # ==== 8. the slot moments against Figma's renders
     if refs and refs[0].exists():
         A = Image.open(z).convert("RGB").resize((1280, 720), Image.LANCZOS); B = Image.open(refs[0]).convert("RGB")
@@ -380,10 +393,14 @@ with sync_playwright() as p:
             mine = [ink_runs(A2, *ln) for ln in L_["lines"]]; theirs = [ink_runs(B2, *ln) for ln in L_["lines"]]
             ok = all(m and t and abs(m[0] - t[0]) <= 3 and abs(m[1] - t[1]) <= 3 and len(m[2]) == len(t[2]) and all(abs(m[2][i][j] - t[2][i][j]) <= 4 for i in range(len(t[2])) for j in (0, 1)) for m, t in zip(mine, theirs))
             check(f"round {ri + 1}'s sentence rows lie where the render's do (each row's ink rows within 3 px, its runs within 4 px)", ok, (mine, "render:", theirs))
-            a2 = np.asarray(A2).astype(int)   # the fill: the slot's own #FFF1B6 (a colour distance under 20), looked for within 20 px of its place (the sheet's paper by 593:130's first slot passes a looser test)
-            for j, (fx0, fx1, fy0, fy1) in enumerate(L_["fills"]):   # each slot's fill (two in 593:130's round)
-                w_ = a2[fy0 - 20:fy1 + 21, fx0 - 20:fx1 + 21]; ys, xs = np.where(np.sqrt(((w_ - np.array([255, 241, 182])) ** 2).sum(axis=2)) < 20); fill = (int(xs.min()) + fx0 - 20, int(xs.max()) + fx0 - 20, int(ys.min()) + fy0 - 20, int(ys.max()) + fy0 - 20) if len(xs) else None
-                check(f"round {ri + 1}'s slot{' ' + str(j + 1) if len(L_['fills']) > 1 else ''} fill lies where the render's does (x {fx0}..{fx1}, y {fy0}..{fy1}, within 1 px)", fill and all(abs(fill[i] - (fx0, fx1, fy0, fy1)[i]) <= 1 for i in range(4)), fill)
+            a2 = np.asarray(A2).astype(int); b2 = np.asarray(B2).astype(int)   # each slot's fill: the slot's own #FFF1B6 (a colour distance under 20) within 6 px of its place (593:151's second and third slots lie 8 px apart), ERODED by a pixel — the fill showing through the stroke's 2 px gaps and the LCD-antialiased fringe of a word 3 px away drop out — mine against the render's, found the same way
+            def fillbox(a, fx0, fx1, fy0, fy1):
+                w_ = a[fy0 - 6:fy1 + 7, fx0 - 6:fx1 + 7]; m = np.sqrt(((w_ - np.array([255, 241, 182])) ** 2).sum(axis=2)) < 20
+                e = m[1:-1, 1:-1] & m[:-2, 1:-1] & m[2:, 1:-1] & m[1:-1, :-2] & m[1:-1, 2:] & m[:-2, :-2] & m[:-2, 2:] & m[2:, :-2] & m[2:, 2:]
+                ys, xs = np.where(e); return (int(xs.min()) + fx0 - 5, int(xs.max()) + fx0 - 5, int(ys.min()) + fy0 - 5, int(ys.max()) + fy0 - 5) if len(xs) else None
+            for j, (fx0, fx1, fy0, fy1) in enumerate(L_["fills"]):   # (two slots in 593:130's round, four in 593:151's)
+                fm, ft = fillbox(a2, fx0, fx1, fy0, fy1), fillbox(b2, fx0, fx1, fy0, fy1)
+                check(f"round {ri + 1}'s slot{' ' + str(j + 1) if len(L_['fills']) > 1 else ''} fill lies where the render's does (the slot at x {fx0}..{fx1}, y {fy0}..{fy1}: the fills' boxes within 1 px of each other, inside the slot)", fm and ft and all(abs(fm[i] - ft[i]) <= 1 for i in range(4)) and fx0 <= fm[0] and fm[1] <= fx1 and fy0 <= fm[2] and fm[3] <= fy1, (fm, "render:", ft))
     # ==== 9. a re-run, and leaving mid-way (the dev nav) with a stamp in hand: a clean stop
     pg.evaluate("window._plays = []"); pg.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'L2'))"); pg.wait_for_timeout(2500)
     check("a re-run from the end screen starts the page over (the table, the bar with its line, round 1)", pg.evaluate("!!document.querySelector('.stp') && !!document.querySelector('.dmf-band.in') && document.querySelector('.stp').dataset.round === '0'") and len(pg.evaluate(PLAYS)) >= 1)

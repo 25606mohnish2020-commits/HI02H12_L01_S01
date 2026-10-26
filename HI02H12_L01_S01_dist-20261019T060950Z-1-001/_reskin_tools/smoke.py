@@ -155,9 +155,10 @@ with sync_playwright() as p:
     # the child's drop ([stamp-drag]): the ? stamp dragged from the tray onto the slot, its print point on the slot's centre
     RS = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data.rounds")
     fpx = lambda x, y: pg.evaluate("([x, y]) => { const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280; return [b.left + x * k, b.top + y * k]; }", [x, y])
-    def stamp_drop(ri):   # [stamp-rounds] round ri's right stamp dragged from the tray onto each of its slots in turn (two in frame 593:130's round: the second once the first's box has gone and the stamps are the child's again), its print point on the slot's centre
-        R = RS[ri]; k = R["pick"]; bx = R["boxes"][k]; tp = R["tips"][k]
+    def stamp_drop(ri):   # [stamp-rounds] each of round ri's slots in turn gets its right stamp (the slot's own pick, or the round's) dragged from the tray, its print point on the slot's centre — the next slot once the previous box has gone and the stamps are the child's again (593:130: two slots; 593:151: four, each wanting its own stamp)
+        R = RS[ri]
         for j, sl in enumerate(R.get("slots") or [R["slot"]]):
+            k = sl.get("pick", R["pick"]); bx = R["boxes"][k]; tp = R["tips"][k]
             if j: pg.wait_for_function(f"document.querySelectorAll('.stp-slot.gone').length >= {j} && !!document.querySelector('.stp.live')", timeout=8000); pg.wait_for_timeout(300)
             g = fpx(bx[0] + bx[2] / 2, bx[1] + 40); d = fpx(bx[0] + bx[2] / 2 + sl["x"] + sl["w"] / 2 - (bx[0] + tp[0]), bx[1] + 40 + sl["y"] + sl["h"] / 2 - (bx[1] + tp[1]))
             pg.mouse.move(g[0], g[1]); pg.mouse.down(); pg.wait_for_timeout(80)
@@ -168,7 +169,8 @@ with sync_playwright() as p:
     check("L2 round 1: the ? stamp dropped on the slot is pressed and the ? printed (stamp_check.py has the page beat by beat: the guidance, the wrong drops, the sounds)", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
     # [stamp-rounds] after each confetti the stamps and the sentence go and the next round comes: round 2 (frame 579:47: the । and the
     # comma, the two-row sentence, the small slot), round 3 (592:89: three stamps, "मुझे उपहार बहुत पसंद हैं", the danda's slot), round 4
-    # (593:130: three stamps, two questions on two rows, TWO slots for the ? — each box goes on its own chime, the confetti after the second)
+    # (593:130: three stamps, two questions on two rows, TWO slots for the ? — each box goes on its own chime, the confetti after the second),
+    # round 5 (593:151: the letter's closing lines on five rows, FOUR slots each wanting its own stamp — the comma, the ?, the danda twice — and the sign-off)
     for ri in range(1, len(RS)):
         R = RS[ri]; nw = len(R["sentence"]["word_times"]); ns = len(R["stamps"]); pict = R["stamps"][R["pick"]]
         pg.wait_for_function(f"document.querySelector('.stp').dataset.round === '{ri}'", timeout=12000)

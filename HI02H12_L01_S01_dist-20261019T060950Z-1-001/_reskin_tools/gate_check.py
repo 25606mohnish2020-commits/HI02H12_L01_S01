@@ -86,9 +86,10 @@ with sync_playwright() as p:
             # the child's drop ([stamp-drag]): the ? stamp dragged from the tray onto the slot, its print point on the slot's centre
             RS = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data.rounds")
             fpx = lambda x, y: pg.evaluate("([x, y]) => { const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280; return [b.left + x * k, b.top + y * k]; }", [x, y])
-            def stamp_drop(ri):   # [stamp-rounds] round ri's right stamp dragged from the tray onto each of its slots in turn (two in frame 593:130's round: the second once the first's box has gone and the stamps are the child's again), its print point on the slot's centre
-                R = RS[ri]; k = R["pick"]; bx = R["boxes"][k]; tp = R["tips"][k]
+            def stamp_drop(ri):   # [stamp-rounds] each of round ri's slots in turn gets its right stamp (the slot's own pick, or the round's) dragged from the tray, its print point on the slot's centre — the next slot once the previous box has gone and the stamps are the child's again (593:130: two slots; 593:151: four, each wanting its own stamp)
+                R = RS[ri]
                 for j, sl in enumerate(R.get("slots") or [R["slot"]]):
+                    k = sl.get("pick", R["pick"]); bx = R["boxes"][k]; tp = R["tips"][k]
                     if j: pg.wait_for_function(f"document.querySelectorAll('.stp-slot.gone').length >= {j} && !!document.querySelector('.stp.live')", timeout=8000); pg.wait_for_timeout(300)
                     g = fpx(bx[0] + bx[2] / 2, bx[1] + 40); d = fpx(bx[0] + bx[2] / 2 + sl["x"] + sl["w"] / 2 - (bx[0] + tp[0]), bx[1] + 40 + sl["y"] + sl["h"] / 2 - (bx[1] + tp[1]))
                     pg.mouse.move(g[0], g[1]); pg.mouse.down(); pg.wait_for_timeout(80)
@@ -100,7 +101,7 @@ with sync_playwright() as p:
                 pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=25000); stamp_drop(ri)
             pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=15000); pg.wait_for_timeout(1500)
             pg.screenshot(path=str(out / "end_after_p2.png"))
-            check("L2 solved by the four rounds' drops (the ?, the comma, the danda, then the ? twice — printed, confetti each round) and the CELEBRATION end screen follows, with no further gate", openings(pg.evaluate("window._gate")) == ["P2"]
+            check("L2 solved by the five rounds' drops (the ?, the comma, the danda, the ? twice, then the comma + ? + danda + danda — printed, confetti each round) and the CELEBRATION end screen follows, with no further gate", openings(pg.evaluate("window._gate")) == ["P2"]
                   and pg.evaluate("document.getElementById('endScreen').classList.contains('show') && !document.getElementById('phaseGate').classList.contains('show')"))
             # this run jumps in at G4, so punct_build_done (G1-G3) is legitimately missing here; phase_transition now fires on
             # P2's gate. smoke.py plays the whole game and checks that the validator passes outright. Also checked: nothing the
