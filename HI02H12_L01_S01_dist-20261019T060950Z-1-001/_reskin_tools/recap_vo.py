@@ -124,6 +124,9 @@ LINES = {
     # 448-wide box), the comma's place an empty slot between खिलौने and पेन, the danda after a space as the frame has it
     # [stamp-rounds] the third round (frame 592:89): a statement — its danda is the slot; three stamps in the tray
     "sent3":  ("मुझे उपहार बहुत पसंद हैं।", "मुझे उपहार बहुत पसंद हैं"),
+    # [stamp-rounds] the fourth round (frame 593:130): two questions read one after the other, each with its "?" (the synthesiser
+    # lifts at each); shown on two rows (the frame's 402-wide box), each row ending in an empty slot for its "?"
+    "sent4":  ("क्या आपको भी उपहार अच्छे लगते हैं? दादी जी कैसी हैं?", "क्या आपको भी उपहार अच्छे लगते हैं\nदादी जी कैसी हैं"),
     "sent2":  ("माँ ने मुझे मेरे जन्मदिन पर कई सारे खिलौने, पेन और किताबें दिलाई हैं।", "माँ ने मुझे मेरे जन्मदिन पर कई सारे\nखिलौने पेन और किताबें दिलाई हैं ।"),
   },
 }

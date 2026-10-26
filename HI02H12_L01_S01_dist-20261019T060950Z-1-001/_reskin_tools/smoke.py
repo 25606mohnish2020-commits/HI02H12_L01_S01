@@ -155,26 +155,29 @@ with sync_playwright() as p:
     # the child's drop ([stamp-drag]): the ? stamp dragged from the tray onto the slot, its print point on the slot's centre
     RS = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data.rounds")
     fpx = lambda x, y: pg.evaluate("([x, y]) => { const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280; return [b.left + x * k, b.top + y * k]; }", [x, y])
-    def stamp_drop(ri):   # [stamp-rounds] round ri's right stamp dragged from the tray onto its slot, its print point on the slot's centre
-        R = RS[ri]; k = R["pick"]; bx = R["boxes"][k]; tp = R["tips"][k]; sl = R["slot"]
-        g = fpx(bx[0] + bx[2] / 2, bx[1] + 40); d = fpx(bx[0] + bx[2] / 2 + sl["x"] + sl["w"] / 2 - (bx[0] + tp[0]), bx[1] + 40 + sl["y"] + sl["h"] / 2 - (bx[1] + tp[1]))
-        pg.mouse.move(g[0], g[1]); pg.mouse.down(); pg.wait_for_timeout(80)
-        for i in range(1, 13): pg.mouse.move(g[0] + (d[0] - g[0]) * i / 12, g[1] + (d[1] - g[1]) * i / 12); pg.wait_for_timeout(16)
-        pg.wait_for_timeout(60); pg.mouse.up()
+    def stamp_drop(ri):   # [stamp-rounds] round ri's right stamp dragged from the tray onto each of its slots in turn (two in frame 593:130's round: the second once the first's box has gone and the stamps are the child's again), its print point on the slot's centre
+        R = RS[ri]; k = R["pick"]; bx = R["boxes"][k]; tp = R["tips"][k]
+        for j, sl in enumerate(R.get("slots") or [R["slot"]]):
+            if j: pg.wait_for_function(f"document.querySelectorAll('.stp-slot.gone').length >= {j} && !!document.querySelector('.stp.live')", timeout=8000); pg.wait_for_timeout(300)
+            g = fpx(bx[0] + bx[2] / 2, bx[1] + 40); d = fpx(bx[0] + bx[2] / 2 + sl["x"] + sl["w"] / 2 - (bx[0] + tp[0]), bx[1] + 40 + sl["y"] + sl["h"] / 2 - (bx[1] + tp[1]))
+            pg.mouse.move(g[0], g[1]); pg.mouse.down(); pg.wait_for_timeout(80)
+            for i in range(1, 13): pg.mouse.move(g[0] + (d[0] - g[0]) * i / 12, g[1] + (d[1] - g[1]) * i / 12); pg.wait_for_timeout(16)
+            pg.wait_for_timeout(60); pg.mouse.up()
     stamp_drop(0)
     pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=5000)
     check("L2 round 1: the ? stamp dropped on the slot is pressed and the ? printed (stamp_check.py has the page beat by beat: the guidance, the wrong drops, the sounds)", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
     # [stamp-rounds] after each confetti the stamps and the sentence go and the next round comes: round 2 (frame 579:47: the । and the
-    # comma, the two-row sentence, the small slot), round 3 (592:89: three stamps, "मुझे उपहार बहुत पसंद हैं", the danda's slot)
+    # comma, the two-row sentence, the small slot), round 3 (592:89: three stamps, "मुझे उपहार बहुत पसंद हैं", the danda's slot), round 4
+    # (593:130: three stamps, two questions on two rows, TWO slots for the ? — each box goes on its own chime, the confetti after the second)
     for ri in range(1, len(RS)):
         R = RS[ri]; nw = len(R["sentence"]["word_times"]); ns = len(R["stamps"]); pict = R["stamps"][R["pick"]]
         pg.wait_for_function(f"document.querySelector('.stp').dataset.round === '{ri}'", timeout=12000)
         pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=25000)
         check(f"L2 round {ri + 1} ({R['frame']}): its {ns} stamps shown, its sentence's {nw} words read and shown, its slot blinking — the stamps the child's again",
               pg.evaluate(f"document.querySelectorAll('.stp-stamp img.shown').length === {ns} && document.querySelectorAll('.stp-sent .sfig-w.on').length === {nw} && !!document.querySelector('.stp-slot.in') && document.querySelector('.stp-stamp.s{R['pick']} img').src.endsWith('{pict}.webp')"))
-        stamp_drop(ri)
-        pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=5000)
-        check(f"L2 round {ri + 1}: the {R['mark']} stamp dropped on the slot is pressed and the {R['mark']} printed", pg.evaluate("!!document.querySelector('.stp-mark.in')"))
+        stamp_drop(ri); nsl = len(R.get("slots") or [R["slot"]])
+        pg.wait_for_function(f"document.querySelectorAll('.stp-mark.in').length === {nsl}", timeout=5000)
+        check(f"L2 round {ri + 1}: the {R['mark']} stamp dropped on {'the slot' if nsl == 1 else 'each of the ' + str(nsl) + ' slots'} is pressed and the {R['mark']} printed {'there' if nsl == 1 else 'in each'}", pg.evaluate(f"document.querySelectorAll('.stp-mark.in').length === {nsl}"))
     pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=15000)
     log = pg.evaluate("window._gate"); opens = [log[i]["slide"] for i in range(len(log)) if log[i]["show"] and (i == 0 or not log[i - 1]["show"])]
     check("the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last",
