@@ -389,7 +389,41 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
              "pace": {"a_hold": 2000, "xfade": 650, "bub_start": 2600, "bub_gap": 230, "cloud_start": 3300, "cloud_in": 1600, "hold": 2600,
                       "dissolve": 1500, "letter_in": 450, "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2,
                       "veil_at": 1900, "done_at": 2450}}})
-assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "CEL"]
+# [stamp-fig] L2 = the Figma frame 565:28 "G3 guided story question" (the stamp page), after the letter page: the letter's sentence on a
+# sheet on a wooden table, a tray with two stamps (। and ?), the demos' title bar. It drives itself: the table (under the letter
+# page's veil, which lifts) and the title bar on its line (vo_stamp_intro); the sheet settles and the tray slides up; the two
+# stamps pop in, each on the user's pop sound; the sentence is read without a pause, word by word (vo_stamp_sent); the empty
+# slot appears and blinks 3.5 s (the demos' blink); the right stamp (?) lifts, glides over the slot, presses on the user's stamp
+# thud — the mark is printed on the slot's centre — and glides home; the slot's box goes, the mark stays; then the end screen.
+# Numbers measured on the frame (get_metadata) and its render; the clips + timings from stamp_assets/ (recap_vo.py stamp); the
+# bitmaps = the frame's own assets (scratchpad make_stamp_assets.py: the sheet "image 238" turned as the frame shows it).
+STAMP_KEYS = ["intro", "sent"]
+sl_ = {k: json.loads((SCR / "stamp_assets" / f"vo_stamp_{k}.words.json").read_text(encoding="utf-8")) for k in STAMP_KEYS}
+STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?"}
+STAMP_SND = ["sfx_stamp_pop", "sfx_stamp_press"]
+for k, emo in STAMP_IMGS.items():
+    card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
+for k in STAMP_SND:
+    card["assets"]["audio"][k] = f"assets/Audio/{k}.ogg"
+for k in STAMP_KEYS:
+    card["assets"]["audio"][f"vo_stamp_{k}"] = f"assets/Audio/vo_stamp_{k}.ogg"; card["assets"]["audio_text"][f"vo_stamp_{k}"] = sl_[k]["text"]
+i_l1 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "L1")
+assert card["slides"][i_l1 + 1]["id"] == "CEL"
+card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enactive", "type": "STAMP_DEMO", "prompt_hi": sl_["intro"]["shown"],
+    "audio": {"prompt": "vo_stamp_intro"},
+    "data": {"band_hi": sl_["intro"]["shown"], "intro_audio": "vo_stamp_intro",
+             "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
+             "mark": "?", "pick": 1,
+             "images": {"wood": "img_stamp_wood", "sheet": "img_stamp_sheet", "tray": "img_stamp_tray", "stamps": ["img_stamp_danda", "img_stamp_question"]},
+             "sfx": {"pop": "sfx_stamp_pop", "press": "sfx_stamp_press"},
+             "layout": {"sheet": [355, 64, 571, 594], "tray": [427, 565, 426, 142], "stamps": [[532, 541, 74, 116], [677, 540, 72, 115]],
+                        "tips": [[36, 113], [35, 114]], "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},   # the frame's box is at 336; Noto's ink sits 2 px above Figma's fallback's
+                        "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
+             "pace": {"intro_at": 400, "after_intro": 500, "sheet_in": 0, "tray_in": 150, "stamps_at": 700, "pop_gap": 350, "sent_at": 700,
+                      "blink_ms": 3500, "glide": 900, "hover_up": 34, "press_down": 20, "press_at": 950, "press": 140, "thud_at": 1010,
+                      "mark_at": 1050, "lift_at": 1200, "back_at": 1450, "back": 800, "gone_at": 2300, "done_at": 3300}},
+    "signals": {"on_complete": []}})
+assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]
 pd = {}
 for s in card["slides"]: pd[s["phase"]] = pd.get(s["phase"], 0) + 1
 card["phase_distribution"] = pd
@@ -1228,6 +1262,149 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
 
 """
 js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: letter_mod + m.group(0), re.M, "PHASE_TRANSITION anchor (letter)")
+stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter (FLN-by-MJ frame 565:28 "G3 guided story question"): the
+     letter's sentence on a sheet on the wooden table, a tray with two stamps (। and ?), the demos' title bar (.dmf-band). It
+     drives itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts
+     to sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; 3. the two stamps pop into the tray,
+     each on its pop; 4. the sentence is read without a pause, WORD BY WORD on the clip's clock; 5. the empty slot appears and
+     blinks for 3.5 s (the demos' three slow blinks); 6. the right stamp lifts, glides over the slot, presses onto it on the thud
+     — the mark is printed on the slot's CENTRE (its ink, as on the demos) — lifts and glides home; the slot's box goes, the mark
+     stays; then the page moves on by itself (no आगे). Places in data.layout (frame px), moments in data.pace (ms). ===== */
+  STAMP_DEMO: {
+    mount(host, slide){
+      const d = slide.data || {}, S = d.sentence || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
+      const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
+        glide: 900, hover_up: 34, press_down: 20, press_at: 950, press: 140, thud_at: 1010, mark_at: 1050, lift_at: 1200, back_at: 1450, back: 800,
+        gone_at: 2300, done_at: 3300 }, d.pace || {});
+      const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142], st = LY.stamps || [[532, 541, 74, 116], [677, 540, 72, 115]],
+            tips = LY.tips || [[36, 113], [35, 114]], se = LY.sent || { x: 63, y: 336, w: 1075, h: 48, size: 30 }, sl = LY.slot || { x: 751, y: 331, w: 36, h: 58 };
+      const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
+      // the slot's dashed stroke, one line per side carrying the render's own dash runs ([margin, dash, gap, ...]); the rounded
+      // corners stay open, as in the render (the demos' way)
+      const da = (r)=> r && r.length ? '0 ' + r.join(' ') : '10 5';
+      const side = (x1, y1, x2, y2, r)=> '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke-dasharray="' + da(r) + '"/>';
+      const w = sl.w, h = sl.h, lh = Math.round(se.size * 1.714 * 10) / 10;   // Baloo Bhai 2's line box, as on every Figma page
+      const fig = sfigMount(host,
+        '<div class="stp">' +
+          '<img class="stp-wood" src="' + imgSrc(im.wood) + '" alt="" draggable="false">' +
+          '<div class="dmf-band"><div class="dmf-pill"><p></p></div><div class="dmf-head"><img src="assets/UI/demo1_head.webp" alt="" draggable="false"></div></div>' +
+          '<img class="stp-sheet" src="' + imgSrc(im.sheet) + '" alt="" draggable="false" style="' + box(sh) + '">' +
+          '<img class="stp-tray" src="' + imgSrc(im.tray) + '" alt="" draggable="false" style="' + box(tr) + '">' +
+          (im.stamps || []).map((id, k)=> '<div class="stp-stamp s' + k + '" style="' + box(st[k] || st[0]) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join('') +
+          '<p class="stp-sent" style="left:' + se.x + 'px;top:' + (se.y - (lh - se.h) / 2) + 'px;width:' + se.w + 'px;height:' + lh + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px"></p>' +
+          '<div class="stp-slot" style="' + box([sl.x, sl.y, w, h]) + '"><svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
+            side(0, 1, w, 1, sl.dash_h) + side(w - 1, 0, w - 1, h, sl.dash_v) + side(0, h - 1, w, h - 1, sl.dash_h) + side(1, 0, 1, h, sl.dash_v) + '</svg>' +
+            '<span class="stp-mark" style="font-size:' + se.size + 'px">' + (d.mark || '?') + '</span></div>' +
+          '<div class="stp-veil"></div>' +
+        '</div>');
+      const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
+      const root = fig.querySelector(".stp"), band = fig.querySelector(".dmf-band"), sheet = fig.querySelector(".stp-sheet"), tray = fig.querySelector(".stp-tray"),
+            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), sentEl = fig.querySelector(".stp-sent"), slot = fig.querySelector(".stp-slot"), mark = fig.querySelector(".stp-mark");
+      fig.querySelector(".dmf-pill p").textContent = d.band_hi || "";
+      const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
+      // the right stamp's print point (the middle of its face's bottom edge, in its box: data.layout.tips) lands press_down px
+      // under the slot's centre — the stamp standing on the slot — after hovering hover_up px above that
+      const pick = d.pick != null ? d.pick : 1, stamp = stamps[pick] || stamps[0], tip = tips[pick] || tips[0], sb = st[pick] || st[0];
+      const dx = sl.x + w / 2 - (sb[0] + tip[0]), dy = sl.y + h / 2 + P.press_down - (sb[1] + tip[1]);
+      const HOVER = "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(1.08)", PRESS = "translate(" + dx + "px, " + dy + "px) scale(1)";
+      state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
+      setSwMood("talk");
+      const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
+      const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
+      // the page's own sounds (two pops, the thud), fetched now so each starts on its beat — online too
+      const sounds = [];
+      const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
+      const pops = [mk(sfx.pop), mk(sfx.pop)], thud = mk(sfx.press);
+      [d.intro_audio, S.audio].forEach(id=>{ const src = A(id); if(src) try{ new Audio(src).load(); }catch(e){} });   // the two clips fetched now: the bar and the sheet follow the sound without a load gap
+      const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
+      // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops
+      window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} }); state.demoRunning = false; };
+      // plays a clip and reports, on the clip's own clock, how many of `times` it has reached (the demos' narrate); onEnd runs
+      // once — a clip that never reports its end is stopped by the watchdog, so the page never strands
+      const narrate = (src, times, onIndex, onEnd)=>{
+        const began = Date.now(); let done = false, last = -1;
+        const end = ()=>{ if(done || !alive()) return; done = true; if(times.length && last < times.length){ last = times.length; onIndex(last); } onEnd(); };
+        play(src, end);
+        const file = src ? src.split("/").pop() : "";
+        const lastT = times.length ? times[times.length - 1] : authoredVoHoldMs(src) / 1000;
+        setTimeout(()=>{ if(!done && alive()){ stopAudio(); end(); } }, (lastT + 10) * 1000);
+        const tick = ()=>{
+          if(done || !alive()) return;
+          const a = currentAudio;
+          const own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === file;
+          const t = own ? a.currentTime : (Date.now() - began) / 1000;
+          let n = 0; while(n < times.length && t + 0.04 >= times[n]) n++;
+          if(n !== last){ last = n; onIndex(n); }
+          if(n < times.length) nextFrame(tick);
+        };
+        if(times.length) tick();
+      };
+      // 1. the table shows as the letter page's veil lifts; then the title bar appears the moment its line starts to sound
+      nextFrame(()=> nextFrame(()=>{ if(alive()) root.classList.add("lit"); }));
+      const introSrc = A(d.intro_audio);
+      at(P.intro_at, ()=>{
+        const showBand = ()=>{ if(alive()) band.classList.add("in"); };
+        let introDone = false;
+        const afterIntro = ()=>{ if(introDone || !alive()) return; introDone = true; showBand(); at(P.after_intro, stage2); };
+        play(introSrc, afterIntro);
+        const a0 = currentAudio;
+        const whenSounding = ()=>{ if(!alive() || band.classList.contains("in")) return; if(a0 === currentAudio && a0.currentTime > 0) showBand(); else nextFrame(whenSounding); };
+        if(a0 && introSrc && decodeURIComponent(String(a0.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showBand();
+        at(1500, showBand);   // a clip that is slow to start never keeps the bar away
+        at(authoredVoHoldMs(introSrc) + 10000, ()=>{ if(!introDone){ stopAudio(); afterIntro(); } });
+      });
+      // 2. the sheet settles onto the table, the tray slides up under it
+      function stage2(){
+        at(P.sheet_in, ()=> sheet.classList.add("in"));
+        at(P.tray_in, ()=> tray.classList.add("in"));
+        at(P.stamps_at, stage3);
+      }
+      // 3. the two stamps pop into the tray, each on its pop
+      function stage3(){
+        stamps.forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.8);
+          img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
+        at((stamps.length - 1) * P.pop_gap + P.sent_at, stage4);
+      }
+      // 4. the sentence, read without a pause, its words arriving one by one with the clip
+      function stage4(){ narrate(L.src, L.times || [], n=> sfigShow(L, n), stage5); }
+      // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink)
+      function stage5(){
+        slot.style.animationDuration = (P.blink_ms / 3) + "ms"; slot.classList.add("in", "blink");
+        at(P.blink_ms, ()=>{ slot.classList.remove("blink"); stage6(); });
+      }
+      // 6. the right stamp lifts and glides over the slot, presses onto it on the thud — the mark is printed, its ink on the slot's
+      //    centre — lifts and glides home; the slot's box goes, the mark stays; the page moves on
+      function stage6(){
+        const move = (tf, ms, ease)=>{ stamp.style.transition = "transform " + ms + "ms " + ease + ", filter .3s"; stamp.style.transform = tf; };
+        stamp.classList.add("lift"); move(HOVER, P.glide, "cubic-bezier(.4,0,.2,1)");
+        at(P.press_at, ()=> move(PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
+        at(P.thud_at, ()=> sound(thud, 0.9));
+        at(P.mark_at, ()=>{ centreInk(mark); mark.classList.add("in"); });
+        at(P.lift_at, ()=> move(HOVER, 180, "cubic-bezier(0,0,.3,1)"));
+        at(P.back_at, ()=>{ move("none", P.back, "cubic-bezier(.4,0,.2,1)"); at(P.back - 150, ()=> stamp.classList.remove("lift")); });
+        at(P.gone_at, ()=> slot.classList.add("gone"));
+        at(P.done_at, ()=>{ state.demoRunning = false; completeSlide(true); });
+      }
+      // the mark's INK on the slot's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
+      // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy)
+      function centreInk(markEl){
+        try{
+          const cs = getComputedStyle(markEl), c = document.createElement("canvas").getContext("2d");
+          c.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+          const t = c.measureText(markEl.textContent);
+          if(!t.width || !isFinite(t.fontBoundingBoxAscent)) return;
+          const base = (markEl.offsetHeight - t.fontBoundingBoxAscent - t.fontBoundingBoxDescent) / 2 + t.fontBoundingBoxAscent;
+          const ix = (t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2 - markEl.offsetWidth / 2;
+          const iy = base + (t.actualBoundingBoxDescent - t.actualBoundingBoxAscent) / 2 - markEl.offsetHeight / 2;
+          markEl.style.setProperty("--ix", ix.toFixed(2) + "px"); markEl.style.setProperty("--iy", iy.toFixed(2) + "px");
+        }catch(e){}
+      }
+    }
+  },
+
+"""
+js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: stamp_mod + m.group(0), re.M, "PHASE_TRANSITION anchor (stamp)")
 js = sub1(js, r"^SlideModules\.MATCH_PAIRS           = SlideModules\.MATCH_THE_PAIR;",
           lambda m: m.group(0) + "\nSlideModules.SORT_WORDS            = SlideModules.SORT_QTYPE;   // [reskin] generic two-box word sort (custom data.bins), r4n", re.M, "alias block")
 js = sub1(js, r"^SlideModules\.SORT_WORDS .*$",
@@ -1237,7 +1414,7 @@ js = sub1(js, r'  SEQUENCE_DRAG: "drag",',
 # [sent-fig] G4, P1 + P2 (SENT_PICK) repeat their instruction after every 5 s of quiet itself (the reference P4's rule), so the engine's
 # one-off 7 s idle reminder stays off there; and the stage carries .sent-page for P4's look (style.css [sent-fig])
 js = sub1(js, r"if\(\['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG'\]\.includes\(",
-          "if(['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG','SENT_PICK','LETTER_STORY'].includes(", 0, "armIdleVo exclusions (sent, letter)")   # [letter-fig] no idle reminder on the story page
+          "if(['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG','SENT_PICK','LETTER_STORY','STAMP_DEMO'].includes(", 0, "armIdleVo exclusions (sent, letter, stamp)")   # [letter-fig] no idle reminder on the story page
 js = sub1(js, r'  document\.body\.classList\.toggle\("tut-page", isTut\);\n',
           lambda m: m.group(0) + '  $("stage").classList.toggle("sent-page", slide.type === "SENT_PICK");   // [sent-fig] G4, P1 + P2: the reference P4\'s header + page look\n',
           0, "mountSlide sent-page")
@@ -1263,7 +1440,7 @@ js = sub1(js, r'     && next\.type !== "CELEBRATION" && next\.type !== "PHASE_TR
 # Swiftie or 🔊 chip), so it mounts in the same teaching frame the tutorial pages use; its phase stays "guided" (gates,
 # idle reminder, telemetry)
 js = sub1(js, r'  const isTut = \(slide\.phase === "tutorial" && ',
-          '  const isTut = ((slide.phase === "tutorial" || slide.type === "PUNCT_PICK" || slide.type === "LETTER_STORY") && ', 0, "isTut (pick, letter)")   # [letter-fig] L1 too: the whole-stage frame, no header
+          '  const isTut = ((slide.phase === "tutorial" || slide.type === "PUNCT_PICK" || slide.type === "LETTER_STORY" || slide.type === "STAMP_DEMO") && ', 0, "isTut (pick, letter, stamp)")   # [letter-fig] L1 too: the whole-stage frame, no header
 js = sub1(js, r'const SEL = "\.sort-item, \.dd-tile, \.cdm-objtile, \.cdm-card, \.combine-drag";',
           'const SEL = ".sort-item, .dd-tile, .cdm-objtile, .cdm-card, .combine-drag, .bp-tile, .ev-sort-item";   /* [reskin] + the punctuation / sort tiles */', 0, "drag VO gate SEL")
 assert "SwiftPAL.emit(" not in js
@@ -1684,6 +1861,50 @@ letter_css = """
 .ltr-veil{inset:0;background:#FDE9A8;opacity:0;pointer-events:none;transition:opacity .5s ease-in;}   /* the end screen's base colour */
 .ltr.veil .ltr-veil{opacity:1;}
 """
+# [stamp-fig] L2, the stamp page, in the frame's 1280x720 px inside .sfig-full's .sfig-in: the frame's places (get_metadata 565:28) —
+# the wood 0,-1 1280x721; the title bar = the demos' group (36,26 1244x120, its text at 139.55 in the pill: measured the same on this
+# render); "image 238" turned, 355,64 571x594 (the paper itself 392..887 x 154..559 on the render); the tray 427,565 426x142 with its
+# 0 4 4 .48 shadow; the stamps 532,541 74x116 (।) and 677,540 72x115 (?); the sentence's 1075-wide centred box at 63,336 (48 tall,
+# 30px: the ink 455..745 x 342..372 on the render, centred on 600); the slot 751,331 36x58 #FFF1B6, 8px corners, a 2px dashed
+# rgba(86,86,86,.85) stroke inside (its runs, read off the render: 6 9 6 9 6 across, 6 7 4 10 4 10 4 7 6 down).
+stamp_css = """
+/* ===== [stamp-fig] L2, the stamp page (frame 565:28, STAMP_DEMO): the letter's sentence stamped, on the whole stage ===== */
+.stp{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;}
+.stp > *{position:absolute;}
+.stp-wood{left:0;top:-1px;width:1280px;height:721px;}                                        /* the table, as the frame crops it */
+.stp-sheet{opacity:0;transform:translateY(-28px) scale(.97);transition:opacity .5s ease-out,transform .55s cubic-bezier(.2,.9,.3,1.15);}   /* settles onto the table */
+.stp-sheet.in{opacity:1;transform:none;}
+.stp-tray{filter:drop-shadow(0 4px 4px rgba(0,0,0,.48));opacity:0;transform:translateY(36px);transition:opacity .4s ease-out,transform .5s cubic-bezier(.2,.9,.3,1.15);}   /* slides up */
+.stp-tray.in{opacity:1;transform:none;}
+/* a stamp: its box glides (the module sets the transform), its picture pops in (about its base) */
+.stp-stamp{transform-origin:50% 100%;transition:filter .3s;}
+.stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 100%;}
+.stp-stamp img.pop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both;}
+.stp-stamp img.shown{opacity:1;}
+@keyframes stpPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
+.stp-stamp.lift{z-index:5;filter:drop-shadow(0 16px 8px rgba(0,0,0,.28));}                 /* lifted off the table, over the sheet */
+/* the sentence: Noto Sans Devanagari SemiBold in Baloo Bhai 2's line box, black, centred; each word arrives as it is read */
+.stp-sent{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;word-spacing:-2px;color:#000;margin:0;}
+.stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
+.stp-sent .sfig-w.on{opacity:1;transform:none;}
+/* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms); .gone = the box goes, the mark stays */
+.stp-slot{background:#FFF1B6;border-radius:8px;opacity:0;transition:opacity .3s,background-color .4s;}
+.stp-slot.in{opacity:1;}
+.stp-slot.blink{animation:dmfBlink 1.16667s ease-in-out 3;}
+.stp-slot svg{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;transition:opacity .4s;}
+.stp-slot.gone{background:transparent;}
+.stp-slot.gone svg{opacity:0;}
+/* the printed mark: the sentence's own letter (its font, size and black), its INK on the slot's centre (--ix / --iy measured by the
+   module), pressed in: it lands from a little large and tilted, as a stamp's print */
+.stp-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;line-height:normal;
+  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;color:#000;
+  transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
+  transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
+.stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
+/* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
+.stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;}
+.stp.lit .stp-veil{opacity:0;}
+"""
 sent_css = """
 /* ===== [sent-fig] G4, P1 + P2 = the reference game's Page 11 (P4, https://hi-02-h04-l01-s01-dun.vercel.app/), SENT_PICK: its rules,
    read from the live page (CSSOM) and scoped to .stage.sent-page, so no other page changes. The picture bare at 315px high
@@ -1753,7 +1974,7 @@ css = (ref_css
        + "\n\n/* ===== [reskin] PORTED FROM THE HI02H12_L01_S01 ENGINE: evidence / sort / punctuation modules ===== */\n"
        + mod_css
        + "\n/* ===== [reskin] from the reference's ocean-games.css: wrong-answer feedback is motion-only ===== */\n"
-       + feedback_rules + fit_rules + title_css + story_css + recap_css + demo_css + sent_css + letter_css)
+       + feedback_rules + fit_rules + title_css + story_css + recap_css + demo_css + sent_css + letter_css + stamp_css)
 
 # ---------- 6. index.html ----------
 body = ref_body
@@ -1906,6 +2127,13 @@ LETTER_SRC = SCR / "letter_assets"
 for name, sub in [(f"{k}.webp", "Images") for k in LETTER_IMGS] + [(f"{k}.ogg", "Audio") for k in LETTER_SND]:
     f, dst = LETTER_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing letter asset {f}"
+    if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+# ---------- 7m. [stamp-fig] L2's bitmaps (stamp_assets/: the frame's own assets, by the scratchpad's make_stamp_assets.py), its two
+#               clips (recap_vo.py stamp) and the user's two sound effects as ogg (see README) ----------
+STAMP_SRC = SCR / "stamp_assets"
+for name, sub in [(f"{k}.webp", "Images") for k in STAMP_IMGS] + [(f"{k}.ogg", "Audio") for k in STAMP_SND] + [(f"vo_stamp_{k}.ogg", "Audio") for k in STAMP_KEYS]:
+    f, dst = STAMP_SRC / name, DIST / "assets" / sub / name
+    assert f.exists(), f"missing stamp asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 
 # ---------- 7. assets the reference chrome needs ----------

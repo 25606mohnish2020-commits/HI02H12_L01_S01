@@ -146,10 +146,16 @@ with sync_playwright() as p:
     check("L1: the scene has played itself to the pulsing letter in the cloud, tappable, no आगे",
           pg.evaluate("getComputedStyle(document.getElementById('navBtn')).display === 'none' && !!document.querySelector('.ltr.ready .ltr-env-pos')"))
     bb = pg.locator(".ltr-env-pos").bounding_box(); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)
+    pg.wait_for_function("CARD.slides[state.idx].id==='L2' && !!document.querySelector('.stp')", timeout=15000)
+    check("the tap opens the envelope (zoom, flap, dive, veil) and L2, the stamp page, follows ([stamp-fig], stamp_check.py has it beat by beat)",
+          pg.evaluate("getComputedStyle(document.getElementById('navBtn')).display === 'none' && !document.getElementById('phaseGate').classList.contains('show')"))
+    pg.wait_for_function("!!document.querySelector('.stp-mark.in')", timeout=40000)
+    check("L2: the title, the sheet and the tray, the two stamps, the sentence, the blinking slot, then the ? stamped into the slot",
+          pg.evaluate("!!document.querySelector('.dmf-band.in') && !!document.querySelector('.stp-sheet.in') && !!document.querySelector('.stp-tray.in') && document.querySelectorAll('.stp-stamp img.shown').length === 2 && document.querySelectorAll('.stp-sent .sfig-w.on').length === 5"))
     pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=15000)
     log = pg.evaluate("window._gate"); opens = [log[i]["slide"] for i in range(len(log)) if log[i]["show"] and (i == 0 or not log[i - 1]["show"])]
-    check("the tap opens the envelope (zoom, flap, veil) and the CELEBRATION end screen follows with no further gate; 14 pages, the end screen last",
-          opens == ["T4", "P2"] and pg.evaluate("CARD.slides.length === 14 && CARD.slides[13].id === 'CEL'"), opens)
+    check("the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last",
+          opens == ["T4", "P2"] and pg.evaluate("CARD.slides.length === 15 && CARD.slides[14].id === 'CEL'"), opens)
     check("the end screen's validator: every expected signal fired", pg.evaluate("GameBus.validatorReport.passed === true"), pg.evaluate("GameBus.validatorReport.missing_signals"))
 
     # 3. dev nav present with ?dev=1

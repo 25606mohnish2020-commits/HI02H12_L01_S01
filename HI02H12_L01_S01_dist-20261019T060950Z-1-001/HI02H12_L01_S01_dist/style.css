@@ -3164,3 +3164,40 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .ltr.dive .ltr-paper::after{opacity:0;}                                                  /* ... fade as the view dives onto the sheet */
 .ltr-veil{inset:0;background:#FDE9A8;opacity:0;pointer-events:none;transition:opacity .5s ease-in;}   /* the end screen's base colour */
 .ltr.veil .ltr-veil{opacity:1;}
+
+/* ===== [stamp-fig] L2, the stamp page (frame 565:28, STAMP_DEMO): the letter's sentence stamped, on the whole stage ===== */
+.stp{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;}
+.stp > *{position:absolute;}
+.stp-wood{left:0;top:-1px;width:1280px;height:721px;}                                        /* the table, as the frame crops it */
+.stp-sheet{opacity:0;transform:translateY(-28px) scale(.97);transition:opacity .5s ease-out,transform .55s cubic-bezier(.2,.9,.3,1.15);}   /* settles onto the table */
+.stp-sheet.in{opacity:1;transform:none;}
+.stp-tray{filter:drop-shadow(0 4px 4px rgba(0,0,0,.48));opacity:0;transform:translateY(36px);transition:opacity .4s ease-out,transform .5s cubic-bezier(.2,.9,.3,1.15);}   /* slides up */
+.stp-tray.in{opacity:1;transform:none;}
+/* a stamp: its box glides (the module sets the transform), its picture pops in (about its base) */
+.stp-stamp{transform-origin:50% 100%;transition:filter .3s;}
+.stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 100%;}
+.stp-stamp img.pop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both;}
+.stp-stamp img.shown{opacity:1;}
+@keyframes stpPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
+.stp-stamp.lift{z-index:5;filter:drop-shadow(0 16px 8px rgba(0,0,0,.28));}                 /* lifted off the table, over the sheet */
+/* the sentence: Noto Sans Devanagari SemiBold in Baloo Bhai 2's line box, black, centred; each word arrives as it is read */
+.stp-sent{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;word-spacing:-2px;color:#000;margin:0;}
+.stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
+.stp-sent .sfig-w.on{opacity:1;transform:none;}
+/* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms); .gone = the box goes, the mark stays */
+.stp-slot{background:#FFF1B6;border-radius:8px;opacity:0;transition:opacity .3s,background-color .4s;}
+.stp-slot.in{opacity:1;}
+.stp-slot.blink{animation:dmfBlink 1.16667s ease-in-out 3;}
+.stp-slot svg{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;transition:opacity .4s;}
+.stp-slot.gone{background:transparent;}
+.stp-slot.gone svg{opacity:0;}
+/* the printed mark: the sentence's own letter (its font, size and black), its INK on the slot's centre (--ix / --iy measured by the
+   module), pressed in: it lands from a little large and tilted, as a stamp's print */
+.stp-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;line-height:normal;
+  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;color:#000;
+  transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
+  transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
+.stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
+/* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
+.stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;}
+.stp.lit .stp-veil{opacity:0;}

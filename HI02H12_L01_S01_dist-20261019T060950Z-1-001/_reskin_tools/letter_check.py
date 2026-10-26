@@ -62,7 +62,7 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
     def until(base, ms): pg.wait_for_function(f"performance.now() - {base} >= {ms}", timeout=ms + 8000, polling=20)
     ids = pg.evaluate("CARD.slides.map(s => s.id)")
-    check("the pages: ... P2, L1 (the letter page), then the end screen (14)", ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "CEL"], ids)
+    check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (15)", ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
     t0 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
     # 1. scene A with the magic shimmer, no आगे, no header
     until(t0, 500); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); magic = first(pl, "sfx_letter_magic")
@@ -161,9 +161,9 @@ with sync_playwright() as p:
     import numpy as _np
     O = _np.asarray(_Im.open(o).convert("RGB").resize((1280, 720), _Im.LANCZOS)).astype(int)
     sheet = float(((O[..., 0] > 228) & (O[..., 2] > 222)).mean())   # the sheet's white (255,253,248) and its fading lilac lines; not the envelope's cream (b ~ 205), not the room
-    pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=6000)
+    pg.wait_for_function("CARD.slides[state.idx].id === 'L2' && !!document.querySelector('.stp')", timeout=6000)
     t_end = pg.evaluate("performance.now()")
-    check("the end screen follows (about 3.65 s after the tap, after the dive and the veil)", 3300 < t_end - t_tap < 4300, round(t_end - t_tap))
+    check("the stamp page (L2) follows (about 3.65 s after the tap, after the dive and the veil; stamp_check.py has that page)", 3300 < t_end - t_tap < 4300, round(t_end - t_tap))
     tr = pg.evaluate("window.__trace")
     def frame_at(ms): return min(tr, key=lambda f: abs(f["t"] - (t_tap + ms)))
     f = frame_at(3000)
@@ -188,20 +188,20 @@ with sync_playwright() as p:
     page_sounds = [x for x in pl if "letter" in x["src"]]
     check("leaving the page stopped every one of its sounds and gave the engine its music back", len(page_sounds) == 5 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),
           ([(x["src"], x["paused"]) for x in page_sounds], bgm))
-    check("no round gate between the letter page and the end screen", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
+    check("no round gate between the letter page and the stamp page", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
     shot(pg, "l1_end.png")
     # 7. a re-run from the end screen (the dev nav), then leaving it mid-way: a clean restart, a clean stop
     pg.evaluate("window._plays = []")
     t1 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
     until(t1, 4000); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); music = first(pl, "bgm_letter")
-    check("re-run from the end screen: the scene restarts from the first picture, the loop starts again", s and "b-in" in s["cls"] and "white" not in s["cls"] and music is not None and not music["paused"], (s["cls"] if s else s, music is not None))
+    check("re-run from the stamp page: the scene restarts from the first picture, the loop starts again", s and "b-in" in s["cls"] and "white" not in s["cls"] and music is not None and not music["paused"], (s["cls"] if s else s, music is not None))
     # the opening once more with nothing else going on (no screenshots, no polls): the page's own frame times = smoothness
     pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=15000)
     bb = pg.locator(".ltr-env-pos").bounding_box(); t2 = pg.evaluate("performance.now()"); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)
     pg.evaluate(MARK); pg.evaluate(TRACE)
-    pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=8000)
+    pg.wait_for_function("CARD.slides[state.idx].id === 'L2' && !!document.querySelector('.stp')", timeout=8000)
     tr2 = pg.evaluate("window.__trace"); ts = [f["t"] - t2 for f in tr2 if f["t"] - t2 >= 1150]; gaps = [b - a for a, b in zip(ts, ts[1:])]
-    check("the opening runs smoothly (the page's own frame times from the crackle to the end screen, nothing else running: no gap over 100 ms)", len(gaps) > 20 and max(gaps) < 100,
+    check("the opening runs smoothly (the page's own frame times from the crackle to the next page, nothing else running: no gap over 100 ms)", len(gaps) > 20 and max(gaps) < 100,
           ("max gap %d ms, %d frames, mean %.1f ms" % (max(gaps), len(gaps) + 1, sum(gaps) / len(gaps))) if gaps else None)
     pg.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'L1'))"); pg.wait_for_timeout(1000)
     pg.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'P2'))"); pg.wait_for_timeout(500); pl = pg.evaluate(PLAYS)

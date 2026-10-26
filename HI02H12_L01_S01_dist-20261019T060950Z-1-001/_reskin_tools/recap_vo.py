@@ -5,7 +5,7 @@ second (frame 600:197, "g2"), G3, the third (frame 528:424, "g3"), G4 (the refer
 same layout again, "p1", "p2").
 
 usage: python -I -X utf8 recap_vo.py <page> <line>|all [--voice hi-IN-SwaraNeural] [--rate=-15%] [--pitch=+0Hz]
-       pages: recap (T1), demo1 (T2), demo2 (T3), demo3 (T4), g1 (G1), g2 (G2), g3 (G3), g4 (G4), p1 (P1), p2 (P2) — see LINES
+       pages: recap (T1), demo1 (T2), demo2 (T3), demo3 (T4), g1 (G1), g2 (G2), g3 (G3), g4 (G4), p1 (P1), p2 (P2), stamp (L2) — see LINES
        (needs edge-tts >= 7.3 — 7.2.x is refused by the server with HTTP 403 — and ffmpeg on PATH)
        Each run gives a slightly different take, so regenerate only the line(s) that changed.
 
@@ -114,6 +114,12 @@ LINES = {
     "o1":     ("मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", None),
     "o2":     ("मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", None),
     "o3":     ("मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", None),
+  },
+  # [stamp-fig] L2, the stamp page after the letter (frame 565:28): the title bar's line (the bar appears as it starts) and the
+  # letter's sentence read without a pause (its words appear one by one); the "?" is then stamped for the child
+  "stamp": {
+    "intro":  ("वाक्य में सही स्थान पर ठप्पा लगाइए।", None),
+    "sent":   ("नमस्ते दादाजी, आप कैसे हैं", None),
   },
 }
 SCR = pathlib.Path(__file__).resolve().parent

@@ -57,8 +57,8 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE); pg.evaluate(GATE_LOG)
     check("the card asks for the round-3 gate after P2", pg.evaluate("CARD.round3_gate_after") == "P2")
     ids = pg.evaluate("CARD.slides.map(s => s.id)")
-    check("the pages: ... G4, P1, P2, L1 (the letter page), then the end screen (14 in all; the ported P3-P6 gone)",
-          ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "CEL"], ids)
+    check("the pages: ... G4, P1, P2, L1 (the letter page), L2 (the stamp page), then the end screen (15 in all; the ported P3-P6 gone)",
+          ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
     # 1. G4 -> P1: a plain page change, no gate (the guided -> practice boundary no longer opens one)
     right_tap(pg, "G4", "लड़की पतंग उड़ा रही है ।")
     pg.wait_for_function("CARD.slides[state.idx].id === 'P1'", timeout=30000); pg.wait_for_timeout(200)
@@ -79,9 +79,12 @@ with sync_playwright() as p:
         if run == 1:
             pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=20000)
             bb = pg.locator(".ltr-env-pos").bounding_box(); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)
-            pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=15000); pg.wait_for_timeout(1500)
+            pg.wait_for_function("CARD.slides[state.idx].id === 'L2' && !!document.querySelector('.stp')", timeout=15000)
+            check("L1: the tap on the pulsing envelope opens it and L2, the stamp page, follows with no gate", openings(pg.evaluate("window._gate")) == ["P2"]
+                  and not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
+            pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=45000); pg.wait_for_timeout(1500)
             pg.screenshot(path=str(out / "end_after_p2.png"))
-            check("L1: the tap on the pulsing envelope opens it and the CELEBRATION end screen follows, with no further gate", openings(pg.evaluate("window._gate")) == ["P2"]
+            check("L2 plays itself through (the stamp printed) and the CELEBRATION end screen follows, with no further gate", openings(pg.evaluate("window._gate")) == ["P2"]
                   and pg.evaluate("document.getElementById('endScreen').classList.contains('show') && !document.getElementById('phaseGate').classList.contains('show')"))
             # this run jumps in at G4, so punct_build_done (G1-G3) is legitimately missing here; phase_transition now fires on
             # P2's gate. smoke.py plays the whole game and checks that the validator passes outright. Also checked: nothing the

@@ -586,6 +586,52 @@ L1, the letter page after P2's gate (2026-10-26)
   with nothing else running: 151 frames, max gap 18 ms (60 fps). gate_check 11/11, smoke 35/35. `../_before_letter_dive/` holds
   the dist's three files, build.py, letter_check.py and the four-flap layers.
 
+Stamp page L2 after the letter (added 2026-10-26, [stamp-fig]; asked: "after the letter covers the whole screen this screen should
+appear ... the table and the title bar with its text and synced VO, then the letter sheet and the stamp holder, then both stamps
+with a pop animation and this sound effect, then the sentence word by word with its VO, then the empty light yellow box blinking as
+before for 3.5 s, then the correct stamp auto-drags to the box, stamps the symbol in its centre with this sound effect, goes back,
+and the box disappears but not the symbol")
+- The frame: FLN-by-MJ 565:28 "G3 guided story question" — https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=565-28.
+  Built in the frame's 1280x720 px on the whole stage (.sfig-full, like the demos and L1). Places (get_metadata, checked on the
+  render): the wood table 0,-1 1280x721 (the frame's bitmap, cover-fitted); the title bar = the demos' .dmf-band (the same group:
+  36,26 1244x120, the pill's text at 139.55 — this render's text starts at x 180 like theirs — the same Swiftie head, so
+  assets/UI/demo1_head.webp is reused; its line "वाक्य में सही स्थान पर ठप्पा लगाइए।"); the sheet "image 238" at 355,64 571x594 (the
+  frame shows the 594x571 picture turned 90 deg — the turn picked by matching the render; the paper itself at 392..887 x 154..559);
+  the stamp tray 427,565 426x142 with its 0 4 4 .48 shadow (a drop-shadow filter: it follows the tray's shape); the stamps 532,541
+  74x116 (।) and 677,540 72x115 (?) — their print points (the middle of the face's bottom edge) at (36,113) / (35,114) in their
+  boxes; the sentence "नमस्ते दादाजी, आप कैसे हैं" in the frame's 1075-wide centred box at 63,336 (48 tall, 30px, black — its ink
+  455..745 x 342..372 on the render; the page sets the box 2 px lower because Noto's ink sits 2 px above Figma's fallback's, and
+  lands at 454..746 x 342..372); the slot 751,331 36x58 #FFF1B6, 8px corners, a 2px dashed rgba(86,86,86,.85) stroke inside
+  (its runs read off the render: 6 9 6 9 6 across, 6 7 4 10 4 10 4 7 6 down — drawn as the demos' per-side SVG lines).
+- The flow (STAMP_DEMO, build.py [stamp-fig]; moments in data.pace, ms): the table under the letter page's cream veil, which lifts
+  (0.6 s); at 0.4 s the title's line (vo_stamp_intro) — the bar appears the moment it is heard (the demos' rule); 0.5 s after the
+  line: the sheet settles onto the table (from 28 px up, 0.55 s), the tray slides up 150 ms later; +0.7 s: the two stamps pop
+  (scale 0 -> 1 about the base, 0.45 s) 350 ms apart, each on the user's pop (sfx_stamp_pop); +0.7 s: the sentence read without
+  a pause (vo_stamp_sent), each word arriving at its start on the clip's own clock; as the clip ends the empty slot appears and
+  blinks 3.5 s (the demos' dmfBlink, three slow blinks); then the ? stamp lifts (a drop shadow, over the sheet) and glides 0.9 s to
+  hover 34 px above the slot, presses in 0.14 s so its print point stands 20 px under the slot's centre (standing on the slot)
+  while the user's stamp thud (sfx_stamp_press, 1.01 s into the move) sounds; 40 ms later the ? is printed — the sentence's own
+  30px black letter, its INK on the slot's centre (centreInk, as the demos), landing from a little large and tilted — the stamp
+  lifts (0.18 s) and glides home (0.8 s, set down at 2.25 s); at 2.3 s the slot's box goes (fill and dashes fade), the ? stays;
+  at 3.3 s the end screen (phase practice = round 3 still, no gate). No आगे, no header, no idle reminder.
+- Sounds: the two mp3s as ogg (libvorbis q5, mono): the pop trimmed to start at its burst (0.10 s cut), the thud trimmed to 0.5 s
+  before its strike (the strike 44 ms in). The page fetches its three sound objects and its two clips at mount. VO: TWO SYNTHESISED
+  clips (`python -I -X utf8 recap_vo.py stamp all|intro|sent`, the same voice) in stamp_assets/ with their word timings
+  (vo_stamp_*.words.json) — placeholders until recorded; a human recording goes in as stamp_assets/vo_stamp_<line>.ogg, then
+  `align_story_vo.py stamp_<line> --write` and a rebuild. Bitmaps by the scratchpad's make_stamp_assets.py (the sheet, tray and
+  stamps lossless; the table q95) — stamp_assets/img_stamp_*.webp; stamp_figma_render_1280x720.png is Figma's render of the frame.
+- Checked: `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out [stamp_figma_render_1280x720.png]` — the page
+  mounted straight: every beat read from the page's OWN frame trace (rAF) and a hook on every media play, judged against each
+  other and against the clips' own clocks (not Playwright's polls): the bar within 60 ms of the line's first sounding frame, the
+  sheet 0.5 s after its ended frame, the pops within 60 ms of their stamps, each word's reveal frame within -60..+40 ms of its
+  start on the clip's clock, the slot at the clip's ended frame and its 3.5 s blink (opacity to .2), the press point (770, 381) =
+  the wanted one, the thud at 1.005 s and the mark at 1.05 s of the move, home at 2.18 s, the box gone at 2.3 s, the ? ink
+  centred on the slot (769, 359.5), the end screen at 3.32 s; against Figma's render (the slot moment, its blink paused for the
+  shot): frame mean 4.4, the sheet with its sentence and slot 6.3, the sentence's ink box within 1 px; a clean re-run and a clean
+  mid-way exit. letter_check.py: L1's tap now hands over to L2 (~4 s). gate_check 11/11 (P2 -> gate -> L1 -> L2 -> end screen,
+  no further gate), smoke 37/37. `../_before_stamp/` holds the dist's three files, build.py, recap_vo.py and the three checks from
+  before (14 pages, L1 -> the end screen).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
