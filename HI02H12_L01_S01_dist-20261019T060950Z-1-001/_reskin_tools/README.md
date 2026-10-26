@@ -722,7 +722,7 @@ and the box disappears but not the symbol")
   most any round has (3), the extra hidden (display:none) in rounds with fewer; the round's count drives the pops (one Audio per
   div), the clearing and the sentence's start ((n - 1) x pop_gap + sent_at after the first pop). guide false (the title's line
   after 7 s idle, as round 2). The page's rounds: ? (guided) -> , -> ।; after the third confetti the end screen. Two more frames
-  exist on the page (593:130, 593:151) — not asked for.
+  exist on the page (593:130 — done next, below — and 593:151).
 - Checked: stamp_check.py plays all three rounds (63 steps; the later rounds through one loop: the clearing — the previous round's
   n stamps unpop 350 apart, the words out, the slot fades, the round set at 1.3 s with its n pictures shown and the rest hidden —
   the n pops on their sounds, the clip .7 s after the LAST pop, every word on the clip's clock, the slot's box and blink, .live, no
@@ -736,6 +736,41 @@ and the box disappears but not the symbol")
   hand-over to L2 on the page's clock too (its 3 s screenshot of the dive's scaled layers can take 0.6 s+ and made the old
   Playwright-timed step read 7.5 s); its "bubbles popped at 3.65 s" step is timer-driven on L1 and has been seen to miss once
   under load — a re-run passes. The committed state before all the rounds is `_before_stamp_rounds/`.
+- Later 2026-10-26 again, a FOURTH round, frame 593:130 (https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=593-130;
+  asked word for word as the third — "after the third sentence ... the blank boxes, stamps will again follow the exact same flow").
+  Its frame: the same table, title bar, sheet and tray; round 3's three stamps (। 462,541 — ? 607,540, the right one — the comma
+  750,540); TWO questions on two rows in a 402-wide centred box at 415,310: "क्या आपको भी उपहार अच्छे लगते हैं [ ]" / "दादी जी कैसी
+  हैं [ ]", each row ending in its own empty slot — "Rectangle 147848" 36x58 at 822,305 and "Rectangle 147849" 36x58 at 707,354
+  (round 1's box and dash runs: the same group). The render's rows' ink 316..346 (x 416..815) and 365..395 (x 531..700); the text
+  is set at y 311 (lh 49, two rows): its rows then lie exactly on the render's. The spoken line "क्या आपको भी उपहार अच्छे लगते हैं?
+  दादी जी कैसी हैं?" (recap_vo.py stamp sent4, 5.95 s, 11 words; the synthesiser lifts and pauses at each "?") — a placeholder
+  until recorded. A round may have SEVERAL slots now (data.slots; the earlier rounds' data.slot still read): the module builds one
+  .stp-slot per slot, each with its mark and the right stamp's HOVER / PRESS places over it; all of a round's slots appear and
+  blink together (the demos' dmfBlink, 3.5 s); a drop is judged against the slots still empty (the nearer one within tol_x /
+  tol_y); the right stamp on one prints the mark there and that box goes on the chime — and, with a slot still empty, the stamps
+  are the child's again from that moment (.live back, NO confetti yet, the idle count starts over: the title's line after 7 s);
+  the confetti and the hand-over come after the last slot. The wrong stamp on a slot, or any stamp off the empty slots (a solved
+  slot counts as off): the buzz, the wiggle, back. guide false (the title's line after 7 s idle, as rounds 2-3). The page's rounds:
+  ? (guided) -> , -> । -> ? ? (two slots); after the fourth confetti the end screen. One frame remains on the page (593:151) — not
+  asked for.
+- Fixed on the way: the letter page's fadeTo (its music's fade-in) clamps its progress at 0 — rAF's timestamp can precede the
+  performance.now() taken when the frame was requested, and that negative progress once set a negative volume (DOMException "The
+  volume provided (-0.000274917) is outside the range [0, 1]", caught by gate_check's "no page errors" on the three-round build).
+- Checked: stamp_check.py plays all four rounds (86 steps, ALL PASS; a round with two slots: both slots traced — classes, opacity,
+  box, mark — both appear and blink together as the clip ends (3517 ms of blink, down to .2), no guidance, the title's line at
+  7.0 s idle, the comma on the first slot buzzes and wiggles (the buzz within 2 ms), the ? dropped on the first slot (+15, -10 px
+  off its centre) snaps and presses (its print point within 1 px of the press point), the thud at 282 ms, its mark at 417 ms,
+  home by 1534 ms, its box gone at 1600 ms on the chime (3 ms) with .live back the same frame and NO confetti; the ? on the second
+  slot (-12, +12 px) the same (thud 286, mark 400, box 1616 on the chime), the confetti at 2099 ms on its sound (8 ms), the
+  hand-over at 4396 ms on the page's clock; each mark's ink within .5 px of its slot's centre; the ? stamp lifted exactly twice in
+  that round, the comma once, the danda never; the page's own sounds 2 + 2 + 3 + 3 pops and 5 thuds, all stopped on leaving) and
+  its slot moment against the 593:130 render (frame mean 4.35, sheet 5.77, each row's ink rows exact and its runs within 1 px,
+  each slot's fill exact to the pixel — the fill test now matches the slot's own #FFF1B6 within 20 px of its place, since the
+  sheet's paper by the first slot passed the looser colour test). `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/
+  index.html out stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png stamp3_figma_render_1280x720.png
+  stamp4_figma_render_1280x720.png`. smoke.py / gate_check.py / the live check drop the right stamp on each of a round's slots in
+  turn (the second once the first's box has gone and .stp.live is back; a round's marks counted). The committed state before this
+  round is commit 13c5c87 (three rounds).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
