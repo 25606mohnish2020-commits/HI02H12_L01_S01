@@ -3129,18 +3129,33 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}
 .ltr.zoom .ltr-env-pos{transform:none;}                                                  /* = 610:6's envelope box */
 .ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;opacity:0;}
-.ltr.letter-in .ltr-env-pulse{animation:ltrIn .65s cubic-bezier(.3,1.4,.5,1) both;}
+.ltr.letter-in .ltr-env-pulse{animation:ltrIn .45s cubic-bezier(.3,1.4,.5,1) both;}   /* on the chime's first frame */
 .ltr.ready .ltr-env-pos{pointer-events:auto;cursor:pointer;}
 .ltr.ready .ltr-env-pulse{opacity:1;animation:ltrPulse 1.2s ease-in-out infinite;}
 .ltr.zoom .ltr-env-pulse{opacity:1;animation:none;}
 @keyframes ltrIn{from{transform:scale(.5);opacity:0;}to{transform:none;opacity:1;}}
 @keyframes ltrPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
-.ltr-env3d{position:absolute;inset:0;perspective:1800px;}
+.ltr-env3d{position:absolute;inset:0;perspective:2600px;}
 .ltr-env3d > *{position:absolute;left:0;top:0;width:100%;height:100%;}
-.ltr-flap{transform-origin:538.6px 154.1px;transform-style:preserve-3d;transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}
-.ltr-flap img{position:absolute;left:0;top:0;width:100%;height:100%;}
-.ltr.open .ltr-flap{animation:ltrFlap 1.1s cubic-bezier(.5,0,.3,1) both;}
-@keyframes ltrFlap{from{transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}to{transform:rotate(-12.72deg) rotateX(-168deg) rotate(12.72deg);}}
+.ltr-fold img{position:absolute;left:0;top:0;width:100%;height:100%;}
+/* [letter-open] the four flaps of the drawn envelope (they meet at the fold lines' apex), each hinged on its own edge: the hinge is
+   that edge's midpoint in the 1138x758 box and the edge's own angle (the drawing is not quite a rectangle); rotateX about the
+   re-aligned edge, with the sign that folds the flap AWAY from the viewer. Closed = the picture as drawn. */
+.ltr-flap{transform-origin:538.6px 154.1px;transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}
+.ltr-fl{transform-origin:189.7px 474.9px;transform:rotate(78.23deg) rotateX(0deg) rotate(-78.23deg);}
+.ltr-fr{transform-origin:993.9px 304.1px;transform:rotate(76.36deg) rotateX(0deg) rotate(-76.36deg);}
+.ltr-fb{transform-origin:644.9px 624.9px;transform:rotate(-11.27deg) rotateX(0deg) rotate(11.27deg);}
+.ltr.open .ltr-flap{animation:ltrFlapT 1.1s cubic-bezier(.5,0,.3,1) both;}
+.ltr.open-sides .ltr-fl{animation:ltrFlapL 1s cubic-bezier(.5,0,.3,1) both;}
+.ltr.open-sides .ltr-fr{animation:ltrFlapR 1s cubic-bezier(.5,0,.3,1) both;}
+.ltr.open-bottom .ltr-fb{animation:ltrFlapB .9s cubic-bezier(.5,0,.3,1) both;}
+@keyframes ltrFlapT{from{transform:rotate(-12.72deg) rotateX(0deg) rotate(12.72deg);}to{transform:rotate(-12.72deg) rotateX(-166deg) rotate(12.72deg);}}
+@keyframes ltrFlapL{from{transform:rotate(78.23deg) rotateX(0deg) rotate(-78.23deg);}to{transform:rotate(78.23deg) rotateX(170deg) rotate(-78.23deg);}}
+@keyframes ltrFlapR{from{transform:rotate(76.36deg) rotateX(0deg) rotate(-76.36deg);}to{transform:rotate(76.36deg) rotateX(-170deg) rotate(-76.36deg);}}
+@keyframes ltrFlapB{from{transform:rotate(-11.27deg) rotateX(0deg) rotate(11.27deg);}to{transform:rotate(-11.27deg) rotateX(170deg) rotate(11.27deg);}}
+/* the view pulls back as the side flaps fold (the same element: a second transform transition), so no flap leaves the screen;
+   610:6's full-screen frame is held while the seal pops and the top flap starts to turn */
+.ltr.open-sides .ltr-env-pos{transform:var(--ltr-back);transition-duration:1.4s;transition-timing-function:cubic-bezier(.4,0,.2,1);}
 .ltr-heart{transform-origin:603.2px 398.2px;}
 .ltr.open .ltr-heart{animation:ltrSeal .35s ease-in both;}
 @keyframes ltrSeal{0%{transform:scale(1);opacity:1;}40%{transform:scale(1.18);opacity:1;}100%{transform:scale(.55);opacity:0;}}
@@ -3148,6 +3163,6 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .ltr-paper{left:279px;top:205px;width:635px;height:378px;border-radius:10px;background:#FFFDF8;box-shadow:0 2px 10px rgba(120,80,40,.18);
   background-image:repeating-linear-gradient(to bottom,transparent 0 46px,#E9DCF2 46px 50px);background-origin:content-box;padding:60px 48px 0;box-sizing:border-box;
   transform:rotate(-12.72deg);transition:transform .9s cubic-bezier(.3,.7,.3,1);}
-.ltr.paper .ltr-paper{transform:rotate(-12.72deg) translateY(-150px);}
+.ltr.paper .ltr-paper{transform:rotate(-12.72deg) translateY(-210px) scale(1.05);z-index:5;}   /* out of the open envelope, over its folded flaps */
 .ltr-veil{inset:0;background:#FDE9A8;opacity:0;pointer-events:none;transition:opacity .5s ease-in;}   /* the end screen's base colour */
 .ltr.veil .ltr-veil{opacity:1;}

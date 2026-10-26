@@ -91,6 +91,7 @@ with sync_playwright() as p:
     until(t0, 9900); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); idea = first(pl, "sfx_letter_idea")
     check("by 9.9 s the cloud is white and the letter has appeared in it, pulsing and tappable", s["cgOp"] == 0 and s["cwOp"] == 1 and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"], s["cls"])
     check("the chime sounded as the letter appeared (9.0 s)", idea is not None and 8900 < idea["t"] - t0 < 9300, round(idea["t"] - t0) if idea else None)
+    check("the chime is the page's only voice-like sound and plays once", sum(1 for x in pl if x["src"].startswith("sfx_letter_idea")) == 1, [x["src"] for x in pl if "letter" in x["src"]])
     r = s["envRect"]
     check("the envelope icon: 558:2's size (189 px wide), centred in the cloud at (1020,166)", r and abs(r["w"] - 189) < 3 and abs(r["x"] + r["w"] / 2 - 1020) < 3 and abs(r["y"] + r["h"] / 2 - 166) < 3,
           {k: round(v, 1) for k, v in r.items()} if r else r)
@@ -112,13 +113,27 @@ with sync_playwright() as p:
     if cmp_z: check("the full-screen envelope against Figma's 610:6 render: close (mean < 14)", cmp_z["mean"] < 14, cmp_z)   # its backdrop is 610:6's own blurred picture
     # 6. the opening: the paper crackle with the seal popping and the flap swinging; the sheet rises; the veil; the end screen
     paper = first(pl, "sfx_letter_paper")
-    check("the paper crackle started as the envelope finished zooming (1.2 s) and the flap is opening", paper is not None and 1150 < paper["t"] - t_tap < 1450 and "open" in s["cls"], (round(paper["t"] - t_tap) if paper else None, s["cls"]))
+    check("the paper crackle started as the envelope finished zooming (1.2 s) and the top flap is opening", paper is not None and 1150 < paper["t"] - t_tap < 1450 and "open" in s["cls"], (round(paper["t"] - t_tap) if paper else None, s["cls"]))
     until(t_tap, 2100); s = pg.evaluate(STATE)
-    check("2.1 s after the tap: the seal has popped off, the flap is turning, the sheet is rising", s["heartOp"] == 0 and s["flapTf"] not in ("none", None) and "paper" in s["cls"], (s["heartOp"], (s["flapTf"] or "")[:40], s["cls"]))
-    shot(pg, "l1_open.png")
+    check("2.1 s after the tap: the seal has popped off, the top flap and the side flaps are turning, the bottom flap starts", s["heartOp"] == 0 and s["flapTf"] not in ("none", None)
+          and all(k in s["cls"] for k in ("open", "open-sides", "open-bottom")), (s["heartOp"], (s["flapTf"] or "")[:40], s["cls"]))
+    until(t_tap, 3400); s = pg.evaluate(STATE)
+    FOLDS = "() => Object.fromEntries(['ltr-flap','ltr-fl','ltr-fr','ltr-fb'].map(c => [c, getComputedStyle(document.querySelector('.' + c)).transform.slice(0, 48)]))"
+    folds = pg.evaluate(FOLDS)
+    check("3.4 s after the tap: the envelope lies fully open (all four flaps turned, each a different 3-D transform) and the sheet is out",
+          "paper" in s["cls"] and all(v.startswith("matrix3d") for v in folds.values()) and len(set(folds.values())) == 4, folds)
+    o = shot(pg, "l1_open.png")
+    # nothing of the envelope on the frame's edge: the outer 4 px of the frame look the same as before the opening (the blurred room
+    # behind is still; the closed envelope touches no edge), so any change there would be a flap or the sheet reaching the edge
+    from PIL import Image as _Im
+    import numpy as _np
+    Z = _np.asarray(_Im.open(z).convert("RGB").resize((1280, 720), _Im.LANCZOS)).astype(int); O = _np.asarray(_Im.open(o).convert("RGB").resize((1280, 720), _Im.LANCZOS)).astype(int)
+    dd = _np.abs(O - Z).sum(axis=2); border = _np.zeros((720, 1280), bool); border[:4, :] = border[-4:, :] = True; border[:, :4] = border[:, -4:] = True
+    cut = int((dd[border] > 60).sum())
+    check("no corner or edge of the opened envelope is cut by the frame (the frame's border unchanged by the opening)", cut < 30, f"{cut} changed border px")
     pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=6000)
     t_end = pg.evaluate("performance.now()")
-    check("the end screen follows (about 3.3 s after the tap, after the veil)", 3000 < t_end - t_tap < 4000, round(t_end - t_tap))
+    check("the end screen follows (about 4.1 s after the tap, after the full opening and the veil)", 3800 < t_end - t_tap < 4800, round(t_end - t_tap))
     until(t_end, 800); pl = pg.evaluate(PLAYS); bgm = pg.evaluate("(typeof backgroundMusic !== 'undefined' && backgroundMusic) ? backgroundMusic.volume : null")
     page_sounds = [x for x in pl if "letter" in x["src"]]
     check("leaving the page stopped every one of its sounds and gave the engine its music back", len(page_sounds) == 5 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),

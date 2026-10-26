@@ -6697,7 +6697,8 @@ const SlideModules = {
   LETTER_STORY: {
     mount(host, slide){
       const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ a_hold: 2000, xfade: 650, bub_start: 2600, bub_gap: 230,
-        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 650, zoom: 1200, paper_at: 500, veil_at: 1500, done_at: 2050 }, d.pace || {});
+        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 450, zoom: 1200, open_sides_at: 450, open_bottom_at: 750,
+        paper_at: 950, veil_at: 2300, done_at: 2850, back_scale: 0.56 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {};
       const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758];
@@ -6713,8 +6714,10 @@ const SlideModules = {
             '<div class="ltr-env-pulse"><div class="ltr-env3d">' +
               '<img class="ltr-inner" src="' + imgSrc(env.inner) + '" alt="" draggable="false">' +
               '<div class="ltr-paper"></div>' +
-              '<img class="ltr-body" src="' + imgSrc(env.body) + '" alt="" draggable="false">' +
-              '<div class="ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
+              '<div class="ltr-fold ltr-fb"><img src="' + imgSrc(env.fb) + '" alt="" draggable="false"></div>' +
+              '<div class="ltr-fold ltr-fl"><img src="' + imgSrc(env.fl) + '" alt="" draggable="false"></div>' +
+              '<div class="ltr-fold ltr-fr"><img src="' + imgSrc(env.fr) + '" alt="" draggable="false"></div>' +
+              '<div class="ltr-fold ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
               '<img class="ltr-heart" src="' + imgSrc(env.heart) + '" alt="" draggable="false">' +
             '</div></div>' +
           '</div>' +
@@ -6726,16 +6729,24 @@ const SlideModules = {
       // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud at 558:2's size, so the zoom moves the same element
       const s = li[2] / full[2];
       envPos.style.setProperty("--ltr-icon", "translate(" + (li[0] - li[2] / 2 - full[0]) + "px, " + (li[1] - (li[2] * full[3] / full[2]) / 2 - full[1]) + "px) scale(" + s + ")");
+      // [letter-open] while it opens, the view pulls back: the box scaled by back_scale about the frame's centre, so the four
+      // unfolded flaps stay whole on the screen
+      const bs = P.back_scale;
+      envPos.style.setProperty("--ltr-back", "translate(" + (640 - full[2] * bs / 2 - full[0]) + "px, " + (360 - full[3] * bs / 2 - full[1]) + "px) scale(" + bs + ")");
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
       const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
       const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
       const sounds = []; let fadeFrame = 0;
+      // every sound of the page is fetched and decoded now, at mount, so that later play() starts it on its beat — online too
+      const pre = {};
+      [sfx.magic, sfx.idea, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
+        try{ const a = new Audio(src); a.preload = "auto"; a.load(); pre[id] = a; sounds.push(a); }catch(e){} });
       // a sound; onStart runs when it is actually heard (or 150 ms in, if the browser gives no "playing" / refuses to play)
       const sound = (id, vol, onStart, loop)=>{
         const src = A(id); let started = false;
         const go = ()=>{ if(started) return; started = true; if(onStart && alive()) onStart(); };
         if(!src){ setTimeout(go, 0); return null; }
-        const a = new Audio(src); a.volume = isMuted ? 0 : vol; a.loop = !!loop; a.preload = "auto"; sounds.push(a);
+        const a = pre[id] || new Audio(src); delete pre[id]; a.volume = isMuted ? 0 : vol; a.loop = !!loop; if(!sounds.includes(a)) sounds.push(a);
         a.addEventListener("playing", go, { once: true });
         const p = a.play(); if(p && p.catch) p.catch(()=> go());
         setTimeout(go, 150);
@@ -6778,8 +6789,10 @@ const SlideModules = {
         sound(sfx.pop, 0.7, null);
         fadeTo(music, 0, 1300, ()=>{ if(music) music.pause(); bgmBack(); });
         at(P.zoom, ()=>{
-          sound(sfx.paper, 0.7, ()=> root.classList.add("open"));   // the seal pops and the flap swings as the paper crackles
-          at(P.paper_at, ()=> root.classList.add("paper"));
+          sound(sfx.paper, 0.7, ()=> root.classList.add("open"));        // the seal pops, the top flap swings back, the view pulls back
+          at(P.open_sides_at, ()=> root.classList.add("open-sides"));     // the two side flaps fold out ...
+          at(P.open_bottom_at, ()=> root.classList.add("open-bottom"));   // ... then the bottom flap: the envelope lies fully open
+          at(P.paper_at, ()=> root.classList.add("paper"));               // the sheet comes out over it
           at(P.veil_at, ()=> root.classList.add("veil"));
           at(P.done_at, ()=>{ state.demoRunning = false; completeSlide(true); });
         });

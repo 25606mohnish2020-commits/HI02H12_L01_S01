@@ -548,6 +548,23 @@ L1, the letter page after P2's gate (2026-10-26)
   cloud stay where 538:39 put them. letter_check.py now judges the 538:39 comparison inside the cloud's own opaque pixels
   only (24.3 / 765 before and after the swap, so the pictures changed nothing about the cloud; the room art differs from the
   frame by the user's choice). `../_before_letter_scenes/` holds the two 1400 px pictures.
+- Later 2026-10-26, the FULL opening ([letter-open]; asked: "the envelope should fully open instead of opening from the top only",
+  and "corners of the envelope cut and displaced"). The envelope is now cut into FOUR flaps meeting at the fold lines' apex — top
+  (the drawn flap), left, right and bottom (the pocket split along BL-apex / BR-apex, each side flap confined to its own half at
+  the apex; the two new edges carry the envelope's own orange line) — over the inside (the whole silhouette, shaded). Each flap
+  turns about its OWN edge (hinge = the edge's midpoint in the 1138x758 box, the edge's own angle: the drawing is not a true
+  rectangle), away from the viewer, to 166-170 deg, so the envelope lies open like a cross; the sheet then rises out over the
+  opened flaps (z-index while out). After the tap: pop + zoom to 610:6 (1.2 s, held) -> paper crackle + seal pops + top flap
+  (0) -> side flaps (+0.45 s) as the view PULLS BACK to 0.56 about the frame's centre (so no flap reaches the frame's edge: the
+  old "cut corners" were the single flap swinging above the frame) -> bottom flap (+0.75 s) -> sheet (+0.95 s) -> veil
+  (+2.3 s) -> end screen (+2.85 s). The seal's footprint is now filled by a push-pull blur (the single normalised blur left a
+  ring). Sounds: all five are fetched and decoded at mount, so each starts on its beat online too; the letter pops in in 0.45 s
+  on the chime's first frame. The "aahaha" the user hears is sfx_letter_idea (the only voice-like clip on the page: a sustained
+  ~210 Hz "aaa" then two "ha"s, 3.3 s) — it plays ONCE, at the letter's appearance; the game's own sfx_celebrate (a voiced
+  cheer) still plays on every right answer and on the end screen, untouched. letter_check.py: the chime once; the four flaps'
+  transforms; the frame's 4 px border unchanged between the zoomed and the open shots (0 px); the end screen ~4.1 s after the
+  tap. gate_check 11/11, smoke 35/35. `../_before_letter_open/` holds the dist's three files, build.py, letter_check.py and the
+  previous envelope layers (one flap + body).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
