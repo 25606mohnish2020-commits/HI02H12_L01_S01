@@ -1,0 +1,159 @@
+"""Functional smoke test of the re-skinned build: drive the real UI with clicks and check the engine advances."""
+import sys, pathlib
+from playwright.sync_api import sync_playwright
+html = pathlib.Path(sys.argv[1]).resolve()
+LEAVE = """() => { const sg=document.getElementById('startGate'); if(sg) sg.classList.add('hidden');
+  document.body.classList.remove('is-start'); document.body.classList.add('loaded');
+  const bl=document.getElementById('bootLoader'); if(bl) bl.remove(); }"""
+GOTO = "(id) => mountSlide(CARD.slides.findIndex(s => s.id === id))"   # by id: slide numbers moved when T0 was added
+results = []
+def check(name, ok, detail=""):
+    results.append((name, ok)); print(("PASS " if ok else "FAIL ") + name + (" — " + str(detail) if detail else ""))
+
+# the round gate, sampled every frame in the page: open?, title revealed?, its text, the peeking Swiftie shown?, the clip
+GATE_LOG = """() => { window._gate = []; let last = ''; const step = () => {
+  const g = document.getElementById('phaseGate'), img = document.getElementById('phaseGateImg'), a = currentAudio;
+  const r = { slide: CARD.slides[state.idx].id, show: g.classList.contains('show'), speaking: g.classList.contains('text-speaking'),
+    title: document.getElementById('phaseGateTitle').textContent, peek: img.style.visibility !== 'hidden',
+    clip: a ? a.src.split('/').pop().split('?')[0] : null, playing: isPlaying };
+  const k = JSON.stringify(r); if (k !== last) { last = k; r.ms = performance.now(); window._gate.push(r); }
+  requestAnimationFrame(step); }; requestAnimationFrame(step); }"""
+def gate_after(log, frm, to, title, clip, opens_expected):
+    """a round gate as the child sees it: it opens on frm's end (the gate's openings so far must be exactly opens_expected,
+    in order); the peeking Swiftie first (silent), then the title as the clip sounds; `to` only once that VO has ended
+    (the gate gone)"""
+    opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
+    if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
+    o = opens[-1]
+    nxt = next((i for i, r in enumerate(log) if i > o and r["slide"] == to), None)
+    if nxt is None: return False, "no " + to
+    gate = log[o:nxt]
+    peek = next((r for r in gate if r["peek"] and not r["speaking"]), None)
+    vo = next((r for r in gate if r["speaking"] and r["clip"] == clip and r["playing"]), None)
+    ended = any(r["clip"] == clip and not r["playing"] for r in gate)
+    ok = bool(peek and vo and ended and vo["title"] == title and vo["ms"] - peek["ms"] > 3000
+              and all(r["slide"] == frm and r["show"] for r in gate) and not log[nxt]["show"])
+    return ok, f"peek {round(peek['ms'] - log[o]['ms']) if peek else None} ms, VO + title {round(vo['ms'] - log[o]['ms']) if vo else None} ms after it opened, {to} {round(log[nxt]['ms'] - log[o]['ms'])} ms"
+def gate_after_t4(log):
+    """the T4 -> G1 gate: the only opening so far; "चलिए, साथ में करें!" with vo_pt_guided"""
+    return gate_after(log, "T4", "G1", "चलिए, साथ में करें!", "vo_pt_guided.ogg", ["T4"])
+
+def wait_silence(pg, max_ms=15000):
+    """wait until no VO is sounding (vo-lock off)"""
+    pg.wait_for_function("!document.body.classList.contains('vo-lock')", timeout=max_ms)
+
+with sync_playwright() as p:
+    b = p.chromium.launch(channel="chrome", args=["--autoplay-policy=no-user-gesture-required", "--mute-audio"])
+    pg = b.new_page(viewport={"width": 1333, "height": 750})
+    errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(html.as_uri()); pg.wait_for_timeout(3000)
+
+    # 1. landing -> play button -> peek gate -> tutorial slide 0 in the tut frame
+    wait_silence(pg, 20000)
+    pg.click("#sgBtn", force=True); pg.wait_for_timeout(1200)   # force: the play button pulses forever, so it is never "stable"
+    gate_up = pg.evaluate("document.getElementById('phaseGate').classList.contains('show')")
+    check("start button opens the peek gate", gate_up)
+    pg.wait_for_function("document.body.classList.contains('tut-page') && !document.getElementById('phaseGate').classList.contains('show')", timeout=20000)
+    check("gate closes into the story page (T0) inside the tutorial frame", pg.evaluate("CARD.slides[state.idx].id==='T0' && !!document.querySelector('.tut-card.sfig-card')"))
+    pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=40000)
+    pg.click("#navBtn", force=True)   # force: the active pill pulses forever, so it is never "stable"
+    pg.wait_for_function("CARD.slides[state.idx].id==='T0B'", timeout=10000)
+    check("story page's आगे opens T0B (\"आइए वाक्य सुनें।\")", pg.evaluate("!!document.querySelector('.tut-card.sfig-card .sfig-title')"))
+    pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=60000)
+    pg.click("#navBtn", force=True)
+    pg.wait_for_function("CARD.slides[state.idx].id==='T1'", timeout=10000)
+    check("T0B's आगे opens T1 (the three-marks recap) in the tutorial frame", pg.evaluate("!!document.querySelector('.tut-card.sfig-recap .rcf-row')"))
+    pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=90000)
+    pg.click("#navBtn", force=True)
+    pg.evaluate(GATE_LOG)
+    pg.wait_for_function("CARD.slides[state.idx].id==='T2'", timeout=10000)
+    check("T1's आगे opens T2 (the run-on sentence demo) on the plain stage", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band')"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='T3'", timeout=40000)
+    check("T2 runs itself through to T3, the second demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=40000)
+    check("T3 runs itself through to T4, the third demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && document.querySelectorAll('.dmf-blank').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)
+    check("T4 runs itself through the round gate to G1, the Figma tap page (no आगे)",
+          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))
+    check("after T4 (and only there since T1) the gate: the peeking Swiftie, then \"चलिए, साथ में करें!\" with its VO, then G1", *gate_after_t4(pg.evaluate("window._gate")))
+
+    # 2. G1 (PUNCT_PICK, see pick_check.py): once the sentence has been read, two wrong tiles (each wiggles, no mark), then
+    #    the right one -> its mark in the slot -> auto-advance to G2
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
+    pg.click(".dmf-tile.t2"); pg.wait_for_timeout(150)
+    check("G1: a wrong tile wiggles, counts an attempt, no mark in the slot",
+          pg.evaluate("document.querySelector('.dmf-tile.t2').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
+    pg.wait_for_timeout(500); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(150)
+    check("G1: the other wrong tile too, and the page waits", pg.evaluate("state.attempts===2 && CARD.slides[state.idx].id==='G1' && !document.querySelector('.dmf-mark.in')"))
+    pg.wait_for_timeout(500); pg.click(".dmf-tile.t1"); pg.wait_for_timeout(600)
+    check("G1: the right tile (पूर्ण विराम) puts its mark in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent==='।'"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='G2'", timeout=15000)
+    check("G1 then moves on to G2 by itself, the second Figma tap page",
+          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))
+    # G2: a wrong tile, then the right one (प्रश्नवाचक चिह्न) -> "?" in the slot -> G3
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
+    pg.click(".dmf-tile.t1"); pg.wait_for_timeout(150)
+    check("G2: a wrong tile wiggles, no mark", pg.evaluate("document.querySelector('.dmf-tile.t1').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
+    pg.wait_for_timeout(500); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(600)
+    check("G2: the right tile puts its \"?\" in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent==='?'"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='G3'", timeout=15000)
+    check("G2 then moves on to G3 by itself, the third Figma tap page (one small slot)",
+          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-blank.dmf-own')"))
+    # G3: a wrong tile, then the right one (अल्प विराम) -> "," in the slot -> G4
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
+    pg.click(".dmf-tile.t3"); pg.wait_for_timeout(150)
+    check("G3: a wrong tile wiggles, no mark", pg.evaluate("document.querySelector('.dmf-tile.t3').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
+    pg.wait_for_timeout(500); pg.click(".dmf-tile.t2"); pg.wait_for_timeout(600)
+    check("G3: the right tile puts its \",\" in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent===','"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='G4'", timeout=15000)
+    check("G3 then moves on to G4 by itself: the reference game's P4 page (picture + three sentence pills)",
+          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.getElementById('stage').classList.contains('sent-page') && document.querySelectorAll('#slideHost .sent-opt').length === 3"))
+    # G4 (SENT_PICK, see g4_check.py): a wrong pill (wiggle, no line), then the right one -> green, its line, straight on to P1
+    #    (the round gate now follows P2, not the guided -> practice boundary here)
+    pg.wait_for_timeout(4000)
+    right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'लड़की पतंग उड़ा रही है ।')")
+    pg.click(f"#slideHost .opt-cell >> nth={(right + 1) % 3}"); pg.wait_for_timeout(150)
+    check("G4: a wrong pill wiggles and counts an attempt", pg.evaluate("state.attempts===1 && !!document.querySelector('#slideHost .opt-cell.wg-wrong')"))
+    pg.wait_for_timeout(1200); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
+    check("G4: the right pill (लड़की पतंग उड़ा रही है ।) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='P1'", timeout=60000)
+    check("G4 then moves straight on to P1 (no gate here): the same P4 page with its own picture and sentences",
+          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.getElementById('stage').classList.contains('sent-page') && document.querySelectorAll('#slideHost .sent-opt').length === 3 && !window._gate.some(r => r.slide === 'G4' && r.show)"))
+    # P1 (SENT_PICK, see g4_check.py --page P1): a wrong pill, then the right one -> green, its line, straight on to P2
+    pg.wait_for_timeout(4000)
+    right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'क्या यह आपकी किताब है?')")
+    pg.click(f"#slideHost .opt-cell >> nth={(right + 1) % 3}"); pg.wait_for_timeout(150)
+    check("P1: a wrong pill wiggles and counts an attempt", pg.evaluate("state.attempts===1 && !!document.querySelector('#slideHost .opt-cell.wg-wrong')"))
+    pg.wait_for_timeout(1200); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
+    check("P1: the right pill (क्या यह आपकी किताब है?) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
+    pg.wait_for_function("CARD.slides[state.idx].id==='P2'", timeout=60000)
+    check("P1 then moves on to P2: the same P4 page again, its long sentences on two lines",
+          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.querySelectorAll('#slideHost .sent-opt').length === 3 && document.querySelectorAll('#slideHost .so-br').length === 3"))
+    # P2 (SENT_PICK, see g4_check.py --page P2): a wrong pill, then the right one (the commas) -> green, its line, then the gate
+    pg.wait_for_timeout(4000)
+    right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।')")
+    pg.click(f"#slideHost .opt-cell >> nth={(right + 1) % 3}"); pg.wait_for_timeout(150)
+    check("P2: a wrong pill wiggles and counts an attempt", pg.evaluate("state.attempts===1 && !!document.querySelector('#slideHost .opt-cell.wg-wrong')"))
+    pg.wait_for_timeout(1200); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
+    check("P2: the right pill (मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
+    # P2 is the last page (pages 13-16, the ported P3-P6, were removed); its end opens the round-3 gate ([gate-p2] + [gate-cel]):
+    # the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds, then the CELEBRATION end screen
+    pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=60000)
+    check("P2 (the last page) then crosses the gate (VO + animation) into the CELEBRATION end screen; the gates since T1: T4's, then P2's",
+          *gate_after(pg.evaluate("window._gate"), "P2", "CEL", "अब आपकी बारी!", "vo_pt_practice.ogg", ["T4", "P2"]))
+    check("the game is 13 pages, the end screen last", pg.evaluate("CARD.slides.length === 13 && CARD.slides[12].id === 'CEL'"))
+    check("the end screen's validator: every expected signal fired", pg.evaluate("GameBus.validatorReport.passed === true"), pg.evaluate("GameBus.validatorReport.missing_signals"))
+
+    # 3. dev nav present with ?dev=1
+    pg.goto(html.as_uri() + "?dev=1"); pg.wait_for_timeout(2500)
+    check("dev nav bar + jump dropdown render with ?dev=1", pg.evaluate("!!document.querySelector('#devNav select.dev-nav-sel') && document.querySelectorAll('#devNav option').length===CARD.slides.length"))
+    # 4. T4 run twice in one load from the dev nav's list: its end crosses the gate both times (the engine shows each
+    #    round's gate once per load; T4 clears it, so a review re-run is not sent straight to G1)
+    for run in (1, 2):
+        pg.select_option("#devNav select.dev-nav-sel", str(next(i for i, s in enumerate(pg.evaluate("CARD.slides.map(s => s.id)")) if s == "T4")))
+        pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=5000); pg.evaluate(GATE_LOG)
+        pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)
+        check(f"T4 from the dev nav's list, run {run} in the same load: its end crosses the gate (VO + animation) into G1", *gate_after_t4(pg.evaluate("window._gate")))
+    check("no page errors", not errs, errs[:3])
+    b.close()
+print("\n%d/%d passed" % (sum(1 for _, ok in results if ok), len(results)))
