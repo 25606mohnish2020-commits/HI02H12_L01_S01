@@ -1,41 +1,41 @@
 PASS the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (15) — ['T0', 'T0B', 'T1', 'T2', 'T3', 'T4', 'G1', 'G2', 'G3', 'G4', 'P1', 'P2', 'L1', 'L2', 'CEL']
 PASS mounts as a whole-stage page: no आगे, the first scene (538:2) alone (the letter's wrapper at 1/255: painted so decoded, unseen), the cleanup hook set — {'nav': 'none', 'bOp': 0, 'cloudOp': 0, 'growOp': 0.005, 'cleanup': True}
-PASS the magic shimmer sounds as the page opens — 4
+PASS the magic shimmer sounds as the page opens — 7
 PASS the envelope is the drawing's own layers: the body (the pocket), ONE flap, the inside, the heart — no re-cut side flaps
 PASS at 1.85 s the first scene still stands alone — 0
 PASS by 2.9 s the thinking girl (538:35) has faded in — 1
-PASS at 3.65 s the three thought bubbles have popped and the cloud is growing in — ([1, 1, 1], 0.397088)
-FAIL by 6 s the grandfather cloud stands (538:39) — (1, 1, 0.005)
-PASS the piano loop started with the cloud (3.3 s), loops, is sounding and has faded up — (3306, True, False, 2.41, 0.45)
+PASS at 3.65 s the three thought bubbles have popped and the cloud is growing in — ([1, 1, 1], 0.415876)
+PASS by 6 s the grandfather cloud stands (538:39; its white twin at 1/255, painted so decoded, unseen) — (1, 1, 0.005)
+PASS the piano loop started with the cloud (3.3 s), loops, is sounding and has faded up — (3308, True, False, 2.4, 0.45)
 PASS the engine's own background music is ducked under the loop — None
 PASS at 7.35 s, the end of the hold: the grandfather cloud still stands, the girl as before (scene C off) — (1, 1, 0.005)
-PASS the chime sounded as the hold ended (7.5 s) — 7531
-FAIL at 8.3 s, the chime's "ummm": no cloud (gone back into its corner), no bubbles, the pensive girl (the user's 1.png) over the room, no letter yet — (0, 'ltr-cloud out', [0, 0, 0], 1, 'ltr b-in c-in', 0.005)
-PASS 2.25 s into the chime (the silence before the "aahaha"): still no cloud, the bubbles popping again ahead of it, the girl still pensive — (0, [1, 0.988058, 0.26157], 'ltr b-in c-in', 1)
-PASS 0.45 s after the "aahaha" (2.37 s into the chime): the girl bright again (scene C off), the same cloud growing in again — white, the grandfather off — with the letter growing in it, not yet tappable — (0.005, 'ltr-cloud white in', 0.523627, 0, 1, 0.526009, 'ltr b-in letter-in')
+PASS the chime sounded as the hold ended (7.5 s) — 7513
+PASS at 8.3 s, the chime's "ummm": no cloud (gone back into its corner), no bubbles, the pensive girl (the user's 1.png) over the room, no letter yet — (0, 'ltr-cloud out', [0, 0, 0], 1, 'ltr b-in c-in', 0.005)
+PASS 2.25 s into the chime (the silence before the "aahaha"): still no cloud, the bubbles popping again ahead of it, the girl still pensive — (0, [1, 0.987841, 0.135319], 'ltr b-in c-in', 1)
+PASS 0.45 s after the "aahaha" (2.37 s into the chime): the girl bright again (scene C off), the same cloud growing in again — white, the grandfather off — with the letter growing in it, not yet tappable — (0.005, 'ltr-cloud white in', 0.540578, 0, 1, 0.542875, 'ltr b-in letter-in')
 PASS by 4.1 s into the chime the white cloud stands with the letter in it (its growth done), pulsing and tappable — (1, 1, 'none', 'ltr b-in letter-in ready')
 PASS the chime is the page's only voice-like sound and plays once — ['sfx_letter_magic.ogg', 'bgm_letter_nostalgia.ogg', 'sfx_letter_idea.ogg']
-PASS the chime's beats run smoothly on the page's own frames (from the chime to the letter's readiness: no gap over 100 ms) and the cloud's return never falters (its opacity never falls after the "aahaha") — max gap 25 ms over 150 frames; 83 frames after the aahaha
+PASS the chime's beats run smoothly on the page's own frames (from the chime to the letter's readiness: no gap over 100 ms) and the cloud's return never falters (its opacity never falls after the "aahaha") — max gap 17 ms over 163 frames; 83 frames after the aahaha
 PASS the envelope icon: 558:2's size (189 px wide), centred in the cloud at (1020,166) — {'x': 925.5, 'y': 103.1, 'w': 189.0, 'h': 125.9}
-PASS the envelope pulses (its scale changes over 0.3 s) — ('matrix(1.03837, 0, 0, 1.03837, 0, 0)', 'matrix(1.06729, 0, 0, 1.06729, 0, 0)')
-PASS the tap: the pop sounds at once and the zoom begins — (6, 'ltr b-in letter-in zoom')
+PASS the envelope pulses (its scale changes over 0.3 s) — ('matrix(1.03834, 0, 0, 1.03834, 0, 0)', 'matrix(1.06728, 0, 0, 1.06728, 0, 0)')
+PASS the tap: the pop sounds at once and the zoom begins — (4, 'ltr b-in letter-in zoom')
 PASS 1.3 s after the tap the envelope fills the screen as 610:6 (71,-50 1138x758) over the blurred room — ({'x': 71.0, 'y': -50.0, 'w': 1138.0, 'h': 758.0}, 1)
-PASS the piano loop has faded out by then — (True, 0)
+PASS the piano loop has faded out by then — (False, 0.003)
 PASS the envelope itself is the drawing as drawn (its flat parts against the stacked layers: mean < 4, under 300 px over 40 — an added line or a re-cut is thousands) — (3.0, 0, 276979)
-PASS the paper crackle started as the envelope finished zooming (1.2 s) and the top flap is opening — (1231, 'ltr b-in letter-in zoom open')
-INFO the 3 s shot took 351 ms (the dive's scaled layers)
-PASS the page hands over to the stamp page (L2) about 3.65 s after the tap (completeSlide on the page's own clock, after the dive and the veil; stamp_check.py has that page) — (3692, 'seen by the test at', 4387)
-PASS 3.0 s after the tap (the page's frame): the view has dived into the envelope (the box over 3.5x the frame), the seal still gone, the veil not yet up — (2996, 4507, 0, 0)
-PASS the shot there (3928 ms; the veil 1.00): the sheet fills the screen (over 90 % sheet pixels) — 0.0
-PASS 1.7 s after the tap (the page's frame): the seal has popped off, the flap is lifting (its tip risen, still below its hinge), the sheet is rising, the view still 610:6's — (1696, 0, 'zoom open paper', {'apex': [660, 326, 1], 'hinge': [610, 104, 1], 'env': [71, -50, 1138]})
-PASS 2.25 s after the tap (the page's frame): the flap stands open toward the viewer (its tip 20-50 box px under the hinge: almost edge-on, lifted up and out); the dive has begun — ((2246, 0, 'zoom open paper dive', {'apex': [613, 116, 2], 'hinge': [602, 77, 1], 'env': [-66, -114, 1412]}), 31.1)
+PASS the paper crackle started as the envelope finished zooming (1.2 s) and the top flap is opening — (1219, 'ltr b-in letter-in zoom open')
+INFO the 3 s shot took 83 ms (the dive's scaled layers)
+PASS the page hands over to the stamp page (L2) about 3.65 s after the tap (completeSlide on the page's own clock, after the dive and the veil; stamp_check.py has that page) — (3670, 'seen by the test at', 3702)
+PASS 3.0 s after the tap (the page's frame): the view has dived into the envelope (the box over 3.5x the frame), the seal still gone, the veil not yet up — (2995, 4507, 0, 0)
+PASS the shot there (3005 ms; the veil 0.00): the sheet fills the screen (over 90 % sheet pixels) — 0.973
+PASS 1.7 s after the tap (the page's frame): the seal has popped off, the flap is lifting (its tip risen, still below its hinge), the sheet is rising, the view still 610:6's — (1695, 0, 'zoom open paper', {'apex': [657, 313, 1], 'hinge': [610, 104, 1], 'env': [71, -50, 1138]})
+PASS 2.25 s after the tap (the page's frame): the flap stands open toward the viewer (its tip 20-50 box px under the hinge: almost edge-on, lifted up and out); the dive has begun — ((2245, 0, 'zoom open paper dive', {'apex': [613, 116, 2], 'hinge': [602, 77, 1], 'env': [-66, -114, 1412]}), 31.1)
 PASS the opening stays full-screen (no pull-back): in no frame after the zoom is the box smaller than 610:6's — 1138
-PASS in no frame does any part of the flap rise above the envelope's top edge (its tip stays at or below the hinge), so nothing of it can be cut by the frame — (147, 37.3)
+PASS in no frame does any part of the flap rise above the envelope's top edge (its tip stays at or below the hinge), so nothing of it can be cut by the frame — (147, 36.6)
 PASS leaving the page stopped every one of its sounds and gave the engine its music back — ([('sfx_letter_magic.ogg', True), ('bgm_letter_nostalgia.ogg', True), ('sfx_letter_idea.ogg', True), ('sfx_letter_pop.ogg', True), ('sfx_letter_paper.ogg', True)], None)
 PASS no round gate between the letter page and the stamp page
 PASS re-run from the stamp page: the scene restarts from the first picture, the loop starts again — ('ltr b-in', True)
-PASS the opening runs smoothly (the page's own frame times from the crackle to the next page, nothing else running: no gap over 100 ms) — max gap 18 ms, 150 frames, mean 16.7 ms
+PASS the opening runs smoothly (the page's own frame times from the crackle to the next page, nothing else running: no gap over 100 ms) — max gap 17 ms, 151 frames, mean 16.7 ms
 PASS leaving mid-way (to P2): the page's loop and sounds stop, its hook is cleared, its scene is gone — [('sfx_letter_magic.ogg', True), ('bgm_letter_nostalgia.ogg', True), ('sfx_letter_idea.ogg', True), ('sfx_letter_pop.ogg', True), ('sfx_letter_paper.ogg', True), ('sfx_letter_magic.ogg', True)]
 PASS no page errors — []
 
-2 FAIL: by 6 s the grandfather cloud stands (538:39), at 8.3 s, the chime's "ummm": no cloud (gone back into its corner), no bubbles, the pensive girl (the user's 1.png) over the room, no letter yet
+ALL PASS

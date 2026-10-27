@@ -84,7 +84,7 @@ with sync_playwright() as p:
     until(t0, 3650); s = pg.evaluate(STATE)
     check("at 3.65 s the three thought bubbles have popped and the cloud is growing in", len(s["bubs"]) == 3 and all(o > 0.9 for o in s["bubs"]) and 0.05 < s["cloudOp"] < 0.8, (s["bubs"], s["cloudOp"]))
     until(t0, 6000); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); music = first(pl, "bgm_letter")
-    check("by 6 s the grandfather cloud stands (538:39)", s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cwOp"] == 0, (s["cloudOp"], s["cgOp"], s["cwOp"]))
+    check("by 6 s the grandfather cloud stands (538:39; its white twin at 1/255, painted so decoded, unseen)", s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cwOp"] < 0.01, (s["cloudOp"], s["cgOp"], s["cwOp"]))
     check("the piano loop started with the cloud (3.3 s), loops, is sounding and has faded up", music is not None and 3200 < music["t"] - t0 < 3600 and music["loop"] and not music["paused"] and music["cur"] > 1 and music["vol"] > 0.4,
           (round(music["t"] - t0), music["loop"], music["paused"], round(music["cur"], 2), music["vol"]) if music else None)
     check("the engine's own background music is ducked under the loop", s["bgm"] is None or s["bgm"] <= 0.03, s["bgm"])
@@ -103,7 +103,7 @@ with sync_playwright() as p:
     until(t0, 8300); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); idea = first(pl, "sfx_letter_idea")
     check("the chime sounded as the hold ended (7.5 s)", idea is not None and 7400 < idea["t"] - t0 < 7800, round(idea["t"] - t0) if idea else None)
     check("at 8.3 s, the chime's \"ummm\": no cloud (gone back into its corner), no bubbles, the pensive girl (the user's 1.png) over the room, no letter yet",
-          s["cloudOp"] == 0 and "out" in s["cloudCls"].split() and all(o == 0 for o in s["bubs"]) and s["cOp"] > 0.97 and "letter-in" not in s["cls"] and s["growOp"] == 0,
+          s["cloudOp"] == 0 and "out" in s["cloudCls"].split() and all(o == 0 for o in s["bubs"]) and s["cOp"] > 0.97 and "letter-in" not in s["cls"] and s["growOp"] < 0.01,
           (s["cloudOp"], s["cloudCls"], s["bubs"], s["cOp"], s["cls"], s["growOp"]))
     shot(pg, "l1_hum.png")
     t_idea = idea["t"] if idea else t0 + 7500
