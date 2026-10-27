@@ -1,5 +1,5 @@
 """Verify a run-on sentence demo page (PUNCT_DEMO) against its Figma frame and its timing:
-   T2 = frame 519:32 ("रीना स्कूल जा रही है", पूर्ण विराम), T3 = frame 521:288 ("तुम्हारा नाम क्या है", प्रश्नवाचक चिह्न),
+   T2 = frame 656:2 ("पिंकी स्कूल जा रही है", पूर्ण विराम; 519:32's layout with its own picture, [demo1-pinki]), T3 = frame 521:288 ("तुम्हारा नाम क्या है", प्रश्नवाचक चिह्न),
    T4 = frame 523:320 ("मेरे पास आम केला सेब और संतरा है ।", अल्प विराम, two slots).
 usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4]     (default T2)
        renders: demo1_figma_render_1280x720.png (T2), demo2_... (T3), demo3_... (T4)
@@ -27,8 +27,8 @@ out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True
 SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T2"
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
-  "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (227, 221, 80.052, 120), "bar": (365, 719),
-         "sent": (100, 18, 479, 64), "slots": BIG, "word": "रीना", "own": [(944, 227, 1011, 335)],
+  "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box
+         "sent": (100, 18, 479, 64), "slots": BIG, "word": "पिंकी", "own": [(944, 227, 1011, 335)],
          "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
          "next": "T3", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the second demo (PUNCT_DEMO)"},

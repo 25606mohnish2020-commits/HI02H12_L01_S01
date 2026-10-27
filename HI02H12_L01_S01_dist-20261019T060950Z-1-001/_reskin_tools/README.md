@@ -208,6 +208,24 @@ Run-on sentence demo T2 "सुनो यह वाक्य बिना रु
   the render, the pixel diffs, and the danda's ink centred in the slot when landed and when highlighted.
   `../_before_demo_fixes/` holds the dist's three files from before the 2026-10-25 fixes. `demo1_figma_render_1280x720.png` is Figma's own render of the frame.
   `../_before_demo_fig/` holds the dist's three files from before (T2 = the ported BUILD_PUNCT auto demo).
+- Later 2026-10-27, T2 re-pointed at the Figma frame 656:2 ([demo1-pinki]; asked: "replace the text and the image asset on that
+  page with this exact as shown in this figma reference and apply the exact same animations and the same effects, make the new
+  VOs accordingly; rest exactly the same"). The user's 1280x720 render of 656:2 (now demo1_figma_render_1280x720.png; the 519:32
+  render kept as demo1_figma_render_1280x720_v1_2026-10-24.png) is 519:32's to the pixel — title bar, tiles, slot, boxes — except
+  two things (2.02 % of the frame): the sentence, "पिंकी स्कूल जा रही है" in the same centred 479-wide box (its ink 460..945,
+  2 px left of the old centre by पि's own bearings — the browser's centring does the same), and the picture, the girl in uniform
+  walking (ink 229..308 x 214..344). The Figma connector had no authorization in this session, so the picture is CUT FROM THE
+  RENDER at 1x — the only source to hand — at its ink's box plus a 1 px white margin on the left, right and bottom (the top is
+  flush with the picture box's border), 82x132 px on the box's own white, stored lossless as img_demo1_girl.webp (the 519:32
+  girl, 320x480 with transparency, is in `../_before_demo1_pinki/demo1_assets/`); build.py gives T2 data.layout.img =
+  [228, 214, 82, 132] (frame px, the module's T3 hook) in place of the CSS's 227,221 80.052x120 box. On a stage wider than
+  1280 px that picture is upscaled — re-cut it from Figma's own asset (export "image" at 2x+) once the connector is authorized,
+  the same way T3's / T4's were. recap_vo.py: demo1's sent / full lines are the new sentence ("पिंकी स्कूल जा रही है" /
+  "पिंकी स्कूल जा रही है, पूर्णविराम।"), re-made (edge-tts 7.3.1 — 7.2.8 was installed and is refused with HTTP 403; upgraded);
+  the intro and "पूर्ण विराम" clips are untouched, as is everything G1 / T3 / T4 share with T2 (the head bitmap, vo_demo1_purn,
+  the intro). demo_check.py's T2 entry: the new picture box and first word. Nothing else in the file changed (index.html's
+  T2 data and the three demo1 assets only). `../_before_demo1_pinki/` holds the dist's three files, build.py, recap_vo.py,
+  demo_check.py, the 519:32 render and the old demo1_assets/.
 
 Run-on sentence demo T3 "तुम्हारा नाम क्या है" (replaced 2026-10-25)
 - Flow: ... -> T2 -> T3 -> T4 (unchanged; T4 is still the ported BUILD_PUNCT auto demo). Figma frame 521:288 "5 T3"

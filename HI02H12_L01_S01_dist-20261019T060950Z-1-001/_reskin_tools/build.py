@@ -19,6 +19,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [letter-idea] (2026-10-27): the chime sounds the moment the grandfather cloud has stood; on its "ummm" the cloud leaves
          and the girl is pensive (the user's third picture, no cloud), on its "aahaha" the same cloud grows in again, white, with
          the letter growing in it.
+         [demo1-pinki] (2026-10-27): T2 re-pointed at the Figma frame 656:2 — the sentence "पिंकी स्कूल जा रही है" and its own
+         picture (the girl in uniform walking); the layout, flow and sounds otherwise 519:32's; its two sentence clips re-made.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -117,6 +119,12 @@ for k in RECAP_KEYS:
 # and dims the others; the mark lands in the slot; the sentence is read again with the mark named, words and mark
 # highlighted as they are read; then the slot's box goes and the page advances by itself (no आगे). Clips + timings from
 # demo1_assets/ (recap_vo.py demo1).
+# [demo1-pinki] (asked 2026-10-27): the frame is now 656:2 — 519:32 to the pixel except its sentence, "पिंकी स्कूल जा रही है" (the
+# same centred 479-wide box; its ink 460..945 on the render, 2 px left of the old's centre by पि's own bearings), and its picture,
+# the girl in uniform walking (its ink 229..308 x 214..344 on the render; cut from the user's 1280x720 render — the only source to
+# hand — at that box plus a 1 px white margin on the left, right and bottom: data.layout.img = [228, 214, 82, 132], frame px, in
+# place of 519:32's "image 228" box 227,221 80.052x120). The title line, the tiles, the slot and the flow are untouched; the
+# two sentence clips (sent, full) were re-made by recap_vo.py demo1 with the new name, the intro and "पूर्ण विराम" kept.
 DEMO_KEYS = ["intro", "sent", "purn", "full"]
 dl = {k: json.loads((SCR / "demo1_assets" / f"vo_demo1_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO_KEYS}
 i_t2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T2")
@@ -127,7 +135,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
     "data": {"band_hi": dl["intro"]["shown"], "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
              "sentence": dpart("sent"), "mark": "।", "mark_audio": "vo_demo1_purn", "full": dpart("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500},
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132]}},   # [demo1-pinki] the picture's box on 656:2
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
