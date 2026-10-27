@@ -28,6 +28,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          525:354's; its sentence clip re-made.
          [g2-girl] (2026-10-27): G2's picture replaced by the user's (a girl in a pink dress with a yellow bag), at its native
          size in the same picture box; nothing else of G2 touched.
+         [sent-font] (2026-10-27): G4, P1 and P2's two texts (the header's line, the pills' sentences) in the previous pages'
+         face — Noto Sans Devanagari SemiBold — in place of the reference P4's Baloo 2 ExtraBold; sizes, lines, boxes as they were.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2281,7 +2283,7 @@ sent_css = """
 .stage.sent-page #audioChip svg{overflow:visible;}
 .stage.sent-page #audioChip svg > g[filter]{filter:none !important;}   /* P4's chip: no SVG shadow under its white ring */
 .stage.sent-page #audioChip.vo-disabled{opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;}   /* and greyed while a line speaks */
-.stage.sent-page #promptText{font-weight:800;line-height:1.15;color:#0B3D8C;}
+.stage.sent-page #promptText{font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;line-height:1.15;color:#0B3D8C;}   /* [sent-font] the previous pages' face: Noto Sans Devanagari SemiBold (was P4's Baloo 2 ExtraBold) */
 /* Swiftie's animated faces (try again, hint, happy) stay inside P4's round frame — the engine's own rule drops the frame for them */
 .stage.sent-page .mascot-wrap.anim .mascot-circle{overflow:hidden !important;background:#9DDBF5 !important;border:4px solid #FFFFFF !important;
   box-shadow:0 6px 14px rgba(0,47,118,.2) !important;}
@@ -2298,7 +2300,7 @@ sent_css = """
   padding:0 !important;background:transparent !important;box-shadow:none !important;border:0 !important;border-radius:0 !important;
   display:flex !important;flex-direction:row !important;align-items:center !important;gap:8px !important;justify-self:center;}
 .stage.sent-page .sent-opt .so-pill{display:flex;flex-direction:row;flex-shrink:1;gap:normal;align-items:center;justify-content:center;width:344px;min-height:78px;max-width:900px;
-  box-sizing:border-box;padding:10px 12px;font-family:var(--font-hi);font-size:28px;font-weight:800;line-height:1.2;color:var(--navy);
+  box-sizing:border-box;padding:10px 12px;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-size:28px;font-weight:600;line-height:1.2;color:var(--navy);   /* [sent-font] the previous pages' face, P4's size and line */
   text-align:center;white-space:nowrap;background:#FFFFFF;border:3px solid #DADADA;border-radius:18px;box-shadow:0 4px 14px rgba(11,42,90,.1);
   transition:transform .28s;}
 .stage.sent-page .sent-opt .so-pill .p2-words{display:inline;}

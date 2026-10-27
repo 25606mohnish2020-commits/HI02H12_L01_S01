@@ -518,6 +518,18 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+G4, P1 and P2 in the previous pages' typeface ([sent-font], 2026-10-27)
+- Asked: "at pages 10 G4, 11 P1 and 12 P2 apply the exact same font style and the exact same font as of the previous pages; rest
+  exactly the same". The three SENT_PICK pages carried the reference P4's text as ported — Baloo 2 ExtraBold (800) for the
+  header's line (#promptText, 32px) and the pills' sentences (.so-pill, 28px) — while every page before them (T0-G3) sets
+  'Story Noto Sans Devanagari' SemiBold (600) with the engine's --font-hi as the fallback. build.py [sent-font]: those two rules
+  (style.css, scoped to .stage.sent-page so nothing else changes) now give that same face and weight; the sizes (32 / 28 px), the
+  line heights (1.15 / 1.2), the pills' width, padding, colours, two-line breaking (fitLines re-runs on document.fonts.ready) and
+  every timing are as they were. Probed on the built page (the scratchpad's fonts_probe.py: every visible text node's computed
+  font): G1 "Story Noto Sans Devanagari" 600; G4 / P1 / P2 before: "Baloo 2" 800 on both texts; after: "Story Noto Sans
+  Devanagari" 600 on both, the same px sizes and line boxes. `../_before_sent_font/` holds the dist's three files, build.py and
+  g4_check.py from before.
+
 The round gate "अब आपकी बारी!" follows P2 (moved 2026-10-25)
 - As asked: after P2 the transition screen — the peeking Swiftie, then the pink "अब आपकी बारी!" revealed as its VO
   (vo_pt_practice, "वाह! अब आपकी बारी।") starts at the animation's mouth-open point, 4.2 s in — then P3. It is the engine's own
