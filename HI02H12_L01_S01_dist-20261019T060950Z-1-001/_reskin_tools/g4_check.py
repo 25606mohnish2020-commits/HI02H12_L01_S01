@@ -1,9 +1,9 @@
 """Verify G4 or P1 (SENT_PICK): the reference game's Page 11 (P4, https://hi-02-h04-l01-s01-dun.vercel.app/) with this
 lesson's picture, title and sentences — its look and its flow.
 usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--ref <P4's picture png>]
-       G4 (the default) and P1 move straight on to the next page; P2, the last page since the ported P3-P6 were removed, straight
-       on to the CELEBRATION end screen (the engine opens no round gate before the celebration, so the [gate-p2] gate that
-       follows P2 is dormant until a page follows P2 again).
+       G4 (the default) and P1 move straight on to the next page; P2 goes through the round-3 gate ("अब आपकी बारी!", [gate-p2])
+       to L1, the letter page (since 2026-10-26; until then, with P3-P6 removed, it went straight to the end screen — this entry
+       said "CEL" with no gate until [sent-font], 2026-10-27).
        P2's sentences are too long for P4's pill on one line: its pills keep P4's width and font on two lines, all broken
        after the same word, centred on the row's line.
 1. The right pill first: the instruction on entry; the tap marks it green at once and pops the picture, nothing sounds for
@@ -32,7 +32,7 @@ CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़
               "labels": ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]},
        "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?",
               "labels": ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"]},
-       "P2": {"next": "CEL", "gate": False, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "lines": 2,
+       "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "lines": 2,
               "labels": ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"]}}[PAGE]
 NEXT = CFG["next"]; ON = "through the round gate to " + NEXT if CFG["gate"] else "straight on to " + NEXT
 fails = []

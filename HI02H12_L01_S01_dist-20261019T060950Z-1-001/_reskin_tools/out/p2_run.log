@@ -1,24 +1,24 @@
-PASS the title band reads the instruction; no आगे and no hint bulb — {'title': 'सही विराम चिह्न वाला वाक्य चुनिए ।', 'nav': 'none', 'hint': 'none', 'chip': [94.5, 80, 66], 'thumb': [146, 315, 667], 'pills': [[114.5, 523.90625, 344, 93.1875, True], [494.5, 523.90625, 344, 93.1875, True], [874.5, 523.90625, 344, 93.1875, True]], 'lines': [['मेरे पास लाल । नीली ।', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल, नीली,', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल नीली', 'हरी और पीली पेंसिल हैं ।']]}
-PASS P4's places with two-line pills: the chip at 94.5,80; the picture 315 high from y 146, centred; three 344-wide pills at x 114.5 / 494.5 / 874.5, of one height, centred on P4's row line (y 570.5), nothing spilling, each on two lines broken after the same word, no line opening with a mark — ([[114.5, 523.90625, 344, 93.1875, True], [494.5, 523.90625, 344, 93.1875, True], [874.5, 523.90625, 344, 93.1875, True]], [['मेरे पास लाल । नीली ।', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल, नीली,', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल नीली', 'हरी और पीली पेंसिल हैं ।']])
-PASS the three sentences are the asked ones, the right one 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।' — ['मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।', 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।', 'मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।']
+PASS the title band reads the instruction; no आगे and no hint bulb — {'title': 'सही विराम चिह्न वाला वाक्य चुनिए ।', 'nav': 'none', 'hint': 'none', 'chip': [94.5, 80, 66], 'thumb': [146, 315, 667], 'pills': [[114.5, 523.90625, 344, 93.1875, True], [494.5, 523.90625, 344, 93.1875, True], [874.5, 523.90625, 344, 93.1875, True]], 'lines': [['मेरे पास लाल, नीली,', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल । नीली ।', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल नीली', 'हरी और पीली पेंसिल हैं ।']]}
+PASS P4's places with two-line pills: the chip at 94.5,80; the picture 315 high from y 146, centred; three 344-wide pills at x 114.5 / 494.5 / 874.5, of one height, centred on P4's row line (y 570.5), nothing spilling, each on two lines broken after the same word, no line opening with a mark — ([[114.5, 523.90625, 344, 93.1875, True], [494.5, 523.90625, 344, 93.1875, True], [874.5, 523.90625, 344, 93.1875, True]], [['मेरे पास लाल, नीली,', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल । नीली ।', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल नीली', 'हरी और पीली पेंसिल हैं ।']])
+PASS the three sentences are the asked ones, the right one 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।' — ['मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।', 'मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।', 'मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।']
 PASS P2's own picture (img_p2_pencils_gry) is the one shown — ['assets/Images/img_p2_pencils_gry.webp', 1411]
-Traceback (most recent call last):
-  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\g4_check.py", line 121, in <module>
-    pg.wait_for_function(f"CARD.slides[state.idx].id === '{NEXT}'", timeout=30000, polling=50); pg.wait_for_timeout(150)   # the sampler's next frame logs it
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 12809, in wait_for_function
-    self._sync(
-  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
-    return task.result()
-           ^^^^^^^^^^^^^
-  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_page.py", line 1153, in wait_for_function
-    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_frame.py", line 941, in wait_for_function
-    await self._channel.send("waitForFunction", self._timeout, params)
-  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 76, in send
-    return await self._connection.wrap_api_call(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 632, in wrap_api_call
-    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
-playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
+PASS the tap: the green mark and the picture's pop at once, Swiftie unchanged, nothing sounding for the 1 s hold — line 1021 ms after the mark
+PASS after the hold: the kit's correct-select, the confetti and the happy Swiftie with the pill's own line — (0.0, 'sw_head_celebrate_anim')
+PASS its words light one at a time in sync with the clip (each within its window ±60 ms), the closing danda too — seen [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], off []
+PASS 0.7 s after the line the page moves on, through the round gate to L1 — gate 703 ms after the line
+PASS reported: evidence_qa_first_try (first try) and slide_completed success — ([{'ts': 1793091549263, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'evidence_qa_first_try', 'slide_id': 'P2', 'phase': 'practice', 'value': True, 'first_try': True, 'attempts': 1, 'scaffold_level': 0, 'latency_ms': 5538}], [{'ts': 1793091556269, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'slide_completed', 'slide_id': 'P2', 'phase': 'practice', 'success': True, 'attempts': 0, 'latency_ms': 12544, 'scaffold_level': 0, 'hint_used': False, 'nudge_used': False, 'audio_replays': 0}])
+PASS mastery score: one attempt, one hit (the first-try right pill) — [1, 1]
+PASS wrong tap 1: the pill wiggles and goes dead, Swiftie tries again, no line of its own — (['crossed wg-wrong', '', ''], 'sw_head_tryagain_anim')
+PASS ...1 s later the try-again line; the pill is dead until it ends — line 1016 ms after the tap, un-crossed +0 ms from its end
+PASS wrong tap 2: 1 s later all three pills are read in row order — (['o1', 'o3', 'o2'], ['o1', 'o3', 'o2'])
+PASS ...each lifted while its clip plays, ~0.5 s apart — first 1500 ms after the tap, gaps [500, 501]
+PASS ...each pill's words lit in sync with its clip (the dandas of 'लाल । नीली । ...' lit in their pauses, 'लाल,' / 'नीली,' through theirs) — [([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], []), ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], []), ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [])]
+PASS ...taps ignored meanwhile (the right pill tapped during the read-out did nothing) — [2, False]
+PASS wrong tap 3: 1 s later the reveal — two pills greyed and dead, the right one ringed green, the 96px hand centred under it — {'hand': [96, 96, 667, 667, -6], 'dim': [['opt-dim', 'none', '0.5', 'grayscale(1)'], ['opt-guided', 'auto', '1', 'none'], ['opt-dim', 'none', '0.5', 'grayscale(1)']], 'ring': 'rgb(0, 177, 50) solid 6px'}
+PASS the guided tap (on the hand): the green mark at once, the hand gone, 1 s, then the ding + confetti and no line — confetti 1000 ms after
+PASS ...and the page moves on through the round gate to L1, recorded as revealed (one mastery attempt, no hit) — ([{'ts': 1793091599936, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'slide_completed', 'slide_id': 'P2', 'phase': 'practice', 'success': False, 'attempts': 3, 'latency_ms': 35082, 'scaffold_level': 3, 'hint_used': False, 'nudge_used': False, 'audio_replays': 0}], [{'ts': 1793091597511, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'answer_revealed', 'slide_id': 'P2', 'phase': 'practice', 'attempts': 3, 'reason': 'wrong'}], [1, 0])
+PASS the instruction repeats ~5 s after each time it ends, with the picture's pop-and-hold (not on entry) — 3 plays, gaps [5016, 5016], pops ['', 'p6', 'p6']
+PASS a tap during a repeat cuts it and counts — [False, 1]
+PASS no page errors — []
+
+ALL PASS

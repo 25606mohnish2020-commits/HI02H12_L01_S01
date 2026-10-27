@@ -527,8 +527,10 @@ G4, P1 and P2 in the previous pages' typeface ([sent-font], 2026-10-27)
   line heights (1.15 / 1.2), the pills' width, padding, colours, two-line breaking (fitLines re-runs on document.fonts.ready) and
   every timing are as they were. Probed on the built page (the scratchpad's fonts_probe.py: every visible text node's computed
   font): G1 "Story Noto Sans Devanagari" 600; G4 / P1 / P2 before: "Baloo 2" 800 on both texts; after: "Story Noto Sans
-  Devanagari" 600 on both, the same px sizes and line boxes. `../_before_sent_font/` holds the dist's three files, build.py and
-  g4_check.py from before.
+  Devanagari" 600 on both, the same px sizes and line boxes. g4_check.py: G4 all pass (22), P1 all pass (22), P2 all pass (22)
+  — the pills' places, heights and two-line breaks as before; smoke 47/47. On the way, g4_check.py's P2 entry was stale: it still
+  expected P2 to go straight to the end screen (true only between [rm-p3p6] and L1), so it timed out at the gate; it now
+  expects the round gate, then L1. `../_before_sent_font/` holds the dist's three files, build.py and g4_check.py from before.
 
 The round gate "अब आपकी बारी!" follows P2 (moved 2026-10-25)
 - As asked: after P2 the transition screen — the peeking Swiftie, then the pink "अब आपकी बारी!" revealed as its VO
