@@ -26,6 +26,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [g1-pinki] (2026-10-27): G1 re-pointed at the Figma frame 656:66 — the sentence "पिंकी गेंद से खेल रही थी" (its box and
          the slot moved right with it), its own picture (the girl with the ball), the first tile's face 1 px taller; otherwise
          525:354's; its sentence clip re-made.
+         [g2-girl] (2026-10-27): G2's picture replaced by the user's (a girl in a pink dress with a yellow bag), at its native
+         size in the same picture box; nothing else of G2 touched.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -230,8 +232,9 @@ card["_emoji_fallback"]["img_demo3_fruits"] = "✏️"
 # wide at 60,18 in the bar) and two tiles (the first base 1px taller, the middle tile 4px wider) — data.layout. The name
 # said on the right tap is T2's "पूर्ण विराम" clip (the same voice). Clips + timings from g1_assets/ (recap_vo.py g1).
 # [g1-pinki] (asked 2026-10-27): the frame is now 656:66 — 525:354 to the pixel (title bar, tiles' bases, the third tile) except:
-# the sentence "पिंकी गेंद से खेल रही थी" (its ink 416..969 on the render, centre 692.5 — 8 px right of the old box's centre, so
-# the text box moves to x 68 in the bar, the same 522 width), the slot 29 px further right (977..1035 on the render = x 612 in
+# the sentence "पिंकी गेंद से खेल रही थी" (its ink 416..969 on the render, 553 wide: WIDER than the old 522 box — and a line that
+# overflows its box is start-aligned, not centred, so the box is now 560 wide, centred where the render's ink is: x 47.5 in the
+# bar, centre 692.5), the slot 29 px further right (977..1035 on the render = x 612 in
 # the bar: data.layout.slot), the picture — the girl with the ball (ink 208..330 x 214..343; cut from the user's 1280x720 render
 # at that box plus a 1 px white margin left / right / bottom: data.layout.img = [207, 214, 125, 131], frame px, in place of
 # "image 231"'s 207,219 124x124; img_g1_boy_ball's file stays in the dist, unused) — and the first tile's white face, whose top
@@ -249,7 +252,7 @@ card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type"
              "mark": "।", "mark_audio": "vo_demo1_purn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
-             "layout": {"img": [207, 214, 125, 131], "sent": {"x": 68, "y": 18, "w": 522, "size": 64, "lh": 110, "ws": -4}, "slot": [612, 20],   # [g1-pinki] 656:66's places
+             "layout": {"img": [207, 214, 125, 131], "sent": {"x": 47.5, "y": 18, "w": 560, "size": 64, "lh": 110, "ws": -4}, "slot": [612, 20],   # [g1-pinki] 656:66's places
                         "tiles": [{"base": [197, 442, 227, 170], "face": [199, 444, 223, 162]},
                                   {"base": [525, 443, 231, 169], "face": [527, 445, 227, 161]}, None]}},
     "signals": {"on_complete": ["punct_build_done"]}}
@@ -265,6 +268,11 @@ card["_emoji_fallback"]["img_g1_girl_ball"] = "✏️"
 # a school bag, 102x136 at 218,213) is drawn over its box, and the empty slot sits at 573,20 in the bar (T3's at 583) —
 # data.layout.slot. Its sentence clip + timings from g2_assets/ (recap_vo.py g2); the instruction is vo_g1_intro and the name
 # on the right tap T3's vo_demo2_prashn (the same voice).
+# [g2-girl] (asked 2026-10-27): the picture is the user's own PNG (a girl in a pink dress with a yellow bag, 88x132 with
+# transparency, stored lossless as img_g2_girl_bag.webp) in place of the frame's boy with the bag (img_g2_boy_bag — its file stays
+# in the dist, unused): at its native size, its ink (84x127) centred in the picture box's interior -> data.layout.img = [223, 216,
+# 88, 132] frame px (the old box was 218,213 102x136). The render g2_figma_render_1280x720.png carries the girl in the boy's place
+# (the 600:197 render kept as _v1_2026-10-25). Text, clips, flow untouched.
 gl2 = json.loads((SCR / "g2_assets" / "vo_g2_sent.words.json").read_text(encoding="utf-8"))
 i_g2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "G2")
 _g2 = card["slides"][i_g2]
@@ -272,17 +280,17 @@ assert _g2["type"] == "BUILD_PUNCT" and _g2["phase"] == "guided" and [m["mark"] 
 assert " ".join(_g2["data"]["words"]) == gl2["shown"], "G2's sentence is not the frame's"
 card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
-    "data": {"band_hi": dl3["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g2_boy_bag",
+    "data": {"band_hi": dl3["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g2_girl_bag",   # [g2-girl]
              "sentence": {"text_hi": gl2["shown"], "audio": "vo_g2_sent", "word_times": [t[0] for t in gl2["word_times"]]},
              "mark": "?", "mark_audio": "vo_demo2_prashn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
-             "layout": {"sent_x": 120, "img": [218, 213, 102, 136], "slot": [573, 20]}},
+             "layout": {"sent_x": 120, "img": [223, 216, 88, 132], "slot": [573, 20]}},   # [g2-girl] the picture at its native size, centred in the box
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g2_sent"] = "assets/Audio/vo_g2_sent.ogg"
 card["assets"]["audio_text"]["vo_g2_sent"] = gl2["text"]
-card["assets"]["image"]["img_g2_boy_bag"] = "assets/Images/img_g2_boy_bag.webp"
-card["_emoji_fallback"]["img_g2_boy_bag"] = "✏️"
+card["assets"]["image"]["img_g2_girl_bag"] = "assets/Images/img_g2_girl_bag.webp"   # [g2-girl]
+card["_emoji_fallback"]["img_g2_girl_bag"] = "✏️"
 # [pick-fig] G3 = the Figma frame 528:424 "9 G3", G1's page and flow for "बाग में गुलाब, गेंदा और चमेली के फूल हैं ।" in place of
 # the ported EVIDENCE_QA pick ("आज सोमवार है कल मंगलवार होगा", choose the right reading): the अल्प विराम tile is the right one.
 # The title bar is G1's to the pixel (its text is the instruction it plays); the tiles are T3's / T4's; the middle row is laid
@@ -2444,7 +2452,7 @@ for name, sub in [(f"vo_g1_{k}.ogg", "Audio") for k in G1_KEYS] + [("img_g1_girl
 # ---------- 7h. [pick-fig] G2's sentence clip and picture (g2_assets/: recap_vo.py g2; the frame's "image 239"; its title bar is
 #               T4's to the pixel, its instruction G1's vo_g1_intro, its name on the right tap T3's vo_demo2_prashn) ----------
 G2_SRC = SCR / "g2_assets"
-for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_boy_bag.webp", "Images")):
+for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_girl_bag.webp", "Images")):
     f, dst = G2_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing G2 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)

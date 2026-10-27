@@ -225,8 +225,10 @@ Run-on sentence demo T2 "सुनो यह वाक्य बिना रु
   "पिंकी स्कूल जा रही है, पूर्णविराम।"), re-made (edge-tts 7.3.1 — 7.2.8 was installed and is refused with HTTP 403; upgraded);
   the intro and "पूर्ण विराम" clips are untouched, as is everything G1 / T3 / T4 share with T2 (the head bitmap, vo_demo1_purn,
   the intro). demo_check.py's T2 entry: the new picture box and first word. Nothing else in the file changed (index.html's
-  T2 data and the three demo1 assets only). `../_before_demo1_pinki/` holds the dist's three files, build.py, recap_vo.py,
-  demo_check.py, the 519:32 render and the old demo1_assets/.
+  T2 data and the three demo1 assets only). demo_check.py T2 against the new render: all pass — the picture box within 0.44 px,
+  the sentence's ink within 0.5 px of the render's (size within 1), 0 solid pixel differences over the whole frame; T3 and
+  T4 all pass; smoke 47/47; gate_check all pass. `../_before_demo1_pinki/` holds the dist's three files, build.py,
+  recap_vo.py, demo_check.py, the 519:32 render and the old demo1_assets/.
 
 Run-on sentence demo T3 "तुम्हारा नाम क्या है" (replaced 2026-10-25)
 - Flow: ... -> T2 -> T3 -> T4 (unchanged; T4 is still the ported BUILD_PUNCT auto demo). Figma frame 521:288 "5 T3"
@@ -266,8 +268,9 @@ Run-on sentence demo T3 "तुम्हारा नाम क्या है"
   height; the girl is portrait, so the box takes her shape). At 1x it is upscaled on stages wider than 1280 px, like T2's. The
   render demo2_figma_render_1280x720.png (the visual target) now carries the girl in the boy's place — the interior painted
   white, the PNG composited at 223,214 — and the 521:288 render is kept as demo2_figma_render_1280x720_v1_2026-10-25.png.
-  demo_check.py's T3 entry: the new picture box. Text, clips, timings, flow untouched. `../_before_demo2_girl/` holds the dist's
-  three files, build.py, demo_check.py, the 521:288 render and the old demo2_assets/.
+  demo_check.py's T3 entry: the new picture box. Text, clips, timings, flow untouched. demo_check.py T3: all pass (the picture
+  box within 0.44 px, the sentence within 0.5 px, 2 solid pixel differences); smoke 47/47. `../_before_demo2_girl/` holds the
+  dist's three files, build.py, demo_check.py, the 521:288 render and the old demo2_assets/.
 
 Run-on sentence demo T4 "मेरे पास आम केला सेब और संतरा है ।" (replaced 2026-10-25)
 - Flow: ... -> T3 -> T4 -> the engine's peek gate ("चलिए, साथ में करें!") -> G1 (unchanged: the old T4 crossed the same gate
@@ -359,8 +362,9 @@ First sentence the child punctuates, G1 "राजू गेंद से खे
   page with this exact as shown in this figma reference and apply the exact same animations and the same effects, make the new
   VOs accordingly; rest exactly the same"). The user's 1280x720 render of 656:66 (now g1_figma_render_1280x720.png; the 525:354
   render kept as g1_figma_render_1280x720_v1_2026-10-25.png) against the old one: the title bar, the tiles' bases and the third
-  tile identical; the sentence "पिंकी गेंद से खेल रही थी" (ink 416..969, centre 692.5: 8 px right of the old text box's centre,
-  so data.layout.sent.x = 68 in the bar, the same 522 width and 64px), the slot 29 px further right (977..1035 = x 612 in the
+  tile identical; the sentence "पिंकी गेंद से खेल रही थी" (ink 416..969, 553 wide — wider than the old 522 text box, and a
+  line that overflows its box is START-aligned, not centred (the first build put it 17 px right): data.layout.sent is now 560
+  wide at x 47.5 in the bar, its centre 692.5 on the render's ink, 64px as before), the slot 29 px further right (977..1035 = x 612 in the
   bar: data.layout.slot, the module's G2 hook), the picture — the girl with the ball (ink 208..330 x 214..343), CUT FROM THE
   RENDER at 1x (the Figma connector still unauthorized) at that box plus a 1 px white margin left / right / bottom (the top
   flush with the box's border), 125x131 lossless as g1_assets/img_g1_girl_ball.webp, a new asset id (img_g1_girl_ball; the
@@ -369,8 +373,10 @@ First sentence the child punctuates, G1 "राजू गेंद से खे
   sent line is the new sentence, re-made (6 word times); the instruction clip and the name on the right tap (vo_demo1_purn) are
   untouched, and so is G2, which plays G1's instruction. pick_check.py's G1 entry: the new picture box, slot, sentence centre,
   first word, first face, ink region and the slot's own region. Flow, timings, wrong-tap wiggles, the engine's idle reminder: as
-  before. `../_before_g1_pinki/` holds the dist's three files, build.py, recap_vo.py, pick_check.py, the 525:354 render and the
-  old g1_assets/.
+  before. pick_check.py G1 against the new render: all pass — the picture, slot and tile boxes within 0.5 px, the sentence's
+  ink centre on the render's (0.0 px; size within 2), 0 solid pixel differences over the whole frame; smoke 47/47; gate_check
+  all pass. `../_before_g1_pinki/` holds the dist's three files, build.py, recap_vo.py, pick_check.py, the 525:354 render and
+  the old g1_assets/.
 
 Second sentence the child punctuates, G2 "तुम कहाँ जा रहे हो" (replaced 2026-10-25)
 - Flow: ... -> G1 -> G2 -> G3 (unchanged). Figma frame 600:197 "8 G2"
@@ -392,6 +398,17 @@ Second sentence the child punctuates, G2 "तुम कहाँ जा रह�
   this frame; G3 next). smoke.py taps G2 too (a wrong tile, then "?") and drives the BUILD_PUNCT builder on G4 instead (two
   marks, through the round gate to P1); the older checks' "no story styling past the Figma pages" step now mounts G3.
   `../_before_g2_fig/` holds the dist's three files and build.py from before (G2 = the ported builder).
+- Later 2026-10-27, G2's picture replaced ([g2-girl]; asked: "replace the image with this image, rest keep everything exactly the
+  same"): the user's PNG, a girl in a pink dress with a yellow bag, 88x132 with transparency (its ink 84x127), stored lossless
+  with its alpha (exact) as g2_assets/img_g2_girl_bag.webp -> assets/Images/, a new asset id (img_g2_girl_bag) in G2's data; the
+  boy's file stays in the dist unused. Placed at its NATIVE size, its ink centred in the picture box's interior (3 px above,
+  4 below): data.layout.img = [223, 216, 88, 132] frame px (the frame's box was 218,213 102x136). At 1x it is upscaled on stages
+  wider than 1280 px, like T2's. The render g2_figma_render_1280x720.png (the visual target) now carries the girl in the boy's
+  place — the interior painted white, the PNG composited at 223,216 — and the 600:197 render is kept as
+  g2_figma_render_1280x720_v1_2026-10-25.png. pick_check.py's G2 entry: the new picture box. Text, clips, timings, flow
+  untouched. pick_check.py G2: all pass (the picture box within 0.44 px, the sentence within 0.5 px, 2 solid pixel
+  differences); smoke 47/47. `../_before_g2_girl/` holds the dist's three files, build.py, pick_check.py, the 600:197 render
+  and the old g2_assets/.
 
 Third sentence the child punctuates, G3 "बाग में गुलाब, गेंदा और चमेली के फूल हैं ।" (replaced 2026-10-25)
 - Flow: ... -> G2 -> G3 -> G4 (unchanged). Figma frame 528:424 "9 G3"
