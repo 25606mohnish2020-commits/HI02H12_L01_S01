@@ -354,6 +354,22 @@ First sentence the child punctuates, G1 "राजू गेंद से खे
   right one) and drives the BUILD_PUNCT builder on G2 instead; the older checks' "no story styling past the Figma pages"
   step now mounts G2 (G3 since G2 became a Figma page). `../_before_g1_fig/` holds the dist's three files and build.py
   from before (G1 = the ported builder).
+- Later 2026-10-27, G1 re-pointed at the Figma frame 656:66 ([g1-pinki]; asked: "replace the text and the image asset on that
+  page with this exact as shown in this figma reference and apply the exact same animations and the same effects, make the new
+  VOs accordingly; rest exactly the same"). The user's 1280x720 render of 656:66 (now g1_figma_render_1280x720.png; the 525:354
+  render kept as g1_figma_render_1280x720_v1_2026-10-25.png) against the old one: the title bar, the tiles' bases and the third
+  tile identical; the sentence "पिंकी गेंद से खेल रही थी" (ink 416..969, centre 692.5: 8 px right of the old text box's centre,
+  so data.layout.sent.x = 68 in the bar, the same 522 width and 64px), the slot 29 px further right (977..1035 = x 612 in the
+  bar: data.layout.slot, the module's G2 hook), the picture — the girl with the ball (ink 208..330 x 214..343), CUT FROM THE
+  RENDER at 1x (the Figma connector still unauthorized) at that box plus a 1 px white margin left / right / bottom (the top
+  flush with the box's border), 125x131 lossless as g1_assets/img_g1_girl_ball.webp, a new asset id (img_g1_girl_ball; the
+  boy's file stays in the dist unused), data.layout.img = [207, 214, 125, 131] — and the first tile's white face, whose top edge
+  is 1 px higher on this frame (face [199, 444, 223, 162]; its bottom and sides, and the base, as before). recap_vo.py: g1's
+  sent line is the new sentence, re-made (6 word times); the instruction clip and the name on the right tap (vo_demo1_purn) are
+  untouched, and so is G2, which plays G1's instruction. pick_check.py's G1 entry: the new picture box, slot, sentence centre,
+  first word, first face, ink region and the slot's own region. Flow, timings, wrong-tap wiggles, the engine's idle reminder: as
+  before. `../_before_g1_pinki/` holds the dist's three files, build.py, recap_vo.py, pick_check.py, the 525:354 render and the
+  old g1_assets/.
 
 Second sentence the child punctuates, G2 "तुम कहाँ जा रहे हो" (replaced 2026-10-25)
 - Flow: ... -> G1 -> G2 -> G3 (unchanged). Figma frame 600:197 "8 G2"

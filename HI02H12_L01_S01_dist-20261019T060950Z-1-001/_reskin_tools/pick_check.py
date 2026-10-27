@@ -32,11 +32,11 @@ T3_TILES = {".t1 .dmf-base": (197, 443, 227, 169), ".t2 .dmf-base": (527, 443, 2
 BIG = lambda x: (365 + x, 211 + 20, 59, 100)   # 519:32's slot, at x in its bar
 CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's boxes (frame px), the wrong taps to try,
              # the text regions for the ink comparison and what the pixel diff leaves out (the big slot's dashes: their phase)
-  "G1": {"next": "G2", "pick": 0, "sent_clip": "g1_sent", "name_clip": "demo1_purn", "pic_x": 197, "img": (207, 219, 124, 124),
-         "bar": (365, 719), "slot": BIG(583), "sent_c": (365+60+522/2, 211+18), "size": 64, "word": "राजू", "wrong": [2, 3, 2],
+  "G1": {"next": "G2", "pick": 0, "sent_clip": "g1_sent", "name_clip": "demo1_purn", "pic_x": 197, "img": (207, 214, 125, 131),   # [g1-pinki] 656:66's places
+         "bar": (365, 719), "slot": BIG(612), "sent_c": (365+68+522/2, 211+18), "size": 64, "word": "पिंकी", "wrong": [2, 3, 2],
          "tiles": {".t1 .dmf-base": (197, 442, 227, 170), ".t2 .dmf-base": (525, 443, 231, 169), ".t3 .dmf-base": (857, 443, 227, 169),
-                   ".t1 .dmf-face": (199, 445, 223, 161), ".t2 .dmf-face": (527, 445, 227, 161), ".t3 .dmf-face": (859, 445, 223, 161)},
-         "ink": {"sentence": (370, 214, 946, 346)}, "own": [(944, 227, 1011, 335)]},
+                   ".t1 .dmf-face": (199, 444, 223, 162), ".t2 .dmf-face": (527, 445, 227, 161), ".t3 .dmf-face": (859, 445, 223, 161)},   # [g1-pinki] the first face 1 px taller
+         "ink": {"sentence": (370, 214, 975, 346)}, "own": [(973, 227, 1040, 335)]},   # [g1-pinki] the slot 29 px further right
   "G2": {"next": "G3", "pick": 2, "sent_clip": "g2_sent", "name_clip": "demo2_prashn", "pic_x": 197, "img": (218, 213, 102, 136),
          "bar": (365, 719), "slot": BIG(573), "sent_c": (365+120+479/2, 211+18), "size": 64, "word": "तुम", "wrong": [1, 2, 1],
          "tiles": T3_TILES, "ink": {"sentence": (370, 214, 936, 346)}, "own": [(934, 227, 1001, 335)]},
