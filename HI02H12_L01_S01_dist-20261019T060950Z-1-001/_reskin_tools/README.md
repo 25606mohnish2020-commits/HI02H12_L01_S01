@@ -257,6 +257,16 @@ Run-on sentence demo T3 "तुम्हारा नाम क्या है"
   checks against this frame (its picture and sentence boxes, the third tile tapped, the "?" centred, the self-advance to
   T4). `demo2_figma_render_1280x720.png` is Figma's own render of the frame. `../_before_demo2_fig/` holds the dist's
   three files from before (T3 = the ported BUILD_PUNCT auto demo).
+- Later 2026-10-27, T3's picture replaced ([demo2-girl]; asked: "replace the image with this image, rest keep everything exactly
+  the same"): the user's PNG, a girl in a pink dress waving, 90x135 with transparency (its ink 84x130), stored lossless with its
+  alpha (exact) as demo2_assets/img_demo2_girl.webp -> assets/Images/, a new asset id (img_demo2_girl) in T3's data; the boy's
+  file stays in the dist unused. Placed at its NATIVE size, its ink centred in the picture box's interior (2 px above and below):
+  data.layout.img = [223, 214, 90, 135] frame px (the frame's "image 229" box was 204,215 130x128 — the boy filled the box's
+  height; the girl is portrait, so the box takes her shape). At 1x it is upscaled on stages wider than 1280 px, like T2's. The
+  render demo2_figma_render_1280x720.png (the visual target) now carries the girl in the boy's place — the interior painted
+  white, the PNG composited at 223,214 — and the 521:288 render is kept as demo2_figma_render_1280x720_v1_2026-10-25.png.
+  demo_check.py's T3 entry: the new picture box. Text, clips, timings, flow untouched. `../_before_demo2_girl/` holds the dist's
+  three files, build.py, demo_check.py, the 521:288 render and the old demo2_assets/.
 
 Run-on sentence demo T4 "मेरे पास आम केला सेब और संतरा है ।" (replaced 2026-10-25)
 - Flow: ... -> T3 -> T4 -> the engine's peek gate ("चलिए, साथ में करें!") -> G1 (unchanged: the old T4 crossed the same gate

@@ -1,0 +1,79 @@
+PASS the title bar appears as the intro line starts to sound — bar at +17 ms from the clip's first played moment
+PASS nothing else shows while the intro line sounds
+PASS the picture, the bar and the tiles come in 0.5 s after the intro — 516 ms
+PASS the sentence's clip starts once they have landed (~0.65 s) — 651 ms
+PASS no word shows before the sentence's clip
+PASS the words arrive one by one with the clip, none early, none >150 ms late — 257 samples, 9 distinct counts / 9 words, early 0, late 0
+PASS 2 slot(s) on the page — 2
+PASS the slot(s) blink from the moment the sentence's clip ends — 0 ms after
+PASS every slot blinks with the exact same animation, starting and stopping in the same frame — blinking counts seen [0, 2], animations ['dmfBlink|1.16667s|3']
+PASS the blink lasts 3.5 s, nothing sounding meanwhile — 3500 ms
+PASS the blink is slow: three blinks of ~1.17 s — dmfBlink|1.16667s|3
+PASS the mark's name ("अल्प विराम") sounds right after the blink — 0 ms after
+PASS the correct tile is the अल्प विराम one (,)
+PASS the tapped tile keeps its colours: its face's border stays #D5D8DF, no blue ring — {'rgb(213, 216, 223)|none'}
+PASS its tile is tapped and the other two dim as that line starts, not before — tap at +0 ms; dim [True, False, True]
+PASS the mark lands in each slot, left to right, ~0.4 s + 0.3 s apart after that line — [400, 717]
+PASS the second reading starts ~0.7 s after the (last) mark, every tile dim — 683 ms; dim [True, True, True]
+PASS each word, and each slot, is highlighted as the second reading reaches it (within -150/+40 ms) — 444 samples, states seen [(-1, -1), (-1, 0), (-1, 1), (0, -1), (1, -1), (2, -1), (3, -1), (4, -1), (5, -1), (6, -1), (7, -1)], off-time 0
+PASS 1.5 s after the second reading the slots' boxes go — 1500 ms
+PASS the page moves on by itself: the engine's peek gate into the guided round opens ~0.6 s later, then G1 — gate 674 ms after; G1 at 10169 ms
+PASS आगे never shows on this page
+PASS each clip plays once — [1, 1, 1, 1]
+PASS G1 is the first sentence the child punctuates (PUNCT_PICK, the Figma frame 525:354 — see pick_check.py)
+PASS no standing Swiftie and no 🔊 chip on this page — ['none 0x0', 'none 0x0']
+== the card is the stage (stage px) ==
+  .tut-card.sfig-card    got [0, 0, 1333, 750]  want [0, 0, 1333, 750]  max|d|=0.00
+PASS the card is the whole stage (within 0.5 px) — worst 0.00px
+== boxes vs the frame (px) ==
+  .dmf-band                              got [36.15, 25.99, 1243.69, 119.97]  frame [36, 26, 1244, 120]  max|d|=0.31
+  .dmf-pill                              got [40.04, 43.99, 1213.79, 83.98]  frame [39.897, 44, 1214.103, 84]  max|d|=0.31
+  .dmf-head                              got [36.15, 25.99, 116.47, 119.97]  frame [36, 26, 116.513, 120]  max|d|=0.15
+  .dmf-head img                          got [20.15, 30.99, 164.96, 164.96]  frame [20, 31, 165, 165]  max|d|=0.15
+  .dmf-pic                               got [144.12, 210.95, 143.96, 138.97]  frame [144, 211, 144, 139]  max|d|=0.12
+  .dmf-pic img                           got [143.75, 228.55, 143.96, 95.98]  frame [144, 229, 144, 96]  max|d|=0.45
+  .dmf-bar                               got [312.08, 210.95, 823.79, 138.97]  frame [312, 211, 824, 139]  max|d|=0.21
+  .t1 .dmf-base                          got [197.11, 442.89, 226.94, 168.96]  frame [197, 443, 227, 169]  max|d|=0.11
+  .t2 .dmf-base                          got [527.02, 442.89, 226.94, 168.96]  frame [527, 443, 227, 169]  max|d|=0.11
+  .t3 .dmf-base                          got [856.94, 442.89, 226.94, 168.96]  frame [857, 443, 227, 169]  max|d|=0.11
+  .t1 .dmf-face                          got [199.11, 444.89, 222.94, 160.96]  frame [199, 445, 223, 161]  max|d|=0.11
+  .t2 .dmf-face                          got [529.02, 444.89, 222.94, 160.96]  frame [529, 445, 223, 161]  max|d|=0.11
+  .t3 .dmf-face                          got [858.94, 444.89, 222.94, 160.96]  frame [859, 445, 223, 161]  max|d|=0.11
+  .dmf-bar > .dmf-blank:nth-of-type(1)   got [597.62, 286.54, 32.99, 37.99]  frame [598, 287, 33, 38]  max|d|=0.46
+  .dmf-bar > .dmf-blank:nth-of-type(2)   got [728.58, 286.54, 32.99, 37.99]  frame [729, 287, 33, 38]  max|d|=0.46
+  .dmf-pill p                            got (179.55, 61.98)  frame (179.44799999999998, 62)  max|d|=0.10
+  .dmf-sent                              got (724.10, 243.55)  frame (724.5, 244)  max|d|=0.45
+  .t1 .dmf-sym                           got (308.58, 501.37)  frame (308.5, 501.5)  max|d|=0.13
+  .t2 .dmf-sym                           got (640.50, 492.38)  frame (640.5, 492.5)  max|d|=0.12
+  .t3 .dmf-sym                           got (970.41, 502.37)  frame (970.5, 502.5)  max|d|=0.13
+  .t1 .dmf-name                          got (310.58, 542.86)  frame (310.5, 543)  max|d|=0.14
+  .t2 .dmf-name                          got (640.50, 543.86)  frame (640.5, 544)  max|d|=0.14
+  .t3 .dmf-name                          got (970.41, 543.86)  frame (970.5, 544)  max|d|=0.14
+PASS every box and text box within 1 px of the frame — worst 0.46px
+PASS fonts: Noto Sans Devanagari SemiBold — 32px bar, 50px sentence, 64px marks, 28px names — ['32px', '50px', '64px', '28px', True, True]
+== text ink vs the Figma render (page px): centre and size ==
+  sent: मेरे पास आम    mine (356, 253, 596, 299)  figma (356, 253, 596, 299)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  sent: केला           mine (635, 253, 726, 299)  figma (635, 253, 726, 299)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  sent: सेब … है ।     mine (765, 253, 1087, 305)  figma (766, 253, 1088, 306)  centre d=(-1.0,-0.5)  size d=(+0,-1)
+  bar text             mine (179, 68, 584, 106)  figma (179, 68, 582, 106)  centre d=(+1.0,+0.0)  size d=(+2,+0)
+  sym 1                mine (308, 477, 315, 517)  figma (308, 477, 315, 517)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  sym 2                mine (634, 500, 645, 517)  figma (634, 500, 645, 517)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  sym 3                mine (958, 472, 983, 519)  figma (958, 472, 983, 519)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  name 1               mine (258, 549, 364, 581)  figma (258, 548, 364, 581)  centre d=(+0.0,+0.5)  size d=(+0,-1)
+  name 2               mine (582, 550, 700, 575)  figma (582, 549, 701, 574)  centre d=(-0.5,+1.0)  size d=(-1,+0)
+  name 3               mine (893, 550, 1048, 580)  figma (893, 549, 1048, 579)  centre d=(+0.0,+1.0)  size d=(+0,+0)
+PASS each text's ink sits where the render's does (centre within 1.5 px, size within 3 px) — centre 1.0px, size 2px
+  pixel diff vs Figma render over the content (within 1 px): 2305 of 690000 px differ by >32 levels (0.33%)
+PASS the content pixel-matches the Figma render (within 1 px: >32-level diffs under 3% of the area)
+  pixel diff vs Figma render over the whole frame, slots' dashes included (within 1 px): 2327 of 921600 px (0.25%), of them solid: 0 (0.000%)
+PASS the whole frame pixel-matches the Figma render (solid diffs under 0.05% of the area)
+  slot 1: mark ink centre vs slot centre: landed (-0.11, +0.47) ink 8x12; highlighted (-0.11, +0.47) ink 10x16; offset -0.50px 12.50px
+PASS slot 1: the mark's (,) ink sits on the slot's centre once it has landed (within 1 px) — (-0.11, +0.47)
+PASS slot 1: ...and stays there while it is highlighted and grown (within 1 px) — (-0.11, +0.47), 12 -> 16 px tall
+  slot 2: mark ink centre vs slot centre: landed (-0.08, +0.47) ink 8x12; highlighted (-0.08, +0.47) ink 10x16; offset -0.50px 12.50px
+PASS slot 2: the mark's (,) ink sits on the slot's centre once it has landed (within 1 px) — (-0.08, +0.47)
+PASS slot 2: ...and stays there while it is highlighted and grown (within 1 px) — (-0.08, +0.47), 12 -> 16 px tall
+PASS no page errors — []
+PASS no failed requests — []
+
+ALL PASS

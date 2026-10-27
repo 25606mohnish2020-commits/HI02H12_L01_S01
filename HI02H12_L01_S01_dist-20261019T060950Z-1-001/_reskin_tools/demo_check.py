@@ -32,7 +32,7 @@ CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame'
          "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
          "next": "T3", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the second demo (PUNCT_DEMO)"},
-  "T3": {"page": "demo2", "mark_clip": "prashn", "pick": 2, "pic_x": 197, "img": (204, 215, 130, 128), "bar": (365, 719),
+  "T3": {"page": "demo2", "mark_clip": "prashn", "pick": 2, "pic_x": 197, "img": (223, 214, 90, 135), "bar": (365, 719),   # [demo2-girl] the user's picture at its native size
          "sent": (120, 18, 479, 64), "slots": BIG, "word": "तुम्हारा", "own": [(944, 227, 1011, 335)],
          "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
          "next": "T4", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",

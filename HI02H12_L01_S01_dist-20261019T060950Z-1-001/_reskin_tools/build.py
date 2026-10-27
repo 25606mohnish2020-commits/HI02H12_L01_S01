@@ -21,6 +21,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          the letter growing in it.
          [demo1-pinki] (2026-10-27): T2 re-pointed at the Figma frame 656:2 — the sentence "पिंकी स्कूल जा रही है" and its own
          picture (the girl in uniform walking); the layout, flow and sounds otherwise 519:32's; its two sentence clips re-made.
+         [demo2-girl] (2026-10-27): T3's picture replaced by the user's (a girl in a pink dress waving), at its native size in the
+         same picture box; nothing else of T3 touched.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -148,6 +150,11 @@ card["_emoji_fallback"]["img_demo1_girl"] = "✏️"
 # प्रश्नवाचक चिह्न tile is the one tapped). The band and the tiles are T2's to the pixel. data.layout carries the two
 # differing boxes (frame px); without it the module keeps 519:32's (the CSS). Clips + timings from demo2_assets/
 # (recap_vo.py demo2).
+# [demo2-girl] (asked 2026-10-27): the picture is the user's own PNG (a girl in a pink dress waving, 90x135 with transparency,
+# stored lossless as img_demo2_girl.webp) in place of the frame's "image 229" (the boy, img_demo2_boy — its file stays in the
+# dist, unused): at its native size, its ink (84x130) centred in the picture box's interior -> data.layout.img = [223, 214, 90,
+# 135] frame px (the old box was 204,215 130x128). The render demo2_figma_render_1280x720.png carries the girl in the boy's place
+# (the 521:288 render kept as _v1_2026-10-25). Text, clips, flow untouched.
 DEMO2_KEYS = ["intro", "sent", "prashn", "full"]
 dl2 = {k: json.loads((SCR / "demo2_assets" / f"vo_demo2_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO2_KEYS}
 i_t3 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T3")
@@ -156,16 +163,16 @@ assert _t3["type"] == "BUILD_PUNCT" and _t3["data"].get("auto") and [m["mark"] f
 dpart2 = lambda k: {"text_hi": dl2[k]["shown"], "audio": f"vo_demo2_{k}", "word_times": [t[0] for t in dl2[k]["word_times"]]}
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
     "prompt_hi": dl2["intro"]["shown"], "audio": {"prompt": "vo_demo2_intro"},
-    "data": {"band_hi": dl2["intro"]["shown"], "intro_audio": "vo_demo2_intro", "image_id": "img_demo2_boy",
+    "data": {"band_hi": dl2["intro"]["shown"], "intro_audio": "vo_demo2_intro", "image_id": "img_demo2_girl",   # [demo2-girl]
              "sentence": dpart2("sent"), "mark": "?", "mark_audio": "vo_demo2_prashn", "full": dpart2("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent_x": 120, "img": [204, 215, 130, 128]}},
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent_x": 120, "img": [223, 214, 90, 135]}},   # [demo2-girl] the picture at its native size, centred in the box
     "signals": {"on_complete": []}}
 for k in DEMO2_KEYS:
     card["assets"]["audio"][f"vo_demo2_{k}"] = f"assets/Audio/vo_demo2_{k}.ogg"
     card["assets"]["audio_text"][f"vo_demo2_{k}"] = dl2[k]["text"]
-card["assets"]["image"]["img_demo2_boy"] = "assets/Images/img_demo2_boy.webp"
-card["_emoji_fallback"]["img_demo2_boy"] = "✏️"
+card["assets"]["image"]["img_demo2_girl"] = "assets/Images/img_demo2_girl.webp"   # [demo2-girl]
+card["_emoji_fallback"]["img_demo2_girl"] = "✏️"
 # [demo-fig] T4 = the Figma frame 523:320 "6 T4", the third run-on sentence demo, in place of the ported BUILD_PUNCT auto
 # demo ("मेरे पास आम केला और सेब हैं"): T2's flow with अल्प विराम as the tapped tile and a sentence that needs TWO commas.
 # The frame moves the picture box to 144 (its "image 230", fruit, 144x96 at 144,229, drawn over the box) and widens the
@@ -2402,7 +2409,7 @@ for name, sub in [(f"vo_demo1_{k}.ogg", "Audio") for k in DEMO_KEYS] + [("demo1_
 # ---------- 7e. [demo-fig] T3's clips and picture (demo2_assets/: recap_vo.py demo2; the frame's "image 229"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------
 DEMO2_SRC = SCR / "demo2_assets"
-for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_KEYS] + [("img_demo2_boy.webp", "Images")]:
+for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_KEYS] + [("img_demo2_girl.webp", "Images")]:   # [demo2-girl]
     f, dst = DEMO2_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing demo asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
