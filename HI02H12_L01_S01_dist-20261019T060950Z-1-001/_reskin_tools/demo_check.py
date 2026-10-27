@@ -28,7 +28,7 @@ SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T2"
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box
-         "sent": (100, 18, 479, 64), "slots": BIG, "word": "पिंकी", "own": [(944, 227, 1011, 335)],
+         "sent": (96.5, 18, 479, 64), "slots": BIG, "word": "पिंकी", "own": [(944, 227, 1011, 335)],   # [demo1-pinki] the text box 3.5 px further left on 656:2
          "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
          "next": "T3", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the second demo (PUNCT_DEMO)"},

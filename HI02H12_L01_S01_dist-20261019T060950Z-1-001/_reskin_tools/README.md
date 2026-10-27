@@ -212,8 +212,9 @@ Run-on sentence demo T2 "सुनो यह वाक्य बिना रु
   page with this exact as shown in this figma reference and apply the exact same animations and the same effects, make the new
   VOs accordingly; rest exactly the same"). The user's 1280x720 render of 656:2 (now demo1_figma_render_1280x720.png; the 519:32
   render kept as demo1_figma_render_1280x720_v1_2026-10-24.png) is 519:32's to the pixel — title bar, tiles, slot, boxes — except
-  two things (2.02 % of the frame): the sentence, "पिंकी स्कूल जा रही है" in the same centred 479-wide box (its ink 460..945,
-  2 px left of the old centre by पि's own bearings — the browser's centring does the same), and the picture, the girl in uniform
+  two things (2.02 % of the frame): the sentence, "पिंकी स्कूल जा रही है" (its ink 461..944 on the render; the browser shapes it
+  the same width within 2 px, but in the old box every word sat 3.5 px right of the render's — the frame's text box is 3.5 px
+  further left, so data.layout.sent_x = 96.5 in the bar, the same centred 479 width), and the picture, the girl in uniform
   walking (ink 229..308 x 214..344). The Figma connector had no authorization in this session, so the picture is CUT FROM THE
   RENDER at 1x — the only source to hand — at its ink's box plus a 1 px white margin on the left, right and bottom (the top is
   flush with the picture box's border), 82x132 px on the box's own white, stored lossless as img_demo1_girl.webp (the 519:32

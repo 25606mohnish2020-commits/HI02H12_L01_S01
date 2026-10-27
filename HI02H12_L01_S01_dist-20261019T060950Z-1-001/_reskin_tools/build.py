@@ -124,8 +124,9 @@ for k in RECAP_KEYS:
 # and dims the others; the mark lands in the slot; the sentence is read again with the mark named, words and mark
 # highlighted as they are read; then the slot's box goes and the page advances by itself (no आगे). Clips + timings from
 # demo1_assets/ (recap_vo.py demo1).
-# [demo1-pinki] (asked 2026-10-27): the frame is now 656:2 — 519:32 to the pixel except its sentence, "पिंकी स्कूल जा रही है" (the
-# same centred 479-wide box; its ink 460..945 on the render, 2 px left of the old's centre by पि's own bearings), and its picture,
+# [demo1-pinki] (asked 2026-10-27): the frame is now 656:2 — 519:32 to the pixel except its sentence, "पिंकी स्कूल जा रही है" (its
+# ink 461..944 on the render; the browser shapes it the same width within 2 px but every word sat 3.5 px right of the render's in
+# the old box, so the frame's text box is 3.5 px further left: data.layout.sent_x = 96.5 in the bar, the same 479 width), and its picture,
 # the girl in uniform walking (its ink 229..308 x 214..344 on the render; cut from the user's 1280x720 render — the only source to
 # hand — at that box plus a 1 px white margin on the left, right and bottom: data.layout.img = [228, 214, 82, 132], frame px, in
 # place of 519:32's "image 228" box 227,221 80.052x120). The title line, the tiles, the slot and the flow are untouched; the
@@ -140,7 +141,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
     "data": {"band_hi": dl["intro"]["shown"], "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
              "sentence": dpart("sent"), "mark": "।", "mark_audio": "vo_demo1_purn", "full": dpart("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132]}},   # [demo1-pinki] the picture's box on 656:2
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132], "sent_x": 96.5}},   # [demo1-pinki] 656:2's picture box and text box
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
