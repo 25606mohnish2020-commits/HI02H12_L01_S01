@@ -216,9 +216,9 @@ with sync_playwright() as p:
     moving = [f for f in tr if f["apex"] and f["hinge"] and "open" in f["cls"]]
     check("in no frame does any part of the flap rise above the envelope's top edge (its tip stays at or below the hinge), so nothing of it can be cut by the frame",
           moving and all(f["apex"][1] >= f["hinge"][1] - 2 for f in moving), (len(moving), round(min(f["apex"][1] - f["hinge"][1] for f in moving), 1) if moving else None))
-    until(t_end, 800); pl = pg.evaluate(PLAYS); bgm = pg.evaluate("(typeof backgroundMusic !== 'undefined' && backgroundMusic) ? backgroundMusic.volume : null")
+    until(t_end, 800); pl = pg.evaluate(PLAYS); bgm = pg.evaluate("(typeof backgroundMusic !== 'undefined' && backgroundMusic) ? (backgroundMusic.paused ? 0 : 1) : null")   # [dun-chrome] the bed runs (its level follows the sounds: ducked under L2's line just now)
     page_sounds = [x for x in pl if "letter" in x["src"]]
-    check("leaving the page stopped every one of its sounds and gave the engine its music back", len(page_sounds) == 5 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),
+    check("leaving the page stopped every one of its sounds and the music bed runs on (ducked under the next page's line)", len(page_sounds) == 5 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),
           ([(x["src"], x["paused"]) for x in page_sounds], bgm))
     check("no round gate between the letter page and the stamp page", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
     shot(pg, "l1_end.png")

@@ -1,0 +1,32 @@
+/* Final-page parity with HI01H08_L01_S02_Pulling_Streeling_Pehchano. */
+.end-bg{
+  position:fixed;inset:0;background:#FDE9A8 url("assets/UI/end_screen.webp") center/cover no-repeat;
+  display:none;pointer-events:none;
+}
+body.is-end .end-bg{display:block;}
+html.rotated .end-bg{
+  inset:auto;left:50%;top:50%;width:100vh;height:100vw;
+  transform:translate(-50%,-50%) rotate(90deg);
+}
+body.is-end{background:#FDE9A8 !important;}
+body.is-end .stage{background:transparent !important;}
+body.is-end .stage-inner{visibility:hidden !important;}
+body.is-end .header-row,
+body.is-end .prompt-band,
+body.is-end #navBtn,
+body.is-end #devNav,
+body.is-end #jumpOverlay{display:none !important;}
+
+.end-screen{background:transparent !important;}
+.end-screen .end-title,
+.end-screen .end-subtitle{display:none !important;}
+.end-screen .confetti{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1 !important;
+}
+.end-screen .end-mascot{
+  position:static !important;transform:none !important;width:330px !important;height:auto;
+  object-fit:contain;mix-blend-mode:normal !important;
+  animation:endPop .55s cubic-bezier(.34,1.5,.6,1);z-index:3 !important;
+}
+.end-screen .end-btn{position:static !important;transform:none !important;z-index:3;}
+.end-screen .end-btn:active{transform:translateY(3px) !important;}

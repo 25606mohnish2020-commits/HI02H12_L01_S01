@@ -1,0 +1,30 @@
+/* ===== Page 1: शुरू करें appears only AFTER the landing VO has played once =====
+   The button is kept out of the page (display:none) until the engine adds .ready - [P1-NO-BIRD-CUE] (2026-10-05): that is
+   the end of the welcome VO (revealStart from finish() in playLanding; after a 1.2 s beat if that file failed).
+   [LANDING-BTN-AFTER-BIRD] (2026-09-23) used to wait for the bird's first pulse + replay line as well; that cue is gone, so
+   the .sg-pulsing / .sg-bird-cue rules below are never triggered on Page 1 any more (kept, unused). It then pops in with the
+   landing's own icon reveal.
+   Every keyframe keeps translateX(-50%): that is the pill's centring transform. One-shot pop-in; the breathing
+   that follows it is ruled further down in this block. */
+.start-gate .sg-btn:not(.ready){display:none !important;}
+.start-gate .sg-btn.ready{animation:sgBtnReveal .52s cubic-bezier(.34,1.5,.6,1) !important;}
+@keyframes sgBtnReveal{
+  0%  {opacity:0;transform:translateX(-50%) scale(.55) translateY(14px);}
+  60% {opacity:1;transform:translateX(-50%) scale(1.08) translateY(0);}
+  100%{opacity:1;transform:translateX(-50%) scale(1)   translateY(0);}
+}
+/* Page-1 follow-up: the bird pulses for as long as the replay line plays (once, from 1.5 s after the welcome; the
+   5 s idle repeat is off since [P1-CUE-ONCE] 2026-09-23) and settles when it ends. The "fully still" lock on .sg-mascot exempts
+   .sg-pulsing, otherwise its !important transform:none would beat this animation. */
+.start-gate .sg-mascot.sg-pulsing{animation:sgMascotPulse .8s ease-in-out infinite !important;transform-origin:50% 100%;}
+/* the bird is tappable (replays the welcome; see replayWelcome in the engine script): a shared img rule had left it
+   pointer-events:none, so taps fell through to the card — re-enable hit-testing here; cursor only, nothing else moves */
+.start-gate .sg-mascot{pointer-events:auto !important;cursor:pointer;}
+@keyframes sgMascotPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+/* Page 1 button breathing (SME): once the welcome VO is over and the pop-in has landed, शुरू करें pulses (.sg-breathe,
+   added by revealStart; the engine's own sgBtnPulse keyframes keep translateX(-50%)). It is held STILL for as long as
+   the bird pulses with its line (.start-gate.sg-bird-cue, flipped together with .sg-pulsing by setBirdCue) and breathes
+   again from rest once the bird settles. Higher specificity than the reference-pill "no breathing" rule
+   (.sg-btn.ready{animation:none !important}) and the pop-in rule above, so these win. */
+.start-gate .sg-btn.ready.sg-breathe{animation:sgBtnPulse 1.4s ease-in-out infinite !important;}
+.start-gate.sg-bird-cue .sg-btn.ready.sg-breathe{animation:none !important;}

@@ -196,6 +196,7 @@ let isMuted = false;
 let backgroundMusic=null, bgmFadeFrame=0;
 const BGM_VOLUME=.20, BGM_VO_VOLUME=.085;
 function fadeBackgroundMusic(target){
+  if(window.__bgm) return;   // [dun-chrome] the bed owns its volume (BGM-DUCK)
   if(!backgroundMusic) return;
   if(bgmFadeFrame) cancelAnimationFrame(bgmFadeFrame);
   const from=backgroundMusic.volume, started=performance.now(), duration=560;
@@ -207,6 +208,7 @@ function fadeBackgroundMusic(target){
   bgmFadeFrame=requestAnimationFrame(tick);
 }
 function startBackgroundMusic(){
+  if(window.__bgm) return;   // [dun-chrome] the bed starts itself with page 1 (BGM-DUCK)
   if(!backgroundMusic){
     backgroundMusic=new Audio("assets/Audio/standard_background_music_2.mp3");
     backgroundMusic.loop=true;
@@ -384,9 +386,9 @@ function playKitSfx(name, file, volume){ if(isMuted) return; try{
 }catch(e){} }
 const sfxCorrect   = ()=> playKitSfx("correct", "sfx_correct_new.ogg", .85);
 const sfxWrongSoft = ()=> playKitSfx("wrong", "sfx_wrong_new.ogg", .85);
-const sfxConfetti  = ()=> playKitSfx("confetti", "sfx_celebrate.ogg", .85);
-const sfxPlayButton = ()=> playKitSfx("playButton", "sfx_play_button.ogg", .85);
-const sfxNextButton = ()=> playKitSfx("nextButton", "sfx_next_button.ogg", .85);
+const sfxConfetti  = ()=> playKitSfx("confetti", "sfx_celebrate.ogg", .45);   // [dun-chrome] STD_SFX_VOL.confetti
+const sfxPlayButton = ()=> playKitSfx("playButton", "sfx_play_button.ogg", .8);   // [dun-chrome] STD_SFX_VOL.play
+const sfxNextButton = ()=> playKitSfx("nextButton", "sfx_next_button.ogg", .9);   // [dun-chrome] STD_SFX_VOL.next
 const sfxStarPop   = ()=> playKitSfx("starPop", "sfx_star_pop_new.ogg", .80);
 /* [r32] STAR CHIME — one bright "ting" per star as it lands, rising across the three so the row
    reads as a little fanfare rather than the same note three times. Two partials and a fast
@@ -450,10 +452,10 @@ function confettiRnd(a,b){ return a + Math.random() * (b-a); }
 function confettiCannon(withStars=true){
   sfxConfetti();
   document.querySelectorAll(".fx-confetti").forEach(x=>x.remove());
-  const host = document.body, n = 80, dist = (window.innerHeight || 800) + 60;
+  const host = document.body, n = 100, dist = (window.innerHeight || 800) + 60;   // [dun-chrome] CONFETTI-REF: 100 pieces
   let maxLife = 0; const wrap = document.createElement("div"); wrap.className = "fx-confetti";
   for(let i=0;i<n;i++){
-    const z = confettiRnd(.75,1.15), fall = confettiRnd(1.1,1.8)/z, delay = confettiRnd(0,.35);
+    const z = confettiRnd(.75,1.15), fall = confettiRnd(1.6,2.6)/z, delay = confettiRnd(0,.35);   // [dun-chrome] CONFETTI-REF: the fall 1.6-2.6 s
     maxLife = Math.max(maxLife, fall + delay);
     const pair = CONFETTI_COLORS[i % CONFETTI_COLORS.length], flutter = Math.random() > .22;
     const rockT = flutter ? confettiRnd(.6,1.2) : confettiRnd(.75,1.5);
@@ -6405,6 +6407,7 @@ const SlideModules = {
           state.attempts++; sfxWrongSoft(); setSwMood("tryagain");
           GameBus.emit("answer_wrong", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts });
           t.classList.remove("wiggle"); void t.offsetWidth; t.classList.add("wiggle");
+          setSwMood("tryagain");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird
           return;
         }
         // the right one: pressed, the others dim, its mark lands in the slot as its name sounds; then the page moves on
@@ -8193,7 +8196,7 @@ function boot(){
        belt-and-braces alongside the CSS pointer-events:none on .sg-btn (style.css) for the case where
        the SAME gesture that starts the clip also dispatches this click before the lock CSS lands.
        A second tap once the line ends proceeds normally. */
-    if(document.body.classList.contains("vo-lock")) return;
+    /* [dun-chrome] the reference's play button takes the tap at once (it is not shown until the welcome has been heard; a replay is cut) */
     /* [spec] activity_launched — the child tapped शुरू करें. Fired AFTER the vo-lock guard above, so a
        tap that is deliberately ignored (mid-greeting) does not report a launch that never happened. */
     GameBus.xapi("activity_launched", { type: "activity", id: CARD.skill_code }, null,
@@ -8202,7 +8205,7 @@ function boot(){
         platform: (window.SwiftPAL && window.SwiftPAL._platform) || "web" });
     stopAudio();          // silence the landing greeting BEFORE slide 0 speaks (no VO overlap)
     sfxPlayButton();      // supplied common play-button SFX
-    startBackgroundMusic(); // user gesture unlocks the looping lesson soundtrack
+    /* [dun-chrome] the music bed starts with page 1 (BGM-DUCK), not on the play tap */
     _ac();                // unlock/resume WebAudio on the start gesture so the first clip never clips
     // [engine JS] r4/P1: peek gate into the tutorial. The landing stays visible-and-BLURRED behind the
     // peeking Swiftie + "चलिए शुरू करें"; it hides once the tutorial mounts (in the callback).
@@ -8428,3 +8431,686 @@ boot();
   else init();
 })();
 
+
+
+/* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) on this lesson — see build.py ===== */
+/* ===== FLN ANIMATION KIT: core BEGIN ===== */
+(function(){ "use strict";
+  var M = window.FLNMotion = window.FLNMotion || {};
+  M.still = function(){
+    try{ return document.documentElement.classList.contains("no-anim") ||
+      (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+    catch(_){ return false; }
+  };
+  M.scale = function(){
+    try{ return parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue("--scale")) || 1; }catch(_){ return 1; }
+  };
+  M.rect = function(r, sw){                    // screen rect -> stage coords (R1/R2)
+    var s = M.scale();
+    if(document.documentElement.classList.contains("rotated")){
+      return { left:(r.top - sw.top)/s, top:(sw.right - r.right)/s, w:r.height/s, h:r.width/s };
+    }
+    return { left:(r.left - sw.left)/s, top:(r.top - sw.top)/s, w:r.width/s, h:r.height/s };
+  };
+  M.guard = function(fn){                      // R4
+    try{ fn(); }catch(e){ try{ console.warn("[animation-kit]", e && e.message); }catch(_){} }
+  };
+  var _actx = null;
+  M.audio = function(){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return null;
+      _actx = _actx || new AC();
+      if(_actx.state === "suspended") _actx.resume();
+      return _actx;
+    }catch(_){ return null; }
+  };
+  M.ready = function(fn){
+    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  };
+})();
+/* ===== FLN ANIMATION KIT: core END ===== */
+/* ===== FLN ANIMATION KIT: still-mode BEGIN ===== */
+/* activity adaptation (R5): this engine never set html.no-anim, so the kit's verification switch
+   ?still=1 had nothing to key on. Sets the class that the reduced-motion CSS and M.still() read. */
+(function(){ "use strict";
+  var M = window.FLNMotion;
+  M.guard(function(){
+    if(/[?&]still=1(&|$)/.test(location.search)) document.documentElement.classList.add("no-anim");
+  });
+})();
+/* ===== FLN ANIMATION KIT: still-mode END ===== */
+/* ===== FLN ANIMATION KIT: sky-drift BEGIN ===== */
+(function(){ "use strict";
+  var M = window.FLNMotion;
+
+  function build(o){
+    var sky = typeof o.container === "string" ? document.querySelector(o.container) : o.container;
+    if(!sky) return null;
+    sky.textContent = "";
+    var maxSize = 0, frag = document.createDocumentFragment();
+
+    o.layers.forEach(function(L, li){
+      for(var i = 0; i < o.lanes; i++){
+        var a = ((360 / o.lanes) * i + L.rot) * Math.PI / 180;
+        var cos = Math.cos(a), sin = Math.sin(a);
+        var size = +((o.size[0] + Math.random() * (o.size[1] - o.size[0])) * L.scale).toFixed(2);
+        if(size > maxSize) maxSize = size;
+        var dur = +(o.dur[0] + Math.random() * (o.dur[1] - o.dur[0])).toFixed(1);
+        var el = document.createElement("i");
+        el.className = o.shapes[(i + li) % o.shapes.length];
+        el.style.cssText =
+          "--s:"  + size + "vmax;" +
+          "--x1:" + (o.r0 * cos).toFixed(2) + "vmax;--y1:" + (o.r0 * sin).toFixed(2) + "vmax;" +
+          "--x2:" + (o.r1 * cos).toFixed(2) + "vmax;--y2:" + (o.r1 * sin).toFixed(2) + "vmax;" +
+          "--t:"  + dur + "s;" +
+          "--d:-" + (Math.random() * dur).toFixed(1) + "s;" +     // negative = de-sync
+          "--g:"  + (o.glow[0] + Math.random() * (o.glow[1] - o.glow[0])).toFixed(1) + "s;" +
+          "--gd:-" + (Math.random() * 4).toFixed(1) + "s;" +
+          "--o:"  + (o.opacity[0] + Math.random() * (o.opacity[1] - o.opacity[0])).toFixed(2) + ";";
+        frag.appendChild(el);
+      }
+    });
+    sky.appendChild(frag);
+
+    // collision proof: lane arc at the tightest radius must be >= 1.5x the largest element
+    var arc = (2 * Math.PI * o.r0) / o.lanes, ok = arc >= maxSize * 1.5;
+    if(!ok && o.warn !== false){
+      console.warn("[animation-kit] sky lanes too tight: arc " + arc.toFixed(2) +
+        "vmax vs element " + maxSize.toFixed(2) + "vmax. Reduce lanes or size.");
+    }
+    return { arc:arc, maxSize:maxSize, safe:ok, count:sky.children.length };
+  }
+
+  M.sky = {
+    defaults: {
+      container:".sg-sky", lanes:29,
+      layers:[{rot:0,scale:1},{rot:6.2,scale:0.62},{rot:-6.2,scale:0.55}],
+      r0:22, r1:72, size:[0.8,2.6], dur:[18,34], glow:[3.0,4.8],
+      opacity:[0.62,0.92], shapes:["s1","s2","s3","s4","s5"], warn:true
+    },
+    init: function(opts){
+      var o = Object.assign({}, this.defaults, opts || {}), res = null;
+      M.guard(function(){ res = build(o); });
+      return res;
+    }
+  };
+  M.ready(function(){ M.guard(function(){ if(!window.__skyManual) M.sky.init(); }); });
+})();
+/* ===== FLN ANIMATION KIT: sky-drift END ===== */
+/* ===== FLN ANIMATION KIT: sky-burst BEGIN ===== */
+(function(){ "use strict";
+  var M = window.FLNMotion;
+
+  function boom(o){                      // sine thud + noise tail + square crackles
+    var actx = M.audio(); if(!actx) return;
+    try{
+      var t = actx.currentTime, out = actx.createGain();
+      out.gain.value = o.volume; out.connect(actx.destination);
+
+      var tg = actx.createGain();
+      tg.gain.setValueAtTime(0.9, t);
+      tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+      tg.connect(out);
+      var osc = actx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(420, t);
+      osc.frequency.exponentialRampToValueAtTime(90, t + 0.16);
+      osc.connect(tg); osc.start(t); osc.stop(t + 0.18);
+
+      var n = actx.sampleRate * 0.45;
+      var buf = actx.createBuffer(1, n, actx.sampleRate), d = buf.getChannelData(0);
+      for(var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.6);
+      var src = actx.createBufferSource(); src.buffer = buf;
+
+      for(var c = 0; c < o.crackles; c++){
+        var cg = actx.createGain(), ct = t + 0.10 + Math.random() * 0.30;
+        cg.gain.setValueAtTime(0.0001, ct);
+        cg.gain.exponentialRampToValueAtTime(0.18, ct + 0.006);
+        cg.gain.exponentialRampToValueAtTime(0.0001, ct + 0.07);
+        cg.connect(out);
+        var co = actx.createOscillator();
+        co.type = "square";
+        co.frequency.setValueAtTime(1500 + Math.random() * 2200, ct);
+        co.connect(cg); co.start(ct); co.stop(ct + 0.08);
+      }
+      var bp = actx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 3400; bp.Q.value = 0.8;
+      var ng = actx.createGain();
+      ng.gain.setValueAtTime(0.0001, t);
+      ng.gain.exponentialRampToValueAtTime(0.5, t + 0.03);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      src.connect(bp); bp.connect(ng); ng.connect(out); src.start(t + 0.02);
+    }catch(_){}
+  }
+
+  function pop(el, r, o){
+    el.classList.add("popped");
+    // respawn on the next FLIGHT lap - the glow cycle is much shorter, so filter by name
+    el.addEventListener("animationiteration", function back(e){
+      if(e.animationName !== "sgFly") return;
+      el.classList.remove("popped");
+      el.removeEventListener("animationiteration", back);
+    });
+
+    var kind = "k-dot", cls = el.classList;
+    for(var ci = 0; ci < cls.length; ci++){ if(o.kind[cls[ci]]) kind = o.kind[cls[ci]]; }
+
+    var bs = Math.max(11, r.width);
+    var b = document.createElement("div");
+    b.className = "sg-burst " + kind;
+    b.style.left = (r.left + r.width / 2) + "px";
+    b.style.top  = (r.top  + r.height / 2) + "px";
+    b.style.setProperty("--bs", bs + "px");
+    b.appendChild(document.createElement("div")).className = "fl";
+
+    var k = 0;
+    for(var g = 0; g < o.rings.length; g++){
+      var R = o.rings[g], off = Math.random() * Math.PI * 2;
+      for(var i = 0; i < R.n; i++, k++){
+        var a = off + i / R.n * Math.PI * 2;
+        var dist = bs * R.rad * (0.78 + Math.random() * 0.44);
+        var p = document.createElement("i");
+        p.style.cssText =
+          "--ps:"  + (bs * R.size * (0.8 + Math.random() * 0.5)).toFixed(1) + "px;" +
+          "--dx:"  + (Math.cos(a) * dist).toFixed(1) + "px;" +
+          "--dy:"  + (Math.sin(a) * dist).toFixed(1) + "px;" +
+          "--gy:"  + (dist * o.gravity).toFixed(1) + "px;" +
+          "--sd:"  + (R.dur + Math.random() * 0.22).toFixed(2) + "s;" +
+          "--sdl:" + (Math.random() * 0.06).toFixed(3) + "s;" +
+          "color:" + o.hues[k % o.hues.length];
+        b.appendChild(p);
+      }
+    }
+    document.body.appendChild(b);
+    if(o.sound) boom(o);
+    setTimeout(function(){ b.remove(); }, o.life);
+  }
+
+  M.skyBurst = {
+    defaults: {
+      container:".sg-sky", when:["is-start","is-end"],
+      rings:[{n:9,rad:3.1,size:.58,dur:.80},{n:7,rad:1.8,size:.78,dur:.62}],
+      hues:["#FCB717","#3B7DD8","#21A74A","#E5484D","#7048D6","#F1781D"],
+      kind:{s1:"k-star",s2:"k-star",s3:"k-spark",s4:"k-dot",s5:"k-dot"},
+      gravity:0.42, pad:12, padRatio:0.7, minAlpha:0.08, life:1200,
+      sound:true, volume:0.22, crackles:4
+    },
+    init: function(opts){
+      var o = Object.assign({}, this.defaults, opts || {});
+      M.guard(function(){
+        var sky = typeof o.container === "string"
+          ? document.querySelector(o.container) : o.container;
+        if(!sky) return;
+        // capture phase: .sg-sky is pointer-events:none, so hit-test by rect (R6)
+        document.addEventListener("pointerdown", function(e){
+          if(M.still()) return;
+          if(!o.when.some(function(c){ return document.body.classList.contains(c); })) return;
+          var els = sky.querySelectorAll("i:not(.popped)");
+          for(var i = 0; i < els.length; i++){
+            var el = els[i], r = el.getBoundingClientRect();
+            if(r.width < 2) continue;
+            var pad = Math.max(o.pad, r.width * o.padRatio);   // ~4px targets need slack
+            if(e.clientX < r.left - pad || e.clientX > r.right  + pad ||
+               e.clientY < r.top  - pad || e.clientY > r.bottom + pad) continue;
+            if(parseFloat(getComputedStyle(el).opacity) < o.minAlpha) continue;
+            // claim the tap, or it also fires the button under the star
+            e.stopPropagation(); e.preventDefault();
+            pop(el, r, o);
+            return;
+          }
+        }, true);
+      });
+    }
+  };
+  M.ready(function(){ M.guard(function(){ M.skyBurst.init(); }); });
+})();
+/* ===== FLN ANIMATION KIT: sky-burst END ===== */
+
+/* ---- [STD-SFX] the standard set's volumes, on the three files this engine already ships (= the reference's, correlation 1.000) ---- */
+const STD_SFX_VOL = { confetti: 0.45, correct: 0.6, incorrect: 0.6, next: 0.9, play: 0.8 };
+function stdSfx(name){
+  const f = { play: ["playButton", "sfx_play_button.ogg"], next: ["nextButton", "sfx_next_button.ogg"], confetti: ["confetti", "sfx_celebrate.ogg"],
+              correct: ["correct", "sfx_correct_new.ogg"], incorrect: ["wrong", "sfx_wrong_new.ogg"] }[name];
+  if(f) playKitSfx(f[0], f[1], STD_SFX_VOL[name] != null ? STD_SFX_VOL[name] : 0.7);
+}
+/* ---- body.vo-playing: the flag every ported rule reads (= this engine's isPlaying, set and cleared in setPlaying) ---- */
+(function(){ "use strict"; const o = window.setPlaying; if(typeof o !== "function") return;
+  window.setPlaying = function(on){ const r = o.apply(this, arguments); document.body.classList.toggle("vo-playing", !!on); return r; }; })();
+/* ---- the cover: शुरू करें appears only once the welcome has been heard (this engine's landing-play-ready: the landing line has
+   played and nothing speaks), pops in (sgBtnReveal) and breathes (.sg-breathe); the chip at the bird's feet follows its readiness
+   (.sg-vo-off, [FEET-SPEAKER]); the bird is the reference's wave file, started afresh as the loader fades, a tap on it = the welcome again ---- */
+(function(){ "use strict";
+  const b = $("sgBtn"), vo = $("sgVo"), bird = $("sgMascot"); if(!b) return;
+  b.disabled = false;
+  const reveal = ()=>{ if(b.classList.contains("ready")) return; b.disabled = false; b.classList.add("ready");
+    let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
+    b.addEventListener("animationend", breathe, { once:true }); setTimeout(breathe, 700); };   // 700 ms fallback: the pop-in is .52 s
+  // "heard": the welcome's own element really sounded (its clock moved) — a blocked autoplay plays a silent beat in this engine,
+  // and the reference keeps the button hidden then until the first tap has played the welcome (its pointerdown fallback is this
+  // engine's too)
+  let heard = false;
+  const listen = setInterval(()=>{ if(!document.body.classList.contains("is-start")){ clearInterval(listen); return; }
+    const a = currentAudio; if(isPlaying && a && !a.paused && a.currentTime > 0.25 && /vo_landing/.test(a.src)){ heard = true; sync(); } }, 100);
+  const sync = ()=>{ if(heard && document.body.classList.contains("landing-play-ready")) reveal();
+    if(vo){ const off = !b.classList.contains("ready"); vo.classList.toggle("sg-vo-off", off); vo.setAttribute("aria-disabled", String(off)); } };
+  new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });
+  new MutationObserver(sync).observe(b, { attributes:true, attributeFilter:["class"] });
+  sync();
+  if(bird){
+    const start = ()=>{ if(bird.getAttribute("src")) return; bird.src = bird.dataset.src + "?r=" + Date.now(); };
+    if(document.body.classList.contains("loaded")) start();
+    else new MutationObserver((m, o)=>{ if(document.body.classList.contains("loaded")){ start(); o.disconnect(); } }).observe(document.body, { attributes:true, attributeFilter:["class"] });
+    setTimeout(start, 4000);
+    bird.addEventListener("click", ()=>{ if(vo && !vo.classList.contains("sg-vo-off") && !isPlaying) vo.click(); });
+  }
+})();
+/* ---- the bird in the title bars: every .dmf-head (the demos', the picks', the stamp page's frames) shows the engine's live head —
+   the mascot image's src mirrored, so the same celebrate / try-again / hint faces play inside the circle (the reference's header
+   bird; setSwMood drives #swBuddyImg exactly as before) ---- */
+(function(){ "use strict";
+  const live = ()=>{ const im = $("swBuddyImg"); if(!im) return; const want = im.getAttribute("src");
+    document.querySelectorAll(".dmf-head img").forEach(h=>{ h.classList.add("dun-live"); if(h.getAttribute("src") !== want) h.setAttribute("src", want); }); };
+  const im = $("swBuddyImg"); if(im) new MutationObserver(live).observe(im, { attributes:true, attributeFilter:["src"] });
+  const om = window.mountSlide; if(typeof om === "function") window.mountSlide = function(){ const r = om.apply(this, arguments); try{ live(); }catch(e){} return r; };
+  live();
+})();
+/* ---- the celebration screen moves to <body> (full-bleed, the reference's TOTA-END-REPARENT) ---- */
+(function(){ function move(){ var e = document.getElementById("endScreen"); if(e && e.parentElement !== document.body) document.body.appendChild(e); }
+  move(); setTimeout(move, 300); setTimeout(move, 1200); })();
+/* ---- the celebration mount = the reference's (its sound, the sunburst, the star burst, no text, the signals, the button), with this
+   engine's own आगे बढ़ें tap; the sprite runner below then takes the mascot's place and speaks the line after the jump ---- */
+SlideModules.CELEBRATION.mount = function(host, slide){
+  stdSfx("confetti");                                      // [STD-SFX] the standard confetti sound, at 0.45, on its own element
+  state.ownsAudio = true;                                  // the line is the sprite runner's (after the jump), never the auto chain's
+  const et = $("endTitle"); if(et) et.textContent = "";    // no text on the page: only the button carries writing
+  const st = $("endSubtitle"); if(st) st.textContent = "";
+  const es = $("endScreen"); es.classList.add("show");
+  document.body.classList.add("is-end");                   // the sunburst backdrop (end_screen.webp) and the sky
+  const c = $("confetti"); if(c) c.innerHTML = "";
+  starBurst();                                             // the gold star burst from the centre
+  const masteryScore = state.masteryAttempts ? (state.masteryHits/state.masteryAttempts) : 0;
+  GameBus.emit("mastery_score", { value: masteryScore, hits: state.masteryHits, attempts: state.masteryAttempts });
+  GameBus.emit("lesson_completed", { skill_code: CARD.skill_code, total_signals: GameBus.signals.length });
+  runValidator();
+  setNavActive(false);
+  document.querySelectorAll(".fx-confetti").forEach(w => w.remove());   // no correct-answer confetti bleeds onto this page
+  const eb = $("endBtn"); eb.dataset.completed = "0"; eb.disabled = false; eb.classList.add("show");
+  state.endBtnPending = false;
+      // dev-only: a small "download results" button (teacher/QA), never in child flow
+      if(new URLSearchParams(location.search).has("dev") && !$("dlResults")){
+        const dl = document.createElement("button"); dl.id = "dlResults"; dl.textContent = "⬇ results JSON";
+        dl.style.cssText = "position:absolute;bottom:20px;left:20px;z-index:5;font-family:var(--font-hi);font-weight:700;font-size:16px;padding:8px 16px;border-radius:12px;border:2px solid #B7DCFB;background:#fff;color:var(--navy);cursor:pointer;";
+        dl.onclick = ()=> GameBus.downloadResults();
+        es.appendChild(dl);
+      }
+      eb.onclick = ()=>{
+        if(eb.dataset.completed === "1") return;
+        stdSfx("next");   // [STD-SFX] the end screen's आगे बढ़ें is a next button too
+        eb.dataset.completed = "1";
+        eb.disabled = true;
+        /* [spec] activity_completed — ONLY here, on the आगे बढ़ें tap, never at celebration mount, so a
+           host that redirects on it still lets the child see the celebration and choose to move on.
+           completed/progress are always true/100 (the event exists only at the end; there is no
+           partial variant). score = first-try accuracy across all answered questions, 0–1 to 2dp —
+           it is not always 1. [B5] the lesson_complete handshake rides the same tap. */
+        const qVals = Object.values(GameBus._qStats);
+        const firstTryScore = qVals.length ? Math.round((qVals.filter(Boolean).length / qVals.length) * 100) / 100 : 0;
+        GameBus.xapi("activity_completed", { type: "activity", id: CARD.skill_code },
+          { completed: true, progress: 100, score: firstTryScore, duration_ms: Date.now() - GameBus.startedAt },
+          { title: (CARD.title && (CARD.title[CARD.medium] || CARD.title.hi)) || null });
+        try{ window.parent?.postMessage({type:"swiftpal:lesson_complete", signals: GameBus.signals, validatorReport: GameBus.validatorReport}, "*"); }catch(e){}
+        GameBus.emit("proceed_next", { skill_code: CARD.skill_code, part: CARD.part_label });
+        try{ window.parent?.postMessage({type:"swiftpal:proceed", skill_code:CARD.skill_code, part:CARD.part_label}, "*"); }catch(e){}
+      };
+};
+/* [CEL-VO-MTG2A04] (2026-10-09, user request): the celebration line is now MTG2A04_L01_S01's own vo_cel_prompt
+   ("बहुत बढ़िया, दोस्त! तुमने कमाल कर दिया!", 2.94 s, github.com/CodeWithPiyush0/MTG204_L01_S01), re-containered to WAV under this
+   lesson's existing id vo_well_done (assets/Audio/vo_well_done.wav), with that card's end_anim.bits (117 x 25 ms) so the beak
+   follows the new clip. audio_text / prompt_hi carry the new text. Nothing else on the page changed. */
+/* [CEL-SWIFTIE] (2026-10-08, user request) the celebration Swiftie of MTG2A04_L01_S01 (celArrowAfterVO + runCelSprite of that
+   page, its rounds 2l-2r) on this lesson's celebration screen - see <style id="CEL-SWIFTIE-CSS">. The engine's CELEBRATION
+   module is WRAPPED, not edited: its mount runs exactly as before (the celebration sound, the sunburst, the star burst, the
+   signals, the button), then the sprite takes the mascot's place and the page owns the line (state.ownsAudio: mountSlide's
+   auto-play is skipped, so the clip is heard once, after the jump). Timeline, all on one clock:
+     jump      the शाबाश sheet 0-29 at 45 ms a frame (1.35 s) - silent but for the celebration sound - once the screen's
+               opening work has settled (three smooth paints in a row, at most 0.7 s after the mount)
+     landing   the शाबाश sheet 30-35 (beak shut, 0.27 s)
+     the line  vo_well_done starts here; the WHOLE line is lip-synced on the talk sheet: a cursor walks the sheet forward (so
+               the body keeps moving) but only lands on a frame whose beak matches the track at that instant - open on each
+               syllable, shut in every dip (CARD.end_anim.bits, 25 ms a character, read one paint ahead)
+     after     the idle sheet, its mouth-shut frames only, looping - she never "talks" in silence
+   Two adaptations to this engine (the reference's lines are otherwise kept): the clip's clock is the engine's own <audio>
+   element (currentAudio.currentTime - what the reference's _voiceClock reads for an <audio> clip; until it sounds, the paint
+   clock from the first isPlaying), and the three sheets are warmed 1.5 s after load (this page has no asset gate). Nothing
+   else changes. */
+(function(){ "use strict";
+  /* "once the VO finishes, the button is enabled and pulses" - on the celebration too. The engine shows its arrow at once;
+     here it waits (dim, not pressable) until the celebration line has ended, then it pulses like an enabled arrow. */
+  function celArrowAfterVO(){
+    const eb = document.getElementById("endBtn"); if(!eb) return;
+    eb.classList.remove("hint-glow", "cel-ready"); eb.classList.add("cel-wait");
+    const t0 = performance.now(); let heard = false;
+    (function tick(){
+      if(!eb.isConnected) return;
+      if(isPlaying) heard = true;
+      if((heard && !isPlaying) || performance.now() - t0 > 15000){
+        eb.classList.remove("cel-wait"); eb.classList.add("cel-ready"); return; }
+      requestAnimationFrame(tick);
+    })();
+  }
+  setTimeout(()=> (function wrapCel(tries){
+    const C = (typeof SlideModules !== "undefined") && SlideModules.CELEBRATION;
+    if(!C || !C.mount){ if(tries < 200) setTimeout(()=> wrapCel(tries + 1), 25); return; }
+    if(C.__celWrapped) return; C.__celWrapped = true;
+    const _mount = C.mount;
+    C.mount = function(host, slide){
+      const r = _mount.apply(this, arguments);
+      try { celArrowAfterVO(); } catch(e){}
+      try { runCelSprite(slide); } catch(e){}
+      return r;
+    };
+  })(0), 0);
+  /* the clip's own clock: how long the engine's current <audio> element has really been sounding, and whether it is over */
+  function voiceClock(){
+    let el0 = null, ended = false;
+    return ()=>{
+      if(ended) return { t:null, ended:true };
+      const el = currentAudio;
+      if(el && (!el0 || el === el0)){
+        if(!el.paused && el.currentTime > 0){ el0 = el; return { t: el.currentTime * 1000, ended:false }; }
+        if(el0 && el.ended) ended = true;
+        return { t:null, ended };
+      }
+      if(el0) ended = true;                            /* the clip is over (or another took over) */
+      return { t:null, ended };
+    };
+  }
+  let _celGen = 0;
+  /* THREE SHEETS, ONE CLOCK: jump first, then the line. While she talks the clock is the celebration VO itself, from the
+     moment it is sounding: the cursor walks the talk sheet forward (so the body keeps moving naturally) but only ever lands on
+     a frame whose mouth matches the VO at that instant - open on each syllable, shut in every dip. All three sheets share
+     frame size and alignment, so switching never jumps. */
+  function runCelSprite(slide){
+    const A = CARD && CARD.end_anim;
+    const im = document.querySelector("#endScreen .end-mascot");
+    if(!A || !im || !A.bits || !A.shabaash) return;
+    const gen = ++_celGen;
+    let sp = document.getElementById("celSprite");
+    if(!sp){
+      sp = document.createElement("div"); sp.id = "celSprite"; sp.className = "cel-sprite";
+      sp.innerHTML = '<div class="cel-art"></div>';
+      im.parentNode.insertBefore(sp, im);
+    }
+    im.style.display = "none";
+    const art = sp.querySelector(".cel-art");
+    /* paint the talk + idle sheets once, invisibly, while the screen opens - so the browser decodes and uploads them now,
+       not at the शाबाश -> talk switch (the reference measured a 130-180 ms stall there) */
+    [A.talk, A.idle].forEach(sh => {
+      const pp = document.createElement("div"); pp.className = "cel-art cel-prepaint";
+      pp.style.aspectRatio = A.fw + " / " + A.fh; pp.style.backgroundImage = 'url("' + sh.src + '")';
+      sp.appendChild(pp);
+      requestAnimationFrame(()=> requestAnimationFrame(()=> setTimeout(()=> pp.remove(), 120)));
+    });
+    art.style.aspectRatio = A.fw + " / " + A.fh;
+    let curSrc = "";
+    const show = (sheet, i)=>{
+      if(sheet.src !== curSrc){ art.style.backgroundImage = 'url("' + sheet.src + '")'; curSrc = sheet.src; }
+      const c = i % A.cols, r = Math.floor(i / A.cols);
+      art.style.backgroundPosition = (c * 100 / (A.cols - 1)) + "% " + (r * 100 / (A.cols - 1)) + "%";
+      sp.dataset.sheet = sheet === A.shabaash ? "shabaash" : (sheet === A.idle ? "idle" : "talk");
+      sp.dataset.f = i;
+    };
+    const S = A.shabaash, T = A.talk, I = A.idle;
+    const OPEN = new Set(T.open);
+    const bits = A.bits || "";
+    const step = A.step_ms || 25;
+    const loud = (t)=> bits.charAt(Math.floor(t / step)) === "1";
+    const lenMs = bits.length * step;
+    /* SHE JUMPS AND CELEBRATES FIRST, THEN SPEAKS: the page owns the audio (ownsAudio: the engine's auto-play is skipped)
+         jump     शाबाश sheet 0-29 at 45 ms/frame (1.35 s) - silent but for the page's celebration sound
+         landing  शाबाश sheet 30-35 (mouth shut, 0.27 s)
+         the VO   starts here; the WHOLE line lip-syncs on the talk sheet
+         after    idle sheet, mouth-shut frames only, looping */
+    const JUMP = S.pre.concat(S.word), LAND = S.post, FMS = 45;
+    const src = (typeof audioFor === "function") ? audioFor(slide, "prompt") : null;
+    if(!src) return;                                   /* no clip: let the engine's own auto-play run */
+    state.ownsAudio = true;
+    show(S, JUMP[0]);
+    let m0 = 0, lastF = 0, smooth = 0, vclock = null;
+    let phase = "jump", tj = 0, t0 = 0, waitStart = 0, done = false, cursor = 0, curOpen = null, lastStep = 0;
+    const idle = ()=>{
+      let j = 0;
+      (function tick(){
+        if(gen !== _celGen || !sp.isConnected) return;
+        show(I, I.loop[j % I.loop.length]); j++;
+        setTimeout(tick, 110);
+      })();
+    };
+    (function frame(){
+      if(gen !== _celGen || !sp.isConnected || done) return;
+      if(CARD.slides[state.idx] !== slide){ done = true; return; }
+      const now = performance.now();
+      /* the jump's clock starts once the screen's opening work has settled - three smooth paints in a row (sunburst, stars,
+         sfx and the sheets' first decode stall the first ~0.2-0.5 s; a jump timed from the mount skipped half its frames).
+         Capped at 0.7 s, so she never stands still longer. */
+      if(!tj){
+        if(!m0){ m0 = now; lastF = now; }
+        smooth = (now - lastF < 40) ? smooth + 1 : 0; lastF = now;
+        if(smooth >= 3 || now - m0 > 700) tj = now;
+        else { requestAnimationFrame(frame); return; }
+      }
+      if(phase === "jump" || phase === "land"){
+        const list = phase === "jump" ? JUMP : LAND, k = Math.floor((now - tj) / FMS);
+        if(k < list.length){ show(S, list[k]); requestAnimationFrame(frame); return; }
+        if(phase === "jump"){ phase = "land"; tj = now; show(S, LAND[0]); requestAnimationFrame(frame); return; }
+        phase = "wait"; waitStart = now;
+        play(src, ()=>{});                             /* the line starts as she lands */
+        vclock = voiceClock();                         /* the clip's OWN clock, independent of a late paint */
+      }
+      if(phase === "wait"){
+        if(isPlaying){ phase = "talk"; t0 = now; }
+        else if(now - waitStart > 1800){ done = true; idle(); return; }     /* the VO never started */
+        else { requestAnimationFrame(frame); return; }
+      }
+      const vt = vclock ? vclock().t : null;
+      const t = vt != null ? vt : now - t0;
+      if(!isPlaying || t > lenMs + 400){ done = true; idle(); return; }
+      const want = loud(t + 16);                       /* one paint ahead: the frame shows on the NEXT paint */
+      /* step the talk sheet forward: at once when the mouth must change, else every 80 ms */
+      if(want !== curOpen || now - lastStep > 80){
+        let k = 1;
+        while(k < 36 && OPEN.has((cursor + k) % 36) !== want) k++;
+        cursor = (cursor + k) % 36;
+        show(T, cursor); curOpen = want; lastStep = now;
+      }
+      sp.dataset.t = Math.round(t); sp.dataset.w = want ? 1 : 0;   /* the sprite's own clock + choice (tests) */
+      requestAnimationFrame(frame);
+    })();
+  }
+  /* warm the three sheets during the lesson, so the end screen never opens on an empty box */
+  (window.__afterWarm || (f=>{ const go = ()=>{ if(document.getElementById("sgBtn") && document.getElementById("sgBtn").classList.contains("ready")){ f(); return true; } return false; };
+    if(!go()){ const mo = new MutationObserver(()=>{ if(go()) mo.disconnect(); }); const sb = document.getElementById("sgBtn"); if(sb) mo.observe(sb, { attributes:true, attributeFilter:["class"] }); } }))(()=>{ try { const A = CARD && CARD.end_anim; if(A && A.shabaash){   // [dun-chrome] warmed once the cover's play button is ready (the reference: after every page's art; 1.5 s after load slowed a page mounted straight away)
+    window.__celWarm = [A.shabaash.src, A.talk.src, A.idle.src].map(u => { const i = new Image(); i.src = u; if(i.decode) i.decode().catch(()=>{}); return i; }); } } catch(e){} });
+})();
+/* [GATE-REF-ANIM] (2026-10-08, user request) the gate beat of the reference lesson (its phaseBlurTransition, [H11-154] form), on this
+   file's own gate: phaseBlurTransition is replaced here (its two callers - the start tap and completeSlide's phase boundary - call it
+   by name, so they take this one), keeping this file's titles (PHASE_GATE_TITLE), lines (PHASE_GATE_VO through the card's audio map),
+   the 4 s minimum hold (GATE_MS), the "never cut a line" rule (+200 ms after a line that outran the hold) and the GATE_MS + 7 s cap.
+   Sequence, as in the reference: open (scrim + blur, .pg-up: the bird lifts in over 0.3 s already talking - nothing to wait for, the
+   line starts at once, the reference's RISE_MS = 0) -> GATE_CAPTION_AT_MS into the line the headline is set and wipes in (.pg-say
+   makes it visible, .pg-pop runs the wipe; fitGateTitle keeps it clear of the bird's crest, the reference's _fitGateTitle) -> once the
+   line is over AND the hold has run: the first gate (.pg-talk) sinks the bird for 340 ms, then the screen clears and the next page
+   mounts; the other gates clear at once. A fresh image URL per gate = the animation from its first frame (fetched once at boot into
+   a blob, the way [GATE-STD-ANIM] did; the ?r= counter under file://). The reference's whoosh at the open (sfx_whoosh) is a sound,
+   not an animation, and this lesson has no such file: not ported. */
+(function(){ "use strict";
+  if(typeof phaseBlurTransition !== "function") return;
+  var GATE_MS = 4000;                                                          // the reference's minimum hold (this engine had no such constant: 2.8 s)
+  var GATE_REF_SRC = "assets/UI/peeking_talk_up.webp";
+  var GATE_CAPTION_AT_MS = { tutorial: 2850, guided: 3540, practice: 210 };   // this lesson's own vo_pt_* clips: the headline's words begin here (read off them, see README)   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
+  var SINK_MS = 340;
+  var gateRefBlob = null;
+  if(location.protocol !== "file:") (window.__afterTitle || function(f){ f(); })(function(){ try{ return fetch(GATE_REF_SRC).then(function(r){ return r.ok ? r.blob() : null; }).then(function(b){ if(b) gateRefBlob = b; }).catch(function(){}); }catch(e){} });   // [ASSET-WARM] once the title art is in
+  function fitGateTitle(){
+    try{
+      var t = $("phaseGateTitle"), im = $("phaseGateImg"), g = $("phaseGate");
+      if(!t || !im || !t.textContent || !g || !g.classList.contains("show")){ window.removeEventListener("resize", fitGateTitle); return; }
+      t.style.removeProperty("top"); t.style.scale = "";
+      var ir = im.getBoundingClientRect(); if(!ir.height) return;
+      var crest = ir.top + ir.height * 0.38, GAP = 12, EDGE = 8, W = window.innerWidth;
+      var tr = t.getBoundingClientRect();
+      var sc = Math.min(1, (W - 2 * EDGE) / tr.width);
+      if(tr.top + tr.height * sc > crest - GAP){
+        var room = crest - GAP - EDGE;
+        sc = Math.min(sc, room / tr.height); sc = Math.max(0.35, sc);
+        var top = Math.max(EDGE, crest - GAP - tr.height * sc);
+        t.style.setProperty("top", top + "px", "important");
+      }
+      if(sc < 0.999){ t.style.transformOrigin = "50% 0"; t.style.scale = String(sc); }
+    }catch(e){}
+  }
+  window.phaseBlurTransition = function(cb, toPhase){
+    var tok = ++_gateToken;
+    stopNudge(); stopAudio();
+    var gate = $("phaseGate"), img = $("phaseGateImg"), title = $("phaseGateTitle");
+    if(img){                                                   // the reference's bird, from its first frame
+      if(img._gateUrl){ try{ URL.revokeObjectURL(img._gateUrl); }catch(e){} img._gateUrl = null; }
+      img.removeAttribute("src"); void img.offsetWidth;
+      if(gateRefBlob){ img._gateUrl = URL.createObjectURL(gateRefBlob); img.src = img._gateUrl; }
+      else img.src = GATE_REF_SRC + "?r=" + Date.now();
+    }
+    if(title){ title.textContent = ""; title.classList.remove("pg-pop"); title.style.removeProperty("top"); title.style.scale = ""; }
+    gate.classList.remove("pg-say", "pg-sink");
+    gate.classList.add("pg-ref", "pg-up");
+    gate.classList.toggle("pg-talk", toPhase === "tutorial");   // the first gate: he sinks on the way out, as in the reference
+    $("stage").classList.add("blurred", "gating");
+    document.body.classList.add("gating");
+    gate.classList.add("show");
+    GameBus.emit("phase_transition", { to: toPhase });
+    var capT = null;
+    var clearGate = function(){
+      gate.classList.remove("show", "pg-say", "pg-sink", "pg-up", "pg-talk");
+      clearTimeout(capT); window.removeEventListener("resize", fitGateTitle);
+      if(title){ title.textContent = ""; title.classList.remove("pg-pop"); title.style.removeProperty("top"); title.style.scale = ""; }
+    };
+    var closeGate = function(){ clearGate(); $("stage").classList.remove("blurred", "gating"); document.body.classList.remove("gating"); };
+    var voId = PHASE_GATE_VO[toPhase];
+    var voSrc = voId ? ("assets/Audio/" + voId + "." + AUDIO_EXT) : null;   // this engine's clip path rule
+    var openedAt = Date.now(), lineOver = false, timeUp = false, closed = false;
+    var tearDown = function(){
+      clearGate();
+      $("stage").classList.remove("blurred");
+      if(cb) cb();                              // mounts the next slide
+      $("stage").classList.remove("gating");    // header returns once the slide is in
+      document.body.classList.remove("gating");
+    };
+    var finish = function(){                                   // runs once BOTH the hold and the line are over
+      if(closed || !(lineOver && timeUp)) return; closed = true;
+      if(tok !== _gateToken){ closeGate(); return; }           // a newer gate superseded us
+      if(gate.classList.contains("pg-talk")){ gate.classList.add("pg-sink"); setTimeout(tearDown, SINK_MS); }   // he goes back down first
+      else tearDown();
+    };
+    setTimeout(function(){ timeUp = true; finish(); }, GATE_MS);
+    setTimeout(function(){ lineOver = true; timeUp = true; finish(); }, GATE_MS + 7000);   // hard cap: never a stuck gate
+    // the headline arrives with its words: set and wiped in GATE_CAPTION_AT_MS into the line
+    capT = setTimeout(function(){
+      if(tok !== _gateToken || !title) return;
+      title.textContent = PHASE_GATE_TITLE[toPhase] || "";
+      gate.classList.add("pg-say");
+      title.classList.remove("pg-pop"); void title.offsetWidth; title.classList.add("pg-pop");
+      fitGateTitle(); window.addEventListener("resize", fitGateTitle);
+    }, GATE_CAPTION_AT_MS[toPhase] || 0);
+    play(voSrc, function(){                                    // the line starts at once: he is up and talking already
+      if(tok !== _gateToken){ closeGate(); return; }
+      var beat = (Date.now() - openedAt >= GATE_MS) ? 200 : 0;   // a line that outran the hold: a short beat after it, then close
+      setTimeout(function(){ lineOver = true; finish(); }, beat);
+    });
+  };
+})();
+/* [BGM-DUCK] (2026-10-02, user request): a low background-music bed under pages 1-13 (slides 0-12, T1 to P6), ducked to a minimal
+   level whenever ANY voice-over or sound effect plays and brought back when that sound has ended. The loader/landing (before page 1)
+   and the celebration page (after P6) have no bed.
+   - The bed: assets/Audio/bgm_standard_2.wav (the user's "Standard Background Music 2", 4:00, looped; re-encoded 256 -> 128 kbps,
+     -16.6 LUFS), one <audio> element made at load so it buffers behind the landing. Element volume BASE 0.13 (about -18 dB: some
+     16 LU under the -18 LUFS voice lines, so it never competes) and DUCK 0.03 (about -30 dB, ~28 LU under: a whisper); ramps of
+     180 ms down and 600 ms up (a 16 ms timer, so they run in a background tab too), so a tap's click dips the bed softly and the
+     bed swells back after a line. It fades in from silence on its first page and out (600 ms, then pause) when a page outside
+     the range mounts; coming back into the range resumes it.
+   - Detection WITHOUT touching any caller: every sound in this engine is either an Audio element (play(): the VO chain, playSfx,
+     the train's whistle / chime / departure, the bird pop, the P5 correct sfx, the celebration) or a WebAudio source node (the
+     engine's _tone taps and dings, the animation kit's sky-burst), so HTMLMediaElement.prototype.play and
+     AudioScheduledSourceNode.prototype.start / stop are wrapped here: a media element keeps the bed ducked from its play() until
+     its ended / pause / error (or a refused play()); a source node from its start(when) until its stop(when) + 120 ms, or 0.8 s
+     when no stop is scheduled (a one-shot buffer). The bed's own element is left out. A set of sounding elements plus the nodes'
+     deadlines decide; the bed rises again 150 ms after the last of them is over (so two lines back to back do not swell between).
+   - Range: window.mountSlide is wrapped (last, after every other wrapper): slides 0-12 start or keep the bed, any other slide
+     fades it out; a ?slide=N dev load (mounted before this block ran) is handled at the end. The first play is always after a
+     tap in the normal flow (loader tap, then शुरू करें), so autoplay is allowed; should a browser still refuse, the next
+     pointerdown / keydown retries.
+   - iOS ignores an element's volume (always 1): there the bed plays at the file's level and cannot duck. Noted, not worked around.
+   Nothing else changes: no caller, no VO, no sfx, no timing. window.__bgm exposes read-only state for verification. */
+(function(){
+  var FIRST = 0, LAST = CARD.slides.length - 2;                               // page 1 .. the last page before the celebration
+  var SRC = "assets/Audio/standard_background_music_2.mp3", BASE = 0.13, DUCK = 0.03, DOWN_MS = 180, UP_MS = 600, OUT_MS = 600;
+  if(typeof HTMLMediaElement === "undefined" || !HTMLMediaElement.prototype.play) return;
+  var origPlay = HTMLMediaElement.prototype.play;
+  var el = null, wanted = false, tapArmed = false;
+  var sounding = new Set(), nodes = new Map();                                // elements playing now; source node -> deadline (ms)
+  var level = 0, target = 0, rampFrom = 0, rampT0 = 0, rampMs = 0, stepTimer = 0, checkTimer = 0;
+  function nodesUntil(){ var now = Date.now(), m = 0; nodes.forEach(function(t, n){ if(t <= now) nodes.delete(n); else if(t > m) m = t; }); return m; }
+  function ducked(){ return sounding.size > 0 || nodesUntil() > Date.now(); }
+  function apply(){ if(el){ try{ el.volume = Math.max(0, Math.min(1, level)); }catch(e){} } }
+  function step(){ stepTimer = 0; var k = rampMs > 0 ? Math.min(1, (Date.now() - rampT0) / rampMs) : 1;
+    level = rampFrom + (target - rampFrom) * k; apply();
+    if(k < 1) stepTimer = setTimeout(step, 16);
+    else if(!wanted && target === 0 && el){ try{ el.pause(); }catch(e){} } }
+  function setTarget(v, ms){ if(v === target && Math.abs(level - v) < 1e-6) return;
+    target = v; rampFrom = level; rampT0 = Date.now(); rampMs = ms; if(!stepTimer) step(); }
+  function check(ms){ clearTimeout(checkTimer); checkTimer = setTimeout(update, ms); }
+  function update(){ if(!wanted) return; var d = ducked(); setTarget(d ? DUCK : BASE, d ? DOWN_MS : UP_MS);
+    var u = nodesUntil(); if(u > Date.now()) check(u - Date.now() + 40); }
+  // ---- door 1: media elements ----
+  HTMLMediaElement.prototype.play = function(){
+    var m = this, r = origPlay.apply(this, arguments);
+    if(m !== el){
+      if(!sounding.has(m)){ sounding.add(m);
+        var off = function(){ sounding.delete(m); m.removeEventListener("ended", off); m.removeEventListener("pause", off); m.removeEventListener("error", off); check(150); };
+        m.addEventListener("ended", off); m.addEventListener("pause", off); m.addEventListener("error", off); }
+      update();
+      if(r && typeof r.then === "function") r.then(null, function(){ sounding.delete(m); check(150); });   // refused: nothing sounds
+    }
+    return r;
+  };
+  // ---- door 2: WebAudio source nodes (oscillators, buffers) ----
+  var SN = window.AudioScheduledSourceNode;
+  var protos = (SN && SN.prototype && SN.prototype.start) ? [SN.prototype]
+    : [window.OscillatorNode, window.AudioBufferSourceNode].filter(function(C){ return C && C.prototype && C.prototype.start; }).map(function(C){ return C.prototype; });
+  protos.forEach(function(P){
+    var oStart = P.start, oStop = P.stop;
+    var at = function(node, when){ var c = node.context, t = +when; if(!(t > 0)) t = 0; return Date.now() + Math.max(0, t - (c ? c.currentTime : 0)) * 1000; };
+    P.start = function(when){ var r = oStart.apply(this, arguments); try{ nodes.set(this, at(this, when) + 800); update(); }catch(e){} return r; };
+    if(oStop) P.stop = function(when){ var r = oStop.apply(this, arguments); try{ if(nodes.has(this)){ nodes.set(this, at(this, when) + 120); update(); } }catch(e){} return r; };
+  });
+  // ---- the bed ----
+  try{ el = new Audio(); el.loop = true; el.preload = "none"; el.src = SRC; apply(); }catch(e){ el = null; }
+  if(el) (window.__afterPage || function(n, f){ f(); })(0, function(){ try{ el.preload = "auto"; }catch(e){} });   // [ASSET-WARM] the 46 MB bed reads ahead once the title, the gate birds and T1's art are in (it was "auto" from load, racing the title)
+  function armTap(){ if(tapArmed) return; tapArmed = true;
+    var once = function(){ document.removeEventListener("pointerdown", once, true); document.removeEventListener("keydown", once, true); tapArmed = false; if(wanted) start(); };
+    document.addEventListener("pointerdown", once, true); document.addEventListener("keydown", once, true); }
+  function start(){ if(!el) return;
+    if(el.paused){ var p = null; try{ p = origPlay.call(el); }catch(e){}            // origPlay: the bed is no "sound" to itself
+      if(p && typeof p.then === "function") p.then(function(){ tapArmed = false; }, armTap); }
+    update(); }
+  function onSlide(idx){ wanted = idx >= FIRST && idx <= LAST; if(wanted) start(); else if(el) setTarget(0, OUT_MS); }
+  var origMount = window.mountSlide;
+  if(typeof origMount === "function") window.mountSlide = function(idx){ var r = origMount.apply(this, arguments); try{ onSlide(idx | 0); }catch(e){} return r; };
+  var gate = document.getElementById("startGate");
+  if(gate && gate.classList.contains("hidden") && typeof state === "object" && state) onSlide(state.idx | 0);   // ?slide=N: mounted before this block
+  backgroundMusic = el;                                                       // this engine's own handle (its fades are no-ops now; the checks read its volume)
+  window.__bgm = { get el(){ return el; }, get wanted(){ return wanted; }, get sounding(){ return sounding.size; },
+    get nodesDuckMs(){ return Math.max(0, nodesUntil() - Date.now()); }, get level(){ return level; }, get target(){ return target; } };
+})();
+
+/* ===== [dun-chrome] end ===== */

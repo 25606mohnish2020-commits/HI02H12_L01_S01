@@ -1,0 +1,2 @@
+smoke: 47/47 passed
+gate: ALL PASS

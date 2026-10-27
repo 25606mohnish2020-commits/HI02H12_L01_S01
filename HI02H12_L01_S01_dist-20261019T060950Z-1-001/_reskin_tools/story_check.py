@@ -93,7 +93,7 @@ with sync_playwright() as p:
     pg.wait_for_function("!document.body.classList.contains('vo-lock')", timeout=25000)
     pg.evaluate(NAVLOG)
     pg.click("#sgBtn", force=True)
-    pg.wait_for_function("document.getElementById('phaseGate').classList.contains('text-speaking')", timeout=15000)
+    pg.wait_for_function("document.getElementById('phaseGate').classList.contains('pg-say')", timeout=15000)   # [dun-chrome] the headline is in (GATE-REF-ANIM)
     pg.screenshot(path=str(out / "1_gate.png"))
     pg.wait_for_function("!!document.querySelector('.sfig-card') && !document.getElementById('phaseGate').classList.contains('show')", timeout=20000)
     check("the gate opens onto the story page (slide T0)", pg.evaluate("CARD.slides[state.idx].id") == "T0")

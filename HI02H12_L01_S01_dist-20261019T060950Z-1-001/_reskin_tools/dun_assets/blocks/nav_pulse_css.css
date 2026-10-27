@@ -1,0 +1,18 @@
+/* [NAV-PULSE] (2026-10-09, user request; re-timed the same day): the moment आगे is ENABLED it pulsates like the title page's
+   play button does once it is ready ([LANDING-START-AFTER-VO] .sg-breathe -> sgBtnPulse, line ~544: scale 1 -> 1.04 -> 1,
+   1.4 s ease-in-out, repeating) - the same keyframes, timing and amplitude, on every page where the button exists (story pages
+   2-4 once आगे appears, train pages 13-14 once the train has left; the pick pages never enable it). "Enabled" is #navBtn.active,
+   which setNavActive(true) sets at the same instant it clears `disabled` (the kit's reveal hold and the pages' first-tap rule
+   still decide WHEN that happens - untouched). The pulse runs on the ENABLED art layer (#navBtn::after = btn-next-pill + arrow,
+   which already covers the pill and its shadow margin), not on the button box: the box keeps its translateX(-50%) centring and
+   its hover lift / press transforms exactly as before (sgBtnPulse itself carries translateX(-50%) for the same reason; a `scale`
+   on the box would scale that translate and the pill would drift sideways on every beat), the disabled art (::before) never
+   moves, and the hit area is unchanged. The 4.5 s hand nudge (nudgeNavBtn) is left as it is; on pages 2-4 [P2-QUIET-AFTER-NAV]
+   still suppresses that hand - this breathe is the one repeating motion the user asked for there. Still mode (html.no-anim,
+   prefers-reduced-motion) stops it, as the landing holds its disc still. (The first version of this block used the sentence
+   chip's cue pulse, 1.10 at .8 s; superseded by this one at the user's ask.) */
+@keyframes navBreathe{0%,100%{scale:1;}50%{scale:1.04;}}
+#navBtn.active::after{animation:navBreathe 1.4s ease-in-out infinite;transform-origin:50% 50%;will-change:scale;}
+#navBtn:not(.active)::after{animation:none;scale:1;}
+@media (prefers-reduced-motion:reduce){ #navBtn.active::after{animation:none;scale:1;} }
+html.no-anim #navBtn.active::after{animation:none !important;scale:1;}

@@ -1,0 +1,21 @@
+/* First transition gate: the landing page stays on screen behind the gate and is seen
+   THROUGH it, exactly as in HI01H08_L01_S02_Pulling_Streeling_Pehchano -- the scrim keeps
+   its rgba(57,55,55,.35) tint and backdrop-filter:blur(10px), and the card is not
+   CSS-blurred (measured reference: card-kid filter=none, opacity=1). */
+body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;
+  opacity:1 !important;pointer-events:none !important;}
+body.is-start.gating .start-gate .sg-hand{display:none !important;}
+/* the empty slide host must not paint over the landing while the gate is up */
+body.is-start.gating .slide-host{visibility:hidden !important;}
+
+/* ===== no header furniture behind ANY transition gate =====
+   Behind a gate the child should see only the page it is covering — the landing on the first
+   gate, the previous slide on every later one. The prompt band, speaker chip and hint button
+   belong to the slide being left behind, so they are hidden for the whole gate. The slide art
+   itself stays visible, which is what makes the previous page read through the blur. */
+body.gating .header-row{visibility:hidden !important;}
+body.gating #hintBtn,body.gating .hint-btn{visibility:hidden !important;}
+/* the previous slide must keep showing through on every non-landing gate */
+body.gating:not(.is-start) .slide-host{visibility:visible !important;}
+/* the landing sits outside #stage, so the stage-inner blur must not touch it */
+body.is-start.gating .stage-wrap{background:transparent !important;}

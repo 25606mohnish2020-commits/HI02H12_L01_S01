@@ -1,0 +1,30 @@
+/* [END-FINISH-BTN] Page 15 (the celebration screen): the finish button (#endBtn).
+   2026-10-08 (user request, github.com/CodeWithPiyush0/MTG204_L01_S01): THE BUTTON IS THAT LESSON'S CELEBRATION BUTTON, value for
+   value and in its place - the arrow-only pill of its .end-btn (itself HI02H11_L02_S02's): #FCB717, a 4.54 px white ring, radius
+   44.56, padding 14 x 44 around a 52 px «→» glyph (the content of ::after, Baloo 2, navy; so the pill is sized by the glyph + the
+   padding, ~143 x 94 design px), the 0 6px 6px black shadow with the inner highlight / shade, hintPop in, a 3 px press. The
+   markup is the reference's too (no text, «आगे बढ़ें» as the aria-label). Every length is x --scale because this end screen is
+   body-level and unscaled (the reference's sits inside its scaled 1333x750 stage); its position is the reference's as well:
+   22 design px under the 358 px mascot box (the .end-screen gap, scaled like the box - the last rule), the pair centred on the
+   screen. The tap does exactly what it did (eb.onclick in the celebration mount); the cel-wait / cel-ready states of
+   <style id="CEL-SWIFTIE-CSS"> apply unchanged.
+   History: from 2026-09-24 to 2026-10-08 this block drew the button with the user's finish-button art (btn-finish-pill.svg +
+   btn-finish-arrow.svg on ::before / ::after over a ~209x81 text-sized box); those files stay in assets/UI unused. */
+#endBtn{font-family:var(--font-hi);font-weight:800;color:var(--navy) !important;text-shadow:none !important;overflow:visible !important;
+  font-size:calc(28px * var(--scale,1)) !important;
+  background:#FCB717 !important;border:calc(4.54px * var(--scale,1)) solid #FFFFFF !important;
+  border-radius:calc(44.56px * var(--scale,1)) !important;
+  padding:calc(14px * var(--scale,1)) calc(44px * var(--scale,1)) !important;cursor:pointer;
+  box-shadow:0 calc(6px * var(--scale,1)) calc(6px * var(--scale,1)) rgba(0,0,0,.25),
+             inset calc(4.54px * var(--scale,1)) calc(9.09px * var(--scale,1)) calc(12.12px * var(--scale,1)) rgba(255,255,255,.25),
+             inset calc(-4.54px * var(--scale,1)) calc(-4.54px * var(--scale,1)) calc(13.63px * var(--scale,1)) rgba(116,60,0,.19) !important;}
+#endBtn:active{transform:translateY(calc(3px * var(--scale,1))) !important;
+  box-shadow:0 calc(3px * var(--scale,1)) calc(3px * var(--scale,1)) rgba(0,0,0,.25),
+             inset calc(4.54px * var(--scale,1)) calc(9.09px * var(--scale,1)) calc(12.12px * var(--scale,1)) rgba(255,255,255,.25),
+             inset calc(-4.54px * var(--scale,1)) calc(-4.54px * var(--scale,1)) calc(13.63px * var(--scale,1)) rgba(116,60,0,.19) !important;}
+/* the arrow: the reference's .end-btn::after glyph (the former ::before / ::after art layers are gone) */
+#endBtn::before{content:none !important;}
+#endBtn::after{content:"\2192" !important;position:static !important;inset:auto !important;background:none !important;
+  font-size:calc(52px * var(--scale,1));line-height:1;pointer-events:none;}
+/* the reference's 22 px between the mascot box and the button, scaled like the box itself */
+body > .end-screen{gap:calc(22px * var(--scale,1)) !important;}

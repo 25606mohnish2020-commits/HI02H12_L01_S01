@@ -1,0 +1,20 @@
+/* [HDR-SPEAKER] (2026-10-08, user request) the header speaker chip beside the bird in the title bar, as on the reference lesson
+   hindi-game-gender-identify.vercel.app (HI02H11_L03_S02, measured in Chrome at 1333x750):
+   - the chip is the reference's: its blue gradient disc, white ring and white SPEAKER glyph with two wave arcs (.wv1 / .wv2) - the
+     glyph swapped on #audioChip's inline SVG (line marked [HDR-SPEAKER]); the mic of [MIC-CHIP] stays on every other chip
+     (SPK_SVG: the sentence box's chip and the tutorial card's chip; #sgVo on the landing);
+   - the same size and place: 66x66px with its box at (94.5, 80) of the stage, i.e. at the bird's bottom-right shoulder, 26px past the
+     bird's box on the right and 10px below it (the bird's box is 118px at (16.5, 18) here exactly as there). Written as the chip's
+     offsets from the bird's box so the chip keeps that spot on pages 13-14 too, where the bird sits at (32, 29) (.ref-frame);
+   - shown on every page that has the title bar with the bird: pages 5-14 (G1-P6), which carry slide.hide_header_chip (-> .stage.no-hdr-chip)
+     since the port - that hide is lifted here. The tutorial pages (header hidden, their card has its own chip) and the celebration
+     page (no header) are as before;
+   - the reference's enable/disable sync, value for value: while any voice line speaks (this file's body.vo-playing, set and cleared
+     by setPlaying - the one place every clip starts and ends) the chip goes light grey (grayscale(1) brightness(1.2)) at opacity .5
+     and takes no tap (pointer-events:none; the [VO-SHIELD] covers it too); the moment the line ends it is blue and live again - a
+     straight swap, no fade, as the reference has it. The wave arcs blink (.playing, #WAVE-CSS) while a line speaks and stand solid
+     at rest (#TOTA-WAVES-IDLE), as there;
+   - a tap replays the page's instruction line (card audio.prompt): <script id="HDR-SPEAKER-JS"> below. */
+.stage.no-hdr-chip #audioChip{display:flex !important;}
+.mascot-wrap .audio-chip,#audioChip,.stage.ref-frame .mascot-wrap .audio-chip{width:66px !important;height:66px !important;right:-26px !important;bottom:-10px !important;}
+body.vo-playing #audioChip,body.vo-playing .mascot-wrap .audio-chip{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;transition:none !important;}

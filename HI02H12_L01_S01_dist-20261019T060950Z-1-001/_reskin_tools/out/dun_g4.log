@@ -1,0 +1,24 @@
+PASS the title band reads the instruction; no आगे and no hint bulb — {'title': 'सही विराम चिह्न वाला वाक्य चुनिए ।', 'nav': 'none', 'hint': 'none', 'chip': [94.5, 80, 66], 'thumb': [146, 315, 667], 'pills': [[114.5, 531.5, 344, 78, True], [494.5, 531.5, 344, 78, True], [874.5, 531.5, 344, 78, True]], 'lines': [['लड़की पतंग उड़ा रही है ।'], ['लड़की पतंग उड़ा । रही है'], ['लड़की । पतंग उड़ा रही है']]}
+PASS P4's places: the chip at 94.5,80; the picture 315 high from y 146, centred; three 344x78 pills at x 114.5 / 494.5 / 874.5, y 531.5, each on one line — {'title': 'सही विराम चिह्न वाला वाक्य चुनिए ।', 'nav': 'none', 'hint': 'none', 'chip': [94.5, 80, 66], 'thumb': [146, 315, 667], 'pills': [[114.5, 531.5, 344, 78, True], [494.5, 531.5, 344, 78, True], [874.5, 531.5, 344, 78, True]], 'lines': [['लड़की पतंग उड़ा रही है ।'], ['लड़की पतंग उड़ा । रही है'], ['लड़की । पतंग उड़ा रही है']]}
+PASS the three sentences are the asked ones, the right one 'लड़की पतंग उड़ा रही है ।' — ['लड़की पतंग उड़ा रही है ।', 'लड़की पतंग उड़ा । रही है', 'लड़की । पतंग उड़ा रही है']
+PASS G4's own picture (img_g4_kite_gry) is the one shown — ['assets/Images/img_g4_kite_gry.webp', 1411]
+PASS the tap: the green mark and the picture's pop at once, Swiftie unchanged, nothing sounding for the 1 s hold — line 1116 ms after the mark
+PASS after the hold: the kit's correct-select, the confetti and the happy Swiftie with the pill's own line — (0.0, 'sw_head_celebrate_anim')
+PASS its words light one at a time in sync with the clip (each within its window ±120 ms), the closing danda too — seen [0, 1, 2, 3, 4, 5], off []
+PASS 0.7 s after the line the page moves on, straight on to P1 — P1 728 ms after the line
+PASS reported: evidence_qa_first_try (first try) and slide_completed success — ([{'ts': 1793098361504, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'evidence_qa_first_try', 'slide_id': 'G4', 'phase': 'guided', 'value': True, 'first_try': True, 'attempts': 1, 'scaffold_level': 0, 'latency_ms': 4816}], [{'ts': 1793098365944, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'slide_completed', 'slide_id': 'G4', 'phase': 'guided', 'success': True, 'attempts': 0, 'latency_ms': 9256, 'scaffold_level': 0, 'hint_used': False, 'nudge_used': False, 'audio_replays': 0}])
+PASS mastery score: not counted (only the practice pages are) — [0, 0]
+PASS wrong tap 1: the pill wiggles and goes dead, Swiftie tries again, no line of its own — (['', 'crossed wg-wrong', ''], 'sw_head_tryagain_anim')
+PASS ...1 s later the try-again line; the pill is dead until it ends — line 1015 ms after the tap, un-crossed +0 ms from its end
+PASS wrong tap 2: 1 s later all three pills are read in row order — (['o1', 'o2', 'o3'], ['o1', 'o2', 'o3'])
+PASS ...each lifted while its clip plays, ~0.5 s apart — first 1517 ms after the tap, gaps [517, 516]
+PASS ...each pill's words lit in sync with its clip (the danda of 'लड़की । पतंग ...' / '... उड़ा । रही है' lit in its pause) — [([0, 1, 2, 3, 4, 5], []), ([0, 1, 2, 3, 4, 5], []), ([0, 1, 2, 3, 4, 5], [])]
+PASS ...taps ignored meanwhile (the right pill tapped during the read-out did nothing) — [2, False]
+PASS wrong tap 3: 1 s later the reveal — two pills greyed and dead, the right one ringed green, the 96px hand centred under it — {'hand': [96, 96, 287, 287, -1], 'dim': [['opt-guided', 'auto', '1', 'none'], ['opt-dim', 'none', '0.5', 'grayscale(1)'], ['opt-dim', 'none', '0.5', 'grayscale(1)']], 'ring': 'rgb(0, 177, 50) solid 6px'}
+PASS the guided tap (on the hand): the green mark at once, the hand gone, 1 s, then the ding + confetti and no line — confetti 1005 ms after
+PASS ...and the page moves on straight on to P1, recorded as revealed — ([{'ts': 1793098397830, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'slide_completed', 'slide_id': 'G4', 'phase': 'guided', 'success': False, 'attempts': 3, 'latency_ms': 28818, 'scaffold_level': 3, 'hint_used': False, 'nudge_used': False, 'audio_replays': 0}], [{'ts': 1793098395301, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'answer_revealed', 'slide_id': 'G4', 'phase': 'guided', 'attempts': 3, 'reason': 'wrong'}], [0, 0])
+PASS the instruction repeats ~5 s after each time it ends, with the picture's pop-and-hold (not on entry) — 3 plays, gaps [5031, 4952], pops ['', 'p6', 'p6']
+PASS a tap during a repeat cuts it and counts — [False, 1]
+PASS no page errors — []
+
+ALL PASS

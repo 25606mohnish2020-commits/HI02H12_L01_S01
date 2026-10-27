@@ -1,0 +1,68 @@
+PASS the page is the frame's whole stage: no engine header, no standing Swiftie, no 🔊 chip, no hint bulb — {'header': 'hidden', 'buddy': 'hidden', 'swiftie': 'hidden', 'chip': 'hidden', 'hint': 'hidden', 'phase': 'guided', 'type': 'PUNCT_PICK', 'frame': True}
+PASS G1 is PUNCT_PICK and its phase stays guided
+PASS a tap while the sentence is still being read does nothing — [0, False]
+PASS a wrong tap shakes that tile with the engine's own wrong-answer wiggle (wgNo, 0.4 s) — wgNo|0.4s
+PASS ...its colours unchanged (face border, shadow, fill as before) — (['rgb(213, 216, 223)|none|rgb(255, 255, 255)', 'rgb(213, 216, 223)|none|rgb(255, 255, 255)', 'rgb(213, 216, 223)|none|rgb(255, 255, 255)'], ['rgb(213, 216, 223)|none|rgb(255, 255, 255)', 'rgb(213, 216, 223)|none|rgb(255, 255, 255)', 'rgb(213, 216, 223)|none|rgb(255, 255, 255)'])
+PASS after the right tap the tiles are done: a further tap does nothing
+PASS the title bar appears as the intro line starts to sound — bar at +6 ms from the clip's first played moment
+PASS nothing else shows while the intro line sounds
+PASS the picture, the bar and the tiles come in 0.5 s after the intro — 515 ms
+PASS the sentence's clip starts once they have landed (~0.65 s) — 653 ms
+PASS the words arrive one by one with the clip, none early, none >150 ms late — 179 samples, 7 distinct counts / 6 words, early 0, late 0
+PASS the slot blinks and the tiles go live the moment the sentence's clip ends — blink 0 ms after, live +0 ms from the blink
+PASS the blink is T3's: three slow blinks of ~1.17 s — dmfBlink|1.16667s|3
+PASS each wrong tap counts an attempt and wiggles that tile only (अल्प विराम, प्रश्नवाचक चिह्न, अल्प विराम)
+PASS no mark, no pressed or dimmed tile before the right tap
+PASS the right tap: its tile pressed, the other two dim, its mark in the slot at once — mark 80 ms after
+PASS the blink stops at the right tap if it is still running, else after its 3.5 s — 3380 ms
+PASS its name ("पूर्ण विराम", the ।) sounds as the tile is tapped — 0 ms after
+PASS one beat (~1 s) after the name the page moves on to G2 by itself, with no round gate — 1029 ms after the name
+PASS आगे never shows on this page
+PASS each clip plays once on this page (no idle reminder yet: the taps came within 7 s) — [1, 1, 1]
+PASS punct_build_done is reported once, with the two wrong tiles counted (3 wrong taps) — ([{'ts': 1793098109042, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'punct_build_done', 'slide_id': 'G1', 'phase': 'guided', 'value': True, 'first_try': False, 'wrong': 3, 'latency_ms': 11391}], 3)
+PASS ~7 s of quiet with the tiles live: the engine's idle reminder reads the sentence again — once — 1 replay(s), first 7149 ms after the tiles went live
+PASS ...each word highlighted as the reminder reaches it, the highlight gone after — 177 samples, words seen [-1, 0, 1, 2, 3, 4, 5], off-time 0
+PASS ...and the tiles stay live meanwhile
+PASS a tap during the reminder cuts it short and clears the highlight (the tap still counts) — [False, 0, 1]
+== boxes vs the frame (px) ==
+  .dmf-band                              got [36.15, 25.99, 1243.69, 119.97]  frame [36, 26, 1244, 120]  max|d|=0.31
+  .dmf-pill                              got [40.04, 43.99, 1213.79, 83.98]  frame [39.897, 44, 1214.103, 84]  max|d|=0.31
+  .dmf-head                              got [36.15, 25.99, 116.47, 119.97]  frame [36, 26, 116.513, 120]  max|d|=0.15
+  .dmf-head img                          got [41.15, 30.99, 106.47, 109.97]  frame [41, 31, 106.513, 110]  max|d|=0.15
+  .dmf-pic                               got [197.11, 210.95, 143.96, 138.97]  frame [197, 211, 144, 139]  max|d|=0.11
+  .dmf-pic img                           got [206.71, 213.56, 124.97, 130.97]  frame [207, 214, 125, 131]  max|d|=0.44
+  .dmf-bar                               got [365.07, 210.95, 718.82, 138.97]  frame [365, 211, 719, 139]  max|d|=0.18
+  .dmf-bar > .dmf-blank                  got [976.52, 230.55, 58.99, 99.98]  frame [977, 231, 59, 100]  max|d|=0.48
+  .t1 .dmf-base                          got [197.11, 441.89, 226.94, 169.96]  frame [197, 442, 227, 170]  max|d|=0.11
+  .t2 .dmf-base                          got [525.02, 442.89, 230.94, 168.96]  frame [525, 443, 231, 169]  max|d|=0.11
+  .t3 .dmf-base                          got [856.94, 442.89, 226.94, 168.96]  frame [857, 443, 227, 169]  max|d|=0.11
+  .t1 .dmf-face                          got [199.11, 443.89, 222.94, 161.96]  frame [199, 444, 223, 162]  max|d|=0.11
+  .t2 .dmf-face                          got [527.02, 444.89, 226.94, 160.96]  frame [527, 445, 227, 161]  max|d|=0.11
+  .t3 .dmf-face                          got [858.94, 444.89, 222.94, 160.96]  frame [859, 445, 223, 161]  max|d|=0.11
+  .dmf-pill p                            got (179.55, 61.98)  frame (179.44799999999998, 62)  max|d|=0.10
+  .dmf-sent                              got (692.09, 228.55)  frame (692.5, 229)  max|d|=0.45
+  .t1 .dmf-sym                           got (308.58, 501.37)  frame (308.5, 501.5)  max|d|=0.13
+  .t2 .dmf-sym                           got (640.50, 492.38)  frame (640.5, 492.5)  max|d|=0.12
+  .t3 .dmf-sym                           got (970.41, 502.37)  frame (970.5, 502.5)  max|d|=0.13
+  .t1 .dmf-name                          got (310.58, 542.86)  frame (310.5, 543)  max|d|=0.14
+  .t2 .dmf-name                          got (640.50, 543.86)  frame (640.5, 544)  max|d|=0.14
+  .t3 .dmf-name                          got (970.41, 543.86)  frame (970.5, 544)  max|d|=0.14
+PASS every box and text box within 1 px of the frame — worst 0.48px
+PASS fonts: Noto Sans Devanagari SemiBold — 32px bar, 64px sentence, 64px marks, 28px names — ['32px', '64px', '64px', '28px', True, True]
+== text ink vs the Figma render (page px): centre and size ==
+  bar text             mine (179, 68, 598, 106)  figma (179, 68, 596, 106)  centre d=(+1.0,+0.0)  size d=(+2,+0)
+  sentence             mine (417, 242, 968, 309)  figma (416, 241, 969, 308)  centre d=(+0.0,+1.0)  size d=(-2,+0)
+  sym 1                mine (308, 477, 315, 517)  figma (308, 477, 315, 517)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  sym 2                mine (634, 500, 645, 517)  figma (634, 500, 645, 517)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  sym 3                mine (958, 472, 983, 519)  figma (958, 472, 983, 519)  centre d=(+0.0,+0.0)  size d=(+0,+0)
+  name 1               mine (258, 549, 364, 581)  figma (258, 548, 364, 581)  centre d=(+0.0,+0.5)  size d=(+0,-1)
+  name 2               mine (582, 550, 700, 575)  figma (582, 549, 701, 574)  centre d=(-0.5,+1.0)  size d=(-1,+0)
+  name 3               mine (893, 550, 1048, 580)  figma (893, 549, 1048, 579)  centre d=(+0.0,+1.0)  size d=(+0,+0)
+PASS each text's ink sits where the render's does (centre within 1.5 px, size within 3 px) — centre 1.0px, size 2px
+  pixel diff vs Figma render over the whole frame, less the slot's ring (within 1 px): 2352 of 900324 px (0.26%), of them solid: 0 (0.000%)
+PASS the whole frame pixel-matches the Figma render (>32-level diffs under 3%, solid diffs under 0.05% of the area)
+PASS the mark's (।) ink sits on the slot's centre after the right tap (within 1 px) — (-0.51, +0.46), ink 7x40
+PASS no page errors — []
+PASS no failed requests — []
+
+ALL PASS

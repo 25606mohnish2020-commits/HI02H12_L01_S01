@@ -1,0 +1,5 @@
+.phase-gate{position:fixed !important;inset:0 !important;width:100vw;height:100dvh;z-index:100000;display:none;align-items:center;justify-content:center;overflow:hidden;background:transparent;}
+.phase-gate.show{display:flex !important;background:rgba(57,55,55,.35) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
+.pg-title,#phaseGateTitle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;width:max-content;max-width:86vw;text-align:center;white-space:normal;font-family:var(--font-hi);font-weight:800;font-size:clamp(40px,7.5vw,88px);line-height:1.14;color:#CD0FD5;-webkit-text-stroke:8px #FFFFFF;paint-order:stroke fill;}
+.phase-gate img,#phaseGateImg{position:fixed;left:50%;bottom:0;transform:translateX(-50%);height:clamp(120px,26vh,250px);width:auto;display:block;}
+.stage.blurred .stage-inner{filter:blur(5px);}

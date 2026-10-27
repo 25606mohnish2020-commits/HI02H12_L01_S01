@@ -1,0 +1,15 @@
+== geometry (rendered vs frame, px) ==
+  OK  .sg-fig .sg-card     got [76.1, 125.0, 1113.7, 455.9]  frame [76, 125, 1114, 456]  max|d|=0.28
+  OK  .sgf-scene           got [76.1, -33.0, 1113.7, 626.8]  frame [76, -33, 1114, 627]  max|d|=0.28
+  OK  .sgf-question        got [925.9, 280.9, 138.0, 206.9]  frame [926, 281, 138, 207]  max|d|=0.08
+  OK  .sgf-title           got [336.7, 146.0, 593.7, 110.0]  frame [336.58000000000004, 146.02, 593.83, 109.99]  max|d|=0.15
+  OK  .sgf-purn            got [182.1, 272.9, 219.4, 219.4]  frame [182, 273, 219.473, 219.473]  max|d|=0.11
+  OK  .sgf-comma           got [587.0, 303.9, 95.0, 143.0]  frame [587, 304, 95, 143]  max|d|=0.08
+  OK  .sgf-shadow.s1       got [226.1, 436.9, 132.0, 69.0]  frame [226, 437, 132, 69]  max|d|=0.11
+  OK  .sgf-shadow.s2       got [558.0, 403.9, 142.0, 64.0]  frame [558, 404, 142, 64]  max|d|=0.10
+  OK  .sgf-shadow.s3       got [941.9, 439.9, 115.0, 69.0]  frame [942, 440, 115, 69]  max|d|=0.11
+Traceback (most recent call last):
+  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\title_check.py", line 42, in <module>
+    print(f"  {'OK ' if d <= 1.0 else 'OFF'} {s:20s} got {[round(v,1) for v in got]}  frame {list(exp)}  max|d|={d:.2f}")
+                                                                               ^^^
+TypeError: 'NoneType' object is not iterable

@@ -1,0 +1,118 @@
+/* ===== FLN ANIMATION KIT: sky-drift BEGIN ===== */
+.start-bg{background-image:url("assets/UI/startnew_bg_plain.webp");}   /* mandatory */
+
+.sg-glow,.sg-sky{position:fixed;inset:0;pointer-events:none;display:none;z-index:1;}
+body.is-start .sg-glow,body.is-start .sg-sky,
+body.is-end   .sg-glow,body.is-end   .sg-sky{display:block;}
+html.rotated .sg-glow,html.rotated .sg-sky{                            /* R2 */
+  inset:auto;left:50%;top:50%;width:100vh;height:100vw;
+  transform:translate(-50%,-50%) rotate(90deg);}
+
+.sg-glow{opacity:.75;background:radial-gradient(ellipse 38% 25% at 50% 79%,
+  rgba(255,255,255,.34) 0%,rgba(255,255,255,.13) 45%,rgba(255,255,255,0) 72%);
+  animation:sgBreathe 6.5s ease-in-out infinite;}
+@keyframes sgBreathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+
+/* hole punched over the centre card - it is translucent, so elements showed through.
+   1114x456 design px, tracked by --scale. Hard edge: a real occlusion boundary. */
+.sg-sky{overflow:hidden;
+  --sg-hole-w:calc(1074px * var(--scale,1));   /* 40px inside the card's rounded corners */
+  --sg-hole-h:calc(416px * var(--scale,1));
+  -webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000);
+          mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000);
+  -webkit-mask-size:100% 100%,var(--sg-hole-w) var(--sg-hole-h);
+          mask-size:100% 100%,var(--sg-hole-w) var(--sg-hole-h);
+  -webkit-mask-position:center,center; mask-position:center,center;
+  -webkit-mask-repeat:no-repeat,no-repeat; mask-repeat:no-repeat,no-repeat;
+  -webkit-mask-composite:xor; mask-composite:exclude;
+}
+/* end screen has no visible occluder, so a hard edge reads as a sliced crescent.
+   Soft radial hole sized to the mascot instead. */
+body.is-end .sg-sky{
+  --sg-hole-w:calc(800px * var(--scale,1));
+  --sg-hole-h:calc(800px * var(--scale,1));
+  -webkit-mask-image:linear-gradient(#000,#000),
+                     radial-gradient(closest-side,#000 71%,rgba(0,0,0,0) 100%);
+          mask-image:linear-gradient(#000,#000),
+                     radial-gradient(closest-side,#000 71%,rgba(0,0,0,0) 100%);
+}
+
+.sg-sky i{position:absolute;left:50%;top:50%;width:var(--s);aspect-ratio:1;
+  margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  background:center/contain no-repeat;opacity:0;
+  animation:sgFly var(--t) linear infinite;animation-delay:var(--d);}
+.sg-sky .s1{background-image:url("assets/UI/bgdeco_star.svg");}
+.sg-sky .s2{background-image:url("assets/UI/bgdeco_star_o.svg");}
+.sg-sky .s3{background-image:url("assets/UI/bgdeco_spark.svg");}
+.sg-sky .s4{border-radius:50%;border:.22vmax solid rgba(255,255,255,.92);}
+.sg-sky .s5{border-radius:50%;background:rgba(255,255,255,.92);}
+
+/* transform keyed ONLY at 0% and 100% - that is what makes the path a straight ray */
+@keyframes sgFly{
+  0%{transform:translate(var(--x1),var(--y1));opacity:0;}
+  10%{opacity:var(--o);}
+  84%{opacity:var(--o);}
+  100%{transform:translate(var(--x2),var(--y2));opacity:0;}
+}
+
+/* glow: static shadow, animated opacity = composited. See Deviations. */
+.sg-sky i::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:inherit;border:inherit;
+  filter:drop-shadow(0 0 7px rgba(255,255,255,.95));
+  opacity:0;will-change:opacity;
+  animation:sgGlowOpacity var(--g) ease-in-out infinite alternate;
+  animation-delay:var(--gd);}
+@keyframes sgGlowOpacity{from{opacity:0;}to{opacity:1;}}
+/* ===== FLN ANIMATION KIT: sky-drift END ===== */
+/* ===== FLN ANIMATION KIT: sky-burst BEGIN ===== */
+.sg-sky i.popped{visibility:hidden;}
+.sg-burst{position:fixed;z-index:95;width:0;height:0;pointer-events:none;}
+
+/* data URIs, not file refs - external SVG masks are blocked under file:// */
+.sg-burst.k-star{--shape:url("data:image/svg+xml,%3Csvg%20width=%2264%22%20height=%2264%22%20viewBox=%220%200%2064%2064%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M32%205.5c1.6%200%203%20.9%203.7%202.4l6.1%2012.4%2013.7%202c1.6.2%203%201.4%203.5%203s.1%203.3-1.1%204.4l-9.9%209.6%202.3%2013.6c.3%201.6-.4%203.3-1.7%204.2s-3.1%201.1-4.6.3L32%2051l-12.2%206.4c-1.5.8-3.2.7-4.6-.3s-2-2.6-1.7-4.2l2.3-13.6-9.9-9.6c-1.2-1.1-1.6-2.9-1.1-4.4s1.9-2.7%203.5-3l13.7-2%206.1-12.4C29%206.4%2030.4%205.5%2032%205.5z%22%20fill=%22%23fff%22/%3E%3C/svg%3E");}
+.sg-burst.k-spark{--shape:url("data:image/svg+xml,%3Csvg%20width=%2264%22%20height=%2264%22%20viewBox=%220%200%2064%2064%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M32%202c1.6%2012.6%2015.4%2026.4%2030%2030-14.6%203.6-28.4%2017.4-30%2030-1.6-12.6-15.4-26.4-30-30C16.6%2028.4%2030.4%2014.6%2032%202z%22%20fill=%22%23fff%22/%3E%3C/svg%3E");}
+.sg-burst.k-dot{--shape:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fff'/%3E%3C/svg%3E");}
+
+.sg-burst .fl{position:absolute;left:0;top:0;
+  width:calc(var(--bs) * 3);height:calc(var(--bs) * 3);
+  margin:calc(var(--bs) * -1.5) 0 0 calc(var(--bs) * -1.5);border-radius:50%;
+  background:radial-gradient(circle,rgba(244,250,255,1) 0%,
+    rgba(96,165,250,.92) 38%,rgba(30,58,138,0) 76%);
+  animation:sgFlash .36s ease-out forwards;}
+
+/* solid fill + two colour drop-shadows; they respect the mask alpha, so the halo
+   follows the star silhouette rather than a box */
+.sg-burst i{position:absolute;left:0;top:0;width:var(--ps);height:var(--ps);
+  margin:calc(var(--ps) / -2) 0 0 calc(var(--ps) / -2);
+  background:currentColor;
+  -webkit-mask:var(--shape) center/contain no-repeat;
+          mask:var(--shape) center/contain no-repeat;
+  filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 8px currentColor);
+  animation:sgSpark var(--sd) cubic-bezier(.12,.72,.24,1) forwards;
+  animation-delay:var(--sdl);}
+
+@keyframes sgFlash{0%{transform:scale(.15);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
+@keyframes sgSpark{           /* --gy = gravity drop */
+  0%{transform:translate(0,0) scale(.35);opacity:0;}
+  14%{opacity:1;transform:translate(calc(var(--dx) * .3),calc(var(--dy) * .3)) scale(1.12);}
+  100%{transform:translate(var(--dx),calc(var(--dy) + var(--gy))) scale(.3);opacity:0;}
+}
+/* ===== FLN ANIMATION KIT: sky-burst END ===== */
+/* ===== FLN ANIMATION KIT: sky-adapt BEGIN ===== */
+/* activity adaptations for recipes 1+2.
+   1. THE MANDATORY BACKGROUND SWAP. This landing has no .start-bg layer: the art is painted on
+      body.is-start (and on .start-gate off the title screen), so the swap goes on those carriers.
+      startnew_bg_plain.webp is this landing's own start_bg.webp with its painted stars, rings, dots
+      and sparkles removed - one set of decorations, the moving one. */
+body.is-start{background-image:url("assets/UI/startnew_bg_plain.webp");}
+.start-gate{background-image:url("assets/UI/startnew_bg_plain.webp");}
+/* 2. STACKING. .stage carries a transform, so it is a stacking context at z auto, and the kit's
+      z-index:1 would paint the sky OVER the landing card. At 0 the sky paints in DOM order: above
+      the body art and .end-bg (earlier in the DOM), below .stage-wrap and the end screen (later). */
+.sg-glow,.sg-sky{z-index:0;}
+/* 3. THE HOLE. This card was 1114x560 (hole 520px) until [LANDING-FRAME-ART] (2026-10-13) put it back at the
+      fleet's 1114x456; same 40px inset, so the kit's own 416px is restated here. */
+.sg-sky{--sg-hole-h:calc(416px * var(--scale,1));}
+/* 4. The phase gate reads as a quiet blue field here (TOTA-GATE-NO-STARS): no sky while gating. */
+body.gating .sg-glow,body.gating .sg-sky{display:none;}
+/* ===== FLN ANIMATION KIT: sky-adapt END ===== */

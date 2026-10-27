@@ -518,6 +518,94 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The chrome of HI02H04_L01_S01 on this file ([dun-chrome], 2026-10-27)
+- Asked: take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and apply, exactly the same, (1) the cover page's
+  background animation and the play button's placement, sound, appearing animation and look, (2) the next button, its sound,
+  placement, look and animation, (3) the bird animation and the bird animations in the title-bar circle wherever used, (4) the
+  speaker button's placement, animation and functionality wherever used, (5) the confetti and the transition screens, (6) the
+  background music exactly as there till the end, (7) the celebration screen replaced by that file's; everything else unchanged.
+- The reference is the same SwiftPAL engine family as this file's chrome (Ek-aur-Anek is 2026.07.28t, the reference is
+  2026.07.16i plus ~90 later override blocks). The local copy `Suresh's File/HI02H04_L01_S01-20260916T080241Z-1-001/
+  HI02H04_L01_S01/HI02H04_L01_S01.html` is byte-identical to the live page (md5 64ddd90b), so its code and assets are the source.
+  The blocks that carry the seven asks are kept verbatim in `dun_assets/blocks/` (cut by their own <style id> / <script id> and
+  kit BEGIN/END markers; build.py reads them and applies the adaptations listed in its [dun-chrome] section); the reference's
+  assets in `dun_assets/UI/` (the Ek-aur-Anek versions of the six files that get overwritten are kept once in
+  `dun_assets/_replaced/`). Only three reference files were NOT needed: its sfx_std_play / next / confetti are this engine's
+  sfx_play_button / sfx_next_button / sfx_celebrate (correlation 1.000, same cuts), so only their volumes changed (0.8 / 0.9 /
+  0.45, the reference's STD_SFX_VOL); its bgm_standard_2.wav is this file's standard_background_music_2.mp3 note for note.
+- 1 (cover): the FLN animation kit's sky - the breathing glow (sgBreathe) and 87 drifting stars (M.sky.init: 29 lanes x 3 layers,
+  the kit's own builder, in place of the 29 static ones; the reference's bgdeco_star / star_o / spark art) with a hole 40 px
+  inside the card and the sky-burst toy (a tapped star pops with a WebAudio pop) - over the reference's plain sunburst
+  (startnew_bg_plain.webp, its painted stars removed) in place of the Figma frame's title_bg.png; the Figma card art is as it was.
+  The play button is the reference's gold disc (btn-play.svg, 140x140 on the stage, centred, its bottom edge 2 px above the card's
+  bottom - the card's 9 px border is inside its box, hence bottom:calc(2px / var(--fig-s) - 9px)), hidden until the welcome has
+  been heard (this engine's landing-play-ready = the landing line has played and nothing speaks), then it pops in (sgBtnReveal
+  .52 s) and breathes (sgBtnPulse 1.4 s / 1.04); its tap: the standard play sound at 0.8, the welcome cut, the tutorial gate - no
+  music yet. The cover's bird is the reference's wave file (new_landing_swiftee_anim.webp, its version; 208 px, 24 px left of and
+  12 px under the card's bottom-left corner, as there), started afresh as the loader fades so the whole wave is seen, tappable
+  (the welcome again); the speaker chip sits at its feet (70 px, left 83 / bottom -12 of the card), grey until the play button is
+  ready and while a line speaks. The Figma frame's own Swiftie (title_swiftie_hello + the wave-with-VO logic) is gone from the
+  page; its [title-fig] script is left in app.js and returns at once (its elements are not there).
+- 2 (aage): the reference's NAV-NEXT-BTN + NAV-PULSE verbatim: the button is a bare text button again (no <img>s), drawn by two
+  pseudo-elements - the disabled pill + arrow (btn-next-disabled-pill / -arrow.svg) always, the enabled pill + arrow fading in over
+  it in .3 s on .active and breathing (navBreathe 1.4 s / 1.04, on the art, never the box); 170x62 on the tutorial pages, 190x62
+  elsewhere (the reference's boxes), in the bottoms this file already gives it (128 / 138 / 10 px: the Figma pages' places); a page
+  that hides it inline (the self-advancing pages) keeps it hidden; the standard next sound at 0.9 on the tap.
+- 3 (the bird): every Figma title bar's circle (.dmf-head on T2-T4, G1-G3, L2) shows the engine's LIVE head: the mascot image's
+  src is mirrored into it (and on every mount), so it celebrates on a right tap, tries again on a wrong one (the pick module now
+  calls setSwMood("tryagain") there) and rests on the talking head - inside the circle, as the reference's header bird (not
+  popping out of it as the Ek-aur-Anek .anim rule did; the circle keeps the frame's own size and ring). G4/P1/P2's engine header:
+  the reference's 118 px circle at 16.5,18 (#9DDBF5, 4 px white ring, overflow hidden) with its chip at the bird's shoulder
+  (94.5,80 - already so). The cover's, the gates' and the celebration's birds are the reference's own files (1, 5, 7).
+- 4 (the speaker chips): the glyph was already the reference's (the inline SVG of #audioChip and #sgVo is byte-identical); the
+  cover chip as in 1; the header chip grey (opacity .5, grayscale) while a line speaks (body.vo-playing, set in setPlaying - the
+  reference's flag; G4/P1/P2 had it as .vo-disabled already); the story pages' card chip was given the reference's place on
+  2026-10-21; the waves blink only while a line speaks and stand solid at rest (TOTA-WAVES-IDLE). NOT ported: the reference's
+  [SPK-AFTER-VO] "grey until the page's opening lines are over" - it keys on that lesson's own page scripts (autoPlayChain / its
+  story intro), while this file's Figma pages own their audio flows, so the hold would never release there; the chip here is grey
+  exactly while a line speaks.
+- 5 (gates + confetti): the gate is the reference's GATE-REF-ANIM, verbatim but for this engine's clip path rule, GameBus for
+  SwiftPAL and this lesson's own caption moments: its bird (peeking_talk_up.webp, 52.8 % of the screen, bottom-anchored, lifted in
+  over .3 s already talking), the clip at once, the headline written left to right (pgWipe .9 s) at the moment the clip says its
+  words - 2850 / 3540 / 210 ms into this lesson's vo_pt_tutorial / _guided / _practice (the last phrase group's onset, read off
+  the clips the way the reference's 3660 / 3940 / 1120 were off its; the engine used to reveal the tutorial title at 3150 ms),
+  the 4 s minimum hold (GATE_MS; the engine held 2.8 s), the first gate's bird sinking back (pgPeekDown .34 s); the scrim .35 +
+  blur 10 (was .6) over a plain blue field (the sky off, the cover's sunburst dropped while gating); the cover visible unblurred
+  behind the first gate. Confetti = CONFETTI-REF on this engine's own kit burst: 100 pieces (was 80), falling 1.6-2.6 s (was
+  1.1-1.8), 1.5x (--fx-size, sized with --scale), the layer at z 5000 (under the gate; was 100001), the standard confetti sound at
+  0.45 (was .85). afterConfetti (the wait before advancing) is this file's as before.
+- 6 (the music): BGM-DUCK verbatim on this file's mp3: one <audio> made at load, started by the first page's mount (the play tap
+  no longer starts it; the cover has no bed), 0.13 at rest, ducked to 0.03 under ANY sound - every Audio element's play() (voice,
+  sfx, the letter page's piano loop, the stamp page's pops) and every WebAudio source node (the kit's pops, the engine's tones)
+  through two prototype wrappers - 180 ms down, 600 ms up, 150 ms after the last sound; faded out (600 ms, then paused) when the
+  celebration mounts, back on a page in range. This engine's own fadeBackgroundMusic / startBackgroundMusic are no-ops once the
+  bed exists (window.__bgm), so the letter page's duck/restore calls do nothing (the bed ducks under its loop by itself) and
+  `backgroundMusic` is the bed's element (the checks read its volume).
+- 7 (the celebration): the reference's screen, verbatim: its sunburst end_screen.webp (its version) with the sky's soft radial
+  hole, the CELEBRATION mount rewritten to the reference's (the standard confetti sound at 0.45, the star burst, no text, the
+  signals, the arrow shown at once) with this engine's own aage-badhen tap (the standard next sound, the completion events, the
+  hand-over); the screen moved to <body> (full-bleed, TOTA-END-FULLBLEED); the three-sheet Swiftie (cel_shabaash / cel_talk /
+  cel_idle, 6x6 frames of 329x440; CEL-SWIFTIE: the jump 0-29 at 45 ms, the landing 30-35, THEN the line, lip-synced on the talk
+  sheet from the card's end_anim.bits, then the idle loop) in the stock mascot's place (sw_lg_celebrating_anim.webp hidden); the
+  gold arrow pill (END-FINISH-BTN: #FCB717, 4.54 px white ring, the 52 px arrow glyph, scaled by --scale) waiting dim and
+  untappable while she speaks, then pulsing (celArrowPulse). The LINE is this lesson's own vo_celebrate, not the reference's
+  vo_well_done: its beak bits (dun_assets/cel_bits.json, 187 x 25 ms) were derived by the detector that best reproduces the
+  reference card's own bits on its clip (RMS per 25 ms, open above half the local max over +-12 frames and within 18 dB of the
+  peak: 98.3 % agreement on vo_well_done). The card carries end_anim (the reference's frame lists, this clip's bits) and the
+  celebration slide's sfx.
+- Measured on the built page (chrome_shots2.py / dun_probe.py in the scratchpad, 1333x750): the play button ready 12.7 s in
+  (after the 8.6 s welcome), 140x140 at 589,463, breathing; the tap: sfx_play_button at 0.8, vo_pt_tutorial at once, the story's
+  line and the bed 4.7 s later; T0's aage 170x62 at 582,550, the disabled art, then the enabled art with navBreathe; the bed 0.13
+  at rest / 0.03 under a line / 0.13 again a second after; a tapped star pops; the first gate over the unblurred cover on a plain
+  field with the sky off; the guided gate: the bird 396 px lifted in, the headline at 3540 ms (96 px #CD0FD5 at top 271, wiped
+  in), G1 at 5.2 s; G1's title-bar head: sw_head_talking -> tryagain on a wrong tap -> celebrate on the right one; 100 confetti
+  pieces at z 5000; G4's bird 118 px at 17,18 with the chip at 95,80; the celebration: the shabaash sheet frames 0-35 over 2 s,
+  the line at 2.47 s on the talk sheet, the arrow dim until it ends then pulsing, the bed paused; no page errors anywhere.
+- The checkers: smoke.py and gate_check.py's gate helper now reads the reference beat (pg-up / pg-say, the clip at once, the
+  headline at its cue, the page >= 3.9 s after the open); story_check / gate_check wait for .pg-say; title_check: see its note
+  below once re-measured. `../_before_dun_chrome/` holds the dist's three files, build.py, README.md and every check script from
+  before.
+
 G4, P1 and P2 in the previous pages' typeface ([sent-font], 2026-10-27)
 - Asked: "at pages 10 G4, 11 P1 and 12 P2 apply the exact same font style and the exact same font as of the previous pages; rest
   exactly the same". The three SENT_PICK pages carried the reference P4's text as ported — Baloo 2 ExtraBold (800) for the

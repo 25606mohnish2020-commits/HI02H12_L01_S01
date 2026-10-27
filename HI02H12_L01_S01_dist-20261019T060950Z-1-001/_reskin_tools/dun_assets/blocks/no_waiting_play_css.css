@@ -1,0 +1,9 @@
+/* [NO-WAITING-PLAY-BTN] (2026-10-13, user request) TITLE PAGE: the DISABLED (grey, waiting) play button is removed. Nothing is
+   drawn at the play button's spot until the title page's welcome VO is over; then the ENABLED (gold) play button appears
+   there, exactly as before - the same pop-in (sgBtnReveal), the same breathing (.sg-breathe -> sgBtnPulse), the same 140x140
+   box at the same spot ([PLAY-BTN-140]), the same tap and the same aria-label. This restores the display:none of
+   [LANDING-START-AFTER-VO] (.start-gate .sg-btn:not(.ready)) that [LANDING-PLAY-BTN] had replaced with the waiting art
+   (display:inline-flex + btn-play-waiting.svg); same selector, same !important, later in the file, so this rule wins. The
+   welcome, its once-only play, the bird tap, the feet speaker chip (it follows .ready, not the button's visibility) and every
+   other page are untouched; btn-play-waiting.svg stays in assets/UI, unused on this page. */
+.start-gate .sg-btn:not(.ready){display:none !important;}

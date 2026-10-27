@@ -3238,3 +3238,392 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 /* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
 .stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;}
 .stp.lit .stp-veil{opacity:0;}
+
+/* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) — see build.py ===== */
+/* ---- the cover's sky: the kit's sky-drift + sky-burst + sky-adapt, the reference's block verbatim ---- */
+/* ===== FLN ANIMATION KIT: sky-drift BEGIN ===== */
+.start-bg{background-image:url("assets/UI/startnew_bg_plain.webp");}   /* mandatory */
+
+.sg-glow,.sg-sky{position:fixed;inset:0;pointer-events:none;display:none;z-index:1;}
+body.is-start .sg-glow,body.is-start .sg-sky,
+body.is-end   .sg-glow,body.is-end   .sg-sky{display:block;}
+html.rotated .sg-glow,html.rotated .sg-sky{                            /* R2 */
+  inset:auto;left:50%;top:50%;width:100vh;height:100vw;
+  transform:translate(-50%,-50%) rotate(90deg);}
+
+.sg-glow{opacity:.75;background:radial-gradient(ellipse 38% 25% at 50% 79%,
+  rgba(255,255,255,.34) 0%,rgba(255,255,255,.13) 45%,rgba(255,255,255,0) 72%);
+  animation:sgBreathe 6.5s ease-in-out infinite;}
+@keyframes sgBreathe{0%,100%{opacity:.55;}50%{opacity:1;}}
+
+/* hole punched over the centre card - it is translucent, so elements showed through.
+   1114x456 design px, tracked by --scale. Hard edge: a real occlusion boundary. */
+.sg-sky{overflow:hidden;
+  --sg-hole-w:calc(1074px * var(--scale,1));   /* 40px inside the card's rounded corners */
+  --sg-hole-h:calc(416px * var(--scale,1));
+  -webkit-mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000);
+          mask-image:linear-gradient(#000,#000),linear-gradient(#000,#000);
+  -webkit-mask-size:100% 100%,var(--sg-hole-w) var(--sg-hole-h);
+          mask-size:100% 100%,var(--sg-hole-w) var(--sg-hole-h);
+  -webkit-mask-position:center,center; mask-position:center,center;
+  -webkit-mask-repeat:no-repeat,no-repeat; mask-repeat:no-repeat,no-repeat;
+  -webkit-mask-composite:xor; mask-composite:exclude;
+}
+/* end screen has no visible occluder, so a hard edge reads as a sliced crescent.
+   Soft radial hole sized to the mascot instead. */
+body.is-end .sg-sky{
+  --sg-hole-w:calc(800px * var(--scale,1));
+  --sg-hole-h:calc(800px * var(--scale,1));
+  -webkit-mask-image:linear-gradient(#000,#000),
+                     radial-gradient(closest-side,#000 71%,rgba(0,0,0,0) 100%);
+          mask-image:linear-gradient(#000,#000),
+                     radial-gradient(closest-side,#000 71%,rgba(0,0,0,0) 100%);
+}
+
+.sg-sky i{position:absolute;left:50%;top:50%;width:var(--s);aspect-ratio:1;
+  margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  background:center/contain no-repeat;opacity:0;
+  animation:sgFly var(--t) linear infinite;animation-delay:var(--d);}
+.sg-sky .s1{background-image:url("assets/UI/bgdeco_star.svg");}
+.sg-sky .s2{background-image:url("assets/UI/bgdeco_star_o.svg");}
+.sg-sky .s3{background-image:url("assets/UI/bgdeco_spark.svg");}
+.sg-sky .s4{border-radius:50%;border:.22vmax solid rgba(255,255,255,.92);}
+.sg-sky .s5{border-radius:50%;background:rgba(255,255,255,.92);}
+
+/* transform keyed ONLY at 0% and 100% - that is what makes the path a straight ray */
+@keyframes sgFly{
+  0%{transform:translate(var(--x1),var(--y1));opacity:0;}
+  10%{opacity:var(--o);}
+  84%{opacity:var(--o);}
+  100%{transform:translate(var(--x2),var(--y2));opacity:0;}
+}
+
+/* glow: static shadow, animated opacity = composited. See Deviations. */
+.sg-sky i::after{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:inherit;border:inherit;
+  filter:drop-shadow(0 0 7px rgba(255,255,255,.95));
+  opacity:0;will-change:opacity;
+  animation:sgGlowOpacity var(--g) ease-in-out infinite alternate;
+  animation-delay:var(--gd);}
+@keyframes sgGlowOpacity{from{opacity:0;}to{opacity:1;}}
+/* ===== FLN ANIMATION KIT: sky-drift END ===== */
+/* ===== FLN ANIMATION KIT: sky-burst BEGIN ===== */
+.sg-sky i.popped{visibility:hidden;}
+.sg-burst{position:fixed;z-index:95;width:0;height:0;pointer-events:none;}
+
+/* data URIs, not file refs - external SVG masks are blocked under file:// */
+.sg-burst.k-star{--shape:url("data:image/svg+xml,%3Csvg%20width=%2264%22%20height=%2264%22%20viewBox=%220%200%2064%2064%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M32%205.5c1.6%200%203%20.9%203.7%202.4l6.1%2012.4%2013.7%202c1.6.2%203%201.4%203.5%203s.1%203.3-1.1%204.4l-9.9%209.6%202.3%2013.6c.3%201.6-.4%203.3-1.7%204.2s-3.1%201.1-4.6.3L32%2051l-12.2%206.4c-1.5.8-3.2.7-4.6-.3s-2-2.6-1.7-4.2l2.3-13.6-9.9-9.6c-1.2-1.1-1.6-2.9-1.1-4.4s1.9-2.7%203.5-3l13.7-2%206.1-12.4C29%206.4%2030.4%205.5%2032%205.5z%22%20fill=%22%23fff%22/%3E%3C/svg%3E");}
+.sg-burst.k-spark{--shape:url("data:image/svg+xml,%3Csvg%20width=%2264%22%20height=%2264%22%20viewBox=%220%200%2064%2064%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M32%202c1.6%2012.6%2015.4%2026.4%2030%2030-14.6%203.6-28.4%2017.4-30%2030-1.6-12.6-15.4-26.4-30-30C16.6%2028.4%2030.4%2014.6%2032%202z%22%20fill=%22%23fff%22/%3E%3C/svg%3E");}
+.sg-burst.k-dot{--shape:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fff'/%3E%3C/svg%3E");}
+
+.sg-burst .fl{position:absolute;left:0;top:0;
+  width:calc(var(--bs) * 3);height:calc(var(--bs) * 3);
+  margin:calc(var(--bs) * -1.5) 0 0 calc(var(--bs) * -1.5);border-radius:50%;
+  background:radial-gradient(circle,rgba(244,250,255,1) 0%,
+    rgba(96,165,250,.92) 38%,rgba(30,58,138,0) 76%);
+  animation:sgFlash .36s ease-out forwards;}
+
+/* solid fill + two colour drop-shadows; they respect the mask alpha, so the halo
+   follows the star silhouette rather than a box */
+.sg-burst i{position:absolute;left:0;top:0;width:var(--ps);height:var(--ps);
+  margin:calc(var(--ps) / -2) 0 0 calc(var(--ps) / -2);
+  background:currentColor;
+  -webkit-mask:var(--shape) center/contain no-repeat;
+          mask:var(--shape) center/contain no-repeat;
+  filter:drop-shadow(0 0 3px currentColor) drop-shadow(0 0 8px currentColor);
+  animation:sgSpark var(--sd) cubic-bezier(.12,.72,.24,1) forwards;
+  animation-delay:var(--sdl);}
+
+@keyframes sgFlash{0%{transform:scale(.15);opacity:1;}100%{transform:scale(1.6);opacity:0;}}
+@keyframes sgSpark{           /* --gy = gravity drop */
+  0%{transform:translate(0,0) scale(.35);opacity:0;}
+  14%{opacity:1;transform:translate(calc(var(--dx) * .3),calc(var(--dy) * .3)) scale(1.12);}
+  100%{transform:translate(var(--dx),calc(var(--dy) + var(--gy))) scale(.3);opacity:0;}
+}
+/* ===== FLN ANIMATION KIT: sky-burst END ===== */
+/* ===== FLN ANIMATION KIT: sky-adapt BEGIN ===== */
+/* activity adaptations for recipes 1+2.
+   1. THE MANDATORY BACKGROUND SWAP. This landing has no .start-bg layer: the art is painted on
+      body.is-start (and on .start-gate off the title screen), so the swap goes on those carriers.
+      startnew_bg_plain.webp is this landing's own start_bg.webp with its painted stars, rings, dots
+      and sparkles removed - one set of decorations, the moving one. */
+body.is-start{background-image:url("assets/UI/startnew_bg_plain.webp");}
+.start-gate{background-image:url("assets/UI/startnew_bg_plain.webp");}
+/* 2. STACKING. .stage carries a transform, so it is a stacking context at z auto, and the kit's
+      z-index:1 would paint the sky OVER the landing card. At 0 the sky paints in DOM order: above
+      the body art and .end-bg (earlier in the DOM), below .stage-wrap and the end screen (later). */
+.sg-glow,.sg-sky{z-index:0;}
+/* 3. THE HOLE. This card was 1114x560 (hole 520px) until [LANDING-FRAME-ART] (2026-10-13) put it back at the
+      fleet's 1114x456; same 40px inset, so the kit's own 416px is restated here. */
+.sg-sky{--sg-hole-h:calc(416px * var(--scale,1));}
+/* 4. The phase gate reads as a quiet blue field here (TOTA-GATE-NO-STARS): no sky while gating. */
+body.gating .sg-glow,body.gating .sg-sky{display:none;}
+/* ===== FLN ANIMATION KIT: sky-adapt END ===== */
+
+/* this lesson's adaptations of the sky: the Figma title card is 1160x475 on the stage (the reference's is 1114x456), so its hole is
+   40 px inside THAT box; the title page keeps its own background element (.start-bg): the reference's plain sunburst goes there,
+   and the [title-fig] "no sky" rule is undone; while a gate is up the field is the plain blue (TOTA-GATE-NO-STARS) */
+.sg-sky{--sg-hole-w:calc(1120px * var(--scale,1));--sg-hole-h:calc(435px * var(--scale,1));}
+body.is-start .start-bg{background-image:url("assets/UI/startnew_bg_plain.webp") !important;}
+body.is-start .sg-glow,body.is-start .sg-sky{display:block !important;}
+body.gating .sg-glow,body.gating .sg-sky{display:none !important;}
+body.gating .start-bg{background-image:none !important;background-color:#7FC8F4 !important;}
+/* ---- the cover: the play button (LANDING-START-AFTER-VO + LANDING-PLAY-BTN + PLAY-BTN-140 + NO-WAITING-PLAY-BTN, value for value,
+   written for this title page's scaled frame: 140x140 on the stage, centred, its bottom edge 2 px above the card's bottom — the
+   card's 9 px border is inside its box here, hence the -9px); hidden until .ready, then the pop-in, then the breathing; the tap
+   lands even while a line speaks (the reference's: the welcome's replay is cut) ---- */
+.sg-fig .sg-btn,.sg-fig .sg-btn.ready{position:absolute;left:50%;bottom:calc(2px / var(--fig-s) - 9px) !important;top:auto !important;transform:translateX(-50%);z-index:4;
+  width:calc(140px / var(--fig-s)) !important;min-width:0 !important;max-width:none !important;height:calc(140px / var(--fig-s)) !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;cursor:pointer;opacity:1 !important;filter:none !important;
+  background:transparent url("assets/UI/btn-play.svg") center / 100% 100% no-repeat !important;
+  font-size:0 !important;line-height:0 !important;color:transparent !important;overflow:visible !important;}
+.start-gate .sg-btn:not(.ready){display:none !important;}
+.start-gate .sg-btn.ready{display:inline-flex !important;animation:sgBtnReveal .52s cubic-bezier(.34,1.5,.6,1) !important;}
+@keyframes sgBtnReveal{0%{opacity:0;transform:translateX(-50%) scale(.55) translateY(14px);}60%{opacity:1;transform:translateX(-50%) scale(1.08) translateY(0);}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
+.start-gate .sg-btn.ready.sg-breathe{animation:sgBtnPulse 1.4s ease-in-out infinite !important;}
+@keyframes sgBtnPulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.04);}}
+.start-gate .sg-btn:not(.locked):active{transform:translateX(-50%) translateY(3px) !important;box-shadow:none !important;}
+body.vo-lock .start-gate .sg-btn.ready,body.vo-lock .sg-btn.ready{pointer-events:auto !important;}
+body.is-start.landing-play-ready .sg-card :not(.sg-btn):not(.sg-btn *){animation-play-state:running !important;}
+/* the cover's bird: the reference's wave file, 208 px, its box 24 px left of and 12 px under the card's bottom-left corner
+   (frame px of this title page: the card is 76,125 1114x456 at scale 1.0414); the chip at its feet: 70 px at 83 px from the card's
+   left, 12 px under its bottom (FEET-SPEAKER), grey until the play button is ready and while a line speaks */
+.sg-fig .sg-mascot{position:absolute;left:52.96px;top:396.35px;width:199.73px;height:auto;z-index:3;object-fit:contain;pointer-events:auto;cursor:pointer;animation:none;transform:none;}
+.sg-fig .sg-vo{left:155.7px !important;top:525.3px !important;bottom:auto !important;width:calc(70px / var(--fig-s)) !important;height:calc(70px / var(--fig-s)) !important;display:block !important;z-index:5;}
+.start-gate .sg-vo.sg-vo-off,body.vo-playing .start-gate .sg-vo,.sg-vo.vo-disabled{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;}
+.sg-vo svg{overflow:visible !important;} .sg-vo svg > g[filter]{filter:none !important;}
+.sg-vo:not(.playing) .wv{animation:none !important;opacity:1 !important;}
+/* ---- आगे: the reference's NAV-NEXT-BTN + NAV-PULSE, verbatim, then this engine's boxes: 170x62 on the tutorial pages, 190x62
+   elsewhere (the reference's), in the places this file already gives the button; a page that hides the button inline keeps it
+   hidden (the reference's pick pages do that with a card flag) ---- */
+/* [NAV-NEXT-BTN] (2026-09-24) pages 2-14: the आगे pill (#navBtn) is drawn by the user's next-button art instead of its text, in the
+   SAME box at the SAME spot on every page (the button's own box is untouched: 170x62 at bottom 128 on the story pages, 190x62 at
+   bottom 20 on the question pages, 190x62 at bottom 80 on the train pages - so the आगे hand nudge, placed from that box, is
+   untouched too). Two states, one box:
+   - not .active: the DISABLED art (btn-next-disabled: grey #EDEDED pill, grey arrow) is VISIBLE wherever the text pill was not - it
+     replaces the old opacity:0 / visibility:hidden of the inactive pill AND the display:none the pick pages (mountTapOptions) and
+     the train pages (before their last match) set inline - with no functionality: pointer-events:none and the disabled attribute
+     as before;
+   - .active (setNavActive(true): the moment आगे used to fade in): the ENABLED art (btn-next: yellow #FCB717 pill, navy arrow) fades in
+     over the disabled one in the same .3 s, and the tap does exactly what it did (the slide's onclick).
+   The art is two layers on two pseudo-elements (::before = disabled, ::after = enabled; the old "→" content of ::after is gone):
+   the PILL (btn-next(-disabled)-pill.svg, preserveAspectRatio none) drawn at 100% x 100% of a canvas = the button's border box +
+   the art's 14 px shadow margin all round (insets -17 px: 14 + the 3 px border, since insets count from the padding box), so the
+   pill fills the box exactly whether it is 170 or 190 wide, and the ARROW (btn-next(-disabled)-arrow.svg) at its own 40x28 size
+   centred, never stretched. The user's originals (btn-next.svg / btn-next-disabled.svg) are kept beside them unused. The pill's own
+   fill, border colour, box-shadows and text are switched off (the art has its own shadow; the text is the accessible name only).
+   The end screen keeps the button away exactly as before (body.is-end #navBtn{display:none}), and so does the title screen
+   (body.is-start: its start gate is transparent, so the stage would show through); the train pages 13-14 show no disabled art
+   either - see the last two rules. */
+#navBtn:not([style*="display: none"]){display:flex !important;background:transparent !important;border-color:transparent !important;box-shadow:none !important;
+  color:transparent !important;font-size:0 !important;opacity:1 !important;visibility:visible !important;overflow:visible !important;}
+#navBtn:not(.active){box-shadow:none !important;pointer-events:none !important;cursor:default !important;}
+#navBtn::before,#navBtn::after{content:"" !important;position:absolute;left:-17px;right:-17px;top:-17px;bottom:-17px;pointer-events:none;font-size:0;
+  background-repeat:no-repeat,no-repeat;background-position:center,center;background-size:40px 28px,100% 100%;transition:opacity .3s ease;}
+#navBtn::before{background-image:url("assets/UI/btn-next-disabled-arrow.svg"),url("assets/UI/btn-next-disabled-pill.svg");opacity:1;}
+#navBtn::after{background-image:url("assets/UI/btn-next-arrow.svg"),url("assets/UI/btn-next-pill.svg");opacity:0;}
+#navBtn.active::after{opacity:1;}
+#navBtn.active::before{opacity:0;}
+body.is-end #navBtn{display:none !important;}
+/* Page 1 (2026-09-24, bak107): the title screen's start gate is TRANSPARENT there (body.is-start .start-gate{background:transparent};
+   the body carries the sky), so the stage behind it shows through - the disabled art, visible since display:flex above, appeared
+   under the landing card. The landing has no आगे at all, so the button stays out of the page while body.is-start (dropped once the
+   tutorial has mounted, so page 2 gets it back); pages 2-14 are unchanged. */
+body.is-start #navBtn{display:none !important;}
+/* Pages 13-14 (2026-09-24, bak109, [TRAIN-NAV-AFTER-DEPART]): the train pages (slide.ref_frame -> .stage.ref-frame) show NO disabled
+   art. The BLANK_PANEL module hides the button inline (style.display none) from mount until the train has left the panel and only
+   then shows + activates it (showNav at the end of the refTrainOut run, fallback 6.3 s) - the display:flex above had overridden
+   that inline none. So here the button stays out of the page while it is not .active, and the enabled art appears in the same
+   190x62 box at bottom 80 the moment the module activates it, exactly where the disabled art stood. Pages 2-12 are unchanged. */
+.stage.ref-frame #navBtn:not(.active){display:none !important;}
+/* [P5-NO-NAV] (2026-10-01) page 5 (G1 = ?slide=3; card slide.hide_nav -> .stage.no-nav, set in mountSlide like hide_header_chip): the
+   disabled आगे art at the bottom of the page is removed on this page - the pick page advances by itself on the correct tap and
+   never activates the button, so nothing is lost; the button's box, wiring and every other page are untouched. Later that day, on
+   request, the other seven pick pages (pages 6-12 = G2, G3, G4, P1, P2, P3, P4 = ?slide=4..10) carry the same card flag, so no pick
+   page shows the disabled art any more; the story pages 2-4 and the train pages 13-14 are as they were. */
+.stage.no-nav #navBtn{display:none !important;}
+/* [NAV-PULSE] (2026-10-09, user request; re-timed the same day): the moment आगे is ENABLED it pulsates like the title page's
+   play button does once it is ready ([LANDING-START-AFTER-VO] .sg-breathe -> sgBtnPulse, line ~544: scale 1 -> 1.04 -> 1,
+   1.4 s ease-in-out, repeating) - the same keyframes, timing and amplitude, on every page where the button exists (story pages
+   2-4 once आगे appears, train pages 13-14 once the train has left; the pick pages never enable it). "Enabled" is #navBtn.active,
+   which setNavActive(true) sets at the same instant it clears `disabled` (the kit's reveal hold and the pages' first-tap rule
+   still decide WHEN that happens - untouched). The pulse runs on the ENABLED art layer (#navBtn::after = btn-next-pill + arrow,
+   which already covers the pill and its shadow margin), not on the button box: the box keeps its translateX(-50%) centring and
+   its hover lift / press transforms exactly as before (sgBtnPulse itself carries translateX(-50%) for the same reason; a `scale`
+   on the box would scale that translate and the pill would drift sideways on every beat), the disabled art (::before) never
+   moves, and the hit area is unchanged. The 4.5 s hand nudge (nudgeNavBtn) is left as it is; on pages 2-4 [P2-QUIET-AFTER-NAV]
+   still suppresses that hand - this breathe is the one repeating motion the user asked for there. Still mode (html.no-anim,
+   prefers-reduced-motion) stops it, as the landing holds its disc still. (The first version of this block used the sentence
+   chip's cue pulse, 1.10 at .8 s; superseded by this one at the user's ask.) */
+@keyframes navBreathe{0%,100%{scale:1;}50%{scale:1.04;}}
+#navBtn.active::after{animation:navBreathe 1.4s ease-in-out infinite;transform-origin:50% 50%;will-change:scale;}
+#navBtn:not(.active)::after{animation:none;scale:1;}
+@media (prefers-reduced-motion:reduce){ #navBtn.active::after{animation:none;scale:1;} }
+html.no-anim #navBtn.active::after{animation:none !important;scale:1;}
+
+#navBtn{width:190px !important;height:62px !important;}
+.stage.tut #navBtn{width:170px !important;height:62px !important;}
+#navBtn.active{animation:none !important;}                                  /* the breathing is the art's (::after), never the box's */
+#navBtn img{display:none !important;}
+/* ---- the bird in the title bars: the engine's live head inside every frame's circle (.dmf-head), filling it as the engine's own
+   circle does; the engine's header (G4/P1/P2): the reference's 118 px circle at 16.5,18 and its animated faces INSIDE the circle ---- */
+.dmf-head img.dun-live{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;}
+.stage.sent-page .mascot-wrap{width:118px !important;height:118px !important;left:16.5px !important;top:18px !important;}
+.stage.sent-page .mascot-circle{background:#9DDBF5 !important;border:4px solid #FFFFFF !important;box-shadow:0 6px 14px rgba(0,47,118,.20) !important;overflow:hidden !important;border-radius:50% !important;}
+.stage.sent-page .mascot-wrap.anim .mascot-circle .mascot-img,.stage.sent-page .mascot-circle .mascot-img{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;transform:none !important;}
+/* ---- the speaker chips (HDR-SPEAKER's states): the header chip grey while a line speaks (already so on G4/P1/P2); waves blink
+   only while a line speaks, solid at rest (TOTA-WAVES-IDLE) ---- */
+/* WAVE-ALWAYS blinked the two speaker arcs continuously — idle as well as playing — and both
+   wv keyframes start at opacity:0, so at rest one bar was always part-way through fading out.
+   At rest BOTH arcs are now solid; the blink is kept for actual playback only. */
+#audioChip:not(.playing) .wv,
+.audio-chip:not(.playing) .wv,
+#sgVo:not(.playing) .wv,
+.sg-vo:not(.playing) .wv,
+.tut-audio:not(.playing) .wv,
+.sp-vo:not(.playing) .wv{animation:none !important;opacity:1 !important;}
+
+body.vo-playing #audioChip,body.vo-playing .mascot-wrap .audio-chip{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;transition:none !important;}
+/* ---- the gates: GATE-REF-ANIM (the bird, its lift, the headline's wipe, the first gate's sink), on the reference's scrim (.35 over a
+   plain field), the bird fixed at the bottom centre (its PHASEGATE-ADD placement, which the lift keyframes assume) ---- */
+.phase-gate.show{background:rgba(57,55,55,.35) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
+body.is-start .phase-gate.show{background:rgba(57,55,55,.35) !important;}
+.phase-gate #phaseGateImg,.phase-gate img{position:fixed;left:50%;bottom:0;transform:translateX(-50%);height:clamp(120px,26vh,250px);width:auto;display:block;animation:none;}
+/* [GATE-REF-ANIM] (2026-10-08, user request) the three transition screens (the phase gates: start -> page 1, page 3 -> page 4 "चलिए, साथ
+   में करें!", page 11 -> page 12 "अब आपकी बारी!") carry the text and bird animation of the reference lesson
+   hindi-game-gender-identify.vercel.app (HI02H11_L03_S02), measured live in Chrome at 1333x750 and ported value for value:
+   - THE BIRD: the reference's own gate art, assets/UI/peeking_talk_up.webp (its peeking_talk_up.webp, byte-identical: 900x900, 61
+     frames, the standard Swiftee transition animation cut from the frame where he is already up, so he is at the top and talking
+     from his first frame), bottom-anchored and centred, square, 52.8% of the screen height (396px at 750px; never over 624px or
+     wider than 92% of the screen - the reference's [H11-181]/[H11-205] rule, svh where the browser has it), lifted in over 0.3 s
+     from 28% below (pgUpIn, [H11-154]). On the FIRST gate only (start -> page 1, .pg-talk there as in the reference) he sinks back
+     down over 0.34 s (pgPeekDown, [H11-115]) before the screen clears; the other two gates clear at once, as there.
+   - THE TEXT: the headline WRITES ITSELF LEFT TO RIGHT over 0.9 s (pgWipe: a clip-path wipe from its first letter to its last,
+     [H11-191]) at the moment the voice says those words ([H11-145]; GATE_CAPTION_AT_MS in the script below, measured off this
+     file's own recordings), in front of the bird (z-index, [H11-210]). Its look is unchanged (96px #CD0FD5, 10px white stroke,
+     271px from the top: the metrics both lessons share).
+   The replaced beat ([GATE-STD-ANIM]: the small bird rising inside swiftee_transition.webp for 1.2 s, the headline switched on
+   with the first beak move) is superseded by <script id="GATE-REF-ANIM-JS"> below; the scrim, the blur, the lines, the titles
+   and the 4 s minimum hold are this file's as before. */
+.phase-gate.pg-ref #phaseGateImg{height:min(52.8vh,624px,92vw) !important;width:min(52.8vh,624px,92vw) !important;object-fit:contain !important;z-index:1;}
+@supports (height: 1svh){ .phase-gate.pg-ref #phaseGateImg{height:min(52.8svh,624px,92vw) !important;width:min(52.8svh,624px,92vw) !important;} }
+.phase-gate.pg-ref .pg-title,.phase-gate.pg-ref #phaseGateTitle{z-index:3 !important;}
+.phase-gate.pg-ref.pg-up #phaseGateImg{animation:pgUpIn .3s ease-out both !important;}
+@keyframes pgUpIn{from{transform:translate(-50%,28%);}to{transform:translate(-50%,0);}}
+.phase-gate.pg-ref.pg-talk.pg-sink #phaseGateImg{animation:pgPeekDown .34s ease-in both !important;}
+@keyframes pgPeekDown{from{transform:translate(-50%,0);}to{transform:translate(-50%,100%);}}
+.phase-gate.pg-ref .pg-title.pg-pop,.phase-gate.pg-ref #phaseGateTitle.pg-pop{animation:pgWipe .9s cubic-bezier(.25,.6,.3,1) both;}
+@keyframes pgWipe{from{clip-path:inset(-24px 100% -24px -24px);}to{clip-path:inset(-24px -24px -24px -24px);}}
+html.no-anim .phase-gate.pg-ref #phaseGateImg,html.no-anim .phase-gate.pg-ref .pg-title.pg-pop,html.no-anim .phase-gate.pg-ref #phaseGateTitle.pg-pop{animation:none !important;}
+
+.phase-gate.pg-ref .pg-title{opacity:1 !important;transition:none !important;}                /* this engine's title fades in on .text-speaking; here .pg-say shows it and pgWipe writes it */
+.phase-gate.pg-ref:not(.pg-say) .pg-title{visibility:hidden !important;}
+.phase-gate.pg-ref.pg-say .pg-title{visibility:visible !important;}
+body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:none !important;filter:none !important;}
+/* ---- confetti (CONFETTI-REF): over the whole window under the gate, pieces 1.5x, sized with the stage ---- */
+.fx-confetti{z-index:5000 !important;--fx-size:1.5;}
+.fx-confetti .f{width:calc(var(--w) * var(--z) * var(--scale, 1) * var(--fx-size, 1));height:calc(var(--h) * var(--z) * var(--scale, 1) * var(--fx-size, 1));}
+/* ---- the celebration: the reference's screen (TOTA-CELEBRATION-REFERENCE, TOTA-END-FULLBLEED, END-FINISH-BTN, CEL-SWIFTIE), verbatim;
+   then this engine's own .end-btn box reset (it drew a 163x117 image button) ---- */
+/* Final-page parity with HI01H08_L01_S02_Pulling_Streeling_Pehchano. */
+.end-bg{
+  position:fixed;inset:0;background:#FDE9A8 url("assets/UI/end_screen.webp") center/cover no-repeat;
+  display:none;pointer-events:none;
+}
+body.is-end .end-bg{display:block;}
+html.rotated .end-bg{
+  inset:auto;left:50%;top:50%;width:100vh;height:100vw;
+  transform:translate(-50%,-50%) rotate(90deg);
+}
+body.is-end{background:#FDE9A8 !important;}
+body.is-end .stage{background:transparent !important;}
+body.is-end .stage-inner{visibility:hidden !important;}
+body.is-end .header-row,
+body.is-end .prompt-band,
+body.is-end #navBtn,
+body.is-end #devNav,
+body.is-end #jumpOverlay{display:none !important;}
+
+.end-screen{background:transparent !important;}
+.end-screen .end-title,
+.end-screen .end-subtitle{display:none !important;}
+.end-screen .confetti{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1 !important;
+}
+.end-screen .end-mascot{
+  position:static !important;transform:none !important;width:330px !important;height:auto;
+  object-fit:contain;mix-blend-mode:normal !important;
+  animation:endPop .55s cubic-bezier(.34,1.5,.6,1);z-index:3 !important;
+}
+.end-screen .end-btn{position:static !important;transform:none !important;z-index:3;}
+.end-screen .end-btn:active{transform:translateY(3px) !important;}
+/* CELEBRATION FULL-BLEED (Bandar port): .end-screen was position:absolute INSIDE #stage, so
+   its sunburst stopped at the letterboxed stage box and the body colour showed as strips.
+   Reparented to <body> and viewport-fixed so it fills the whole screen. */
+body > .end-screen{position:fixed !important;inset:0 !important;width:100vw !important;
+  height:100dvh !important;z-index:99000 !important;}
+body.is-end{background:#FDE9A8 !important;}
+body.is-end .stage{background:transparent !important;}
+body.is-end .stage-inner{visibility:hidden;}
+/* the bird+button used to render inside the transform-scaled stage (330px * --scale); the
+   fixed full-bleed screen is unscaled, so compensate to keep the exact same on-screen size */
+body.is-end .end-mascot{width:calc(330px * var(--scale,1)) !important;}
+body.is-end .end-btn{font-size:calc(28px * var(--scale,1)) !important;
+  padding:calc(14px * var(--scale,1)) calc(44px * var(--scale,1)) !important;}
+/* [END-FINISH-BTN] Page 15 (the celebration screen): the finish button (#endBtn).
+   2026-10-08 (user request, github.com/CodeWithPiyush0/MTG204_L01_S01): THE BUTTON IS THAT LESSON'S CELEBRATION BUTTON, value for
+   value and in its place - the arrow-only pill of its .end-btn (itself HI02H11_L02_S02's): #FCB717, a 4.54 px white ring, radius
+   44.56, padding 14 x 44 around a 52 px «→» glyph (the content of ::after, Baloo 2, navy; so the pill is sized by the glyph + the
+   padding, ~143 x 94 design px), the 0 6px 6px black shadow with the inner highlight / shade, hintPop in, a 3 px press. The
+   markup is the reference's too (no text, «आगे बढ़ें» as the aria-label). Every length is x --scale because this end screen is
+   body-level and unscaled (the reference's sits inside its scaled 1333x750 stage); its position is the reference's as well:
+   22 design px under the 358 px mascot box (the .end-screen gap, scaled like the box - the last rule), the pair centred on the
+   screen. The tap does exactly what it did (eb.onclick in the celebration mount); the cel-wait / cel-ready states of
+   History: from 2026-09-24 to 2026-10-08 this block drew the button with the user's finish-button art (btn-finish-pill.svg +
+   btn-finish-arrow.svg on ::before / ::after over a ~209x81 text-sized box); those files stay in assets/UI unused. */
+#endBtn{font-family:var(--font-hi);font-weight:800;color:var(--navy) !important;text-shadow:none !important;overflow:visible !important;
+  font-size:calc(28px * var(--scale,1)) !important;
+  background:#FCB717 !important;border:calc(4.54px * var(--scale,1)) solid #FFFFFF !important;
+  border-radius:calc(44.56px * var(--scale,1)) !important;
+  padding:calc(14px * var(--scale,1)) calc(44px * var(--scale,1)) !important;cursor:pointer;
+  box-shadow:0 calc(6px * var(--scale,1)) calc(6px * var(--scale,1)) rgba(0,0,0,.25),
+             inset calc(4.54px * var(--scale,1)) calc(9.09px * var(--scale,1)) calc(12.12px * var(--scale,1)) rgba(255,255,255,.25),
+             inset calc(-4.54px * var(--scale,1)) calc(-4.54px * var(--scale,1)) calc(13.63px * var(--scale,1)) rgba(116,60,0,.19) !important;}
+#endBtn:active{transform:translateY(calc(3px * var(--scale,1))) !important;
+  box-shadow:0 calc(3px * var(--scale,1)) calc(3px * var(--scale,1)) rgba(0,0,0,.25),
+             inset calc(4.54px * var(--scale,1)) calc(9.09px * var(--scale,1)) calc(12.12px * var(--scale,1)) rgba(255,255,255,.25),
+             inset calc(-4.54px * var(--scale,1)) calc(-4.54px * var(--scale,1)) calc(13.63px * var(--scale,1)) rgba(116,60,0,.19) !important;}
+/* the arrow: the reference's .end-btn::after glyph (the former ::before / ::after art layers are gone) */
+#endBtn::before{content:none !important;}
+#endBtn::after{content:"\2192" !important;position:static !important;inset:auto !important;background:none !important;
+  font-size:calc(52px * var(--scale,1));line-height:1;pointer-events:none;}
+/* the reference's 22 px between the mascot box and the button, scaled like the box itself */
+body > .end-screen{gap:calc(22px * var(--scale,1)) !important;}
+/* [CEL-SWIFTIE] (2026-10-08, user request) Page 15 (the celebration screen) carries the celebration screen of MTG2A04_L01_S01
+   (github.com/CodeWithPiyush0/MTG204_L01_S01, its rounds 2m-2r), ported value for value: the stock celebrating mascot
+   (sw_lg_celebrating_anim.webp) is hidden and in its place stands the team's three-sheet Swiftie - assets/UI/cel_shabaash.webp,
+   cel_talk.webp, cel_idle.webp (that repo's celebration_kit sheets, byte-identical; 6x6 frames of 329x440, size-matched and
+   feet-aligned) - driven frame by frame by <script id="CEL-SWIFTIE-JS">: she jumps first (silent but for the page's celebration
+   sound), lands with her beak shut, THEN this lesson's own celebration line (vo_well_done) starts and her beak opens on each of
+   its syllables (CARD.end_anim.bits: one character per 25 ms of the clip, measured from it by the kit's make_lipsync.py), and
+   once the line is over she idles on the idle sheet's mouth-shut frames. The LAYOUT box is 300x358 (x --scale, as the mascot it
+   replaces is 330px x --scale on this unscaled full-bleed screen), so the finish button below keeps its place 22 px under it;
+   the art inside is 420 px tall (x --scale), anchored at the bottom, the jump's head-room rising above the box. The finish
+   button waits (dim, not pressable) while she speaks, then pulses (scale only - no glow, no border change), as the reference's
+   does. The sunburst, the star burst, the no-text rule, the button's art and the celebration sound are as they were. */
+.end-screen .cel-sprite{position:relative;height:calc(358px * var(--scale,1));width:calc(300px * var(--scale,1));background:none;
+  aspect-ratio:auto;z-index:2;animation:endPop .55s cubic-bezier(.34,1.5,.6,1);}
+.end-screen .cel-sprite .cel-art{position:absolute;left:50%;bottom:0;height:calc(420px * var(--scale,1));transform:translateX(-50%);
+  background-repeat:no-repeat;background-size:600% 600%;filter:drop-shadow(0 12px 22px rgba(0,47,118,.22));}
+/* an invisible one-time paint of the talk + idle sheets while the screen opens (decode + upload before they are needed) */
+.end-screen .cel-sprite .cel-prepaint{opacity:.01;pointer-events:none;filter:none;}
+/* the celebration arrow waits for the line, then pulses (scale only - no glow, no border) */
+#endBtn.cel-wait{pointer-events:none;filter:grayscale(1);opacity:.55;animation:none !important;}
+@keyframes celArrowPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+#endBtn.cel-ready{animation:celArrowPulse 1.3s ease-in-out infinite;}
+@media (prefers-reduced-motion:reduce){ #endBtn.cel-ready{animation:none;} }
+
+#endBtn{width:auto !important;height:auto !important;line-height:1;}
+#endBtn.show{display:inline-flex !important;align-items:center;}
+.end-screen .end-mascot{position:static !important;transform:none !important;}
+/* ===== [dun-chrome] end ===== */

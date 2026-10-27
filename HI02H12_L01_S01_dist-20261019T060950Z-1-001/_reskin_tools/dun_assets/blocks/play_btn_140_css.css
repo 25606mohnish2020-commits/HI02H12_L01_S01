@@ -1,0 +1,10 @@
+/* [PLAY-BTN-140] (2026-10-08, user request) TITLE PAGE: the play button is 140x140 (was 116x116) at the SAME spot - centred, its
+   centre 72 px above the card's bottom edge, exactly where [STD-PLAY-DISC] put it (bottom:14 + 116/2 = 72; now bottom:2 + 140/2
+   = 72). The art is the same two files (btn-play.svg / btn-play-waiting.svg, the 116-unit canvas: disc + shadow margin) drawn at
+   140, so the disc inside grows with the box (~88 -> ~106 px on screen at scale 1) and the shadow margin with it; both states
+   (waiting grey, ready gold), the pop-in, the breathing, the tap and the aria-label are untouched - only the box, its bottom
+   offset and the art's drawn size changed. The two rules below beat [LANDING-PLAY-BTN]'s (same selectors, same !important,
+   later in the file). */
+.start-gate .sg-btn,.start-gate .sg-btn.ready{
+  width:140px !important;min-width:140px !important;max-width:140px !important;height:140px !important;bottom:2px !important;
+  background-size:140px 140px !important;}

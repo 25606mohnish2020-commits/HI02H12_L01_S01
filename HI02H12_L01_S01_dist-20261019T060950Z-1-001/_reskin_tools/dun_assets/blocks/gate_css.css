@@ -1,0 +1,26 @@
+/* [GATE-REF-ANIM] (2026-10-08, user request) the three transition screens (the phase gates: start -> page 1, page 3 -> page 4 "चलिए, साथ
+   में करें!", page 11 -> page 12 "अब आपकी बारी!") carry the text and bird animation of the reference lesson
+   hindi-game-gender-identify.vercel.app (HI02H11_L03_S02), measured live in Chrome at 1333x750 and ported value for value:
+   - THE BIRD: the reference's own gate art, assets/UI/peeking_talk_up.webp (its peeking_talk_up.webp, byte-identical: 900x900, 61
+     frames, the standard Swiftee transition animation cut from the frame where he is already up, so he is at the top and talking
+     from his first frame), bottom-anchored and centred, square, 52.8% of the screen height (396px at 750px; never over 624px or
+     wider than 92% of the screen - the reference's [H11-181]/[H11-205] rule, svh where the browser has it), lifted in over 0.3 s
+     from 28% below (pgUpIn, [H11-154]). On the FIRST gate only (start -> page 1, .pg-talk there as in the reference) he sinks back
+     down over 0.34 s (pgPeekDown, [H11-115]) before the screen clears; the other two gates clear at once, as there.
+   - THE TEXT: the headline WRITES ITSELF LEFT TO RIGHT over 0.9 s (pgWipe: a clip-path wipe from its first letter to its last,
+     [H11-191]) at the moment the voice says those words ([H11-145]; GATE_CAPTION_AT_MS in the script below, measured off this
+     file's own recordings), in front of the bird (z-index, [H11-210]). Its look is unchanged (96px #CD0FD5, 10px white stroke,
+     271px from the top: the metrics both lessons share).
+   The replaced beat ([GATE-STD-ANIM]: the small bird rising inside swiftee_transition.webp for 1.2 s, the headline switched on
+   with the first beak move) is superseded by <script id="GATE-REF-ANIM-JS"> below; the scrim, the blur, the lines, the titles
+   and the 4 s minimum hold are this file's as before. */
+.phase-gate.pg-ref #phaseGateImg{height:min(52.8vh,624px,92vw) !important;width:min(52.8vh,624px,92vw) !important;object-fit:contain !important;z-index:1;}
+@supports (height: 1svh){ .phase-gate.pg-ref #phaseGateImg{height:min(52.8svh,624px,92vw) !important;width:min(52.8svh,624px,92vw) !important;} }
+.phase-gate.pg-ref .pg-title,.phase-gate.pg-ref #phaseGateTitle{z-index:3 !important;}
+.phase-gate.pg-ref.pg-up #phaseGateImg{animation:pgUpIn .3s ease-out both !important;}
+@keyframes pgUpIn{from{transform:translate(-50%,28%);}to{transform:translate(-50%,0);}}
+.phase-gate.pg-ref.pg-talk.pg-sink #phaseGateImg{animation:pgPeekDown .34s ease-in both !important;}
+@keyframes pgPeekDown{from{transform:translate(-50%,0);}to{transform:translate(-50%,100%);}}
+.phase-gate.pg-ref .pg-title.pg-pop,.phase-gate.pg-ref #phaseGateTitle.pg-pop{animation:pgWipe .9s cubic-bezier(.25,.6,.3,1) both;}
+@keyframes pgWipe{from{clip-path:inset(-24px 100% -24px -24px);}to{clip-path:inset(-24px -24px -24px -24px);}}
+html.no-anim .phase-gate.pg-ref #phaseGateImg,html.no-anim .phase-gate.pg-ref .pg-title.pg-pop,html.no-anim .phase-gate.pg-ref #phaseGateTitle.pg-pop{animation:none !important;}

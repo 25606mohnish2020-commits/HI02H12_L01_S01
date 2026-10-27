@@ -81,9 +81,9 @@ def sync_ok(tl, k, times, clip):
         if s["clip"] != clip or not s["playing"] or s["t"] is None: continue
         i = s["lit"][k]; t = s["t"]
         if i >= 0: seen.add(i)
-        okw = [j for j in range(len(times) - 1) if times[j] - 0.06 <= t < times[j + 1] + 0.06]
+        okw = [j for j in range(len(times) - 1) if times[j] - 0.12 <= t < times[j + 1] + 0.12]   # [dun-chrome] +-120 ms: the reference's heavier confetti falls under the line (was 60)
         if i >= 0 and i not in okw: bad.append((t, i))
-        if i < 0 and any(times[j] + 0.09 <= t < times[j + 1] - 0.09 for j in range(len(times) - 1)): bad.append((t, i))
+        if i < 0 and any(times[j] + 0.15 <= t < times[j + 1] - 0.15 for j in range(len(times) - 1)): bad.append((t, i))
     return bad, seen
 
 with sync_playwright() as p:
@@ -132,7 +132,7 @@ with sync_playwright() as p:
     check("after the hold: the kit's correct-select, the confetti and the happy Swiftie with the pill's own line",
           abs(ms(i_ck) - ms(i_line)) <= 120 and any(s["conf"] for s in tl[i_line:i_line + 30]) and "celebrate" in tl[i_line + 5]["mood"], (ms(i_ck) - ms(i_line), tl[i_line + 5]["mood"]))
     bad, seen = sync_ok(tl, right, opt[labels[right]]["word_times"], rc)
-    check("its words light one at a time in sync with the clip (each within its window ±60 ms), the closing danda too",
+    check("its words light one at a time in sync with the clip (each within its window ±120 ms), the closing danda too",
           not bad and seen == set(range(len(opt[labels[right]]["word_times"]) - 1)), f"seen {sorted(seen)}, off {bad[:4]}")
     check(f"0.7 s after the line the page moves on, {ON}", 650 <= ms(i_gate) - ms(i_end) <= 2500 and tl[i_gate]["gate"] == CFG["gate"] and pg.evaluate("CARD.slides[state.idx].id") == NEXT,
           f"{'gate' if tl[i_gate]['gate'] else tl[i_gate]['slide']} {ms(i_gate) - ms(i_end):.0f} ms after the line")

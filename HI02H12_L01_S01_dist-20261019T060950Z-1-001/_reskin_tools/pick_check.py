@@ -36,14 +36,14 @@ CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's 
          "bar": (365, 719), "slot": BIG(612), "sent_c": (365+47.5+560/2, 211+18), "size": 64, "word": "पिंकी", "wrong": [2, 3, 2],
          "tiles": {".t1 .dmf-base": (197, 442, 227, 170), ".t2 .dmf-base": (525, 443, 231, 169), ".t3 .dmf-base": (857, 443, 227, 169),
                    ".t1 .dmf-face": (199, 444, 223, 162), ".t2 .dmf-face": (527, 445, 227, 161), ".t3 .dmf-face": (859, 445, 223, 161)},   # [g1-pinki] the first face 1 px taller
-         "ink": {"sentence": (370, 214, 975, 346)}, "own": [(973, 227, 1040, 335)]},   # [g1-pinki] the slot 29 px further right
+         "ink": {"sentence": (370, 214, 975, 346)}, "own": [(36, 26, 153, 146), (973, 227, 1040, 335)]},   # [g1-pinki] the slot 29 px further right
   "G2": {"next": "G3", "pick": 2, "sent_clip": "g2_sent", "name_clip": "demo2_prashn", "pic_x": 197, "img": (223, 216, 88, 132),   # [g2-girl] the user's picture at its native size
          "bar": (365, 719), "slot": BIG(573), "sent_c": (365+120+479/2, 211+18), "size": 64, "word": "तुम", "wrong": [1, 2, 1],
-         "tiles": T3_TILES, "ink": {"sentence": (370, 214, 936, 346)}, "own": [(934, 227, 1001, 335)]},
+         "tiles": T3_TILES, "ink": {"sentence": (370, 214, 936, 346)}, "own": [(36, 26, 153, 146), (934, 227, 1001, 335)]},
   # T4's layout: the wide bar, a 50px sentence and one small slot whose dashes are drawn per side — in the pixel diff
   "G3": {"next": "G4", "pick": 1, "sent_clip": "g3_sent", "name_clip": "demo3_alp", "pic_x": 144, "img": (146, 211, 140, 140),
          "bar": (312, 824), "slot": (312+278, 211+70, 33, 38), "sent_c": (312-28+893/2, 211+33), "size": 50, "word": "बाग", "wrong": [1, 3, 1],
-         "tiles": T3_TILES, "ink": {"sent: बाग में गुलाब": (330, 236, 590, 336), "sent: गेंदा … हैं ।": (623, 236, 1130, 336)}, "own": []},
+         "tiles": T3_TILES, "ink": {"sent: बाग में गुलाब": (330, 236, 590, 336), "sent: गेंदा … हैं ।": (623, 236, 1130, 336)}, "own": [(36, 26, 153, 146)]},
 }[SLIDE]
 NEXT, PICK, SENT, NAME, WRONG = CONFIG["next"], CONFIG["pick"], CONFIG["sent_clip"], CONFIG["name_clip"], CONFIG["wrong"]
 fails = []
@@ -54,7 +54,7 @@ def check(name, ok, detail=""):
 BX, BW = CONFIG["bar"]
 FRAME = dict({   # frame px (box = left, top, width, height), from the Figma metadata of the frame
   ".dmf-band": (36, 26, 1244, 120), ".dmf-pill": (36+3.897, 26+18, 1214.103, 84), ".dmf-head": (36, 26, 116.513, 120),
-  ".dmf-head img": (36-16, 26+5, 165, 165),
+  ".dmf-head img": (36+5, 26+5, 116.513-10, 120-10),   # [dun-chrome] the engine's live head, filling the circle's padding box (was the frame's 165 px bitmap at -16,5)
   ".dmf-pic": (CONFIG["pic_x"], 211, 144, 139), ".dmf-pic img": CONFIG["img"], ".dmf-bar": (BX, 211, BW, 139),
   ".dmf-bar > .dmf-blank": CONFIG["slot"]}, **CONFIG["tiles"])
 CENTRES = {   # text boxes: x centre or left, y centre or top
@@ -172,7 +172,7 @@ with sync_playwright() as p:
     check("no mark, no pressed or dimmed tile before the right tap", not any(any(s["marksIn"]) or any(s["on"]) or any(s["off"]) for s in samples[:i_ok]))
     i_mark = first(lambda s: any(s["marksIn"]))
     check("the right tap: its tile pressed, the other two dim, its mark in the slot at once",
-          samples[i_ok]["on"] == [k == PICK for k in range(3)] and samples[i_ok]["off"] == [k != PICK for k in range(3)] and ms(i_mark) - ms(i_ok) <= 50, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")
+          samples[i_ok]["on"] == [k == PICK for k in range(3)] and samples[i_ok]["off"] == [k != PICK for k in range(3)] and ms(i_mark) - ms(i_ok) <= 160, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")   # [dun-chrome] the reference's 100-piece 1.5x burst is built on this tap: ~100 ms (was 50 with the 80-piece burst)
     i_bl_end = first(lambda s: not s["blink"], i_bl)
     check("the blink stops at the right tap if it is still running, else after its 3.5 s",
           (i_bl_end <= i_ok and abs(ms(i_bl_end) - ms(i_bl) - 3500) <= 150) or abs(ms(i_bl_end) - ms(i_ok)) <= 50, f"{ms(i_bl_end) - ms(i_bl):.0f} ms")

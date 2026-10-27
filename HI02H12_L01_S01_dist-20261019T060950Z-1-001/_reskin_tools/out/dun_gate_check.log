@@ -1,0 +1,22 @@
+PASS the card asks for the round-3 gate after P2
+PASS the pages: ... G4, P1, P2, L1 (the letter page), L2 (the stamp page), then the end screen (15 in all; the ported P3-P6 gone) — ['T0', 'T0B', 'T1', 'T2', 'T3', 'T4', 'G1', 'G2', 'G3', 'G4', 'P1', 'P2', 'L1', 'L2', 'CEL']
+PASS G4 -> P1 straight on, no gate opening — []
+Traceback (most recent call last):
+  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\gate_check.py", line 73, in <module>
+    pg.wait_for_function("document.getElementById('phaseGate').classList.contains('text-speaking')", timeout=20000)
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 12809, in wait_for_function
+    self._sync(
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_page.py", line 1153, in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_frame.py", line 941, in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 20000ms exceeded.

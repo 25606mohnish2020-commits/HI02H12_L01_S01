@@ -1,0 +1,33 @@
+C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\title_check.py:71: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  vals = [d for d, m in zip(diff.getdata(), mask.getdata()) if m]
+PASS with autoplay blocked the welcome has not played: the play button is NOT on the page yet, the chip is off
+== geometry (rendered vs frame, px) ==
+  OK  .sg-fig .sg-card     got [76.1, 125.0, 1113.7, 455.9]  frame [76, 125, 1114, 456]  max|d|=0.28
+  OK  .sgf-scene           got [76.1, -33.0, 1113.7, 626.8]  frame [76, -33, 1114, 627]  max|d|=0.28
+  OK  .sgf-question        got [925.9, 280.9, 138.0, 206.9]  frame [926, 281, 138, 207]  max|d|=0.08
+  OK  .sgf-title           got [336.7, 146.0, 593.7, 110.0]  frame [336.58, 146.02, 593.83, 109.99]  max|d|=0.15
+  OK  .sgf-purn            got [182.1, 272.9, 219.4, 219.4]  frame [182, 273, 219.47, 219.47]  max|d|=0.11
+  OK  .sgf-comma           got [587.0, 303.9, 95.0, 143.0]  frame [587, 304, 95, 143]  max|d|=0.08
+  OK  .sgf-shadow.s1       got [226.1, 436.9, 132.0, 69.0]  frame [226, 437, 132, 69]  max|d|=0.11
+  OK  .sgf-shadow.s2       got [558.0, 403.9, 142.0, 64.0]  frame [558, 404, 142, 64]  max|d|=0.10
+  OK  .sgf-shadow.s3       got [941.9, 439.9, 115.0, 69.0]  frame [942, 440, 115, 69]  max|d|=0.11
+  OK  #sgMascot            got [53.1, 396.2, 199.7, 196.1]  frame [52.95, 396.36, 199.73, 196.16]  max|d|=0.14
+  OK  #sgBtn               got [565.8, 444.5, 134.4, 134.4]  frame [565.78, 444.65, 134.43, 134.43]  max|d|=0.10
+  OK  #sgVo                got [155.8, 525.2, 67.2, 67.2]  frame [155.7, 525.31, 67.22, 67.22]  max|d|=0.14
+PASS every element within 1 px of its place (the frame's art; the reference's bird, play button and chip) — worst 0.28 px
+== pixel diff vs Figma render, inside the card (the controls masked) ==
+  mean |diff| 1.90 / 255   pixels off by >40: 3770 of 456443 (0.83%)
+PASS the card is the frame's (inside it, under 1 % of pixels off by more than 40 levels)
+PASS no page errors, no failed requests — ([], [])
+PASS the welcome plays by itself once the loader fades — 2787
+PASS while the welcome plays the play button is absent and the chip is off — 53
+PASS once the welcome has ended the play button is in (.ready) and the chip is live — 9578
+PASS the play button then breathes (.sg-breathe, sgBtnPulse) — 82
+PASS the bird is the reference's wave file, in place from the loader's fade — {'', 'new_landing_swiftee_anim.webp'}
+PASS the sky is on: the kit's 87 drifting stars and the breathing glow — [87, 'sgBreathe']
+PASS a tapped star pops (the kit's sky-burst) — [440.28533935546875, 41.435333251953125]
+PASS a tap on the chip replays the welcome; the play button stays in — ('vo_landing.ogg', True)
+PASS a tap on the bird replays the welcome — vo_landing.ogg
+PASS no page errors — []
+
+ALL PASS

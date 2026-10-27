@@ -1,0 +1,46 @@
+/* [NAV-NEXT-BTN] (2026-09-24) pages 2-14: the आगे pill (#navBtn) is drawn by the user's next-button art instead of its text, in the
+   SAME box at the SAME spot on every page (the button's own box is untouched: 170x62 at bottom 128 on the story pages, 190x62 at
+   bottom 20 on the question pages, 190x62 at bottom 80 on the train pages - so the आगे hand nudge, placed from that box, is
+   untouched too). Two states, one box:
+   - not .active: the DISABLED art (btn-next-disabled: grey #EDEDED pill, grey arrow) is VISIBLE wherever the text pill was not - it
+     replaces the old opacity:0 / visibility:hidden of the inactive pill AND the display:none the pick pages (mountTapOptions) and
+     the train pages (before their last match) set inline - with no functionality: pointer-events:none and the disabled attribute
+     as before;
+   - .active (setNavActive(true): the moment आगे used to fade in): the ENABLED art (btn-next: yellow #FCB717 pill, navy arrow) fades in
+     over the disabled one in the same .3 s, and the tap does exactly what it did (the slide's onclick).
+   The art is two layers on two pseudo-elements (::before = disabled, ::after = enabled; the old "→" content of ::after is gone):
+   the PILL (btn-next(-disabled)-pill.svg, preserveAspectRatio none) drawn at 100% x 100% of a canvas = the button's border box +
+   the art's 14 px shadow margin all round (insets -17 px: 14 + the 3 px border, since insets count from the padding box), so the
+   pill fills the box exactly whether it is 170 or 190 wide, and the ARROW (btn-next(-disabled)-arrow.svg) at its own 40x28 size
+   centred, never stretched. The user's originals (btn-next.svg / btn-next-disabled.svg) are kept beside them unused. The pill's own
+   fill, border colour, box-shadows and text are switched off (the art has its own shadow; the text is the accessible name only).
+   The end screen keeps the button away exactly as before (body.is-end #navBtn{display:none}), and so does the title screen
+   (body.is-start: its start gate is transparent, so the stage would show through); the train pages 13-14 show no disabled art
+   either - see the last two rules. */
+#navBtn{display:flex !important;background:transparent !important;border-color:transparent !important;box-shadow:none !important;
+  color:transparent !important;font-size:0 !important;opacity:1 !important;visibility:visible !important;overflow:visible !important;}
+#navBtn:not(.active){box-shadow:none !important;pointer-events:none !important;cursor:default !important;}
+#navBtn::before,#navBtn::after{content:"" !important;position:absolute;left:-17px;right:-17px;top:-17px;bottom:-17px;pointer-events:none;font-size:0;
+  background-repeat:no-repeat,no-repeat;background-position:center,center;background-size:40px 28px,100% 100%;transition:opacity .3s ease;}
+#navBtn::before{background-image:url("assets/UI/btn-next-disabled-arrow.svg"),url("assets/UI/btn-next-disabled-pill.svg");opacity:1;}
+#navBtn::after{background-image:url("assets/UI/btn-next-arrow.svg"),url("assets/UI/btn-next-pill.svg");opacity:0;}
+#navBtn.active::after{opacity:1;}
+#navBtn.active::before{opacity:0;}
+body.is-end #navBtn{display:none !important;}
+/* Page 1 (2026-09-24, bak107): the title screen's start gate is TRANSPARENT there (body.is-start .start-gate{background:transparent};
+   the body carries the sky), so the stage behind it shows through - the disabled art, visible since display:flex above, appeared
+   under the landing card. The landing has no आगे at all, so the button stays out of the page while body.is-start (dropped once the
+   tutorial has mounted, so page 2 gets it back); pages 2-14 are unchanged. */
+body.is-start #navBtn{display:none !important;}
+/* Pages 13-14 (2026-09-24, bak109, [TRAIN-NAV-AFTER-DEPART]): the train pages (slide.ref_frame -> .stage.ref-frame) show NO disabled
+   art. The BLANK_PANEL module hides the button inline (style.display none) from mount until the train has left the panel and only
+   then shows + activates it (showNav at the end of the refTrainOut run, fallback 6.3 s) - the display:flex above had overridden
+   that inline none. So here the button stays out of the page while it is not .active, and the enabled art appears in the same
+   190x62 box at bottom 80 the moment the module activates it, exactly where the disabled art stood. Pages 2-12 are unchanged. */
+.stage.ref-frame #navBtn:not(.active){display:none !important;}
+/* [P5-NO-NAV] (2026-10-01) page 5 (G1 = ?slide=3; card slide.hide_nav -> .stage.no-nav, set in mountSlide like hide_header_chip): the
+   disabled आगे art at the bottom of the page is removed on this page - the pick page advances by itself on the correct tap and
+   never activates the button, so nothing is lost; the button's box, wiring and every other page are untouched. Later that day, on
+   request, the other seven pick pages (pages 6-12 = G2, G3, G4, P1, P2, P3, P4 = ?slide=4..10) carry the same card flag, so no pick
+   page shows the disabled art any more; the story pages 2-4 and the train pages 13-14 are as they were. */
+.stage.no-nav #navBtn{display:none !important;}

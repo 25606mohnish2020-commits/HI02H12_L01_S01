@@ -1,0 +1,13 @@
+/* ===== PHASE GATE: PLAIN BLUE FIELD, NO STARS ==============================================
+   The landing's sunburst art (assets/UI/start_bg.webp) carries scattered white stars and sparkles.
+   It is painted on <body> itself, and the gate's backdrop-filter only reaches the stage inside it,
+   so while the gate was up those stars stayed SHARP behind the blurred card — busy, and unlike the
+   rest of the fleet, where a gate reads as a quiet blue field.
+   Drop the bitmap for the duration of the gate and keep the flat #7FC8F4 the art already sits on.
+   Landing itself is untouched: the sunburst and its stars return the instant the gate closes,
+   because these rules are keyed on body.gating, which PHASEGATE-WIRE adds and removes. */
+body.gating.is-start,
+body.gating .start-gate{
+  background-image:none !important;
+  background-color:#7FC8F4 !important;
+}

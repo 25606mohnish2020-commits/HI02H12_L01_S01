@@ -1,0 +1,27 @@
+/* [LANDING-PLAY-BTN] (2026-09-24) Page 1: the शुरू करें pill is drawn by the user's play-button art instead of its text - the SAME
+   186x64 pill (the SVG's rounded rect 181.46x59.46 + its 4.54 white stroke = 186.0x64.0, the measured reference pill) at the
+   SAME spot (centred; its bottom edge 40 px above the card's bottom, as before). The 214x92 SVG canvas carries a 14 px shadow
+   margin all round, so the button box is 214x92 with bottom:26px and the pill inside lands exactly where the text pill sat.
+   Two states, one box:
+   - not yet .ready (welcome VO + bird cue not finished): the WAITING art (assets/UI/btn-play-waiting.svg: grey pill, grey
+     triangle) shows from the first frame - it replaces the display:none of LANDING-START-AFTER-VO - and takes no tap
+     (pointer-events:none: a tap falls through to the landing, exactly as a tap where the absent pill used to be did);
+   - .ready (revealStart: the moment the text pill used to pop in): the ENABLED art (assets/UI/btn-play.svg: yellow pill, navy
+     triangle) with the same pop-in (sgBtnReveal), the same breathing (.sg-breathe -> sgBtnPulse), the same hold while the bird
+     pulses (.sg-bird-cue) and the same onclick (the tutorial gate). The label text stays in the DOM for its aria-label only
+     (font-size 0). The reference pill's fill, border, radius and box-shadows are switched off: the art has its own shadow, and a
+     box-shadow would draw a rectangle around the transparent canvas.
+   [STD-PLAY-DISC] (2026-10-03, user request): the pill art is replaced by the user's STANDARD play button - a round disc - in the
+   SAME two files (overwritten: btn-play.svg = gold disc + navy triangle, btn-play-waiting.svg = grey disc + grey triangle) at the
+   SAME position. The pill's centre sat 72 px above the card's bottom (bottom:26 + half of the 92 canvas); the new 116x116 canvas
+   (an 86 px disc centred in it, 14 px shadow margin all round, drawn at its own size) sits at bottom:14 so its centre lands on
+   that same point (14 + 58 = 72), centred horizontally as before. Both states, their timing, the tap and the aria-label are
+   untouched; only the box (116x116, was 214x92), its bottom offset and the background-size changed. */
+.start-gate .sg-btn,.start-gate .sg-btn.ready{
+  width:116px !important;min-width:116px !important;max-width:116px !important;height:116px !important;bottom:14px !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;
+  background:transparent url("assets/UI/btn-play.svg") center / 116px 116px no-repeat !important;
+  font-size:0 !important;line-height:0 !important;color:transparent !important;overflow:visible !important;}
+.start-gate .sg-btn:not(.ready){display:inline-flex !important;background-image:url("assets/UI/btn-play-waiting.svg") !important;
+  pointer-events:none !important;cursor:default !important;opacity:1 !important;filter:none !important;animation:none !important;}
+.start-gate .sg-btn:not(.locked):active{box-shadow:none !important;}

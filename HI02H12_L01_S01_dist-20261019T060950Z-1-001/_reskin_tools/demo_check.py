@@ -28,17 +28,17 @@ SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T2"
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box
-         "sent": (96.5, 18, 479, 64), "slots": BIG, "word": "पिंकी", "own": [(944, 227, 1011, 335)],   # [demo1-pinki] the text box 3.5 px further left on 656:2
+         "sent": (96.5, 18, 479, 64), "slots": BIG, "word": "पिंकी", "own": [(36, 26, 153, 146), (944, 227, 1011, 335)],   # [demo1-pinki] the text box 3.5 px further left on 656:2
          "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
          "next": "T3", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the second demo (PUNCT_DEMO)"},
   "T3": {"page": "demo2", "mark_clip": "prashn", "pick": 2, "pic_x": 197, "img": (223, 214, 90, 135), "bar": (365, 719),   # [demo2-girl] the user's picture at its native size
-         "sent": (120, 18, 479, 64), "slots": BIG, "word": "तुम्हारा", "own": [(944, 227, 1011, 335)],
+         "sent": (120, 18, 479, 64), "slots": BIG, "word": "तुम्हारा", "own": [(36, 26, 153, 146), (944, 227, 1011, 335)],
          "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
          "next": "T4", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the third demo (PUNCT_DEMO)"},
   "T4": {"page": "demo3", "mark_clip": "alp", "pick": 1, "pic_x": 144, "img": (144, 229, 144, 96), "bar": (312, 824),
-         "sent": (-34, 33, 893, 50), "slots": [(286, 76, 33, 38), (417, 76, 33, 38)], "word": "मेरे", "own": [],
+         "sent": (-34, 33, 893, 50), "slots": [(286, 76, 33, 38), (417, 76, 33, 38)], "word": "मेरे", "own": [(36, 26, 153, 146)],
          # the sentence's ink in three parts — before, between and after the slots — so each word run is placed
          "ink": {"sent: मेरे पास आम": (330, 232, 614, 330), "sent: केला": (614, 232, 745, 330), "sent: सेब … है ।": (745, 232, 1125, 330)},
          "content": (130, 20, 1280, 620),
@@ -55,7 +55,7 @@ AS_T0 = {".tut-card.sfig-card": (0, 0, 1333, 750)}
 BX, BW = CONFIG["bar"]
 FRAME = {   # frame px (box = left, top, width, height), from the Figma metadata of the frame
   ".dmf-band": (36, 26, 1244, 120), ".dmf-pill": (36+3.897, 26+18, 1214.103, 84), ".dmf-head": (36, 26, 116.513, 120),
-  ".dmf-head img": (36-16, 26+5, 165, 165),
+  ".dmf-head img": (36+5, 26+5, 116.513-10, 120-10),   # [dun-chrome] the engine's live head, filling the circle's padding box (was the frame's 165 px bitmap at -16,5)
   ".dmf-pic": (CONFIG["pic_x"], 211, 144, 139), ".dmf-pic img": CONFIG["img"], ".dmf-bar": (BX, 211, BW, 139),
   ".t1 .dmf-base": (197, 443, 227, 169), ".t2 .dmf-base": (527, 443, 227, 169), ".t3 .dmf-base": (857, 443, 227, 169),
   ".t1 .dmf-face": (199, 445, 223, 161), ".t2 .dmf-face": (529, 445, 223, 161), ".t3 .dmf-face": (859, 445, 223, 161),

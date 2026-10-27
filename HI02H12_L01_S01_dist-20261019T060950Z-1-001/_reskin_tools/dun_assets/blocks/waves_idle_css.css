@@ -1,0 +1,9 @@
+/* WAVE-ALWAYS blinked the two speaker arcs continuously — idle as well as playing — and both
+   wv keyframes start at opacity:0, so at rest one bar was always part-way through fading out.
+   At rest BOTH arcs are now solid; the blink is kept for actual playback only. */
+#audioChip:not(.playing) .wv,
+.audio-chip:not(.playing) .wv,
+#sgVo:not(.playing) .wv,
+.sg-vo:not(.playing) .wv,
+.tut-audio:not(.playing) .wv,
+.sp-vo:not(.playing) .wv{animation:none !important;opacity:1 !important;}

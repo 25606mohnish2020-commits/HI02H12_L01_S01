@@ -1,0 +1,28 @@
+/* [FEET-SPEAKER] (2026-10-08, user request) the reference lesson's speaker chip (hindi-game-gender-identify.vercel.app) at the
+   standing bird's feet on the TITLE PAGE and on the tutorial pages 1-3 (T1-T3), with the reference's VO sync; the header chip of
+   [HDR-SPEAKER] is the same chip at the title-bar bird. Measured on the reference in Chrome at 1333x750:
+   - TITLE PAGE: its #sgVo, 70x70, left:83px / bottom:-12px in the start card (the bird is left:-24px / bottom:-12px, 208px wide,
+     here as there), i.e. over the bird's right leg with its bottom edge on the bird's; the chip at (192.5, 545) on screen there and
+     here alike. This file's own #sgVo (hidden since "no speaker chip beside the landing mascot", <style> at .start-gate .sg-vo
+     {display:none}) is shown again at that spot, its mic glyph swapped for the reference's speaker (the line marked [FEET-SPEAKER]).
+     Grey (grayscale(1) brightness(1.2), opacity .5) and untappable until the welcome has been heard (the reference's .sg-vo-off:
+     set with the play button's readiness - here #sgBtn.ready, mirrored by the script) and while any line speaks (body.vo-playing);
+     the wave arcs blink while a line speaks, as on every chip. A tap replays the welcome (the bird's own tap, replayWelcome).
+   - T1-T3: the reference's tutorial-card chip (.tut-audio there), 58x58, left:92px / bottom:-16px in the card (the card is
+     1133x562 at (100, 96) in both lessons; its bird left:-34px / bottom:-14px): at (202, 606) on screen, over the bird's right
+     leg. This file's own card chip was moved beside the sentence pill long ago and is the MIC chip of the read-aloud beat
+     ([P2-READ-ALOUD] etc.), so it is left exactly as it is; a NEW chip, .tut-spk, is added at the reference's spot on each
+     tutorial mount (the script below), with the reference's glyph. Grey and untappable while a line speaks, arcs blinking; a tap
+     replays the page's narration (the engine's state.replayAudio, what the card chip replayed before it became the mic).
+   Everything else on these pages is untouched: the welcome and its once-only play, the bird tap, the play button, the mic chip,
+   the read-aloud beat, the picture pops and the आगे rules. */
+.start-gate .sg-vo{display:block !important;left:83px !important;bottom:-12px !important;width:70px !important;height:70px !important;}
+.start-gate .sg-vo.sg-vo-off,body.vo-playing .start-gate .sg-vo{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;}
+.tut-card .tut-spk{position:absolute;left:92px;bottom:-16px;width:58px;height:58px;z-index:4;cursor:pointer;display:block;}
+.tut-card .tut-spk svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 3px 6px rgba(0,0,0,.22));}
+.tut-card .tut-spk svg > g[filter]{filter:none;}   /* the CSS drop-shadow supplies it; the in-SVG region would clip the ring's bottom */
+.tut-card .tut-spk .wv{opacity:1;}
+body.vo-playing .tut-card .tut-spk{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;}
+body.vo-playing .tut-card .tut-spk .wv1{animation:wv1 1.2s steps(1) infinite;}
+body.vo-playing .tut-card .tut-spk .wv2{animation:wv2 1.2s steps(1) infinite;}
+.tut-card .tut-spk:active{transform:scale(.94);}

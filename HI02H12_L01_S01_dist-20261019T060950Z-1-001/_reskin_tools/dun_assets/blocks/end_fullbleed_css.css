@@ -1,0 +1,13 @@
+/* CELEBRATION FULL-BLEED (Bandar port): .end-screen was position:absolute INSIDE #stage, so
+   its sunburst stopped at the letterboxed stage box and the body colour showed as strips.
+   Reparented to <body> and viewport-fixed so it fills the whole screen. */
+body > .end-screen{position:fixed !important;inset:0 !important;width:100vw !important;
+  height:100dvh !important;z-index:99000 !important;}
+body.is-end{background:#FDE9A8 !important;}
+body.is-end .stage{background:transparent !important;}
+body.is-end .stage-inner{visibility:hidden;}
+/* the bird+button used to render inside the transform-scaled stage (330px * --scale); the
+   fixed full-bleed screen is unscaled, so compensate to keep the exact same on-screen size */
+body.is-end .end-mascot{width:calc(330px * var(--scale,1)) !important;}
+body.is-end .end-btn{font-size:calc(28px * var(--scale,1)) !important;
+  padding:calc(14px * var(--scale,1)) calc(44px * var(--scale,1)) !important;}

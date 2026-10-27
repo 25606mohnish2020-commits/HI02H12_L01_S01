@@ -13,27 +13,32 @@ def check(name, ok, detail=""):
 # the round gate, sampled every frame in the page: open?, title revealed?, its text, the peeking Swiftie shown?, the clip
 GATE_LOG = """() => { window._gate = []; let last = ''; const step = () => {
   const g = document.getElementById('phaseGate'), img = document.getElementById('phaseGateImg'), a = currentAudio;
-  const r = { slide: CARD.slides[state.idx].id, show: g.classList.contains('show'), speaking: g.classList.contains('text-speaking'),
-    title: document.getElementById('phaseGateTitle').textContent, peek: img.style.visibility !== 'hidden',
+  const r = { slide: CARD.slides[state.idx].id, show: g.classList.contains('show'), speaking: g.classList.contains('pg-say'),
+    title: document.getElementById('phaseGateTitle').textContent, peek: g.classList.contains('pg-up'),
     clip: a ? a.src.split('/').pop().split('?')[0] : null, playing: isPlaying };
   const k = JSON.stringify(r); if (k !== last) { last = k; r.ms = performance.now(); window._gate.push(r); }
   requestAnimationFrame(step); }; requestAnimationFrame(step); }"""
 def gate_after(log, frm, to, title, clip, opens_expected):
-    """a round gate as the child sees it: it opens on frm's end (the gate's openings so far must be exactly opens_expected,
-    in order); the peeking Swiftie first (silent), then the title as the clip sounds; `to` only once that VO has ended
-    (the gate gone)"""
+    """[dun-chrome] the gate as the child sees it (GATE-REF-ANIM): it opens on frm's end (the openings so far are exactly
+    opens_expected, in order); the bird is up and the clip sounds AT ONCE; the headline is written in when the clip says its
+    words (GATE_CAPTION_AT_MS, read off this lesson's clips: 2850 / 3540 / 210 ms into tutorial / guided / practice); `to` only
+    once the clip has ended and the 4 s hold has run (the gate gone)"""
+    CAPTION = { "vo_pt_tutorial.ogg": 2850, "vo_pt_guided.ogg": 3540, "vo_pt_practice.ogg": 210 }
     opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
     if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
     o = opens[-1]
     nxt = next((i for i, r in enumerate(log) if i > o and r["slide"] == to), None)
     if nxt is None: return False, "no " + to
     gate = log[o:nxt]
-    peek = next((r for r in gate if r["peek"] and not r["speaking"]), None)
-    vo = next((r for r in gate if r["speaking"] and r["clip"] == clip and r["playing"]), None)
+    peek = next((r for r in gate if r["peek"]), None)
+    vo = next((r for r in gate if r["clip"] == clip and r["playing"]), None)
+    said = next((r for r in gate if r["speaking"] and r["title"] == title), None)
     ended = any(r["clip"] == clip and not r["playing"] for r in gate)
-    ok = bool(peek and vo and ended and vo["title"] == title and vo["ms"] - peek["ms"] > 3000
-              and all(r["slide"] == frm and r["show"] for r in gate) and not log[nxt]["show"])
-    return ok, f"peek {round(peek['ms'] - log[o]['ms']) if peek else None} ms, VO + title {round(vo['ms'] - log[o]['ms']) if vo else None} ms after it opened, {to} {round(log[nxt]['ms'] - log[o]['ms'])} ms"
+    cue = CAPTION.get(clip, 0)
+    ok = bool(peek and vo and said and ended and vo["ms"] - log[o]["ms"] < 600 and abs(said["ms"] - vo["ms"] - cue) < 450
+              and log[nxt]["ms"] - log[o]["ms"] >= 3900 and all(r["slide"] == frm and r["show"] for r in gate) and not log[nxt]["show"])
+    return ok, (f"bird up {round(peek['ms'] - log[o]['ms']) if peek else None} ms, the clip {round(vo['ms'] - log[o]['ms']) if vo else None} ms after it opened, "
+                f"the headline {round(said['ms'] - vo['ms']) if (said and vo) else None} ms into it (cue {cue}), {to} {round(log[nxt]['ms'] - log[o]['ms'])} ms")
 def gate_after_t4(log):
     """the T4 -> G1 gate: the only opening so far; "चलिए, साथ में करें!" with vo_pt_guided"""
     return gate_after(log, "T4", "G1", "चलिए, साथ में करें!", "vo_pt_guided.ogg", ["T4"])

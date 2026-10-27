@@ -1,0 +1,23 @@
+/* [CEL-SWIFTIE] (2026-10-08, user request) Page 15 (the celebration screen) carries the celebration screen of MTG2A04_L01_S01
+   (github.com/CodeWithPiyush0/MTG204_L01_S01, its rounds 2m-2r), ported value for value: the stock celebrating mascot
+   (sw_lg_celebrating_anim.webp) is hidden and in its place stands the team's three-sheet Swiftie - assets/UI/cel_shabaash.webp,
+   cel_talk.webp, cel_idle.webp (that repo's celebration_kit sheets, byte-identical; 6x6 frames of 329x440, size-matched and
+   feet-aligned) - driven frame by frame by <script id="CEL-SWIFTIE-JS">: she jumps first (silent but for the page's celebration
+   sound), lands with her beak shut, THEN this lesson's own celebration line (vo_well_done) starts and her beak opens on each of
+   its syllables (CARD.end_anim.bits: one character per 25 ms of the clip, measured from it by the kit's make_lipsync.py), and
+   once the line is over she idles on the idle sheet's mouth-shut frames. The LAYOUT box is 300x358 (x --scale, as the mascot it
+   replaces is 330px x --scale on this unscaled full-bleed screen), so the finish button below keeps its place 22 px under it;
+   the art inside is 420 px tall (x --scale), anchored at the bottom, the jump's head-room rising above the box. The finish
+   button waits (dim, not pressable) while she speaks, then pulses (scale only - no glow, no border change), as the reference's
+   does. The sunburst, the star burst, the no-text rule, the button's art and the celebration sound are as they were. */
+.end-screen .cel-sprite{position:relative;height:calc(358px * var(--scale,1));width:calc(300px * var(--scale,1));background:none;
+  aspect-ratio:auto;z-index:2;animation:endPop .55s cubic-bezier(.34,1.5,.6,1);}
+.end-screen .cel-sprite .cel-art{position:absolute;left:50%;bottom:0;height:calc(420px * var(--scale,1));transform:translateX(-50%);
+  background-repeat:no-repeat;background-size:600% 600%;filter:drop-shadow(0 12px 22px rgba(0,47,118,.22));}
+/* an invisible one-time paint of the talk + idle sheets while the screen opens (decode + upload before they are needed) */
+.end-screen .cel-sprite .cel-prepaint{opacity:.01;pointer-events:none;filter:none;}
+/* the celebration arrow waits for the line, then pulses (scale only - no glow, no border) */
+#endBtn.cel-wait{pointer-events:none;filter:grayscale(1);opacity:.55;animation:none !important;}
+@keyframes celArrowPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+#endBtn.cel-ready{animation:celArrowPulse 1.3s ease-in-out infinite;}
+@media (prefers-reduced-motion:reduce){ #endBtn.cel-ready{animation:none;} }

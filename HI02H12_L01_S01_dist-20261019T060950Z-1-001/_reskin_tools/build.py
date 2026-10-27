@@ -30,6 +30,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          size in the same picture box; nothing else of G2 touched.
          [sent-font] (2026-10-27): G4, P1 and P2's two texts (the header's line, the pills' sentences) in the previous pages'
          face — Noto Sans Devanagari SemiBold — in place of the reference P4's Baloo 2 ExtraBold; sizes, lines, boxes as they were.
+         [dun-chrome] (2026-10-27): the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app): the cover's sky and play
+         button, आगे, the bird in the title bars, the speaker chips, the phase gates and confetti, the music bed, the celebration.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -994,6 +996,7 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
           state.attempts++; sfxWrongSoft(); setSwMood("tryagain");
           GameBus.emit("answer_wrong", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts });
           t.classList.remove("wiggle"); void t.offsetWidth; t.classList.add("wiggle");
+          setSwMood("tryagain");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird
           return;
         }
         // the right one: pressed, the others dim, its mark lands in the slot as its name sounds; then the page moves on
@@ -2373,6 +2376,264 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
 
 """
 body = body.replace(gate, new_gate)
+
+# ---------- [dun-chrome] (asked 2026-10-27) THE CHROME OF https://hi-02-h04-l01-s01-dun.vercel.app/ (HI02H04_L01_S01; the local
+#            copy under "Suresh's File/HI02H04_L01_S01-20260916T080241Z-1-001" is byte-identical to the live page). The seven asks,
+#            value for value from that page's own code (its blocks are kept verbatim in dun_assets/blocks/, read here):
+#   1. the cover: the FLN animation kit's sky (breathing glow + 87 drifting stars, a hole over the card, stars that pop on a tap) over
+#      the reference's plain sunburst (startnew_bg_plain.webp — its painted stars removed, so the moving ones are the only ones); the
+#      play button = the reference's gold disc (btn-play.svg) 140x140 centred 2 px above the card's bottom, hidden until the welcome
+#      has been heard, then popping in (sgBtnReveal) and breathing (sgBtnPulse), the standard play sound at 0.8 on the tap, which
+#      cuts the welcome and opens the tutorial gate (no bgm yet: the bed starts with page 1); the reference's bird (its own wave
+#      file, 208 px at the card's bottom-left, tappable = the welcome again) and its speaker chip at the bird's feet (70 px, grey
+#      until the play button is ready and while a line speaks);
+#   2. आगे = the reference's pill + arrow art (btn-next(-disabled)-pill/-arrow.svg, 170x62 on the tutorial pages, 190x62 elsewhere, in
+#      the places this file already gives it), the disabled art showing wherever the button exists, the enabled art fading in over
+#      it with navBreathe (1.4 s, 1.04), the standard next sound at 0.9;
+#   3. the bird: the title bars' circles carry the engine's live head (the mascot image mirrored into every .dmf-head), so it
+#      celebrates on a right tap, tries again on a wrong one and rests on the talking head — inside the circle, as the reference's
+#      (not popping out of it); the header bird of G4/P1/P2 at the reference's 118 px; the cover's and the gates' and the
+#      celebration's birds are the reference's own files (items 1, 5, 7);
+#   4. the speaker chips: the glyph is already the reference's (the inline SVG is byte-identical); the cover chip at the bird's feet
+#      as above; the header chip (G4/P1/P2) at the bird's shoulder with the reference's grey-while-a-line-speaks look (already so);
+#      waves blink while a line speaks, solid at rest (already so);
+#   5. the gates = [GATE-REF-ANIM]: the reference's peeking bird (peeking_talk_up.webp, 52.8 % of the screen, lifted in over 0.3 s),
+#      the headline writing itself left to right the moment the line says its words (this lesson's own clips: 2850 / 3540 / 210 ms
+#      into vo_pt_tutorial / _guided / _practice, read off them), a 4 s minimum hold, the first gate's bird sinking back; the
+#      scrim at .35 over a plain blue field, the sky off while gating; confetti = [CONFETTI-REF]: 100 pieces, 1.5x, falling 1.6-2.6 s
+#      over the whole window under the gate (z 5000), the standard confetti sound at 0.45;
+#   6. the music bed = [BGM-DUCK]: the same track (standard_background_music_2.mp3 is bgm_standard_2 note for note), from page 1's
+#      mount to the last page before the celebration, 0.13 at rest, ducked to 0.03 under ANY sound (voice, sfx, the letter page's
+#      piano loop, the kit's pops; ramps 180 ms down / 600 ms up), faded out on the celebration, never on the cover;
+#   7. the celebration = the reference's: its sunburst (end_screen.webp), the three-sheet Swiftie (cel_shabaash / talk / idle:
+#      the jump, the landing, the line lip-synced on the talk sheet, then the idle loop), the standard confetti sound, the star
+#      burst, no text, the gold arrow pill that waits dim while she speaks and then pulses; full-bleed (the screen is moved to
+#      <body>). The LINE is this lesson's own (vo_celebrate; its beak bits derived the way the reference's were: dun_assets/
+#      cel_bits.json), not the reference's vo_well_done.
+#   Everything else is untouched. The sounds: the reference's sfx_std_play / next / confetti ARE this engine's sfx_play_button /
+#   sfx_next_button / sfx_celebrate (correlation 1.000), so only their volumes change. ----------
+DUN = SCR / "dun_assets"
+dun_block = lambda name: "".join(l for l in (DUN / "blocks" / name).read_text(encoding="utf-8").splitlines(True)
+                               if not re.match(r"\s*</?(script|style)[\s>]", l))   # the blocks are cut from the page: a stray tag line is dropped
+dun_bits = json.loads((DUN / "cel_bits.json").read_text(encoding="utf-8"))
+dun_ea = json.loads((DUN / "end_anim_ref.json").read_text(encoding="utf-8"))
+DUN_UI = ["btn-play.svg", "btn-play-waiting.svg", "btn-next-pill.svg", "btn-next-arrow.svg", "btn-next-disabled-pill.svg", "btn-next-disabled-arrow.svg",
+          "peeking_talk_up.webp", "cel_shabaash.webp", "cel_talk.webp", "cel_idle.webp", "end_screen.webp", "new_landing_swiftee_anim.webp",
+          "bgdeco_star.svg", "bgdeco_star_o.svg", "bgdeco_spark.svg", "startnew_bg_plain.webp", "sw_lg_celebrating_anim.webp"]
+# 1. the assets (the Ek-aur-Anek versions of the files that get overwritten are kept once in dun_assets/_replaced/)
+_dun_kept = DUN / "_replaced"; _dun_kept.mkdir(exist_ok=True)
+for name in DUN_UI:
+    src, dst = DUN / "UI" / name, DIST / "assets" / "UI" / name
+    assert src.exists(), f"missing dun asset {src}"
+    if dst.exists() and dst.read_bytes() != src.read_bytes() and not (_dun_kept / name).exists(): shutil.copy2(dst, _dun_kept / name)
+    if not dst.exists() or dst.read_bytes() != src.read_bytes(): shutil.copy2(src, dst)
+# 2. the card: the celebration's sprite data (the reference's sheets, this lesson's line) and its standard confetti sound
+card["end_anim"] = {"cols": dun_ea["cols"], "fw": dun_ea["fw"], "fh": dun_ea["fh"], "step_ms": dun_bits["step_ms"], "bits": dun_bits["bits"], "vo": dun_bits["vo"],
+                    "shabaash": dun_ea["shabaash"], "talk": dun_ea["talk"], "idle": dun_ea["idle"]}
+_cel = next(s for s in card["slides"] if s["type"] == "CELEBRATION"); _cel.setdefault("audio", {})["sfx"] = "sfx_std_confetti"
+# 3. the markup: the play button, the cover bird, आगे and the celebration screen as the reference draws them
+body = sub1(body, r'<button class="sg-btn" id="sgBtn"[^>]*>.*?</button>',
+            '<button class="sg-btn" id="sgBtn" type="button" aria-label="शुरू करें">शुरू करें</button>', re.S, "dun: #sgBtn markup")
+body = sub1(body, r'<img class="sgf-swiftie" id="sgSwiftie"[^>]*>\s*<img class="sgf-swiftie-anim" id="sgSwiftieAnim"[^>]*>',
+            '<img class="sg-mascot" id="sgMascot" data-src="assets/UI/new_landing_swiftee_anim.webp" alt="Swiftee" draggable="false">', re.S, "dun: cover bird markup")
+body = sub1(body, r'<button class="nav-btn" id="navBtn" disabled aria-label="आगे">.*?</button>',
+            '<button class="nav-btn" id="navBtn" disabled>आगे</button>', re.S, "dun: #navBtn markup")
+body = sub1(body, r'<div class="end-screen" id="endScreen">.*?<button class="end-btn" id="endBtn"[^>]*>.*?</button>\s*</div>',
+            """<div class="end-screen" id="endScreen">
+    <div class="confetti" id="confetti"></div>
+    <h1 class="end-title" id="endTitle"></h1>
+    <div class="end-subtitle" id="endSubtitle"></div>
+    <img class="end-mascot" src="assets/UI/sw_lg_celebrating_anim.webp" alt="Swiftee"
+         onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'end-mascot',textContent:'🎉'}))">
+    <button class="end-btn" id="endBtn" aria-label="आगे बढ़ें"></button>
+  </div>""", re.S, "dun: end screen markup")
+# 4. the engine: the standard set's volumes; the play tap neither waits for the welcome to end (the reference cuts it) nor starts
+#    the music (the bed starts with page 1); the confetti's count and fall; the engine's own music fades become no-ops once the bed
+#    owns the element (window.__bgm)
+js = sub1(js, r'const sfxConfetti  = \(\)=> playKitSfx\("confetti", "sfx_celebrate\.ogg", \.85\);', 'const sfxConfetti  = ()=> playKitSfx("confetti", "sfx_celebrate.ogg", .45);   // [dun-chrome] STD_SFX_VOL.confetti', 0, "dun: sfxConfetti volume")
+js = sub1(js, r'const sfxPlayButton = \(\)=> playKitSfx\("playButton", "sfx_play_button\.ogg", \.85\);', 'const sfxPlayButton = ()=> playKitSfx("playButton", "sfx_play_button.ogg", .8);   // [dun-chrome] STD_SFX_VOL.play', 0, "dun: sfxPlayButton volume")
+js = sub1(js, r'const sfxNextButton = \(\)=> playKitSfx\("nextButton", "sfx_next_button\.ogg", \.85\);', 'const sfxNextButton = ()=> playKitSfx("nextButton", "sfx_next_button.ogg", .9);   // [dun-chrome] STD_SFX_VOL.next', 0, "dun: sfxNextButton volume")
+js = sub1(js, r'       A second tap once the line ends proceeds normally\. \*/\n    if\(document\.body\.classList\.contains\("vo-lock"\)\) return;\n',
+          '       A second tap once the line ends proceeds normally. */\n    /* [dun-chrome] the reference\'s play button takes the tap at once (it is not shown until the welcome has been heard; a replay is cut) */\n', 0, "dun: play tap vo-lock guard")
+js = sub1(js, r'    startBackgroundMusic\(\); // user gesture unlocks the looping lesson soundtrack\n', '    /* [dun-chrome] the music bed starts with page 1 (BGM-DUCK), not on the play tap */\n', 0, "dun: bgm start on play")
+js = sub1(js, r'const host = document\.body, n = 80, dist = \(window\.innerHeight \|\| 800\) \+ 60;', 'const host = document.body, n = 100, dist = (window.innerHeight || 800) + 60;   // [dun-chrome] CONFETTI-REF: 100 pieces', 0, "dun: confetti count")
+js = sub1(js, r'const z = confettiRnd\(\.75,1\.15\), fall = confettiRnd\(1\.1,1\.8\)/z, delay = confettiRnd\(0,\.35\);', 'const z = confettiRnd(.75,1.15), fall = confettiRnd(1.6,2.6)/z, delay = confettiRnd(0,.35);   // [dun-chrome] CONFETTI-REF: the fall 1.6-2.6 s', 0, "dun: confetti fall")
+js = sub1(js, r'function fadeBackgroundMusic\(target\)\{\n', 'function fadeBackgroundMusic(target){\n  if(window.__bgm) return;   // [dun-chrome] the bed owns its volume (BGM-DUCK)\n', 0, "dun: fadeBackgroundMusic guard")
+js = sub1(js, r'function startBackgroundMusic\(\)\{\n', 'function startBackgroundMusic(){\n  if(window.__bgm) return;   // [dun-chrome] the bed starts itself with page 1 (BGM-DUCK)\n', 0, "dun: startBackgroundMusic guard")
+# the celebration's own आगे बढ़ें tap (this engine's: the standard next sound, the completion events, the hand-over) — kept word for word
+_cel_click = must(r'      eb\.onclick = \(\)=>\{\n        if\(eb\.dataset\.completed === "1"\) return;.*?\n      \};\n', js, re.S, "dun: CEL onclick").group(0)
+_cel_click = _cel_click.replace('        clearTimeout(endVoTimer);\n        clearTimeout(endFreezeTimer);\n        sfxNextButton();\n', '        stdSfx("next");   // [STD-SFX] the end screen\'s आगे बढ़ें is a next button too\n')
+assert 'stdSfx("next")' in _cel_click and "endVoTimer" not in _cel_click, "dun: CEL onclick adaptation"
+_cel_dev = must(r'      // dev-only: a small "download results" button \(teacher/QA\), never in child flow\n      if\(new URLSearchParams\(location\.search\)\.has\("dev"\) && !\$\("dlResults"\)\)\{.*?\n      \}\n', js, re.S, "dun: CEL dev button").group(0)
+# the reference's gate script, on this engine: GameBus for SwiftPAL, this engine's clip path rule, its own caption moments, GATE_MS
+_gate_js = dun_block("gate_js.js").replace("SwiftPAL.emit", "GameBus.emit")
+_gate_js = _gate_js.replace('var voSrc = (voId && CARD.assets && CARD.assets.audio && CARD.assets.audio[voId]) || null;', 'var voSrc = voId ? ("assets/Audio/" + voId + "." + AUDIO_EXT) : null;   // this engine\'s clip path rule')
+_gate_js = _gate_js.replace('var GATE_CAPTION_AT_MS = { tutorial: 3660, guided: 3940, practice: 1120 };', 'var GATE_CAPTION_AT_MS = { tutorial: 2850, guided: 3540, practice: 210 };   // this lesson\'s own vo_pt_* clips: the headline\'s words begin here (read off them, see README)')
+_gate_js = _gate_js.replace('  if(typeof phaseBlurTransition !== "function") return;\n', '  if(typeof phaseBlurTransition !== "function") return;\n  var GATE_MS = 4000;                                                          // the reference\'s minimum hold (this engine had no such constant: 2.8 s)\n')
+assert "GATE_CAPTION_AT_MS = { tutorial: 2850" in _gate_js and "var GATE_MS = 4000" in _gate_js and "SwiftPAL" not in _gate_js, "dun: gate adaptation"
+_bgm_js = dun_block("bgm_duck_js.js")
+_bgm_js = _bgm_js.replace('  var FIRST = 0, LAST = 12;                                                   // T1 .. P6\n', '  var FIRST = 0, LAST = CARD.slides.length - 2;                               // page 1 .. the last page before the celebration\n')
+_bgm_js = _bgm_js.replace('var SRC = "assets/Audio/bgm_standard_2.wav", BASE = 0.13', 'var SRC = "assets/Audio/standard_background_music_2.mp3", BASE = 0.13')
+_bgm_js = _bgm_js.replace('  window.__bgm = { get el(){ return el; },', '  backgroundMusic = el;                                                       // this engine\'s own handle (its fades are no-ops now; the checks read its volume)\n  window.__bgm = { get el(){ return el; },')
+assert "LAST = CARD.slides.length - 2" in _bgm_js and "standard_background_music_2.mp3" in _bgm_js and "backgroundMusic = el;" in _bgm_js, "dun: bgm adaptation"
+_cel_js = dun_block("cel_swiftie_js.js")
+assert "SlideModules.CELEBRATION" in _cel_js and "runCelSprite" in _cel_js, "dun: cel block"
+dun_js = r"""
+
+/* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) on this lesson — see build.py ===== */
+""" + dun_block("kit_core.js") + dun_block("sky_js.js") + r"""
+/* ---- [STD-SFX] the standard set's volumes, on the three files this engine already ships (= the reference's, correlation 1.000) ---- */
+const STD_SFX_VOL = { confetti: 0.45, correct: 0.6, incorrect: 0.6, next: 0.9, play: 0.8 };
+function stdSfx(name){
+  const f = { play: ["playButton", "sfx_play_button.ogg"], next: ["nextButton", "sfx_next_button.ogg"], confetti: ["confetti", "sfx_celebrate.ogg"],
+              correct: ["correct", "sfx_correct_new.ogg"], incorrect: ["wrong", "sfx_wrong_new.ogg"] }[name];
+  if(f) playKitSfx(f[0], f[1], STD_SFX_VOL[name] != null ? STD_SFX_VOL[name] : 0.7);
+}
+/* ---- body.vo-playing: the flag every ported rule reads (= this engine's isPlaying, set and cleared in setPlaying) ---- */
+(function(){ "use strict"; const o = window.setPlaying; if(typeof o !== "function") return;
+  window.setPlaying = function(on){ const r = o.apply(this, arguments); document.body.classList.toggle("vo-playing", !!on); return r; }; })();
+/* ---- the cover: शुरू करें appears only once the welcome has been heard (this engine's landing-play-ready: the landing line has
+   played and nothing speaks), pops in (sgBtnReveal) and breathes (.sg-breathe); the chip at the bird's feet follows its readiness
+   (.sg-vo-off, [FEET-SPEAKER]); the bird is the reference's wave file, started afresh as the loader fades, a tap on it = the welcome again ---- */
+(function(){ "use strict";
+  const b = $("sgBtn"), vo = $("sgVo"), bird = $("sgMascot"); if(!b) return;
+  b.disabled = false;
+  const reveal = ()=>{ if(b.classList.contains("ready")) return; b.disabled = false; b.classList.add("ready");
+    let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
+    b.addEventListener("animationend", breathe, { once:true }); setTimeout(breathe, 700); };   // 700 ms fallback: the pop-in is .52 s
+  // "heard": the welcome's own element really sounded (its clock moved) — a blocked autoplay plays a silent beat in this engine,
+  // and the reference keeps the button hidden then until the first tap has played the welcome (its pointerdown fallback is this
+  // engine's too)
+  let heard = false;
+  const listen = setInterval(()=>{ if(!document.body.classList.contains("is-start")){ clearInterval(listen); return; }
+    const a = currentAudio; if(isPlaying && a && !a.paused && a.currentTime > 0.25 && /vo_landing/.test(a.src)){ heard = true; sync(); } }, 100);
+  const sync = ()=>{ if(heard && document.body.classList.contains("landing-play-ready")) reveal();
+    if(vo){ const off = !b.classList.contains("ready"); vo.classList.toggle("sg-vo-off", off); vo.setAttribute("aria-disabled", String(off)); } };
+  new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });
+  new MutationObserver(sync).observe(b, { attributes:true, attributeFilter:["class"] });
+  sync();
+  if(bird){
+    const start = ()=>{ if(bird.getAttribute("src")) return; bird.src = bird.dataset.src + "?r=" + Date.now(); };
+    if(document.body.classList.contains("loaded")) start();
+    else new MutationObserver((m, o)=>{ if(document.body.classList.contains("loaded")){ start(); o.disconnect(); } }).observe(document.body, { attributes:true, attributeFilter:["class"] });
+    setTimeout(start, 4000);
+    bird.addEventListener("click", ()=>{ if(vo && !vo.classList.contains("sg-vo-off") && !isPlaying) vo.click(); });
+  }
+})();
+/* ---- the bird in the title bars: every .dmf-head (the demos', the picks', the stamp page's frames) shows the engine's live head —
+   the mascot image's src mirrored, so the same celebrate / try-again / hint faces play inside the circle (the reference's header
+   bird; setSwMood drives #swBuddyImg exactly as before) ---- */
+(function(){ "use strict";
+  const live = ()=>{ const im = $("swBuddyImg"); if(!im) return; const want = im.getAttribute("src");
+    document.querySelectorAll(".dmf-head img").forEach(h=>{ h.classList.add("dun-live"); if(h.getAttribute("src") !== want) h.setAttribute("src", want); }); };
+  const im = $("swBuddyImg"); if(im) new MutationObserver(live).observe(im, { attributes:true, attributeFilter:["src"] });
+  const om = window.mountSlide; if(typeof om === "function") window.mountSlide = function(){ const r = om.apply(this, arguments); try{ live(); }catch(e){} return r; };
+  live();
+})();
+/* ---- the celebration screen moves to <body> (full-bleed, the reference's TOTA-END-REPARENT) ---- */
+(function(){ function move(){ var e = document.getElementById("endScreen"); if(e && e.parentElement !== document.body) document.body.appendChild(e); }
+  move(); setTimeout(move, 300); setTimeout(move, 1200); })();
+/* ---- the celebration mount = the reference's (its sound, the sunburst, the star burst, no text, the signals, the button), with this
+   engine's own आगे बढ़ें tap; the sprite runner below then takes the mascot's place and speaks the line after the jump ---- */
+SlideModules.CELEBRATION.mount = function(host, slide){
+  stdSfx("confetti");                                      // [STD-SFX] the standard confetti sound, at 0.45, on its own element
+  state.ownsAudio = true;                                  // the line is the sprite runner's (after the jump), never the auto chain's
+  const et = $("endTitle"); if(et) et.textContent = "";    // no text on the page: only the button carries writing
+  const st = $("endSubtitle"); if(st) st.textContent = "";
+  const es = $("endScreen"); es.classList.add("show");
+  document.body.classList.add("is-end");                   // the sunburst backdrop (end_screen.webp) and the sky
+  const c = $("confetti"); if(c) c.innerHTML = "";
+  starBurst();                                             // the gold star burst from the centre
+  const masteryScore = state.masteryAttempts ? (state.masteryHits/state.masteryAttempts) : 0;
+  GameBus.emit("mastery_score", { value: masteryScore, hits: state.masteryHits, attempts: state.masteryAttempts });
+  GameBus.emit("lesson_completed", { skill_code: CARD.skill_code, total_signals: GameBus.signals.length });
+  runValidator();
+  setNavActive(false);
+  document.querySelectorAll(".fx-confetti").forEach(w => w.remove());   // no correct-answer confetti bleeds onto this page
+  const eb = $("endBtn"); eb.dataset.completed = "0"; eb.disabled = false; eb.classList.add("show");
+  state.endBtnPending = false;
+""" + _cel_dev + _cel_click + r"""};
+""" + _cel_js + _gate_js + _bgm_js + r"""
+/* ===== [dun-chrome] end ===== */
+"""
+js = js + dun_js
+# 5. the CSS, last in the cascade
+dun_css = ("\n/* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) — see build.py ===== */\n"
+  "/* ---- the cover's sky: the kit's sky-drift + sky-burst + sky-adapt, the reference's block verbatim ---- */\n" + dun_block("sky_css.css") +
+  r"""
+/* this lesson's adaptations of the sky: the Figma title card is 1160x475 on the stage (the reference's is 1114x456), so its hole is
+   40 px inside THAT box; the title page keeps its own background element (.start-bg): the reference's plain sunburst goes there,
+   and the [title-fig] "no sky" rule is undone; while a gate is up the field is the plain blue (TOTA-GATE-NO-STARS) */
+.sg-sky{--sg-hole-w:calc(1120px * var(--scale,1));--sg-hole-h:calc(435px * var(--scale,1));}
+body.is-start .start-bg{background-image:url("assets/UI/startnew_bg_plain.webp") !important;}
+body.is-start .sg-glow,body.is-start .sg-sky{display:block !important;}
+body.gating .sg-glow,body.gating .sg-sky{display:none !important;}
+body.gating .start-bg{background-image:none !important;background-color:#7FC8F4 !important;}
+/* ---- the cover: the play button (LANDING-START-AFTER-VO + LANDING-PLAY-BTN + PLAY-BTN-140 + NO-WAITING-PLAY-BTN, value for value,
+   written for this title page's scaled frame: 140x140 on the stage, centred, its bottom edge 2 px above the card's bottom — the
+   card's 9 px border is inside its box here, hence the -9px); hidden until .ready, then the pop-in, then the breathing; the tap
+   lands even while a line speaks (the reference's: the welcome's replay is cut) ---- */
+.sg-fig .sg-btn,.sg-fig .sg-btn.ready{position:absolute;left:50%;bottom:calc(2px / var(--fig-s) - 9px) !important;top:auto !important;transform:translateX(-50%);z-index:4;
+  width:calc(140px / var(--fig-s)) !important;min-width:0 !important;max-width:none !important;height:calc(140px / var(--fig-s)) !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;cursor:pointer;opacity:1 !important;filter:none !important;
+  background:transparent url("assets/UI/btn-play.svg") center / 100% 100% no-repeat !important;
+  font-size:0 !important;line-height:0 !important;color:transparent !important;overflow:visible !important;}
+.start-gate .sg-btn:not(.ready){display:none !important;}
+.start-gate .sg-btn.ready{display:inline-flex !important;animation:sgBtnReveal .52s cubic-bezier(.34,1.5,.6,1) !important;}
+@keyframes sgBtnReveal{0%{opacity:0;transform:translateX(-50%) scale(.55) translateY(14px);}60%{opacity:1;transform:translateX(-50%) scale(1.08) translateY(0);}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
+.start-gate .sg-btn.ready.sg-breathe{animation:sgBtnPulse 1.4s ease-in-out infinite !important;}
+@keyframes sgBtnPulse{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.04);}}
+.start-gate .sg-btn:not(.locked):active{transform:translateX(-50%) translateY(3px) !important;box-shadow:none !important;}
+body.vo-lock .start-gate .sg-btn.ready,body.vo-lock .sg-btn.ready{pointer-events:auto !important;}
+body.is-start.landing-play-ready .sg-card :not(.sg-btn):not(.sg-btn *){animation-play-state:running !important;}
+/* the cover's bird: the reference's wave file, 208 px, its box 24 px left of and 12 px under the card's bottom-left corner
+   (frame px of this title page: the card is 76,125 1114x456 at scale 1.0414); the chip at its feet: 70 px at 83 px from the card's
+   left, 12 px under its bottom (FEET-SPEAKER), grey until the play button is ready and while a line speaks */
+.sg-fig .sg-mascot{position:absolute;left:52.96px;top:396.35px;width:199.73px;height:auto;z-index:3;object-fit:contain;pointer-events:auto;cursor:pointer;animation:none;transform:none;}
+.sg-fig .sg-vo{left:155.7px !important;top:525.3px !important;bottom:auto !important;width:calc(70px / var(--fig-s)) !important;height:calc(70px / var(--fig-s)) !important;display:block !important;z-index:5;}
+.start-gate .sg-vo.sg-vo-off,body.vo-playing .start-gate .sg-vo,.sg-vo.vo-disabled{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;}
+.sg-vo svg{overflow:visible !important;} .sg-vo svg > g[filter]{filter:none !important;}
+.sg-vo:not(.playing) .wv{animation:none !important;opacity:1 !important;}
+/* ---- आगे: the reference's NAV-NEXT-BTN + NAV-PULSE, verbatim, then this engine's boxes: 170x62 on the tutorial pages, 190x62
+   elsewhere (the reference's), in the places this file already gives the button; a page that hides the button inline keeps it
+   hidden (the reference's pick pages do that with a card flag) ---- */
+""" + dun_block("nav_css.css").replace("#navBtn{display:flex !important;", '#navBtn:not([style*="display: none"]){display:flex !important;') + dun_block("nav_pulse_css.css") + r"""
+#navBtn{width:190px !important;height:62px !important;}
+.stage.tut #navBtn{width:170px !important;height:62px !important;}
+#navBtn.active{animation:none !important;}                                  /* the breathing is the art's (::after), never the box's */
+#navBtn img{display:none !important;}
+/* ---- the bird in the title bars: the engine's live head inside every frame's circle (.dmf-head), filling it as the engine's own
+   circle does; the engine's header (G4/P1/P2): the reference's 118 px circle at 16.5,18 and its animated faces INSIDE the circle ---- */
+.dmf-head img.dun-live{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;}
+.stage.sent-page .mascot-wrap{width:118px !important;height:118px !important;left:16.5px !important;top:18px !important;}
+.stage.sent-page .mascot-circle{background:#9DDBF5 !important;border:4px solid #FFFFFF !important;box-shadow:0 6px 14px rgba(0,47,118,.20) !important;overflow:hidden !important;border-radius:50% !important;}
+.stage.sent-page .mascot-wrap.anim .mascot-circle .mascot-img,.stage.sent-page .mascot-circle .mascot-img{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important;transform:none !important;}
+/* ---- the speaker chips (HDR-SPEAKER's states): the header chip grey while a line speaks (already so on G4/P1/P2); waves blink
+   only while a line speaks, solid at rest (TOTA-WAVES-IDLE) ---- */
+""" + dun_block("waves_idle_css.css") + r"""
+body.vo-playing #audioChip,body.vo-playing .mascot-wrap .audio-chip{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;transition:none !important;}
+/* ---- the gates: GATE-REF-ANIM (the bird, its lift, the headline's wipe, the first gate's sink), on the reference's scrim (.35 over a
+   plain field), the bird fixed at the bottom centre (its PHASEGATE-ADD placement, which the lift keyframes assume) ---- */
+.phase-gate.show{background:rgba(57,55,55,.35) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
+body.is-start .phase-gate.show{background:rgba(57,55,55,.35) !important;}
+.phase-gate #phaseGateImg,.phase-gate img{position:fixed;left:50%;bottom:0;transform:translateX(-50%);height:clamp(120px,26vh,250px);width:auto;display:block;animation:none;}
+""" + dun_block("gate_css.css") + r"""
+.phase-gate.pg-ref .pg-title{opacity:1 !important;transition:none !important;}                /* this engine's title fades in on .text-speaking; here .pg-say shows it and pgWipe writes it */
+.phase-gate.pg-ref:not(.pg-say) .pg-title{visibility:hidden !important;}
+.phase-gate.pg-ref.pg-say .pg-title{visibility:visible !important;}
+body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:none !important;filter:none !important;}
+/* ---- confetti (CONFETTI-REF): over the whole window under the gate, pieces 1.5x, sized with the stage ---- */
+.fx-confetti{z-index:5000 !important;--fx-size:1.5;}
+.fx-confetti .f{width:calc(var(--w) * var(--z) * var(--scale, 1) * var(--fx-size, 1));height:calc(var(--h) * var(--z) * var(--scale, 1) * var(--fx-size, 1));}
+/* ---- the celebration: the reference's screen (TOTA-CELEBRATION-REFERENCE, TOTA-END-FULLBLEED, END-FINISH-BTN, CEL-SWIFTIE), verbatim;
+   then this engine's own .end-btn box reset (it drew a 163x117 image button) ---- */
+""" + dun_block("cel_ref_css.css") + dun_block("end_fullbleed_css.css") + dun_block("end_finish_btn_css.css") + dun_block("cel_swiftie_css.css") + r"""
+#endBtn{width:auto !important;height:auto !important;line-height:1;}
+#endBtn.show{display:inline-flex !important;align-items:center;}
+.end-screen .end-mascot{position:static !important;transform:none !important;}
+/* ===== [dun-chrome] end ===== */
+""")
+css = css + dun_css
 html = f"""<!doctype html>
 <html lang="hi">
 <head>

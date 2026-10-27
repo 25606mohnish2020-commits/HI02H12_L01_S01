@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\story_check.py", line 22, in <module>
+    targets = [Image.open(sys.argv[2]).convert("RGB"), Image.open(sys.argv[3]).convert("RGB")]
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\PIL\Image.py", line 3639, in open
+    fp = builtins.open(filename, "rb")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'out'

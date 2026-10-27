@@ -1,13 +1,13 @@
 PASS the card asks for the round-3 gate after P2
 PASS the pages: ... G4, P1, P2, L1 (the letter page), L2 (the stamp page), then the end screen (15 in all; the ported P3-P6 gone) — ['T0', 'T0B', 'T1', 'T2', 'T3', 'T4', 'G1', 'G2', 'G3', 'G4', 'P1', 'P2', 'L1', 'L2', 'CEL']
 PASS G4 -> P1 straight on, no gate opening — []
-PASS P2 run 1 in the same load -> the gate (the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds) -> L1, the letter page — peek 72 ms, VO + title 4304 ms after it opened, L1 6484 ms
+PASS P2 run 1 in the same load -> the gate (the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds) -> L1, the letter page — bird up 0 ms, the clip 0 ms after it opened, the headline 279 ms into it (cue 210), L1 4042 ms
 PASS P2 run 1: the letter page is up after the gate (its first scene, the girl writing), the gate closed and the stage unblurred
 PASS L1: the tap on the pulsing envelope opens it and L2, the stamp page, follows with no gate
 PASS L2 solved by the five rounds' drops (the ?, the comma, the danda, the ? twice, then the comma + ? + danda + danda — printed, confetti each round) and the CELEBRATION end screen follows, with no further gate
 PASS the end screen's validator: only the skipped pages' punct_build_done is missing (P2's gate fired phase_transition); qtype_sort_done not expected — ['punct_build_done']
 PASS mastery_score from the practice page played (P2 here: 1 hit of 1) — [[1, 1, 1]]
-PASS P2 run 2 in the same load -> the gate (the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds) -> L1, the letter page — peek 12 ms, VO + title 4241 ms after it opened, L1 6412 ms
+PASS P2 run 2 in the same load -> the gate (the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds) -> L1, the letter page — bird up 0 ms, the clip 0 ms after it opened, the headline 214 ms into it (cue 210), L1 4036 ms
 PASS P2 run 2: the letter page is up after the gate (its first scene, the girl writing), the gate closed and the stage unblurred
 PASS no page errors — []
 
