@@ -1,0 +1,5 @@
+slides: 15 ['T0', 'T0B', 'T1', 'T2', 'T3', 'T4', 'G1', 'G2', 'G3', 'G4', 'P1', 'P2', 'L1', 'L2', 'CEL']
+phase_distribution: {'tutorial': 6, 'guided': 4, 'practice': 5}
+index.html 74643 B · style.css 569241 B · app.js 599743 B
+copied 0 assets: 
+referenced but absent in reference (dynamic prefixes are expected here): ['assets/UI/hand_', 'assets/UI/hand_1..5', 'assets/UI/sw_head_']

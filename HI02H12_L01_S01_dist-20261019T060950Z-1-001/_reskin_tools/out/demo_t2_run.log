@@ -1,7 +1,7 @@
 PASS the title bar appears as the intro line starts to sound — bar at +17 ms from the clip's first played moment
 PASS nothing else shows while the intro line sounds
-PASS the picture, the bar and the tiles come in 0.5 s after the intro — 500 ms
-PASS the sentence's clip starts once they have landed (~0.65 s) — 666 ms
+PASS the picture, the bar and the tiles come in 0.5 s after the intro — 517 ms
+PASS the sentence's clip starts once they have landed (~0.65 s) — 650 ms
 PASS no word shows before the sentence's clip
 PASS the words arrive one by one with the clip, none early, none >150 ms late — 139 samples, 6 distinct counts / 5 words, early 0, late 0
 PASS 1 slot(s) on the page — 1
@@ -13,17 +13,17 @@ PASS the mark's name ("पूर्ण विराम") sounds right after the 
 PASS the correct tile is the पूर्ण विराम one (।)
 PASS the tapped tile keeps its colours: its face's border stays #D5D8DF, no blue ring — {'rgb(213, 216, 223)|none'}
 PASS its tile is tapped and the other two dim as that line starts, not before — tap at +0 ms; dim [False, True, True]
-PASS the mark lands in the slot ~0.4 s after that line — [401]
-PASS the second reading starts ~0.7 s after the (last) mark, every tile dim — 699 ms; dim [True, True, True]
-PASS each word, and each slot, is highlighted as the second reading reaches it (within -150/+40 ms) — 226 samples, states seen [(-1, -1), (-1, 0), (0, -1), (1, -1), (2, -1), (3, -1), (4, -1)], off-time 0
-PASS 1.5 s after the second reading the slots' boxes go — 1500 ms
-PASS the page advances to T3 by itself ~0.6 s later — 617 ms
+PASS the mark lands in the slot ~0.4 s after that line — [416]
+PASS the second reading starts ~0.7 s after the (last) mark, every tile dim — 683 ms; dim [True, True, True]
+PASS each word, and each slot, is highlighted as the second reading reaches it (within -150/+40 ms) — 225 samples, states seen [(-1, -1), (-1, 0), (0, -1), (1, -1), (2, -1), (3, -1), (4, -1)], off-time 0
+PASS 1.5 s after the second reading the slots' boxes go — 1517 ms
+PASS the page advances to T3 by itself ~0.6 s later — 616 ms
 PASS आगे never shows on this page
 PASS each clip plays once — [1, 1, 1, 1]
 PASS T3 is the second demo (PUNCT_DEMO)
 PASS no standing Swiftie and no 🔊 chip on this page — ['none 0x0', 'none 0x0']
 == the card is the stage (stage px) ==
-  .tut-card.sfig-card    got [0, 0, 1333, 750]  want [0, 0, 1333, 750]  max|d|=0.00
+  .tut-card.sfig-card    got [0.0, 0.0, 1333.0, 750.0]  want [0, 0, 1333, 750]  max|d|=0.00
 PASS the card is the whole stage (within 0.5 px) — worst 0.00px
 == boxes vs the frame (px) ==
   .dmf-band                              got [36.15, 25.99, 1243.69, 119.97]  frame [36, 26, 1244, 120]  max|d|=0.31
