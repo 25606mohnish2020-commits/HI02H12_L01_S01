@@ -1,0 +1,24 @@
+PASS the title band reads the instruction; no आगे and no hint bulb — {'title': 'सही विराम चिह्न वाला वाक्य चुनिए ।', 'nav': 'none', 'hint': 'none', 'chip': [94.5, 80, 66], 'thumb': [146, 315, 667], 'pills': [[114.5, 523.90625, 344, 93.1875, True], [494.5, 523.90625, 344, 93.1875, True], [874.5, 523.90625, 344, 93.1875, True]], 'lines': [['मेरे पास लाल । नीली ।', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल, नीली,', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल नीली', 'हरी और पीली पेंसिल हैं ।']]}
+PASS P4's places with two-line pills: the chip at 94.5,80; the picture 315 high from y 146, centred; three 344-wide pills at x 114.5 / 494.5 / 874.5, of one height, centred on P4's row line (y 570.5), nothing spilling, each on two lines broken after the same word, no line opening with a mark — ([[114.5, 523.90625, 344, 93.1875, True], [494.5, 523.90625, 344, 93.1875, True], [874.5, 523.90625, 344, 93.1875, True]], [['मेरे पास लाल । नीली ।', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल, नीली,', 'हरी और पीली पेंसिल हैं ।'], ['मेरे पास लाल नीली', 'हरी और पीली पेंसिल हैं ।']])
+PASS the three sentences are the asked ones, the right one 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।' — ['मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।', 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।', 'मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।']
+PASS P2's own picture (img_p2_pencils_gry) is the one shown — ['assets/Images/img_p2_pencils_gry.webp', 1411]
+Traceback (most recent call last):
+  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\g4_check.py", line 121, in <module>
+    pg.wait_for_function(f"CARD.slides[state.idx].id === '{NEXT}'", timeout=30000, polling=50); pg.wait_for_timeout(150)   # the sampler's next frame logs it
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 12809, in wait_for_function
+    self._sync(
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 115, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_page.py", line 1153, in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_frame.py", line 941, in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 30000ms exceeded.
