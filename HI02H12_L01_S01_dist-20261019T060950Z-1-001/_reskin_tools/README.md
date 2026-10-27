@@ -585,6 +585,39 @@ L1, the letter page after P2's gate (2026-10-26)
   the zoom, the dive at 3.0 s (4.1x, 98 % sheet pixels in the shot), the end screen ~3.7 s after the tap; and a second opening
   with nothing else running: 151 frames, max gap 18 ms (60 fps). gate_check 11/11, smoke 35/35. `../_before_letter_dive/` holds
   the dist's three files, build.py, letter_check.py and the four-flap layers.
+- Later 2026-10-27, the chime re-timed ([letter-idea]; asked: "after the grandfather cloud is shown, when the idea sound effect is
+  played, at the ummm sound this image [the girl pensive] should be shown without any cloud, and when the aahaha sound comes the
+  tappable envelope in the cloud should appear in this image [the girl bright] along with the same cloud appearing animation,
+  synced smoothly with the sound effects; rest exactly the same"). The chime (sfx_letter_idea, 3.3 s) read off the clip (ffmpeg
+  to PCM, RMS per 10 ms + a spectral peak): "ummm" from its first frame to 1.16 s (a hum at -28 dB, ~211 Hz rising to ~305 Hz),
+  silence to 2.36 s, then "aahaha" from 2.37 s (-25 dB by 2.40 s, -17 dB at 2.46 s, the second "ha" at 2.64 s, out by 3.0 s). It
+  now sounds the moment the grandfather cloud has stood its hold (7.5 s on the page's clock, where the dissolve used to begin) and
+  the beats hang on its "playing" event: on the "ummm" (pace.hum_at = 0) the cloud shrinks back into the bubbles' corner (.out:
+  opacity .45 s, transform .6 s) and the bubbles pop out, while the girl's pensive face fades over the room in .35 s (scene_c =
+  the user's 1.png of 2026-10-27, 1672x941, stored LOSSLESS like the other two, the same room with her face closed; her bright
+  face, 2.png, IS the page's scene_b byte for byte, so nothing else of the room changed); the bubbles pop again at aha_at - 3/2/1
+  x rebub_gap (160 ms), and on the "aahaha" (pace.aha_at = 2370) the pensive face fades off (.35 s) and the SAME cloud grows in
+  again — swapped to white while it was out (the images' 1.5 s cross-fade is gone; the swap is unseen) — with the cloud's own
+  entrance (.in: opacity 1.2 s, scale .55 + the (-30,40) slide over 1.6 s from its 12% 92% corner) and the letter growing IN it:
+  a wrapper (.ltr-env-grow) round the envelope's pulse layer runs that same entrance in the envelope box's px (--ltr-go /
+  --ltr-gt from the module = that corner and that slide at 1/s, s = 189/1138), so the cloud and the letter in it are one growing
+  thought; ready (tappable, pulsing) at aha_at + letter_in (1300) + 100 = 11.27 s on the page's clock (was 9.85 s). Gone: the
+  dissolve (pace.dissolve; the grandfather fading to white inside the standing cloud) and the letter's own pop-in (ltrIn). The
+  tap and everything after it are untouched; so are the frames before the chime. letter_check.py: at 7.35 s the grandfather
+  still stands; the chime at 7.5 s, once; at 8.3 s no cloud (.out), no bubbles, the pensive girl, no letter (l1_hum.png); 2.25 s
+  into the chime still no cloud and the bubbles re-popping; 0.45 s after the "aahaha" the bright girl, the white cloud and the
+  letter both mid-growth (opacity 0.54, the grandfather off; l1_grow.png); by 4.1 s into it the cloud standing, the growth
+  settled, the letter at 558:2's box, pulsing, tappable; the page's own frames from the chime to ready: no gap over 100 ms and
+  the cloud's opacity never falling after the "aahaha"; the rest as before. Smoothness: on the page's own frames with nothing
+  else running (the scratchpad's trace_chime.py: a rAF loop the page starts itself at 7 s, no Playwright polls, 7 s to ready) the
+  first build had a 120-150 ms frame right on the "aahaha" and 50-70 ms on the "ummm" — a layer at opacity 0 is never
+  rasterised, so the envelope's four lossless layers (6 MP) and the pensive picture were being decoded on the beat itself
+  (img.decode() at mount did not help: the compositor had let those decodes go by then). So the growing wrapper (.ltr-env-grow,
+  with its own layer from mount: will-change), the white cloud image and scene C now REST at opacity .005 (1/255: at 0 Skia
+  skips the layer's contents outright) instead of 0 — painted, hence decoded, with the page's first frame / the grandfather's
+  entrance, and invisible (under a level) — and the envelope's pulse layer carries no opacity of its own any more. After: max gap
+  35 ms, mean 16.5 ms (60 fps) over 260 frames, on two runs. gate_check all pass, smoke 47/47, stamp_check all pass.
+  `../_before_letter_idea/` holds the dist's three files, build.py and letter_check.py from before (the dissolve).
 
 Stamp page L2 after the letter (added 2026-10-26, [stamp-fig]; asked: "after the letter covers the whole screen this screen should
 appear ... the table and the title bar with its text and synced VO, then the letter sheet and the stamp holder, then both stamps

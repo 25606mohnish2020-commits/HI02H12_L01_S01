@@ -3114,26 +3114,37 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .ltr-scene{left:0;top:0;width:1280px;height:720px;object-fit:cover;}                      /* 538:2: the picture at 0,0 1280x720 */
 .ltr-scene.b{top:-1px;height:721px;opacity:0;transition:opacity .65s ease-in-out;}       /* 538:35: image 235 at 0,-1 1280x721 */
 .ltr.b-in .ltr-scene.b{opacity:1;}
+.ltr-scene.c{top:-1px;height:721px;opacity:.005;transition:opacity .35s ease-in-out;}    /* [letter-idea] the pensive girl (the user's 1.png, the same room): over B on the chime's "ummm", off on its "aahaha"; at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would cost a 50-70 ms frame on the beat) */
+.ltr.c-in .ltr-scene.c{opacity:1;}
 .ltr-bub{border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(120,90,60,.15);transform:scale(0);opacity:0;
   transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .2s ease-out;}
 .ltr-bub.in{transform:none;opacity:1;}
-.ltr-cloud{opacity:0;transform:scale(.55) translate(-30px,40px);transform-origin:12% 92%;
-  transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly */
+.ltr-cloud{opacity:0;transform:scale(.55) translate(-30px,40px);transform-origin:12% 92%;will-change:transform,opacity;
+  transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly; its layer made at mount, not on the beat */
 .ltr-cloud.in{opacity:1;transform:none;}
-.ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;transition:opacity 1.5s ease-in-out;}
-.ltr-cloud .ltr-cw{opacity:0;}
-.ltr-cloud.white .ltr-cg{opacity:0;}                                                     /* the grandfather dissolves ... */
-.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* ... into the same cloud, white (558:2) */
+.ltr-cloud.out{opacity:0;transform:scale(.55) translate(-30px,40px);transition:opacity .45s ease-in,transform .6s cubic-bezier(.4,0,.7,.5);}   /* [letter-idea] on the chime's "ummm": back into the bubbles' corner, quickly */
+.ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;}
+.ltr-cloud .ltr-cw{opacity:.005;}                                                       /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
+.ltr-cloud.white .ltr-cg{opacity:0;}                                                     /* the same cloud, white (558:2): swapped while it is out (unseen), ... */
+.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* ... then grown in again (.in) on the "aahaha", the letter growing in it */
 .ltr-blur{left:0;top:0;width:1280px;height:720px;opacity:0;transition:opacity .9s ease-in-out;}   /* 610:6's backdrop, flattened */
 .ltr.zoom .ltr-blur{opacity:1;}
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}
 .ltr.zoom .ltr-env-pos{transform:none;}                                                  /* = 610:6's envelope box */
-.ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;opacity:0;}
-.ltr.letter-in .ltr-env-pulse{animation:ltrIn .45s cubic-bezier(.3,1.4,.5,1) both;}   /* on the chime's first frame */
+/* [letter-idea] the letter grows in WITH the cloud on the chime's "aahaha": the cloud's own entrance (opacity 1.2 s; the scale and
+   the slide from the bubbles' corner, 1.6 s) on a wrapper inside the icon, in the box's px (--ltr-go / --ltr-gt, set by the module:
+   that corner and that slide at 1/s), so the cloud and the letter in it are one growing thought; none after, so the zoom and the
+   dive see nothing of it. Its resting opacity is 1/255, not 0, and it has its own layer from mount (will-change): a layer at 0 is
+   never rasterised, so the envelope's four lossless layers (6 MP) would be decoded on the beat itself — a 120-150 ms frame right
+   on the "aahaha" (measured on the page's own frames) — while at 1/255 they are drawn (unseen: under a level) and so decoded with
+   the page's first frame; the raster then is at the icon's small scale, cheap */
+.ltr-env-grow{position:absolute;inset:0;transform-origin:var(--ltr-go,0 0);opacity:.005;transform:scale(.55) translate(var(--ltr-gt,0px,0px));
+  will-change:transform,opacity;transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}
+.ltr.letter-in .ltr-env-grow{opacity:1;transform:none;}
+.ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;}                /* hidden by the grow wrapper until the "aahaha" */
 .ltr.ready .ltr-env-pos{pointer-events:auto;cursor:pointer;}
 .ltr.ready .ltr-env-pulse{opacity:1;animation:ltrPulse 1.2s ease-in-out infinite;}
 .ltr.zoom .ltr-env-pulse{opacity:1;animation:none;}
-@keyframes ltrIn{from{transform:scale(.5);opacity:0;}to{transform:none;opacity:1;}}
 @keyframes ltrPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
 .ltr-env3d{position:absolute;inset:0;perspective:2600px;}
 .ltr-env3d > *{position:absolute;left:0;top:0;width:100%;height:100%;}

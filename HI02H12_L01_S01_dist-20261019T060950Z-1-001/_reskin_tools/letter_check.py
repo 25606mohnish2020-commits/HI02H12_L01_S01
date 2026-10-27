@@ -1,8 +1,8 @@
 """The letter page L1 ([letter-fig]): mounted straight (as the dev nav would), the whole scene plays by itself and its sounds
 start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens and hands over to the end screen.
 usage: python -I -X utf8 letter_check.py <index.html> <outdir> [<dir with render_538-39.png render_558-2.png render_610-6.png>]
-Screenshots: l1_a.png (538:2), l1_b.png (538:35), l1_grandpa.png (538:39), l1_letter.png (558:2), l1_zoom.png (610:6), l1_open.png,
-l1_end.png; with the renders, *_diff.png and the pixel numbers. Samples are taken at set moments of the PAGE's clock
+Screenshots: l1_a.png (538:2), l1_b.png (538:35), l1_grandpa.png (538:39), l1_hum.png (the chime's "ummm": the pensive girl, no cloud),
+l1_grow.png (0.5 s after its "aahaha": the white cloud and the letter growing in together), l1_letter.png (558:2), l1_zoom.png (610:6), l1_open.png, l1_end.png; with the renders, *_diff.png and the pixel numbers. Samples are taken at set moments of the PAGE's clock
 (performance.now() since the mount), so screenshot time does not drift them."""
 import sys, json, pathlib
 from playwright.sync_api import sync_playwright
@@ -21,13 +21,18 @@ HOOK = """(() => { window._plays = []; const P = HTMLMediaElement.prototype.play
 STATE = """() => { const r = document.querySelector('.ltr'); if(!r) return null; const cs = (sel, p) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[p] : null; };
   const env = document.querySelector('.ltr-env-pos'), st = document.getElementById('stage'), sr = st.getBoundingClientRect(), k = sr.width / 1333;
   const fr = (e) => { const b = e.getBoundingClientRect(); const s = 1333 / 1280 * k; return { x: (b.left - sr.left) / s, y: (b.top - sr.top) / s, w: b.width / s, h: b.height / s }; };
-  return { cls: r.className, slide: CARD.slides[state.idx].id, bOp: +cs('.ltr-scene.b', 'opacity'), cloudOp: +cs('.ltr-cloud', 'opacity'),
+  return { cls: r.className, slide: CARD.slides[state.idx].id, bOp: +cs('.ltr-scene.b', 'opacity'), cOp: +cs('.ltr-scene.c', 'opacity'), cloudOp: +cs('.ltr-cloud', 'opacity'),
+    cloudCls: (document.querySelector('.ltr-cloud') || {}).className || '', growOp: +cs('.ltr-env-grow', 'opacity'), growTf: cs('.ltr-env-grow', 'transform'),
     cgOp: +cs('.ltr-cloud .ltr-cg', 'opacity'), cwOp: +cs('.ltr-cloud .ltr-cw', 'opacity'), blurOp: +cs('.ltr-blur', 'opacity'),
     bubs: [...document.querySelectorAll('.ltr-bub')].map(b => +getComputedStyle(b).opacity), pulseOp: +cs('.ltr-env-pulse', 'opacity'),
     pulseTf: cs('.ltr-env-pulse', 'transform'), envRect: env ? fr(env) : null, heartOp: +cs('.ltr-heart', 'opacity'), flapTf: cs('.ltr-flap', 'transform'),
     veilOp: +cs('.ltr-veil', 'opacity'), isEnd: document.body.classList.contains('is-end'), nav: getComputedStyle(document.getElementById('navBtn')).display,
     bgm: (typeof backgroundMusic !== 'undefined' && backgroundMusic) ? +backgroundMusic.volume.toFixed(3) : null, demo: state.demoRunning,
     cleanup: typeof window.oceanCleanup === 'function' }; }"""
+# the page's own frames (rAF) from the chime to the letter's readiness: the moment and the cloud's opacity — smoothness, and the
+# cloud's return never faltering
+TRACE_IN = """() => { window.__tin = []; (function loop(){ const r = document.querySelector('.ltr'); if(!r || r.classList.contains('ready')) return;
+  const c = document.querySelector('.ltr-cloud'); window.__tin.push({ t: performance.now(), cloud: +getComputedStyle(c).opacity, cls: r.className }); requestAnimationFrame(loop); })(); }"""
 PLAYS = "() => window._plays.map(p => ({ src: p.src, t: p.t, loop: p.loop, paused: p.el.paused, cur: p.el.currentTime, vol: +p.el.volume.toFixed(3) }))"
 
 def shot(pg, name): pg.screenshot(path=str(out / name)); return out / name
@@ -66,8 +71,8 @@ with sync_playwright() as p:
     t0 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
     # 1. scene A with the magic shimmer, no आगे, no header
     until(t0, 500); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); magic = first(pl, "sfx_letter_magic")
-    check("mounts as a whole-stage page: no आगे, the first scene (538:2) alone, the cleanup hook set", s and s["nav"] == "none" and s["bOp"] == 0 and s["cloudOp"] == 0 and s["pulseOp"] == 0 and s["cleanup"],
-          {k: s[k] for k in ("nav", "bOp", "cloudOp", "pulseOp", "cleanup")} if s else s)
+    check("mounts as a whole-stage page: no आगे, the first scene (538:2) alone (the letter's wrapper at 1/255: painted so decoded, unseen), the cleanup hook set", s and s["nav"] == "none" and s["bOp"] == 0 and s["cloudOp"] == 0 and s["growOp"] < 0.01 and s["cleanup"],
+          {k: s[k] for k in ("nav", "bOp", "cloudOp", "growOp", "cleanup")} if s else s)
     check("the magic shimmer sounds as the page opens", magic is not None and magic["t"] - t0 < 300, round(magic["t"] - t0) if magic else None)
     shot(pg, "l1_a.png")
     check("the envelope is the drawing's own layers: the body (the pocket), ONE flap, the inside, the heart — no re-cut side flaps",
@@ -90,17 +95,42 @@ with sync_playwright() as p:
     # judged: 24.3 / 765 with the old room art and 24.3 with the new (the browser's downscale of the 820 px cloud against Figma's
     # render of the baked-in one); a wrong size or place would read far higher
     if cmp_g: check("the grandfather cloud against Figma's 538:39 render: close inside the cloud (mean < 30; frame and region are informative, the room art differs)", cmp_g["mask_mean"] < 30, cmp_g)
-    # 4. the dissolve to white, then the letter with its chime
-    until(t0, 8200); s = pg.evaluate(STATE)
-    check("at 8.2 s the grandfather is dissolving into the same (white) cloud", 0.05 < s["cgOp"] < 0.95 and 0.05 < s["cwOp"] < 0.95, (s["cgOp"], s["cwOp"]))
-    until(t0, 9900); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); idea = first(pl, "sfx_letter_idea")
-    check("by 9.9 s the cloud is white and the letter has appeared in it, pulsing and tappable", s["cgOp"] == 0 and s["cwOp"] == 1 and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"], s["cls"])
-    check("the chime sounded as the letter appeared (9.0 s)", idea is not None and 8900 < idea["t"] - t0 < 9300, round(idea["t"] - t0) if idea else None)
+    # 4. [letter-idea] the chime, the moment the hold ends (7.5 s): on its "ummm" the cloud and the bubbles leave and the pensive
+    #    girl (scene C) shows, no cloud; on its "aahaha" (2.37 s in) she brightens again and the SAME cloud grows in again, white,
+    #    with the letter growing in it; then it pulses and waits
+    until(t0, 7350); s = pg.evaluate(STATE)
+    check("at 7.35 s, the end of the hold: the grandfather cloud still stands, the girl as before (scene C off)", s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cOp"] < 0.01 and "c-in" not in s["cls"], (s["cloudOp"], s["cgOp"], s["cOp"]))
+    until(t0, 8300); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); idea = first(pl, "sfx_letter_idea")
+    check("the chime sounded as the hold ended (7.5 s)", idea is not None and 7400 < idea["t"] - t0 < 7800, round(idea["t"] - t0) if idea else None)
+    check("at 8.3 s, the chime's \"ummm\": no cloud (gone back into its corner), no bubbles, the pensive girl (the user's 1.png) over the room, no letter yet",
+          s["cloudOp"] == 0 and "out" in s["cloudCls"].split() and all(o == 0 for o in s["bubs"]) and s["cOp"] > 0.97 and "letter-in" not in s["cls"] and s["growOp"] == 0,
+          (s["cloudOp"], s["cloudCls"], s["bubs"], s["cOp"], s["cls"], s["growOp"]))
+    shot(pg, "l1_hum.png")
+    t_idea = idea["t"] if idea else t0 + 7500
+    pg.evaluate(TRACE_IN)
+    until(t_idea, 2250); s = pg.evaluate(STATE)
+    check("2.25 s into the chime (the silence before the \"aahaha\"): still no cloud, the bubbles popping again ahead of it, the girl still pensive",
+          s["cloudOp"] == 0 and sum(1 for o in s["bubs"] if o > 0.5) >= 2 and "letter-in" not in s["cls"] and s["cOp"] > 0.97, (s["cloudOp"], s["bubs"], s["cls"], s["cOp"]))
+    until(t_idea, 2850); s = pg.evaluate(STATE)
+    check("0.45 s after the \"aahaha\" (2.37 s into the chime): the girl bright again (scene C off), the same cloud growing in again — white, the grandfather off — with the letter growing in it, not yet tappable",
+          s["cOp"] < 0.05 and "in" in s["cloudCls"].split() and 0.05 < s["cloudOp"] < 0.85 and s["cgOp"] == 0 and s["cwOp"] == 1 and "letter-in" in s["cls"] and 0.05 < s["growOp"] < 0.85 and "ready" not in s["cls"],
+          (s["cOp"], s["cloudCls"], s["cloudOp"], s["cgOp"], s["cwOp"], s["growOp"], s["cls"]))
+    shot(pg, "l1_grow.png")   # the cloud and the letter in it growing together
+    until(t_idea, 4100); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS)
+    settled = s["growTf"] == "none" or (s["growTf"].startswith("matrix(") and float(s["growTf"][7:].split(",")[0]) > 0.999)   # the 1.6 s growth ends at 3.97 s
+    check("by 4.1 s into the chime the white cloud stands with the letter in it (its growth done), pulsing and tappable",
+          s["cloudOp"] > 0.99 and s["cgOp"] == 0 and s["cwOp"] == 1 and s["growOp"] == 1 and settled and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"],
+          (s["cloudOp"], s["growOp"], s["growTf"], s["cls"]))
     check("the chime is the page's only voice-like sound and plays once", sum(1 for x in pl if x["src"].startswith("sfx_letter_idea")) == 1, [x["src"] for x in pl if "letter" in x["src"]])
+    tr_in = pg.evaluate("window.__tin"); ts = [f["t"] - t_idea for f in tr_in]; gaps = [y - x for x, y in zip(ts, ts[1:])]
+    after = [f["cloud"] for f in tr_in if f["t"] - t_idea >= 2400]
+    check("the chime's beats run smoothly on the page's own frames (from the chime to the letter's readiness: no gap over 100 ms) and the cloud's return never falters (its opacity never falls after the \"aahaha\")",
+          len(gaps) > 60 and max(gaps) < 100 and len(after) > 10 and all(y >= x - 1e-6 for x, y in zip(after, after[1:])),
+          ("max gap %d ms over %d frames; %d frames after the aahaha" % (max(gaps), len(gaps) + 1, len(after))) if gaps else None)
     r = s["envRect"]
     check("the envelope icon: 558:2's size (189 px wide), centred in the cloud at (1020,166)", r and abs(r["w"] - 189) < 3 and abs(r["x"] + r["w"] / 2 - 1020) < 3 and abs(r["y"] + r["h"] / 2 - 166) < 3,
           {k: round(v, 1) for k, v in r.items()} if r else r)
-    tf1 = s["pulseTf"]; until(t0, 10200); tf2 = pg.evaluate(STATE)["pulseTf"]
+    tf1 = s["pulseTf"]; until(t_idea, 4300); tf2 = pg.evaluate(STATE)["pulseTf"]
     check("the envelope pulses (its scale changes over 0.3 s)", tf1 != tf2, (tf1, tf2))
     l = shot(pg, "l1_letter.png"); cmp_l = compare(l, "render_558-2.png", "l1_letter", region=(780, 0, 1280, 360))
     if cmp_l: print("INFO the letter stage against Figma's 558:2 render (the designer's cloud differs from the kept one; informative only):", cmp_l)
@@ -196,7 +226,7 @@ with sync_playwright() as p:
     pg.evaluate("window._plays = []")
     t1 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
     until(t1, 4000); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); music = first(pl, "bgm_letter")
-    check("re-run from the stamp page: the scene restarts from the first picture, the loop starts again", s and "b-in" in s["cls"] and "white" not in s["cls"] and music is not None and not music["paused"], (s["cls"] if s else s, music is not None))
+    check("re-run from the stamp page: the scene restarts from the first picture, the loop starts again", s and "b-in" in s["cls"] and "letter-in" not in s["cls"] and "c-in" not in s["cls"] and music is not None and not music["paused"], (s["cls"] if s else s, music is not None))
     # the opening once more with nothing else going on (no screenshots, no polls): the page's own frame times = smoothness
     pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=15000)
     bb = pg.locator(".ltr-env-pos").bounding_box(); t2 = pg.evaluate("performance.now()"); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)

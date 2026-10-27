@@ -16,6 +16,9 @@ Removed = the ported practice pages P3, P4, P5 and P6 (the dev nav's pages 13-16
          before the end screen: 13 pages.
 Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, [letter-fig]): the Figma frames 538:2 ->
          538:35 -> 538:39 -> 558:2 -> 610:6 played as one animated scene with the user's five sound files; 14 pages.
+         [letter-idea] (2026-10-27): the chime sounds the moment the grandfather cloud has stood; on its "ummm" the cloud leaves
+         and the girl is pensive (the user's third picture, no cloud), on its "aahaha" the same cloud grows in again, white, with
+         the letter growing in it.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -369,7 +372,15 @@ assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.ge
 # 1138x758 over the blurred room) -> the flap opens (sfx_letter_paper), the sheet rises, a veil -> the end screen. Numbers
 # measured on the renders (scratchpad measure_*.py): the cloud = 1.png at 0.2508 x (862.09, 8.61); bubbles (centre, diameter);
 # the envelope 188.9 px wide in 558:2, centred in the cloud. Phase practice = round 3 continues (no second gate before CEL).
-LETTER_IMGS = {"img_letter_scene_a": "✏️", "img_letter_scene_b": "✏️", "img_letter_blur": "✏️", "img_letter_cloud_grandpa": "💭",
+# [letter-idea] (asked 2026-10-27): the chime (sfx_letter_idea: "ummm" from its first frame to 1.16 s, silence, "aahaha" from
+# 2.37 s — read off the clip, see README) now sounds the moment the grandfather cloud has stood its hold, and drives what follows:
+# on the "ummm" the cloud and the bubbles leave and the girl is pensive (scene_c = the user's 1.png of 2026-10-27: the same room,
+# her face closed), no cloud; on the "aahaha" she brightens again (scene_b — which IS the user's 2.png of that day, byte for byte)
+# and the SAME cloud grows in again, white now, the letter growing in it (the cloud's own entrance replayed, the bubbles popping
+# again just ahead of it); then it pulses and waits for the tap. pace: hum_at / aha_at = those two moments in the chime (ms),
+# rebub_gap = the bubbles' re-pop spacing ahead of the "aahaha", letter_in = the growth after which the letter is tappable. The
+# dissolve (the grandfather fading to white inside the standing cloud) and the letter's own pop-in are gone.
+LETTER_IMGS = {"img_letter_scene_a": "✏️", "img_letter_scene_b": "✏️", "img_letter_scene_c": "🤔", "img_letter_blur": "✏️", "img_letter_cloud_grandpa": "💭",
                "img_letter_cloud_white": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}
 LETTER_SND = ["sfx_letter_magic", "sfx_letter_idea", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]
 for k, emo in LETTER_IMGS.items():
@@ -379,7 +390,7 @@ for k in LETTER_SND:
 i_p2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "P2")
 assert card["slides"][i_p2 + 1]["id"] == "CEL"
 card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic", "type": "LETTER_STORY", "prompt_hi": "", "audio": {},
-    "data": {"scene_a": "img_letter_scene_a", "scene_b": "img_letter_scene_b", "blur": "img_letter_blur",
+    "data": {"scene_a": "img_letter_scene_a", "scene_b": "img_letter_scene_b", "scene_c": "img_letter_scene_c", "blur": "img_letter_blur",
              "cloud": "img_letter_cloud_grandpa", "cloud_white": "img_letter_cloud_white",
              "env": {"body": "img_letter_env_body", "flap": "img_letter_env_flap", "inner": "img_letter_env_inner", "heart": "img_letter_env_heart"},
              "sfx": {"magic": "sfx_letter_magic", "idea": "sfx_letter_idea", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},
@@ -387,7 +398,7 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
              "layout": {"cloud": [862.09, 8.61, 314.5], "bubbles": [[814.7, 242.8, 8], [831.4, 230.5, 16], [854.0, 211.2, 26]],
                         "letter": [1020, 166, 189], "full": [71, -50, 1138, 758], "mouth": [568.8, 292.4]},
              "pace": {"a_hold": 2000, "xfade": 650, "bub_start": 2600, "bub_gap": 230, "cloud_start": 3300, "cloud_in": 1600, "hold": 2600,
-                      "dissolve": 1500, "letter_in": 450, "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2,
+                      "hum_at": 0, "aha_at": 2370, "rebub_gap": 160, "letter_in": 1300, "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2,
                       "veil_at": 1900, "done_at": 2450}}})
 # [stamp-fig] L2 = the Figma frame 565:28 "G3 guided story question" (the stamp page), after the letter page: the letter's sentence on a
 # sheet on a wooden table, a tray with two stamps (। and ?), the demos' title bar. It drives itself: the table (under the letter
@@ -1238,14 +1249,16 @@ js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: sent_mod + m.group(0), re.M,
 letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud letter page (FLN-by-MJ frames 538:2 -> 538:35 -> 538:39 -> 558:2 ->
      610:6), after P2's round gate. Self-driving, no आगे: the only tap is the envelope. 1. the girl writing (538:2) with the
      magic shimmer; after 2 s the thinking girl (538:35) fades in. 2. three thought bubbles pop, the grandfather cloud grows in
-     slowly (538:39) and the piano loop starts. 3. in the same cloud the grandfather dissolves to white, then the letter appears
-     (558:2's size) with its chime; it pulses and waits for the tap. 4. the tap: the pop, the envelope zooms to 610:6 over the
+     slowly (538:39) and the piano loop starts. 3. [letter-idea] the chime, as soon as the cloud has stood: on its "ummm" the
+     cloud and the bubbles leave and the girl is pensive (scene C, no cloud); on its "aahaha" she brightens again and the same
+     cloud grows in once more, white, with the letter (558:2's size) growing in it; it pulses and waits for the tap. 4. the tap:
+     the pop, the envelope zooms to 610:6 over the
      blurred room, the seal pops, the flap swings open on the paper crackle, the sheet rises, a veil — then the next page. The
      timings live in data.pace (ms), the places in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
       const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ a_hold: 2000, xfade: 650, bub_start: 2600, bub_gap: 230,
-        cloud_start: 3300, cloud_in: 1600, hold: 2600, dissolve: 1500, letter_in: 450, zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700,
+        cloud_start: 3300, cloud_in: 1600, hold: 2600, hum_at: 0, aha_at: 2370, rebub_gap: 160, letter_in: 1300, zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700,
         dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {};
@@ -1255,18 +1268,19 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
         '<div class="ltr">' +
           '<img class="ltr-scene a" src="' + imgSrc(d.scene_a) + '" alt="" draggable="false">' +
           '<img class="ltr-scene b" src="' + imgSrc(d.scene_b) + '" alt="" draggable="false">' +
+          '<img class="ltr-scene c" src="' + imgSrc(d.scene_c) + '" alt="" draggable="false">' +
           bubs.map(b=> '<span class="ltr-bub" style="left:' + (b[0] - b[2] / 2) + 'px;top:' + (b[1] - b[2] / 2) + 'px;width:' + b[2] + 'px;height:' + b[2] + 'px"></span>').join("") +
           '<div class="ltr-cloud" style="left:' + cl[0] + 'px;top:' + cl[1] + 'px;width:' + cl[2] + 'px;height:' + cl[2] + 'px">' +
             '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cw" src="' + imgSrc(d.cloud_white) + '" alt="" draggable="false"></div>' +
           '<img class="ltr-blur" src="' + imgSrc(d.blur) + '" alt="" draggable="false">' +
           '<div class="ltr-env-pos" role="button" aria-label="पत्र" style="left:' + full[0] + 'px;top:' + full[1] + 'px;width:' + full[2] + 'px;height:' + full[3] + 'px">' +
-            '<div class="ltr-env-pulse"><div class="ltr-env3d">' +
+            '<div class="ltr-env-grow"><div class="ltr-env-pulse"><div class="ltr-env3d">' +
               '<img class="ltr-inner" src="' + imgSrc(env.inner) + '" alt="" draggable="false">' +
               '<div class="ltr-paper"></div>' +
               '<img class="ltr-body" src="' + imgSrc(env.body) + '" alt="" draggable="false">' +
               '<div class="ltr-flap"><img src="' + imgSrc(env.flap) + '" alt="" draggable="false"></div>' +
               '<img class="ltr-heart" src="' + imgSrc(env.heart) + '" alt="" draggable="false">' +
-            '</div></div>' +
+            '</div></div></div>' +
           '</div>' +
           '<div class="ltr-veil"></div>' +
         '</div>');
@@ -1276,6 +1290,11 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
       // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud at 558:2's size, so the zoom moves the same element
       const s = li[2] / full[2];
       envPos.style.setProperty("--ltr-icon", "translate(" + (li[0] - li[2] / 2 - full[0]) + "px, " + (li[1] - (li[2] * full[3] / full[2]) / 2 - full[1]) + "px) scale(" + s + ")");
+      // [letter-idea] the letter grows in WITH the cloud: the cloud's entrance (the CSS: scale .55 and a (-30,40) slide about its
+      // 12% 92% corner) written in the box's own px — that corner and that slide at 1/s — on a wrapper inside the icon, so the
+      // cloud and the letter in it move as one
+      envPos.style.setProperty("--ltr-go", ((cl[0] + 0.12 * cl[2] - (li[0] - li[2] / 2)) / s) + "px " + ((cl[1] + 0.92 * cl[2] - (li[1] - (li[2] * full[3] / full[2]) / 2)) / s) + "px");
+      envPos.style.setProperty("--ltr-gt", (-30 / s) + "px, " + (40 / s) + "px");
       // [letter-dive] the opening is a whole-screen transition: the view dives INTO the open envelope, onto the sheet — the box
       // scaled by dive_scale about the mouth's centre (layout.mouth, box px: the incentre of the triangle top edge / fold apex,
       // the sheet behind it), which lands on the frame's centre, so at the end only the sheet is on the screen
@@ -1323,11 +1342,20 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
         fadeBackgroundMusic(0.02);
         music = sound(d.music, 0.0001, ()=> fadeTo(music, 0.45, 1200), true);
       });
-      // 3. in the same cloud the grandfather dissolves to white, then the letter appears with its chime and starts to pulse
-      const tDiss = P.cloud_start + P.cloud_in + P.hold;
-      at(tDiss, ()=> cloud.classList.add("white"));
-      at(tDiss + P.dissolve, ()=> sound(sfx.idea, 0.7, ()=> root.classList.add("letter-in")));
-      at(tDiss + P.dissolve + P.letter_in + 100, ()=>{ root.classList.add("ready"); state.demoRunning = false; });
+      // 3. [letter-idea] the chime, the moment the cloud has stood its hold; its beats hang on the sound's own start: on the "ummm"
+      //    (hum_at) the cloud shrinks back into the bubbles' corner and the bubbles pop out while the girl's pensive face fades over
+      //    the room (scene C, no cloud); the bubbles pop again just ahead of the "aahaha", and on it (aha_at) her bright face is back
+      //    and the SAME cloud grows in again — swapped to white while it was out — with the letter growing in it; then it pulses
+      const tIdea = P.cloud_start + P.cloud_in + P.hold;
+      at(tIdea, ()=> sound(sfx.idea, 0.7, ()=>{
+        at(P.hum_at, ()=>{ cloud.classList.remove("in"); cloud.classList.add("out"); bubEls.forEach(b=> b.classList.remove("in")); root.classList.add("c-in"); });
+        bubEls.forEach((b, k)=> at(P.aha_at - (bubEls.length - k) * P.rebub_gap, ()=> b.classList.add("in")));
+        at(P.aha_at, ()=>{
+          cloud.classList.add("white"); cloud.classList.remove("out"); cloud.classList.add("in");   // the same entrance as the grandfather's, white
+          root.classList.remove("c-in"); root.classList.add("letter-in");                            // her bright face; the letter grows with the cloud
+        });
+        at(P.aha_at + P.letter_in + 100, ()=>{ root.classList.add("ready"); state.demoRunning = false; });
+      }));
       // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
@@ -2069,26 +2097,37 @@ letter_css = """
 .ltr-scene{left:0;top:0;width:1280px;height:720px;object-fit:cover;}                      /* 538:2: the picture at 0,0 1280x720 */
 .ltr-scene.b{top:-1px;height:721px;opacity:0;transition:opacity .65s ease-in-out;}       /* 538:35: image 235 at 0,-1 1280x721 */
 .ltr.b-in .ltr-scene.b{opacity:1;}
+.ltr-scene.c{top:-1px;height:721px;opacity:.005;transition:opacity .35s ease-in-out;}    /* [letter-idea] the pensive girl (the user's 1.png, the same room): over B on the chime's "ummm", off on its "aahaha"; at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would cost a 50-70 ms frame on the beat) */
+.ltr.c-in .ltr-scene.c{opacity:1;}
 .ltr-bub{border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(120,90,60,.15);transform:scale(0);opacity:0;
   transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .2s ease-out;}
 .ltr-bub.in{transform:none;opacity:1;}
-.ltr-cloud{opacity:0;transform:scale(.55) translate(-30px,40px);transform-origin:12% 92%;
-  transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly */
+.ltr-cloud{opacity:0;transform:scale(.55) translate(-30px,40px);transform-origin:12% 92%;will-change:transform,opacity;
+  transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly; its layer made at mount, not on the beat */
 .ltr-cloud.in{opacity:1;transform:none;}
-.ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;transition:opacity 1.5s ease-in-out;}
-.ltr-cloud .ltr-cw{opacity:0;}
-.ltr-cloud.white .ltr-cg{opacity:0;}                                                     /* the grandfather dissolves ... */
-.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* ... into the same cloud, white (558:2) */
+.ltr-cloud.out{opacity:0;transform:scale(.55) translate(-30px,40px);transition:opacity .45s ease-in,transform .6s cubic-bezier(.4,0,.7,.5);}   /* [letter-idea] on the chime's "ummm": back into the bubbles' corner, quickly */
+.ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;}
+.ltr-cloud .ltr-cw{opacity:.005;}                                                       /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
+.ltr-cloud.white .ltr-cg{opacity:0;}                                                     /* the same cloud, white (558:2): swapped while it is out (unseen), ... */
+.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* ... then grown in again (.in) on the "aahaha", the letter growing in it */
 .ltr-blur{left:0;top:0;width:1280px;height:720px;opacity:0;transition:opacity .9s ease-in-out;}   /* 610:6's backdrop, flattened */
 .ltr.zoom .ltr-blur{opacity:1;}
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}
 .ltr.zoom .ltr-env-pos{transform:none;}                                                  /* = 610:6's envelope box */
-.ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;opacity:0;}
-.ltr.letter-in .ltr-env-pulse{animation:ltrIn .45s cubic-bezier(.3,1.4,.5,1) both;}   /* on the chime's first frame */
+/* [letter-idea] the letter grows in WITH the cloud on the chime's "aahaha": the cloud's own entrance (opacity 1.2 s; the scale and
+   the slide from the bubbles' corner, 1.6 s) on a wrapper inside the icon, in the box's px (--ltr-go / --ltr-gt, set by the module:
+   that corner and that slide at 1/s), so the cloud and the letter in it are one growing thought; none after, so the zoom and the
+   dive see nothing of it. Its resting opacity is 1/255, not 0, and it has its own layer from mount (will-change): a layer at 0 is
+   never rasterised, so the envelope's four lossless layers (6 MP) would be decoded on the beat itself — a 120-150 ms frame right
+   on the "aahaha" (measured on the page's own frames) — while at 1/255 they are drawn (unseen: under a level) and so decoded with
+   the page's first frame; the raster then is at the icon's small scale, cheap */
+.ltr-env-grow{position:absolute;inset:0;transform-origin:var(--ltr-go,0 0);opacity:.005;transform:scale(.55) translate(var(--ltr-gt,0px,0px));
+  will-change:transform,opacity;transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}
+.ltr.letter-in .ltr-env-grow{opacity:1;transform:none;}
+.ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;}                /* hidden by the grow wrapper until the "aahaha" */
 .ltr.ready .ltr-env-pos{pointer-events:auto;cursor:pointer;}
 .ltr.ready .ltr-env-pulse{opacity:1;animation:ltrPulse 1.2s ease-in-out infinite;}
 .ltr.zoom .ltr-env-pulse{opacity:1;animation:none;}
-@keyframes ltrIn{from{transform:scale(.5);opacity:0;}to{transform:none;opacity:1;}}
 @keyframes ltrPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
 .ltr-env3d{position:absolute;inset:0;perspective:2600px;}
 .ltr-env3d > *{position:absolute;left:0;top:0;width:100%;height:100%;}
@@ -2407,7 +2446,8 @@ for page, image_id in (("p1", "img_p1_book_gry"), ("p2", "img_p2_pencils_gry")):
         if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 
 # ---------- 7l. [letter-fig] L1's pictures and sounds (letter_assets/: the frames' bitmaps and the user's two PNGs cut into layers by
-#               the scratchpad's make_letter_assets_*.py; the user's five sound files as ogg, see README) ----------
+#               the scratchpad's make_letter_assets_*.py; the three room pictures lossless (scene_c: [letter-idea], the pensive girl);
+#               the user's five sound files as ogg, see README) ----------
 LETTER_SRC = SCR / "letter_assets"
 for name, sub in [(f"{k}.webp", "Images") for k in LETTER_IMGS] + [(f"{k}.ogg", "Audio") for k in LETTER_SND]:
     f, dst = LETTER_SRC / name, DIST / "assets" / sub / name

@@ -1,0 +1,49 @@
+PASS start button opens the peek gate
+PASS gate closes into the story page (T0) inside the tutorial frame
+PASS story page's आगे opens T0B ("आइए वाक्य सुनें।")
+PASS T0B's आगे opens T1 (the three-marks recap) in the tutorial frame
+PASS T1's आगे opens T2 (the run-on sentence demo) on the plain stage
+PASS T2 runs itself through to T3, the second demo (no आगे)
+PASS T3 runs itself through to T4, the third demo (no आगे)
+PASS T4 runs itself through the round gate to G1, the Figma tap page (no आगे)
+PASS after T4 (and only there since T1) the gate: the peeking Swiftie, then "चलिए, साथ में करें!" with its VO, then G1 — peek 46 ms, VO + title 4267 ms after it opened, G1 9530 ms
+PASS G1: a wrong tile wiggles, counts an attempt, no mark in the slot
+PASS G1: the other wrong tile too, and the page waits
+PASS G1: the right tile (पूर्ण विराम) puts its mark in the slot
+PASS G1 then moves on to G2 by itself, the second Figma tap page
+PASS G2: a wrong tile wiggles, no mark
+PASS G2: the right tile puts its "?" in the slot
+PASS G2 then moves on to G3 by itself, the third Figma tap page (one small slot)
+PASS G3: a wrong tile wiggles, no mark
+PASS G3: the right tile puts its "," in the slot
+PASS G3 then moves on to G4 by itself: the reference game's P4 page (picture + three sentence pills)
+PASS G4: a wrong pill wiggles and counts an attempt
+PASS G4: the right pill (लड़की पतंग उड़ा रही है ।) is marked green
+PASS G4 then moves straight on to P1 (no gate here): the same P4 page with its own picture and sentences
+PASS P1: a wrong pill wiggles and counts an attempt
+PASS P1: the right pill (क्या यह आपकी किताब है?) is marked green
+PASS P1 then moves on to P2: the same P4 page again, its long sentences on two lines
+PASS P2: a wrong pill wiggles and counts an attempt
+PASS P2: the right pill (मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।) is marked green
+PASS P2 then crosses the gate (VO + animation) into L1, the letter page; the gates since T1: T4's, then P2's — peek 33 ms, VO + title 4249 ms after it opened, L1 6489 ms
+PASS L1: the scene has played itself to the pulsing letter in the cloud, tappable, no आगे
+PASS the tap opens the envelope (zoom, flap, dive, veil) and L2, the stamp page, follows ([stamp-fig], stamp_check.py has it beat by beat)
+PASS L2: the title, the sheet and the tray, the two stamps, the sentence, then the blinking slot — the stamps now the child's to drag
+PASS L2 round 1: the ? stamp dropped on the slot is pressed and the ? printed (stamp_check.py has the page beat by beat: the guidance, the wrong drops, the sounds)
+PASS L2 round 2 (579:47): its 2 stamps shown, its sentence's 15 words read and shown, its slot blinking — the stamps the child's again
+PASS L2 round 2: the , stamp dropped on the slot is pressed and the , printed there
+PASS L2 round 3 (592:89): its 3 stamps shown, its sentence's 5 words read and shown, its slot blinking — the stamps the child's again
+PASS L2 round 3: the । stamp dropped on the slot is pressed and the । printed there
+PASS L2 round 4 (593:130): its 3 stamps shown, its sentence's 11 words read and shown, its slot blinking — the stamps the child's again
+PASS L2 round 4: the ? stamp dropped on each of the 2 slots is pressed and the ? printed in each
+PASS L2 round 5 (593:151): its 3 stamps shown, its sentence's 22 words read and shown, its slot blinking — the stamps the child's again
+PASS L2 round 5: the । stamp dropped on each of the 4 slots is pressed and the । printed in each
+PASS L2 finale: after the last round's confetti the final picture (the girl with her letter) dissolves in over the whole stage, its asset served at 1280 px, before the end screen
+PASS the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last — ['T4', 'P2']
+PASS the end screen's validator: every expected signal fired
+PASS dev nav bar + jump dropdown render with ?dev=1
+PASS T4 from the dev nav's list, run 1 in the same load: its end crosses the gate (VO + animation) into G1 — peek 6 ms, VO + title 4221 ms after it opened, G1 9500 ms
+PASS T4 from the dev nav's list, run 2 in the same load: its end crosses the gate (VO + animation) into G1 — peek 4 ms, VO + title 4219 ms after it opened, G1 9485 ms
+PASS no page errors
+
+47/47 passed
