@@ -35,6 +35,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [cover-sky] (2026-10-28): the cover's sky is SEEN (the start gate transparent on the title page, as the reference's: it had
          been painting a second sunburst over the glow and the stars) and the play button's pop-in fades in from 0 (its
          opacity:1 !important, which beat the keyframe, dropped); two CSS lines in the [dun-chrome] block, nothing else.
+         [band-chip] (2026-10-28): the speaker chip on the six title-bar pages T2-T4 and G1-G3 — the engine's .tut-audio chip (the
+         same inline-SVG speaker as G4's header chip) shown again at the bar's bird, at G4's shoulder spot, with G4's states;
+         CSS only (band_chip_css).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2645,7 +2648,43 @@ body.is-start.gating .start-gate{display:flex !important;visibility:visible !imp
 .end-screen .end-mascot{position:static !important;transform:none !important;}
 /* ===== [dun-chrome] end ===== */
 """)
-css = css + dun_css
+# ---------- [band-chip] (asked 2026-10-28): "From page 4 T2 to page 9 G3 why haven't you placed the speaker button icon just like the
+#            other pages, with the exact same animation? Place the exact same speaker button icon on these pages with the same
+#            animation effects; rest exactly the same." The six Figma-bar pages (T2, T3, T4 = PUNCT_DEMO; G1, G2, G3 = PUNCT_PICK)
+#            mount in the tutorial card (the whole stage, .sfig-full), which already carries the engine's .tut-audio chip - the same
+#            inline-SVG speaker as the header chip of G4 / P1 / P2, wired to replaySlideAudio and to setPlaying's .playing /
+#            vo-disabled - but [demo-fig] hid it with the standing Swiftie on 2026-10-25 (the frame's only Swiftie is the head in
+#            its title bar). Shown again, as G4's header chip is to ITS bird: G4's chip is 66 stage px at (94.5,80) by the 118 px
+#            circle at (16.5,18) - its centre .8814 r right of and .6102 r below the circle's centre, on the bird's bottom-right
+#            shoulder; the bars' circle (.dmf-head) is 121.34 x 124.97 stage px at (37.49,27.08), so the chip's box is
+#            (118.6,94.7) 66 x 66 in stage px (the card IS the stage on these pages). The same look (the drop shadow on the
+#            element, the in-SVG shadow off, hover 1.06 / press .95), the same states: grey (opacity .5, grayscale) and untappable
+#            while a line speaks (body.vo-playing), the arcs blinking while it speaks (.playing, the engine's), solid at rest; it
+#            comes in with the title bar (the bar's own fade + settle, .45 / .55 s) and - the reference's header-chip rule,
+#            [SPK-AFTER-VO] - stays grey until the page's opening lines are over: on T2-T4 the demo runs itself to the end (the
+#            engine refuses the chip's tap while state.demoRunning), on G1-G3 until the tiles are the child's (.sfig-in.dmf-live),
+#            when a tap reads the sentence again, word by word (state.replayAudio, the idle reminder's read). No JS change. ----------
+band_chip_css = r"""
+/* ===== [band-chip] (2026-10-28) the speaker chip on the title-bar pages T2, T3, T4, G1, G2, G3 — G4's header chip at the bar's bird;
+   see build.py ===== */
+.tut-card.sfig-card.sfig-full .tut-audio{display:block;position:absolute;left:118.6px;top:94.7px;bottom:auto;width:66px;height:66px;z-index:41;cursor:pointer;
+  --chip-op:1;opacity:var(--chip-op);transform:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.22));transition:transform .12s;}
+.tut-card.sfig-card.sfig-full .tut-audio svg{filter:none;overflow:visible;}
+.tut-card.sfig-card.sfig-full .tut-audio svg > g[filter]{filter:none;}        /* the chip's own shadow (above); the in-SVG one would clip the ring's bottom */
+.tut-card.sfig-card.sfig-full .tut-audio:hover{transform:scale(1.06);}
+.tut-card.sfig-card.sfig-full .tut-audio:active{transform:scale(.95);}
+/* grey + untappable while a line speaks (G4's look, switched at once as there) and until the page's opening lines are over
+   (T2-T4: the whole self-running demo; G1-G3: until the tiles are the child's) */
+body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
+.tut-card.sfig-card.sfig-full:not(:has(.sfig-in.dmf-live)) .tut-audio{pointer-events:none;--chip-op:.5;filter:grayscale(1) brightness(1.2);}
+/* in with the title bar: the bar's own entrance (.55 s settle, fading up to whichever opacity the state has — the keyframe's end
+   reads --chip-op, so a grey chip lands on .5 and a live one on 1, with no fill to snap from); nothing until the bar is in */
+.tut-card.sfig-card.sfig-full:not(:has(.dmf-band.in)) .tut-audio{opacity:0;transform:translateY(-14px) scale(.97);pointer-events:none;animation:none;}
+.tut-card.sfig-card.sfig-full:has(.dmf-band.in) .tut-audio{animation:bandChipIn .55s cubic-bezier(.2,.9,.3,1.2);}
+@keyframes bandChipIn{from{opacity:0;transform:translateY(-14px) scale(.97);}to{opacity:var(--chip-op,1);transform:none;}}
+/* ===== [band-chip] end ===== */
+"""
+css = css + dun_css + band_chip_css
 html = f"""<!doctype html>
 <html lang="hi">
 <head>

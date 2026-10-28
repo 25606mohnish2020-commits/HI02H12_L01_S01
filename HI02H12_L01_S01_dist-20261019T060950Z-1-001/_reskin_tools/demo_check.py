@@ -202,8 +202,18 @@ with sync_playwright() as p:
     check(f"{NEXT} is {CONFIG['next_what']}", pg.evaluate(CONFIG["next_ok"]))
     pg.evaluate(GOTO, SLIDE); pg.wait_for_function("!!document.querySelector('.dmf-band.in')", timeout=10000); pg.wait_for_timeout(300)
     boxes = pg.evaluate(BOXES, list(AS_T0)); worst = 0
-    gone = pg.evaluate("""[...document.querySelectorAll('.sfig-swiftie, .tut-audio')].map(e => { const r = e.getBoundingClientRect(); return getComputedStyle(e).display + ' ' + r.width + 'x' + r.height; })""")
-    check("no standing Swiftie and no 🔊 chip on this page", len(gone) >= 2 and all(g == "none 0x0" for g in gone), gone)
+    gone = pg.evaluate("""[...document.querySelectorAll('.sfig-swiftie')].map(e => { const r = e.getBoundingClientRect(); return getComputedStyle(e).display + ' ' + r.width + 'x' + r.height; })""")
+    check("no standing Swiftie on this page", len(gone) >= 1 and all(g == "none 0x0" for g in gone), gone)
+    # [band-chip] (2026-10-28) the 🔊 chip is back, at the title bar's bird: G4's header chip at its shoulder spot (66 stage px at
+    # 118.6,94.7), in with the bar (its .55 s settle is over by now), grey + untappable while the demo runs itself
+    pg.wait_for_timeout(400)
+    chip = pg.evaluate("""() => { const c = document.querySelector('.tut-audio'); const r = c.getBoundingClientRect(), s = getComputedStyle(c);
+      return { bb: [r.left, r.top, r.width, r.height], op: s.opacity, pe: s.pointerEvents, grey: s.filter.startsWith('grayscale(1)'), demo: state.demoRunning,
+               svg: !!c.querySelector('svg .wv1') }; }""")
+    check("the 🔊 chip (the engine's speaker SVG) sits at the bar's bird as G4's header chip does: 66x66 at 118.6,94.7 (stage px)",
+          chip["svg"] and max(abs(g - e) for g, e in zip(chip["bb"], (118.6, 94.7, 66, 66))) <= 1, [round(v, 1) for v in chip["bb"]])
+    check("...grey and untappable while the demo runs itself (the page's opening lines, as the reference's header chip)",
+          chip["demo"] and chip["grey"] and chip["pe"] == "none" and abs(float(chip["op"]) - .5) <= .05, (chip["op"], chip["pe"], chip["grey"]))
     print("== the card is the stage (stage px) ==")
     for sel, exp in AS_T0.items():
         got = boxes[sel]; dd = max(abs(g - e) for g, e in zip(got, exp)); worst = max(worst, dd)

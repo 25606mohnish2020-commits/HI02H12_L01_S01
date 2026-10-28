@@ -3636,3 +3636,22 @@ body > .end-screen{gap:calc(22px * var(--scale,1)) !important;}
 #endBtn.show{display:inline-flex !important;align-items:center;}
 .end-screen .end-mascot{position:static !important;transform:none !important;}
 /* ===== [dun-chrome] end ===== */
+
+/* ===== [band-chip] (2026-10-28) the speaker chip on the title-bar pages T2, T3, T4, G1, G2, G3 — G4's header chip at the bar's bird;
+   see build.py ===== */
+.tut-card.sfig-card.sfig-full .tut-audio{display:block;position:absolute;left:118.6px;top:94.7px;bottom:auto;width:66px;height:66px;z-index:41;cursor:pointer;
+  --chip-op:1;opacity:var(--chip-op);transform:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.22));transition:transform .12s;}
+.tut-card.sfig-card.sfig-full .tut-audio svg{filter:none;overflow:visible;}
+.tut-card.sfig-card.sfig-full .tut-audio svg > g[filter]{filter:none;}        /* the chip's own shadow (above); the in-SVG one would clip the ring's bottom */
+.tut-card.sfig-card.sfig-full .tut-audio:hover{transform:scale(1.06);}
+.tut-card.sfig-card.sfig-full .tut-audio:active{transform:scale(.95);}
+/* grey + untappable while a line speaks (G4's look, switched at once as there) and until the page's opening lines are over
+   (T2-T4: the whole self-running demo; G1-G3: until the tiles are the child's) */
+body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
+.tut-card.sfig-card.sfig-full:not(:has(.sfig-in.dmf-live)) .tut-audio{pointer-events:none;--chip-op:.5;filter:grayscale(1) brightness(1.2);}
+/* in with the title bar: the bar's own entrance (.55 s settle, fading up to whichever opacity the state has — the keyframe's end
+   reads --chip-op, so a grey chip lands on .5 and a live one on 1, with no fill to snap from); nothing until the bar is in */
+.tut-card.sfig-card.sfig-full:not(:has(.dmf-band.in)) .tut-audio{opacity:0;transform:translateY(-14px) scale(.97);pointer-events:none;animation:none;}
+.tut-card.sfig-card.sfig-full:has(.dmf-band.in) .tut-audio{animation:bandChipIn .55s cubic-bezier(.2,.9,.3,1.2);}
+@keyframes bandChipIn{from{opacity:0;transform:translateY(-14px) scale(.97);}to{opacity:var(--chip-op,1);transform:none;}}
+/* ===== [band-chip] end ===== */

@@ -108,11 +108,21 @@ with sync_playwright() as p:
         const r = e.getBoundingClientRect(); return getComputedStyle(e).display === 'none' || r.width === 0 ? 'hidden' : 'shown'; };
       return { header: v('.header-row'), buddy: v('#swBuddy'), swiftie: v('.sfig-swiftie'), chip: v('.tut-audio'), hint: v('#hintBtn'),
                phase: CARD.slides[state.idx].phase, type: CARD.slides[state.idx].type, frame: !!document.querySelector('.tut-card.sfig-card.sfig-full') }; }""")
-    check("the page is the frame's whole stage: no engine header, no standing Swiftie, no 🔊 chip, no hint bulb",
-          chrome["frame"] and all(chrome[k] in ("hidden", "absent") for k in ("header", "buddy", "swiftie", "chip", "hint")), chrome)
+    check("the page is the frame's whole stage: no engine header, no standing Swiftie, no hint bulb",
+          chrome["frame"] and all(chrome[k] in ("hidden", "absent") for k in ("header", "buddy", "swiftie", "hint")), chrome)
     check(f"{SLIDE} is PUNCT_PICK and its phase stays guided", chrome["type"] == "PUNCT_PICK" and chrome["phase"] == "guided")
     pg.wait_for_function("!!document.querySelector('.dmf-band.in')", timeout=10000, polling=20); pg.wait_for_timeout(700)
     pg.screenshot(path=str(out / "a_band_1333.png"))
+    # [band-chip] (2026-10-28) the 🔊 chip is back, at the title bar's bird: G4's header chip at its shoulder spot (66 stage px at
+    # 118.6,94.7), in with the bar; grey + untappable through the opening lines (until the tiles are the child's)
+    CHIP = """() => { const c = document.querySelector('.tut-audio'); const r = c.getBoundingClientRect(), s = getComputedStyle(c);
+      return { bb: [r.left, r.top, r.width, r.height], op: s.opacity, pe: s.pointerEvents, grey: s.filter.startsWith('grayscale(1)'),
+               svg: !!c.querySelector('svg .wv1'), wv1: getComputedStyle(c.querySelector('.wv1')).animationName, live: !!document.querySelector('.sfig-in.dmf-live') }; }"""
+    chip = pg.evaluate(CHIP)
+    check("the 🔊 chip (the engine's speaker SVG) sits at the bar's bird as G4's header chip does: 66x66 at 118.6,94.7 (stage px)",
+          chip["svg"] and max(abs(g - e) for g, e in zip(chip["bb"], (118.6, 94.7, 66, 66))) <= 1, [round(v, 1) for v in chip["bb"]])
+    check("...grey and untappable through the page's opening lines (as the reference's header chip)",
+          not chip["live"] and chip["grey"] and chip["pe"] == "none" and abs(float(chip["op"]) - .5) <= .05, (chip["op"], chip["pe"], chip["grey"]))
     # a tap while the sentence is being read does nothing
     pg.wait_for_function("document.querySelectorAll('.dmf-sent .sfig-w.on').length > 0", timeout=20000, polling=20)
     pg.click(f".dmf-tile.t{WRONG[0]}", force=True); pg.click(f".dmf-tile.t{PICK + 1}", force=True)
@@ -225,6 +235,27 @@ with sync_playwright() as p:
     pg.click(f".dmf-tile.t{WRONG[0]}"); pg.wait_for_timeout(500)
     cut = pg.evaluate("[isPlaying, document.querySelectorAll('.dmf-sent .sfig-w.hot').length, state.attempts]")
     check("a tap during the reminder cuts it short and clears the highlight (the tap still counts)", cut == [False, 0, 1], cut)
+    pg.close()
+
+    # ---- 2b. [band-chip] the 🔊 chip: live (colour, tappable) once the tiles are the child's and nothing speaks; a tap reads the
+    #      sentence again, word by word, the chip grey with its arcs blinking meanwhile; back to colour after
+    pg = b.new_page(viewport={"width": 1333, "height": 750})
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(GOTO, SLIDE)
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live') && !isPlaying", timeout=30000, polling=20); pg.wait_for_timeout(150)
+    c_live = pg.evaluate(CHIP)
+    check("the 🔊 chip goes live (colour, tappable, arcs solid) the moment the tiles are the child's and nothing speaks",
+          c_live["live"] and not c_live["grey"] and c_live["pe"] == "auto" and c_live["op"] == "1" and c_live["wv1"] == "none", (c_live["op"], c_live["pe"], c_live["grey"], c_live["wv1"]))
+    pg.click(".tut-audio"); pg.wait_for_timeout(500)
+    c_tap = pg.evaluate("""() => { const a = currentAudio; return [isPlaying, a ? a.src.split('/').pop().split('?')[0] : null, document.querySelectorAll('.dmf-sent .sfig-w.hot').length]; }""")
+    c_mid = pg.evaluate(CHIP)
+    check("a tap on it reads the sentence again, each word highlighted as it is read (the idle reminder's read)",
+          c_tap[0] and c_tap[1] == f"vo_{SENT}.ogg" and c_tap[2] >= 1, c_tap)
+    check("...the chip grey and untappable while it reads, its arcs blinking", c_mid["grey"] and c_mid["pe"] == "none" and c_mid["wv1"] == "wv1", (c_mid["grey"], c_mid["pe"], c_mid["wv1"]))
+    pg.wait_for_function("!isPlaying", timeout=15000, polling=20); pg.wait_for_timeout(200)
+    c_after = pg.evaluate(CHIP)
+    check("...and in colour, tappable, arcs solid again once the read is over; the tiles still live",
+          c_after["live"] and not c_after["grey"] and c_after["pe"] == "auto" and c_after["op"] == "1" and c_after["wv1"] == "none", (c_after["op"], c_after["pe"], c_after["grey"]))
     pg.close()
 
     # ---- 3. geometry + pixel diff at 1280x720, at the frame's moment (sentence shown, slot empty, tiles plain)

@@ -518,6 +518,37 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The speaker chip on the title-bar pages T2-T4, G1-G3 ([band-chip], 2026-10-28)
+- Asked: "From page 4 T2 to page 9 G3 why haven't you placed the speaker button icon just like the other pages, along with the
+  exact same animation? Place the exact same speaker button icon on these pages as well with the same animation effects. Rest keep
+  everything exactly the same." The six pages are the Figma-bar pages (T2, T3, T4 = PUNCT_DEMO; G1, G2, G3 = PUNCT_PICK). They
+  mount in the tutorial card (the whole stage, .sfig-full), which already carries the engine's .tut-audio chip - the very same
+  inline-SVG speaker as the header chip of G4 / P1 / P2, wired to replaySlideAudio and to setPlaying's .playing / vo-disabled -
+  but [demo-fig] had hidden it together with the standing Swiftie on 2026-10-25 (the frame's only Swiftie is the head in its
+  title bar, and the chip had sat at that absent bird's feet). The chip is shown again, placed as G4's header chip is to ITS
+  bird: G4's chip is 66 stage px at (94.5,80) by the 118 px circle at (16.5,18), i.e. its centre .8814 r right of and .6102 r
+  below the circle's centre, on the bird's bottom-right shoulder; the bars' circle (.dmf-head) is 121.34 x 124.97 stage px at
+  (37.49,27.08), so the chip's box is (118.6,94.7) 66 x 66 in stage px (the card IS the stage on these pages).
+- The look and the states are G4's: the drop shadow on the element and the in-SVG shadow off (the ring's bottom would be
+  clipped), hover 1.06 / press .95; grey (opacity .5, grayscale, brightness 1.2) and untappable while a line speaks
+  (body.vo-playing), switched at once as there; the arcs blink while a line speaks (.playing, wv1 / wv2) and stand solid at rest;
+  and - the reference's header-chip rule, [SPK-AFTER-VO] - grey until the page's opening lines are over: on T2-T4 the demo runs
+  itself to the end (the engine's replaySlideAudio refuses the tap while state.demoRunning anyway), on G1-G3 until the tiles are
+  the child's (.sfig-in.dmf-live); then a tap reads the sentence again, word by word highlighted (state.replayAudio, the same read
+  as the 7 s idle reminder), the chip grey with its arcs blinking meanwhile. It comes in with the title bar (bandChipIn, the
+  bar's own .55 s settle from -14 px / .97, fading up to whichever opacity the state has - the keyframe's end reads --chip-op,
+  so a grey chip lands on .5, a live one on 1, no fill to snap from; nothing is drawn until the bar is in). CSS only
+  (build.py's band_chip_css, appended after the [dun-chrome] block): the pages' modules, flows, clips, boxes and every other page
+  (T0 / T0B / T1's card chip, G4-P2's header chip, L1, L2) are untouched. L2's bar (page 14) was not asked for and is as it was.
+- Measured (the scratchpad's chip_probe.py, 1333x750): G1 - before the bar: opacity 0, untappable, scaled .97; with the bar in and
+  the intro / sentence sounding: 66x66 at 118.6,94.7, grey (.5, grayscale), pointer-events none; the moment the tiles go live and
+  nothing speaks: opacity 1, colour, tappable, arcs solid; a tap: vo_g1_sent plays again with the words lit (.hot), the chip grey
+  and wv1 blinking; after it: colour again. T2 - 172 samples through the demo: always grey and untappable, state.demoRunning
+  true throughout, arcs blinking exactly while a line speaks. demo_check.py (T2 / T3 / T4) and pick_check.py (G1 / G2 / G3) now
+  expect the chip (its box, grey through the opening lines; the pick pages also: live once the tiles are, the tap's re-read, grey
+  + blinking meanwhile, colour after) instead of "no chip". `../_before_band_chip/` holds the dist's three files, build.py,
+  README.md, demo_check.py and pick_check.py from before.
+
 The cover's sky seen, the play button's fade ([cover-sky], 2026-10-28)
 - Asked (the cover alone, again): take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and apply, exactly the same, the
   cover page's background animation and the play button's placement, position, sound, appearing animation and look. The reference
