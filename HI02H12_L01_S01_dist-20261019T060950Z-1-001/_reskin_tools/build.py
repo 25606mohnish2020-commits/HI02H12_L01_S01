@@ -56,6 +56,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          vo_demo3_intro: data.intro_audio null, the clips off the dist): the title bar comes on mount, the rest 1.3 s later.
          [tile-tap] (2026-10-28): on T2-T4 and G1-G3 the tapped option presses as a whole (base, face, mark, name), not its
          white face alone — the dmfTap animation moved from .dmf-face to .dmf-tile.on; nothing else.
+         [p1-pic] (2026-10-28): P1's picture is the user's new one (two girls with the picture book), framed like P4's by
+         g4_picture.py into the same file; nothing else.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -415,7 +417,9 @@ def practice_pick(sid, page, image_id, was, labels, right):
         card["assets"]["audio_text"][f"vo_{page}_{k}"] = lines[k]["text"]
     card["assets"]["image"][image_id] = f"assets/Images/{image_id}.webp"
     card["_emoji_fallback"][image_id] = "✏️"
-# P1: two boys and a picture book; the sentences differ only in where the question mark sits — in place of the ported
+# P1: two boys and a picture book ([p1-pic] 2026-10-28: now the user's picture of two girls with the picture book, framed the same
+# way by g4_picture.py into the same img_p1_book_gry.webp; the old source and picture kept as *_v1_2026-10-25); the sentences differ
+# only in where the question mark sits — in place of the ported
 # BUILD_PUNCT builder ("क्या तुमने खाना खाया"). Still the first practice page (G4's round gate before it).
 practice_pick("P1", "p1", "img_p1_book_gry", "BUILD_PUNCT",
               ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1")
