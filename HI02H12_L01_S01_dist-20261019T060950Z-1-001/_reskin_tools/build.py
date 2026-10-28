@@ -38,6 +38,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [band-chip] (2026-10-28): the speaker chip on the six title-bar pages T2-T4 and G1-G3 — the engine's .tut-audio chip (the
          same inline-SVG speaker as G4's header chip) shown again at the bar's bird, at G4's shoulder spot, with G4's states;
          CSS only (band_chip_css).
+         [cel-vo] (2026-10-28): the celebration's line is the reference's own vo_well_done (its clip as Opus .ogg, its beak bits,
+         its text) in place of vo_celebrate; the bird and the finish button were already the reference's.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2437,6 +2439,24 @@ for name in DUN_UI:
 card["end_anim"] = {"cols": dun_ea["cols"], "fw": dun_ea["fw"], "fh": dun_ea["fh"], "step_ms": dun_bits["step_ms"], "bits": dun_bits["bits"], "vo": dun_bits["vo"],
                     "shabaash": dun_ea["shabaash"], "talk": dun_ea["talk"], "idle": dun_ea["idle"]}
 _cel = next(s for s in card["slides"] if s["type"] == "CELEBRATION"); _cel.setdefault("audio", {})["sfx"] = "sfx_std_confetti"
+# ---------- [cel-vo] (asked 2026-10-28: "apply the exact same VO, bird animation and the finish button at the celebration screen as the
+#            reference"). Probed side by side (the scratchpad's cel_probe.py): the bird (cel_shabaash -> cel_talk -> cel_idle, the
+#            jump, the landing at ~1.9 s, 314x420 at 509.5,79 at rest) and the finish button (the gold pill 133.6x88 at 599.7,521,
+#            4 px white ring, the arrow glyph, grey + untappable while she speaks, then celArrowPulse 1.3 s; the tap = the standard
+#            next sound at 0.9 and the hand-over) were already the reference's ([dun-chrome] 7); the ONE difference was the LINE:
+#            this lesson's vo_celebrate (4.7 s) in place of the reference's vo_well_done ("बहुत बढ़िया, दोस्त! तुमने कमाल कर दिया!",
+#            2.94 s). Now the reference's own clip (dun_assets/Audio/vo_well_done.ogg: its wav re-containered to this engine's
+#            Opus-48k .ogg, nothing resampled in time) with the reference card's own beak bits (dun_assets/cel_bits_ref.json,
+#            117 x 25 ms) and text; the arrow therefore goes live when THIS line ends (~4.9 s in, as there). vo_celebrate.ogg stays
+#            in assets/Audio, unused. ----------
+_ref_bits = json.loads((DUN / "cel_bits_ref.json").read_text(encoding="utf-8"))
+_src, _dst = DUN / "Audio" / "vo_well_done.ogg", DIST / "assets" / "Audio" / "vo_well_done.ogg"
+assert _src.exists(), f"missing {_src}"
+if not _dst.exists() or _dst.read_bytes() != _src.read_bytes(): shutil.copy2(_src, _dst)
+card["assets"]["audio"]["vo_well_done"] = "assets/Audio/vo_well_done.ogg"
+card["assets"]["audio_text"]["vo_well_done"] = _ref_bits["text"]
+_cel["audio"]["prompt"] = "vo_well_done"; _cel["prompt_hi"] = _ref_bits["text"]
+card["end_anim"]["vo"] = "vo_well_done"; card["end_anim"]["bits"] = _ref_bits["bits"]; card["end_anim"]["step_ms"] = _ref_bits["step_ms"]
 # 3. the markup: the play button, the cover bird, आगे and the celebration screen as the reference draws them
 body = sub1(body, r'<button class="sg-btn" id="sgBtn"[^>]*>.*?</button>',
             '<button class="sg-btn" id="sgBtn" type="button" aria-label="शुरू करें">शुरू करें</button>', re.S, "dun: #sgBtn markup")

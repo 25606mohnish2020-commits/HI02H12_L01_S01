@@ -518,6 +518,33 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The celebration's line is the reference's ([cel-vo], 2026-10-28)
+- Asked: take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and "apply the exact same VO, bird animation and the finish
+  button exactly the same at the celebration screen". Both celebration screens were probed in Chrome at 1333x750 (the
+  scratchpad's cel_probe.py: the last slide mounted, then every 40 ms the sprite's sheet + frame + box, the finish button's class /
+  box / look / animation, the clip and its clock, every play(); screenshots; then the tap). Already the same, value for value
+  ([dun-chrome] 7): the standard confetti sound at 0.45 on the mount; the bird (.cel-art) on the शाबाश sheet - the jump 0-29 at
+  45 ms a frame from the screen's first smooth paints, the landing 30-35 - then the talk sheet lip-synced to the line, then the
+  idle loop; 314x420 at 509.5,79 at rest; the finish button (the gold pill 133.6x88 at 599.7,521, #FCB717, 4 px white ring, the
+  arrow glyph 37.6x52) grey (.55, grayscale) and untappable while she speaks, then celArrowPulse 1.3 s; the tap = the standard
+  next sound at 0.9 and the hand-over (ours also sends this engine's completion events and takes the tap once; the reference's
+  button stays pressable - a difference of plumbing, not of look). The ONE difference was the LINE: this lesson's vo_celebrate
+  (4.7 s, "बहुत बढ़िया! तुमने सही जगह रुकना ... सीख लिया।") in place of the reference's vo_well_done (2.94 s, "बहुत बढ़िया, दोस्त!
+  तुमने कमाल कर दिया!") - and with it the beak's bits and the moment the arrow goes live (6.6 s in here, 4.9 s there).
+- Now the reference's own clip and sync: its vo_well_done.wav re-containered to this engine's .ogg (Opus 48 kHz like every clip
+  here; `dun_assets/Audio/vo_well_done.ogg`, 2.95 s, nothing changed in time), the reference card's own beak bits (117 x 25 ms,
+  `dun_assets/cel_bits_ref.json`, with its text) and its text in the card: the CEL slide's audio.prompt + prompt_hi, assets.audio +
+  audio_text, end_anim.vo + bits + step_ms (build.py [cel-vo], after the [dun-chrome] card step). vo_celebrate.ogg stays in
+  assets/Audio, unused. NB the VO manifest (HI02H12_L01_S01_VO_Manifest.xlsx, 2026-10-28) still lists the celebration line as
+  vo_celebrate with the old text; that row is now vo_well_done, "बहुत बढ़िया, दोस्त! तुमने कमाल कर दिया!" (the reference's recording
+  is used as is, so nothing to record).
+- Measured after (cel_probe.py, three runs each): the line's play() 1712 / 1712 / 2071 ms after the mount here, 1690-1704 there
+  (the one slow run = the runner's own "three smooth paints or 0.7 s" start, a headless hiccup the reference's identical runner
+  can have too); vo_well_done.ogg from the landing, 2.9 s, the talk sheet's beak following its bits; the arrow live 5.1-5.2 s
+  in (4.9 there: the same gap after the line); the sprite and the button boxes identical to the reference's to 0.1 px; the tap:
+  sfx_next_button at 0.9, lesson_complete + proceed posted. `../_before_cel_vo/` holds the dist's three files, build.py and
+  README.md from before.
+
 The speaker chip on the title-bar pages T2-T4, G1-G3 ([band-chip], 2026-10-28)
 - Asked: "From page 4 T2 to page 9 G3 why haven't you placed the speaker button icon just like the other pages, along with the
   exact same animation? Place the exact same speaker button icon on these pages as well with the same animation effects. Rest keep
