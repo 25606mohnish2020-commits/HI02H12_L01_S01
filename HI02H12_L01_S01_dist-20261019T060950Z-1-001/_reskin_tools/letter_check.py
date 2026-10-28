@@ -256,12 +256,13 @@ with sync_playwright() as p:
     check("leaving mid-way (to P2): the page's loop and sounds stop, its hook is cleared, its scene is gone", all(x["paused"] for x in pl if "letter" in x["src"]) and pg.evaluate("window.oceanCleanup == null") and pg.evaluate("!document.querySelector('.ltr')"),
           [(x["src"], x["paused"]) for x in pl if "letter" in x["src"]])
     # [l1-quiet] the bed fades out as the letter page mounts: from P2 (the bed up) to L1 — falling at 0.3 s, paused and at 0 by 0.9 s
-    pg.wait_for_function("window.__bgm && window.__bgm.el && !window.__bgm.el.paused && window.__bgm.level > 0.05", timeout=8000, polling=20)
+    pg.wait_for_function("window.__bgm && window.__bgm.el && !window.__bgm.el.paused && window.__bgm.wanted", timeout=8000, polling=20)   # the bed up on P2 (ducked under its line)
     tq = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
+    b0 = pg.evaluate("[window.__bgm.wanted, window.__bgm.target, +window.__bgm.level.toFixed(3), window.__bgm.el.paused]")
     until(tq, 300); b1 = pg.evaluate("[window.__bgm.wanted, window.__bgm.target, +window.__bgm.level.toFixed(3), window.__bgm.el.paused]")
     until(tq, 900); b2 = pg.evaluate("[window.__bgm.wanted, window.__bgm.target, +window.__bgm.level.toFixed(3), window.__bgm.el.paused]")
-    check("coming from P2 with the bed up, the letter page's mount fades the bed out over 0.6 s and pauses it: falling at 0.3 s, silent and paused by 0.9 s ([l1-quiet])",
-          b1[0] is False and b1[1] == 0 and 0 < b1[2] < 0.13 and b2[0] is False and b2[2] == 0 and b2[3] is True, (b1, b2))
+    check("coming from P2 with the bed up, the letter page's mount turns the bed off: not wanted and its target 0 at once, its level falling by 0.3 s, silent and paused by 0.9 s ([l1-quiet])",
+          b0[0] is False and b0[1] == 0 and b1[2] <= b0[2] and b2[0] is False and b2[2] == 0 and b2[3] is True, (b0, b1, b2))
     check("no page errors", not errs, errs[:3])
     b.close()
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")

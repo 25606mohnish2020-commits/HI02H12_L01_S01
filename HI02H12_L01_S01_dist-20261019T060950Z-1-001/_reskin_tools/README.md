@@ -518,6 +518,49 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+No music bed on the letter page; it returns with the stamp page ([l1-quiet], 2026-10-29)
+- Asked (page 13 L1): the background music should not play on this page; once the user taps the envelope and the transition is
+  over, it should start again as it does now; everything else unchanged.
+- Was: the bed ([BGM-DUCK]) runs under every page from the first to the last before the celebration, by index (FIRST 0 .. LAST =
+  slides - 2), ducked under the letter page's narration, chime and piano loop; the page's own fadeBackgroundMusic() calls are
+  no-ops since the bed owns its level.
+- Built: the bed block's onSlide also reads the slide's no_bgm flag (wanted = in range AND not no_bgm), and L1's card entry carries
+  no_bgm: true. So the bed fades out over 0.6 s (OUT_MS) as L1 mounts and is paused; the letter page plays with its own sounds
+  alone; and when the envelope's dive and veil are over and L2 mounts, the bed starts again exactly as on its first page (its
+  0.6 s fade-in, ducked under L2's line if one speaks) from where it paused. Nothing else moved: the dist differs from before
+  in app.js (one line of the bed block) and index.html (the one flag); style.css byte-identical; the page's piano, chime,
+  narration and the dive are untouched.
+- Checked: letter_check.py — the bed not wanted, target 0 and paused at L1's mount; wanted, playing and its target up 0.8 s into
+  L2; and, coming from P2 with the bed up, falling at 0.3 s and paused at 0 by 0.9 s after L1's mount: letter_check.py 42/42 (the scratchpad's chk29 log: 39 before + the three bed checks; its first run's fade block waited for a level the duck under P2's line never reaches, fixed to wait for the element to play); G4 / P1 / P2 27/27 each and smoke.py 47/47 on the same build (chk28).
+  `../_before_l1_quiet/` holds build.py, letter_check.py, README.md and the dist's three files from before.
+
+P2's right tap: the reference's picture pop with the pencils' sound ([p2-pencils], 2026-10-28)
+- Asked (page 12 P2): the same as for G4 and P1 — the reference's page-5 (G2) image animation, synced with the user's sound
+  "freesound_community-pencils-shake-throw-33800.mp3" (Downloads); everything else unchanged.
+- The file: 17.3 s, mono 44.1 kHz, kept as given (bytes unchanged) at _reskin_tools/p2_assets/sfx_p2_pencils.mp3 and shipped as
+  assets/Audio/sfx_p2_pencils.mp3. It is digital silence until 0.52 s (then the shaking, peaks near 0 dBFS). The reference's
+  rule plays a tap sound for the 1 s hold only, so from 0 the tap would be followed by half a second of nothing: P2's data
+  also says data.tap_sfx_from = 0.51 and the [g4-giggle] hook gained one line (a file with a lead-in starts at the given
+  second — currentTime set before play(), the browser's default start position), so the shake lands with the pop and that
+  first second of it plays, faded over the hold's last 150 ms and paused with it; the ding + confetti follow as before. G4
+  and P1 start their files at 0 as before. The dist differs from before in app.js (the one line), index.html (two data
+  fields) and the new audio file; style.css byte-identical. Say if a different second of the recording is wanted.
+- Checked: g4_check.py's media trace now records the start position too (P2: 0.51 s; G4 / P1: 0): G4 27/27, P1 27/27, P2 27/27 and smoke.py 47/47 (chk28).
+  `../_before_p2_pencils/` holds build.py, g4_check.py, README.md and the dist's three files from before.
+
+P1's right tap: the reference's picture pop with the book's sound ([p1-book], 2026-10-28)
+- Asked (page 11 P1): the same as for G4 — the reference's page-5 (G2) image animation, synced with the user's sound
+  "soumages-book-opening-345808.mp3" (Downloads); everything else unchanged.
+- Built: the file is kept as given (bytes unchanged, 1.10 s, stereo 44.1 kHz mp3) at _reskin_tools/p1_assets/sfx_p1_book.mp3,
+  shipped by build.py's P1 asset copy as assets/Audio/sfx_p1_book.mp3, and P1's data names it (data.tap_sfx) — the module's
+  [g4-giggle] hook does the rest: at the right tap the picture pops (the reference's p2BirdPop1s, unchanged) and the sound plays
+  with it at .63, faded over the last 150 ms of the 1 s hold and paused with it; the ding + confetti follow as before. No new
+  code; P2 stays without a tap sound. The dist differs from before in index.html (the one data field) and the new audio file;
+  app.js and style.css byte-identical.
+- Checked: g4_check.py's media trace on P1 (the sound with the mark at .63, once; paused ~1 s after the tap at ~0, before the
+  ding), and P2 still without one: G4 27/27, P1 27/27, P2 27/27 and smoke.py 47/47 (the scratchpad's chk28 logs, the build that also carries [p2-pencils] and [l1-quiet]).
+  `../_before_p1_book/` holds build.py, README.md and the dist's three files from before.
+
 G4's right tap: the reference's picture pop with the giggle ([g4-giggle], 2026-10-28)
 - Asked (page 10 G4): take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and give G4 the exact same image animation as
   its page 5 G2, synced with the user's sound "jule_joule-giggling-like-a-little-girl-322689.mp3" (Downloads); everything else

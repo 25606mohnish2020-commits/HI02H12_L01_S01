@@ -89,6 +89,10 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [l1-quiet] (2026-10-28): L1 (the letter page) has no music bed — the bed block's onSlide honours a slide's no_bgm flag:
          the bed fades out (0.6 s) as L1 mounts and starts again (its first-page fade-in) as L2 mounts, i.e. once the envelope's
          dive and veil are over; the page's own piano loop and sounds are as before.
+         [cover-eyes] / [cover-fx] (2026-10-29): the title page's three characters get the mtcg2a04l02 game's live eyes (its
+         [pencil eyes] rig on three upright faces: title_assets/cover_eyes_js.js, the geometry measured by title_eyes_measure.py
+         into cover_eyes_data.json, the brows cut into title_char_*_rig.png) and the card's scene gets that game's lens flare and
+         sunlit dust (cover_fx.css, cover_dust_js.js: the .sg-fx layer after the scene, the same 1096x438 box and light).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2526,6 +2530,7 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
     <div class="sg-fig">
       <div class="sg-card">
         <img class="sgf-scene" src="assets/UI/title_scene.png" alt="" draggable="false">
+        <div class="sg-fx" aria-hidden="true"><div class="sg-sun"></div><div class="sg-flare2"><i class="fl-big"></i><i class="fl-violet"></i><i class="fl-haze"></i><i class="fl-glint"></i></div><canvas class="sg-dust" id="sgDust"></canvas></div>   <!-- [cover-fx] the mtcg cover's lens flare and sunlit dust: over the scene, under all else -->
         <img class="sgf-question" src="assets/UI/title_char_question.png" alt="" draggable="false">
         <img class="sgf-title" src="assets/UI/title_art.png" alt="{title_hi}" draggable="false">
         <img class="sgf-shadow s1" src="assets/UI/title_shadow_1.svg" width="132" height="69" alt="" draggable="false">
@@ -2666,6 +2671,22 @@ _bgm_js = _bgm_js.replace('  function onSlide(idx){ wanted = idx >= FIRST && idx
     '    if(wanted) start(); else if(el) setTarget(0, OUT_MS); }\n')   # [l1-quiet]
 assert "LAST = CARD.slides.length - 2" in _bgm_js and "standard_background_music_2.mp3" in _bgm_js and "backgroundMusic = el;" in _bgm_js and "!(sl && sl.no_bgm)" in _bgm_js, "dun: bgm adaptation"
 _cel_js = dun_block("cel_swiftie_js.js")
+# [cover-eyes] / [cover-fx] (2026-10-29): the title page's live eyes and ambient light, the mtcg2a04l02 game's [pencil eyes] rig and
+# [landing dust] + lens flare (title_assets/cover_eyes_js.js, cover_dust_js.js, cover_fx.css); the faces' geometry comes from
+# title_eyes_measure.py (title_assets/cover_eyes_data.json, in each picture's art px) and is injected as the rig's FACES
+_eyes_data = json.loads((SCR / "title_assets" / "cover_eyes_data.json").read_text(encoding="utf-8"))
+_FACE_SEL = {"purn": ".sgf-purn img", "comma": ".sgf-comma", "question": ".sgf-question"}
+_faces = []
+for _n in ("purn", "comma", "question"):
+    _d = _eyes_data[_n]
+    _faces.append({"sel": _FACE_SEL[_n], "art": _d["art"], "face": _d["face"], "rig": f"assets/UI/title_char_{_n}_rig.png",
+                   "eyes": [{"cx": e["cx"], "cy": e["cy"], "a": e["a"], "b": e["b"], "ring": round(0.06 * e["a"], 1),   # the outline's width: 6 % of the eye (the pencil's 4.8 on 48)
+                             "iris": e["iris_r"], "pupil": e["pupil_r"], "shines": e["shines"], "lid": e["lid"]} for e in _d["eyes"]],
+                   "brows": [{"clean": b["clean"], "brow": b["brow"], "box": b["box"], "c": b["c"], "tilt": 1 if i == 0 else -1} for i, b in enumerate(_d["brows"]) if b]})
+_eyes_js = (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8").replace("__FACES__", json.dumps(_faces, ensure_ascii=False))
+_dust_js = (SCR / "title_assets" / "cover_dust_js.js").read_text(encoding="utf-8")
+cover_fx_css = (SCR / "title_assets" / "cover_fx.css").read_text(encoding="utf-8")
+assert "__FACES__" not in _eyes_js and len(_faces) == 3 and all(len(f["eyes"]) == 2 and len(f["brows"]) == 2 for f in _faces), "cover-eyes: faces"
 assert "SlideModules.CELEBRATION" in _cel_js and "runCelSprite" in _cel_js, "dun: cel block"
 dun_js = r"""
 
@@ -2742,7 +2763,7 @@ SlideModules.CELEBRATION.mount = function(host, slide){
   const eb = $("endBtn"); eb.dataset.completed = "0"; eb.disabled = false; eb.classList.add("show");
   state.endBtnPending = false;
 """ + _cel_dev + _cel_click + r"""};
-""" + _cel_js + _gate_js + _bgm_js + r"""
+""" + _cel_js + _gate_js + _bgm_js + _dust_js + _eyes_js + r"""
 /* ===== [dun-chrome] end ===== */
 """
 js = js + dun_js
@@ -3123,7 +3144,7 @@ body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
 @keyframes bandChipIn{from{opacity:0;transform:translateY(-14px) scale(.97);}to{opacity:var(--chip-op,1);transform:none;}}
 /* ===== [band-chip] end ===== */
 """
-css = css + dun_css + band_chip_css + vo_css
+css = css + dun_css + band_chip_css + vo_css + cover_fx_css   # [cover-fx] / [cover-eyes]
 html = f"""<!doctype html>
 <html lang="hi">
 <head>
@@ -3150,7 +3171,7 @@ html = f"""<!doctype html>
 # ---------- 7a. [title-fig] the Figma title-page assets (kept next to this script) ----------
 TITLE_SRC = SCR / "title_assets"
 title_files = sorted(TITLE_SRC.glob("title_*"))
-assert len(title_files) == 10, f"expected 10 title assets in {TITLE_SRC}, found {len(title_files)}"
+assert len(title_files) == 13, f"expected 13 title assets in {TITLE_SRC}, found {len(title_files)}"   # [cover-eyes] + the three rig sheets
 for f in title_files:
     dst = DIST / "assets" / "UI" / f.name
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
