@@ -2866,6 +2866,7 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-img:not(.on){visibility:hidden;}
 /* the next beat's picture appears over the last one: fades up from a slight zoom and settles into its crop */
 .sfig-img.enter{animation:sfigPicIn .65s cubic-bezier(.2,.8,.3,1) both;}
+.sfig-img.sfig-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}   /* [story-cat] beat 1's picture pops as G4's picture does (p2BirdPop1s, 1 s) as its line ends, with its sound */
 @keyframes sfigPicIn{from{opacity:0;transform:scale(1.08);}to{opacity:1;transform:none;}}
 .sfig-textbox{position:absolute;left:314px;top:250px;width:436px;height:119px;background:#FFFFFF;border-radius:20px;
   box-shadow:0 4px 19.7px rgba(177,177,177,.25);}   /* node 436:412 */

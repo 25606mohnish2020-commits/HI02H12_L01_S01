@@ -518,6 +518,32 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+With the pointing hand the other tiles are dead and nothing speaks ([hand-quiet], 2026-10-28)
+- Asked (pages 7 G1, 8 G2, 9 G3): when the hand nudge appears the other options should be disabled, and no VO should come at that
+  time, even after the user taps the option the hand points at; everything else unchanged.
+- Was: the third wrong tap wiggled its tile, placed the hand under the right tile and, 0.5 s later, spoke hint 3 (G2's and G3's own
+  lines; G1, having none, said hint 2 again); the other two tiles stayed live (a tap wiggled them and said hint 3 again); the idle
+  re-read came after 7 s of quiet and the chip read the sentence; the guided tap played the praise (vo_ok, "शाबाश!") before
+  the page moved on.
+- Built (PUNCT_PICK, the hint ladder's third rung): the third wrong tap places the hand, makes the other two tiles dead and dim
+  (onclick off + .off, the demos' faded look; .dmf-live .dmf-tile.off also takes no pointer events — the one CSS line) and
+  speaks nothing; the tile just tapped finishes its wiggle. From then on nothing speaks on the page: no hint 3, no idle
+  re-read and no chip (state.replayAudio returns while the hand is up), and the guided tap presses the tile, lands the
+  mark with the ding + confetti and no praise line, then the page moves on 1.7 s later (+0.3 s per extra mark) — the
+  sentence picks' own guided-tap shape (mark, ding + confetti, no line). The un-guided right tap (fewer than three wrong
+  taps) is unchanged: the praise, one beat, the page moves on. Nothing else moved: the dist differs from before in app.js
+  (the module) and style.css (the one rule); index.html byte-identical; T2-T4 and the sentence picks untouched.
+- Measured (the scratchpad's hand_probe.py, 1280x720, G1 / G2 / G3): at the third wrong tap (+120 ms) the hand is up, the two
+  other tiles are .off (the tapped one still wiggling), no line; 1.2 s later no clip has started; a tap on a dead tile counts
+  nothing; the chip says nothing; after 9 s of waiting still no clip (the re-read would have come at 7 s); the guided tap
+  presses its tile and lands the mark at once with no clip, and the page moves on 1806-1888 ms later (G1 -> G2, G2 -> G3,
+  G3 -> G4); no page errors.
+- Checked: pick_check.py's main flow (three wrong taps, then the right one) now expects the quiet hand — the dead tiles and
+  the silent chip, no line from the third tap to the page's end, the guided move-on 1.6-2.4 s after the tap, hint 3 and the
+  praise never started — and its [tile-hit] block (one wrong tap, then the right one) still expects the praise and the
+  move-on on the un-guided path: G1 55/55, G2 55/55, G3 54/54 (the scratchpad's chk22 logs); smoke.py 47/47; demo_check T2 40/40 (the CSS is shared).
+  `../_before_hand_quiet/` holds build.py, pick_check.py, README.md and the dist's three files from before.
+
 A tap on a tile's mark or name is that tile's: G2 / G3 judged taps by the wrong tile ([tile-hit], 2026-10-28)
 - Asked (pages 8 G2 and 9 G3): a lot of problems tapping the right or wrong option — the tapped option, right or wrong, should be
   judged correctly and show its own right or wrong animation; everything else unchanged.

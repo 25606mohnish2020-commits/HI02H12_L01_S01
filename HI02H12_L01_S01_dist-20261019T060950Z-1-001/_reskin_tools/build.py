@@ -73,6 +73,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [hand-quiet] (2026-10-28): on G1-G3, once the pointing hand shows (the 3rd wrong tap) the other two tiles are dead and dim
          (.off + pointer-events:none) and nothing speaks any more — no hint 3, no idle re-read, no chip, and no praise line after
          the guided tap (the mark, the ding + confetti, 1.7 s, then the page moves on, as the sentence picks' guided tap does).
+         [story-cat] (2026-10-28): T0 — as beat 1's line ends, the user's cat sound (assets/Audio/sfx_story_cat.mp3, 0.89 s) plays
+         once (data.beat1_sfx, the kit player) and beat 1's picture gives G4's little pop (p2BirdPop1s, 1 s, .sfig-img.sfig-pop);
+         the one-second pause and the turn to beat 2 are as before; a 🔊 replay of beat 1 does not repeat it.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -736,12 +739,14 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
       $("navBtn").onclick = ()=> completeSlide(true);
       setSwMood("talk");
       const alive = ()=> fig.isConnected;
-      let run = 0, cur = 0;
+      let run = 0, cur = 0, popped = false;   // [story-cat] popped: beat 1's sound and pop happen once per visit
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
       const start = ()=>{
         const mine = ++run;
         setNavActive(false);   // a replay hides आगे until its narration has ended
         sfigNarrate(lines[cur], ()=> mine === run && alive(), ()=>{
+          if(cur === 0 && d.beat1_sfx && !popped){ popped = true;   // [story-cat] once, as beat 1's line ends: the beat's own sound with the picture's little pop (G4's)
+            playKitSfx("storyBeat1", d.beat1_sfx, .8); pics[0].classList.add("sfig-pop"); }
           if(cur < lines.length - 1){
             state.demoRunning = true;   // the replay chip waits out the turn to the next beat
             setTimeout(()=>{ if(mine === run && alive()) turn(); }, PACE.tail);
@@ -2057,6 +2062,7 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-img:not(.on){visibility:hidden;}
 /* the next beat's picture appears over the last one: fades up from a slight zoom and settles into its crop */
 .sfig-img.enter{animation:sfigPicIn .65s cubic-bezier(.2,.8,.3,1) both;}
+.sfig-img.sfig-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}   /* [story-cat] beat 1's picture pops as G4's picture does (p2BirdPop1s, 1 s) as its line ends, with its sound */
 @keyframes sfigPicIn{from{opacity:0;transform:scale(1.08);}to{opacity:1;transform:none;}}
 .sfig-textbox{position:absolute;left:314px;top:250px;width:436px;height:119px;background:#FFFFFF;border-radius:20px;
   box-shadow:0 4px 19.7px rgba(177,177,177,.25);}   /* node 436:412 */
@@ -2757,6 +2763,7 @@ for vid, text in VR["texts"].items():
     assert (DIST / "assets" / "Audio" / f"{vid}.ogg").exists(), f"[vo-rec] missing {vid}.ogg — run vo_rec.py"
 SL = {s["id"]: s for s in card["slides"]}
 SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
+SL["T0"]["data"]["beat1_sfx"] = "sfx_story_cat.mp3"   # [story-cat] the user's stu9-cute-cat-352656.mp3 (0.89 s, as given): once, as beat 1's line ends, with the picture's pop
 SL["T1"]["data"]["lead_audio"] = "vo_recap_lead"
 for sid, mk in (("T2", "purn"), ("T3", "prashn"), ("T4", "alp")): SL[sid]["data"]["mark_audio"] = f"vo_recap_{mk}_name"
 SL["T2"]["data"]["conclude_audio"] = "vo_demo1_conclude"
@@ -3120,7 +3127,8 @@ STORY_SRC = SCR / "story_assets"
 for name, sub in (("story_grid.svg", "UI"), ("story_font_nsd600_deva.woff2", "UI"), ("story_font_nsd600_latin.woff2", "UI"),
                   ("img_story_pinki_cat.webp", "Images"), ("img_story_pinki_listen.webp", "Images"),   # [story-pinki] the frames' pictures
                   ("img_story_pinki_ask.webp", "Images"), ("img_story_pinki_maa.webp", "Images"),       # (their clips: vo_rec.py)
-                  ("vo_story_r0.ogg", "Audio"), ("vo_story_r1.ogg", "Audio")):
+                  ("vo_story_r0.ogg", "Audio"), ("vo_story_r1.ogg", "Audio"),
+                  ("sfx_story_cat.mp3", "Audio")):   # [story-cat] beat 1's sound (the user's file, bytes as given)
     f, dst = STORY_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing story asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)

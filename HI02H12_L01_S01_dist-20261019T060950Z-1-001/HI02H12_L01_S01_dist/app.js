@@ -6100,12 +6100,14 @@ const SlideModules = {
       $("navBtn").onclick = ()=> completeSlide(true);
       setSwMood("talk");
       const alive = ()=> fig.isConnected;
-      let run = 0, cur = 0;
+      let run = 0, cur = 0, popped = false;   // [story-cat] popped: beat 1's sound and pop happen once per visit
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
       const start = ()=>{
         const mine = ++run;
         setNavActive(false);   // a replay hides आगे until its narration has ended
         sfigNarrate(lines[cur], ()=> mine === run && alive(), ()=>{
+          if(cur === 0 && d.beat1_sfx && !popped){ popped = true;   // [story-cat] once, as beat 1's line ends: the beat's own sound with the picture's little pop (G4's)
+            playKitSfx("storyBeat1", d.beat1_sfx, .8); pics[0].classList.add("sfig-pop"); }
           if(cur < lines.length - 1){
             state.demoRunning = true;   // the replay chip waits out the turn to the next beat
             setTimeout(()=>{ if(mine === run && alive()) turn(); }, PACE.tail);

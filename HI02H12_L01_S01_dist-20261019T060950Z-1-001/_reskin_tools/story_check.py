@@ -51,7 +51,9 @@ SAMPLE = """() => { const a = currentAudio, src = a ? a.src : '', nav = document
   const texts = [...document.querySelectorAll('.sfig-text')], pics = [...document.querySelectorAll('.sfig-img')];
   return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying,
     shown: texts.map(x => x.querySelectorAll('.sfig-w.on').length), gone: texts.map(x => x.classList.contains('gone')), pic: pics.map(p => p.classList.contains('on')),
-    navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now() }; }"""
+    navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now(),
+    cat: (typeof _kitSfx !== 'undefined' && _kitSfx.storyBeat1) ? (_kitSfx.storyBeat1.paused ? 'paused' : 'playing') : null,   // [story-cat] beat 1's sound
+    pop: pics[0] ? getComputedStyle(pics[0]).animationName : null }; }"""
 # every animation frame: which आगे art is on screen (none / ON = the live pill / DISABLED = the greyed-out one)
 NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('navBtn'); let last = ''; const t0 = performance.now();
   const step = () => { const cs = getComputedStyle(btn);   // [dun-chrome] a bare text button: live = .active (the disabled art otherwise), its ::after breathes (navBreathe)
@@ -133,6 +135,15 @@ with sync_playwright() as p:
     for k in range(N): sync_checks(f"beat {k + 1}", samples, k, T[k])
     # the turns between the beats
     i_end = [first(lambda s, k=k: s["clip"] == f"b{k + 1}" and s["shown"][k] == len(T[k]) and not s["playing"]) for k in range(N)]
+    # [story-cat] as beat 1's line ends: its sound (sfx_story_cat.mp3, the kit element storyBeat1) once, with the picture's G4 pop
+    firstor = lambda cond: next((i for i in range(len(samples)) if cond(samples[i])), None)
+    i_cat = firstor(lambda s: s["cat"] == "playing"); i_pop = firstor(lambda s: s["pop"] == "p2BirdPop1s")
+    cat_starts = sum(1 for i, s in enumerate(samples) if s["cat"] == "playing" and (i == 0 or samples[i - 1]["cat"] != "playing"))
+    check("as beat 1's line ends its sound (sfx_story_cat.mp3) starts within 150 ms, together with the picture's little pop (G4's p2BirdPop1s) ([story-cat])",
+          i_cat is not None and i_pop is not None and abs(ms(i_cat) - ms(i_end[0])) <= 150 and abs(ms(i_pop) - ms(i_cat)) <= 60
+          and not any(s["cat"] == "playing" or s["pop"] == "p2BirdPop1s" for s in samples[:max(0, i_end[0] - 1)]),
+          (None if i_cat is None else f"sound {ms(i_cat) - ms(i_end[0]):.0f} ms", None if i_pop is None else f"pop {ms(i_pop) - ms(i_end[0]):.0f} ms after the line's end"))
+    check("...and only once on the page: no second start through the other beats, nor at the 🔊 tap in the first turn ([story-cat])", cat_starts == 1, cat_starts)
     for k in range(N - 1):
         i_gone = first(lambda s, k=k: s["gone"][k]); i_vo = first(lambda s, k=k: s["clip"] == f"b{k + 2}" and s["playing"])
         pause = ms(i_gone) - ms(i_end[k]); land = ms(i_vo) - ms(i_gone)
@@ -198,6 +209,12 @@ with sync_playwright() as p:
         n = len(T[k - 1])
         if k < N:   # beat k complete, in the one-second pause before the turn
             pg.wait_for_function(f"!isPlaying && document.querySelectorAll('.sfig-text.b{k} .sfig-w.on').length === {n} && !document.querySelector('.sfig-text.b{k}').classList.contains('gone')", timeout=40000, polling=20)
+            if k == 1:   # [story-cat] beat 1's line end brings the picture's 1 s pop: its peak is measured, then the pop is held off for the rest-state shot
+                peak = pg.evaluate("""() => new Promise(res => { const el = document.querySelector('.sfig-img.b1'); let mx = 1; const t0 = performance.now();
+                  const step = () => { const tr = getComputedStyle(el).transform; if (tr && tr !== 'none') mx = Math.max(mx, parseFloat(tr.split('(')[1]));
+                    if (performance.now() - t0 < 350) requestAnimationFrame(step); else res(mx); }; requestAnimationFrame(step); })""")
+                check("beat 1's picture pops as G4's does (p2BirdPop1s): its scale peaks at ~1.045 within the pop's first 0.35 s ([story-cat])", 1.03 <= peak <= 1.05, round(peak, 3))
+                pg.evaluate("document.querySelector('.sfig-img.b1').style.animation = 'none'")   # the picture at rest for the layout and pixel checks
             pg.wait_for_timeout(260)   # the last word's 0.26 s entrance
         else:
             pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=40000)
