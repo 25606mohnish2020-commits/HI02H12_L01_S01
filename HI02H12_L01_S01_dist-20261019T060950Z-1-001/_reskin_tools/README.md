@@ -518,6 +518,28 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+G4's right tap: the reference's picture pop with the giggle ([g4-giggle], 2026-10-28)
+- Asked (page 10 G4): take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and give G4 the exact same image animation as
+  its page 5 G2, synced with the user's sound "jule_joule-giggling-like-a-little-girl-322689.mp3" (Downloads); everything else
+  unchanged.
+- The reference (its single-file build, cloned earlier into an older scratchpad: #P5-CORRECT-SFX-JS, CORRECT_SFX_BY_SLIDE[4] =
+  the boy drinking water): on G2's correct tap the recall picture pops — p2BirdPop1s, 1 s (to 1.045 at 0.2 s, 1.03 held to
+  0.72 s, back by 1 s) — and the page's own sound (sfx_drinking_water.wav) plays with it, a fresh Audio at volume .63, faded
+  over the last 150 ms of the 1 s hold and paused with it; the green mark at the tap, the ding + confetti after the hold.
+  Our G4 is the port of that game's P4 page and already pops its picture at the right tap with the very same keyframes and
+  rule (compared value for value against the clone) — what it lacked was the page's own sound with the pop.
+- Built: the giggle is kept as given (bytes unchanged, 1.06 s, mono 48 kHz mp3) at _reskin_tools/g4_assets/sfx_g4_giggle.mp3,
+  shipped by build.py's G4 asset copy as assets/Audio/sfx_g4_giggle.mp3, and G4's data names it (data.tap_sfx). SENT_PICK's
+  ok(): right where the picture gets .p2-pop, a page with data.tap_sfx plays it as the reference does — a fresh Audio at .63
+  (sfxTrack'ed, so it counts as an effect for the tap hold), its volume ramped to 0 over the hold's last 150 ms in 16 ms steps
+  and paused at 1 s, so it ends with the hold and the ding + confetti follow as before; muted = no sound. P1 and P2 have no
+  tap_sfx and are unchanged. The dist differs from before in app.js (the hook), index.html (the one data field) and the new
+  audio file; style.css byte-identical.
+- Checked: g4_check.py now traces every media play / pause (an init script on HTMLMediaElement) — on G4 the giggle starts within
+  60 ms of the green mark at .63, once on the page, and is paused ~1 s after the tap at volume ~0, before the ding; on P1 / P2
+  no such sound: G4 27/27, P1 26/26, P2 26/26 (the scratchpad's chk27 logs); smoke.py 47/47.
+  `../_before_g4_giggle/` holds build.py, g4_check.py, README.md and the dist's three files from before.
+
 The demos' slot highlight in orange, the pointing hand at the auto tap ([demo-hand], 2026-10-28)
 - Asked (pages 4 T2, 5 T3, 6 T4): when the empty box is highlighted with the mark inside it, its stroke should be the words'
   orange, not blue; and when the right option is auto-tapped, the same hand nudge (the picks') should appear at it; everything

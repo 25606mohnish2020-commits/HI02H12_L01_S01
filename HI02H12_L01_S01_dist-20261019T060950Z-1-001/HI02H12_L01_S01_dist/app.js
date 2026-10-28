@@ -6778,7 +6778,8 @@ const SlideModules = {
         if(guided){ if(hand){ hand.remove(); hand = null; } it.cell.classList.remove("opt-guided"); }
         thumb.classList.remove("p6-pop"); thumb.classList.add("p2-pop"); setTimeout(()=> thumb.classList.remove("p2-pop"), POP_MS + 250);
         if(d.tap_sfx && !isMuted){ try{   // [g4-giggle] the reference's G2 correct-tap effect: the page's own sound with the picture's pop, at .63, ending with the 1 s hold (a 150 ms fade, then paused)
-          const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
+          const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; if(d.tap_sfx_from) sx.currentTime = d.tap_sfx_from;   // [p2-pencils] a file with a silent lead-in starts at its first sound
+          sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
           const v0 = sx.volume, t0 = Date.now() + HOLD_MS - 150;
           const fade = ()=>{ if(sx.paused || sx.ended) return; const k = Math.min(1, (Date.now() - t0) / 150); sx.volume = Math.max(0, v0 * (1 - k)); if(k < 1) setTimeout(fade, 16); else sx.pause(); };
           setTimeout(fade, HOLD_MS - 150); setTimeout(()=>{ try{ sx.pause(); }catch(e){} }, HOLD_MS);
@@ -9231,7 +9232,8 @@ SlideModules.CELEBRATION.mount = function(host, slide){
     if(el.paused){ var p = null; try{ p = origPlay.call(el); }catch(e){}            // origPlay: the bed is no "sound" to itself
       if(p && typeof p.then === "function") p.then(function(){ tapArmed = false; }, armTap); }
     update(); }
-  function onSlide(idx){ wanted = idx >= FIRST && idx <= LAST; if(wanted) start(); else if(el) setTarget(0, OUT_MS); }
+  function onSlide(idx){ var sl = CARD.slides[idx]; wanted = idx >= FIRST && idx <= LAST && !(sl && sl.no_bgm);   // [l1-quiet] a slide flagged no_bgm (L1, the letter page) has no bed: it fades out (OUT_MS) at that mount and starts again, as on the first page, when the next page mounts
+    if(wanted) start(); else if(el) setTarget(0, OUT_MS); }
   var origMount = window.mountSlide;
   if(typeof origMount === "function") window.mountSlide = function(idx){ var r = origMount.apply(this, arguments); try{ onSlide(idx | 0); }catch(e){} return r; };
   var gate = document.getElementById("startGate");
