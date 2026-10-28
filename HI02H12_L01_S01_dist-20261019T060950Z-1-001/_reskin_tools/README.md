@@ -518,6 +518,25 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The story's first beat ends on the cat's sound and the picture's little pop ([story-cat], 2026-10-28)
+- Asked (page 1 T0): after the VO of the first sentence is over, the user's sound "stu9-cute-cat-352656.mp3" (Downloads) plays
+  once, synced with the little picture pop G4's picture gives; everything else unchanged.
+- Built: the file is kept as given (bytes unchanged, 0.89 s, mono 22 kHz mp3) at _reskin_tools/story_assets/sfx_story_cat.mp3 and
+  shipped by build.py's story-asset copy as assets/Audio/sfx_story_cat.mp3; T0's data names it (data.beat1_sfx). STORY_LISTEN:
+  the moment beat 1's narration ends (sfigNarrate's end, before the one-second pause) the module plays it through the kit
+  player (playKitSfx, volume .8, so mute and the music bed's ducking apply as to every effect) and gives beat 1's picture the
+  class .sfig-pop — G4's own pop (p2BirdPop1s: up to a 1.045 scale at 0.2 s, back by 1 s, the one CSS line) on the picture
+  alone; the grey frame clips the zoom as the frame's bitmap edge does on G4. Once per visit (a `popped` flag): the 🔊 chip's
+  replay of beat 1 does not repeat it; the pause, the turn to beat 2 and all later beats are as before. Nothing else moved:
+  the dist differs from before in app.js (the module), style.css (the one rule), index.html (the one data field) and the
+  new audio file.
+- Measured (story_check.py's sampler, every 25 ms): the sound starts in the same sample as beat 1's line ends (0 ms) and the pop
+  with it (0 ms); one start on the whole page (none at the 🔊 tap in the first turn, none in beats 2-4); the picture's scale
+  peaks at G4's 1.045 within the pop's first 0.35 s.
+- Checked: story_check.py gained the three [story-cat] checks; its beat-1 layout and pixel shots, taken in the one-second pause
+  (now the pop's second), hold the pop off for the rest state: story_check.py 61/61 (the scratchpad's chk24 logs; 58 before + the three new); smoke.py 47/47.
+  `../_before_story_cat/` holds build.py, story_check.py, README.md and the dist's three files from before.
+
 With the pointing hand the other tiles are dead and nothing speaks ([hand-quiet], 2026-10-28)
 - Asked (pages 7 G1, 8 G2, 9 G3): when the hand nudge appears the other options should be disabled, and no VO should come at that
   time, even after the user taps the option the hand points at; everything else unchanged.
