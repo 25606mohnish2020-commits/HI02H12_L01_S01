@@ -11,13 +11,14 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    slot blinks for 3.5 s (three slow blinks) from the moment that clip ends, and the tiles go live in that same moment —
    a tap before then does nothing. A wrong tile wiggles (the engine's wgNo, one --fx-beat), its colours unchanged,
    counts an attempt and stays tappable, and no mark appears; the right one is pressed (the whole option dips — base, face,
-   mark and name — since [tile-tap] 2026-10-28), the others dim, its mark lands
+   mark and name — since [tile-tap] 2026-10-28), the others untouched ([tap-lock] 2026-10-28; they dimmed before), its mark lands
    in the slot at once as its name sounds, later taps do nothing, and one beat after the name the page moves on to the
    next slide by itself — no round gate, आगे never shows. The page is the frame's whole stage: no engine header, no
    standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts.
 2. The engine's idle reminder (once, after ~7 s of quiet with the tiles live) reads the sentence again, each word
    highlighted as the clip reaches it (as on G4 since [word-hot] 2026-10-28: orange #E86A00 with G4's p2WordPop, no yellow
-   box); a tap cuts it short and clears the highlight.
+   box); a tap during it does nothing ([tap-lock] 2026-10-28: nothing is tappable while a line or a sound effect sounds — the
+   tiles, the chip — and the pointing hand is swept at every page mount; a tap used to cut the reminder short).
 3. 1280x720 viewport (= frame px): every element's box vs the frame, the fonts, each text's ink vs the Figma render,
    (G1 / G2 since [sent-50] 2026-10-28: the sentence 50px and the slot 4 px after its ink centred in the bar as a pair — the bar's interior is
    measured directly and left out of the render diffs, the frames still showing the 64px text),
@@ -146,9 +147,15 @@ with sync_playwright() as p:
     pg.click(f".dmf-tile.t{WRONG[0]}"); pg.wait_for_timeout(120); pg.screenshot(path=str(out / "c_wrong_wiggle_1333.png"))
     wig = pg.evaluate(f"getComputedStyle(document.querySelector('.dmf-tile.t{WRONG[0]}')).animationName + '|' + getComputedStyle(document.querySelector('.dmf-tile.t{WRONG[0]}')).animationDuration")
     check("a wrong tap shakes that tile with the engine's own wrong-answer wiggle (wgNo, 0.4 s)", wig == "wgNo|0.4s", wig)
+    pg.click(f".dmf-tile.t{WRONG[0]}", force=True); pg.wait_for_timeout(60)   # [tap-lock] a second tap while the wrong-answer buzz still sounds
+    check("a second tap 0.15 s later, while the wrong-answer buzz still sounds, does nothing (sound effects lock taps too, [tap-lock])", pg.evaluate("state.attempts") == 1, pg.evaluate("[state.attempts, sfxBusy()]"))
     pg.wait_for_timeout(600); faces1 = pg.evaluate(FACES)
     check("...its colours unchanged (face border, shadow, fill as before)", faces1 == faces0, (faces0, faces1))
-    quiet = lambda: (pg.wait_for_function("!isPlaying", timeout=15000, polling=20), pg.wait_for_timeout(300))   # [vo-rec] the tap's hint line said
+    # [tap-lock] a tap while the hint line speaks does nothing: the tiles wait for silence
+    pg.wait_for_function("isPlaying", timeout=3000, polling=20); pg.click(f".dmf-tile.t{PICK + 1}", force=True); pg.wait_for_timeout(120)
+    locked = pg.evaluate("[state.attempts, !!document.querySelector('.dmf-tile.on, .dmf-mark.in'), isPlaying]")
+    check("a tap on the right tile while the hint line speaks does nothing: the tiles wait for silence ([tap-lock])", locked == [1, False, True], locked)
+    quiet = lambda: (pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20), pg.wait_for_timeout(300))   # [tap-lock] silence = no line, no effect   # [vo-rec] the tap's hint line said
     quiet(); pg.click(f".dmf-tile.t{WRONG[1]}"); pg.wait_for_timeout(700)
     quiet(); pg.click(f".dmf-tile.t{WRONG[2]}"); pg.wait_for_timeout(700)   # the same wrong tile again: it stays tappable
     quiet(); pg.screenshot(path=str(out / "c2_hand_1333.png"))
@@ -202,8 +209,8 @@ with sync_playwright() as p:
           5.0 <= deep[0] / k <= 7.0 and max(abs(v - deep[0]) for v in deep) <= 0.6 and any(s["press"][4] == "dmfTap" for s in win)
           and all(s["press"][5] == "none" for s in win) and abs(win[-1]["press"][0] - pre[0]) <= 0.6,
           f"deepest dip tile / face / mark / name {[round(v / k, 2) for v in deep]} px; animations seen {sorted({(s['press'][4], s['press'][5]) for s in win})}")
-    check("the right tap: its tile pressed, the other two dim, its mark in the slot at once",
-          samples[i_ok]["on"] == [k == PICK for k in range(3)] and samples[i_ok]["off"] == [k != PICK for k in range(3)] and ms(i_mark) - ms(i_ok) <= 160, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")   # [dun-chrome] the reference's 100-piece 1.5x burst is built on this tap: ~100 ms (was 50 with the 80-piece burst)
+    check("the right tap: its tile pressed, the other two untouched (not dimmed since [tap-lock]), its mark in the slot at once",
+          samples[i_ok]["on"] == [k == PICK for k in range(3)] and samples[i_ok]["off"] == [False, False, False] and not any(any(x["off"]) for x in samples[i_ok:]) and ms(i_mark) - ms(i_ok) <= 160, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")   # [dun-chrome] the reference's 100-piece 1.5x burst is built on this tap: ~100 ms (was 50 with the 80-piece burst)
     i_bl_end = first(lambda s: not s["blink"], i_bl)
     check("the blink stops at the right tap if it is still running, else after its 3.5 s",
           (i_bl_end <= i_ok and abs(ms(i_bl_end) - ms(i_bl) - 3500) <= 150) or abs(ms(i_bl_end) - ms(i_ok)) <= 50, f"{ms(i_bl_end) - ms(i_bl):.0f} ms")
@@ -264,6 +271,17 @@ with sync_playwright() as p:
               looks == {("rgb(232, 106, 0)", "p2WordPop", "0.28s", "rgba(0, 0, 0, 0)", "none")} and bool(pops) and 1.07 <= max(pops) <= 1.13 and min(pops) >= 0.98,
               f"looks {sorted(looks)}, pop {min(pops) if pops else 0:.3f}-{max(pops) if pops else 0:.3f}")
     check("...and the tiles stay live meanwhile", all(s["live"] for s in samples[i_l:]))
+    pg.close()
+    # ---- [tap-lock] the pointing hand never outlives its page: three wrong taps, the hand, a jump to T1 — no hand there
+    pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(GOTO, SLIDE)
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=20000, polling=20)
+    for k in range(3):
+        pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20); pg.wait_for_timeout(350); pg.click(f".dmf-tile.t{WRONG[0]}"); pg.wait_for_timeout(300)
+    pg.wait_for_function("!!document.querySelector('.reveal-hand.dmf-hand')", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    pg.evaluate(GOTO, "T1"); pg.wait_for_timeout(600); gone1 = pg.evaluate("[document.querySelectorAll('.reveal-hand').length, CARD.slides[state.idx].id]")
+    pg.wait_for_timeout(2500); gone2 = pg.evaluate("document.querySelectorAll('.reveal-hand').length")
+    check("the pointing hand does not survive a jump to another page (T1): none there at once, none 2.5 s later ([tap-lock])", gone1 == [0, "T1"] and gone2 == 0, (gone1, gone2))
     pg.close()
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e)))

@@ -17,7 +17,9 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
    taps ignored meanwhile; the 3rd: the reveal — two pills greyed and dead, the right one ringed, the 96px hand under it.
    A tap on the hand: the green mark at once, 1 s, the ding + confetti, no line, and the page moves on (success false).
 3. Left alone: the instruction again ~5 s after each time it ends (with the picture's pop-and-hold, not on entry); a tap
-   during a repeat cuts it. No आगे, no hint bulb; the header chip, the picture and the pills where P4 has them.
+   during a repeat does nothing since [tap-lock] 2026-10-28 (nothing is tappable while a line or a sound effect sounds; it
+   used to cut the repeat), and counts once it is quiet; the reveal hand is swept when another page mounts. No आगे, no hint
+   bulb; the header chip, the picture and the pills where P4 has them.
 4. --ref: the page with P4's own picture, title and sentences (same order) pixel-matches the live P4 at rest.
 """
 import sys, json, pathlib
@@ -146,12 +148,29 @@ with sync_playwright() as p:
     check("mastery score: " + ("one attempt, one hit (the first-try right pill)" if CFG["mastery"] else "not counted (only the practice pages are)"), mst == ([1, 1] if CFG["mastery"] else [0, 0]), mst)
     pg.close()
 
+    # ---- [tap-lock] the pointing hand never outlives its page: three wrong pills, the hand, a jump to T1 — no hand there
+    pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
+    d, labels, opt, right = run(pg); wr = [i for i in range(3) if i != right]
+    pg.click(f"#slideHost .opt-cell >> nth={wr[0]}")
+    pg.wait_for_function("!document.querySelector('#slideHost .opt-cell.crossed') && !isPlaying && !sfxBusy()", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    pg.click(f"#slideHost .opt-cell >> nth={wr[1]}")
+    pg.wait_for_function("!state.hintActive && !document.querySelector('#slideHost .so-pill.p6-say') && !isPlaying && !sfxBusy()", timeout=30000, polling=20); pg.wait_for_timeout(300)
+    pg.click(f"#slideHost .opt-cell >> nth={wr[0]}")
+    pg.wait_for_function("!!document.querySelector('.reveal-hand')", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    pg.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'T1'))"); pg.wait_for_timeout(600)
+    gone1 = pg.evaluate("[document.querySelectorAll('.reveal-hand').length, CARD.slides[state.idx].id]"); pg.wait_for_timeout(2500); gone2 = pg.evaluate("document.querySelectorAll('.reveal-hand').length")
+    check("the reveal hand does not survive a jump to another page (T1): none there at once, none 2.5 s later ([tap-lock])", gone1 == [0, "T1"] and gone2 == 0, (gone1, gone2))
+    pg.close()
+
     # ---- 2. three wrong pills, then the guided tap
     pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
     d, labels, opt, right = run(pg)
     wr = [i for i in range(3) if i != right]
     pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "d_wrong1.png"))
     pg.wait_for_function(f"currentAudio && currentAudio.src.includes('{d['audio']['try_again']}') && isPlaying", timeout=10000, polling=20)   # [vo-rec] the page's try-again line (vo_g4_hint1 / vo_pick_hint1)
+    pg.click(f"#slideHost .opt-cell >> nth={right}", force=True); pg.wait_for_timeout(100)   # [tap-lock] a tap while the try-again line speaks
+    lockd = pg.evaluate("[state.attempts, !!document.querySelector('#slideHost .opt-cell.correct'), isPlaying]")
+    check("a tap on another pill while the try-again line speaks does nothing: the pills wait for silence ([tap-lock])", lockd == [1, False, True], lockd)
     pg.wait_for_function("!document.querySelector('#slideHost .opt-cell.crossed')", timeout=15000, polling=20); pg.wait_for_timeout(300)
     pg.click(f"#slideHost .opt-cell >> nth={wr[1]}")
     pg.wait_for_function("!!document.querySelector('#slideHost .so-pill.p6-say')", timeout=10000, polling=20); pg.wait_for_timeout(500)
@@ -213,7 +232,7 @@ with sync_playwright() as p:
           done and done[0]["success"] is False and len(rv) == 1 and pg.evaluate("CARD.slides[state.idx].id") == NEXT and mst == ([1, 0] if CFG["mastery"] else [0, 0]), (done, rv, mst))
     pg.close()
 
-    # ---- 3. left alone: the idle repeat, and a tap that cuts it
+    # ---- 3. left alone: the idle repeat, a tap during it (ignored since [tap-lock]) and one after it
     pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
     d, labels, opt, right = run(pg)
     pg.wait_for_timeout(21000)   # [vo-rec] the recorded prompt is ~4.7 s: three plays need ~20 s
@@ -228,7 +247,10 @@ with sync_playwright() as p:
     wr = [i for i in range(3) if i != right]
     pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(120)
     cut = pg.evaluate("[isPlaying, state.attempts]")
-    check("a tap during a repeat cuts it and counts", cut == [False, 1], cut)
+    check("a tap during a repeat does nothing — the repeat plays on, nothing counted ([tap-lock]; it used to cut it and count)", cut == [True, 0], cut)
+    pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(120)
+    check("...and the same tap counts once it is quiet", pg.evaluate("state.attempts") == 1, pg.evaluate("state.attempts"))
     pg.close()
 
     # ---- 4. against the live P4 (its picture, title and sentences, in its order)

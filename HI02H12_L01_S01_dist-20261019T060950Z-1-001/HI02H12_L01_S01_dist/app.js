@@ -360,10 +360,17 @@ function voSay(src, kind, onEnd){
 /* playSfx(id): fire-and-forget sound effect on its OWN Audio element so it can
    overlap the spoken VO (does NOT touch currentAudio / the play() chain).
    Silently no-ops if the file is missing or playback is blocked. */
+/* [tap-lock] is a sound effect sounding? The picks (G1-G3) and the sentence picks (G4 / P1 / P2) take no tap while a line
+   (isPlaying) or an effect plays; each effect path marks itself busy for its length (a 6 s cap in case 'ended' never comes). */
+let _sfxBusy = 0, _sfxUntil = 0;
+function sfxTrack(a){ if(!a) return; let done = false; const end = ()=>{ if(done) return; done = true; _sfxBusy = Math.max(0, _sfxBusy - 1); };
+  _sfxBusy++; a.addEventListener("ended", end, { once: true }); a.addEventListener("error", end, { once: true }); setTimeout(end, 6000); }
+function sfxBusy(){ return _sfxBusy > 0 || performance.now() < _sfxUntil; }
 function playSfx(id){
   if(!id) return;
   try{
     const a = new Audio("assets/Audio/" + id + "." + AUDIO_EXT);
+    sfxTrack(a);   // [tap-lock]
     a.volume = 0.7;
     a.play().catch(()=>{});
   }catch(e){}
@@ -373,7 +380,8 @@ function playSfx(id){
 let _juiceAC = null;
 function _ac(){ if(!_juiceAC){ try{ _juiceAC = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
   if(_juiceAC && _juiceAC.state === "suspended"){ try{ _juiceAC.resume(); }catch(e){} } return _juiceAC; }
-function _tone(freqs, type, dur, vol){ const c = _ac(); if(!c) return; const t0 = c.currentTime;
+function _tone(freqs, type, dur, vol){ _sfxUntil = Math.max(_sfxUntil, performance.now() + dur * 1000);   // [tap-lock]
+  const c = _ac(); if(!c) return; const t0 = c.currentTime;
   freqs.forEach((f, i)=>{ const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f;
     const t = t0 + i*(dur/freqs.length); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t+0.02);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur/freqs.length); o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur/freqs.length); }); }
@@ -382,6 +390,7 @@ const _kitSfx = Object.create(null);
 function playKitSfx(name, file, volume){ if(isMuted) return; try{
   let a = _kitSfx[name]; if(!a){ a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; }
   a.volume = volume == null ? .85 : volume; a.currentTime = 0;
+  sfxTrack(a);   // [tap-lock]
   const p = a.play(); if(p && p.catch) p.catch(()=>{});
 }catch(e){} }
 const sfxCorrect   = ()=> playKitSfx("correct", "sfx_correct_new.ogg", .85);
@@ -6460,14 +6469,14 @@ const SlideModules = {
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
           t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); }; });
         // a punctuation-only word shares the start of the word before it ("हैं ।"): the two light together
-        state.replayAudio = ()=>{ if(!live) return; const mine = ++reread;
+        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy()) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too
           const hot = (n)=>{ if(mine !== reread) return; const t = n > 0 && L.times ? L.times[n - 1] : null;
             L.words.forEach((w, i)=> w.classList.toggle("hot", n > 0 && (L.times ? L.times[i] === t : i === n - 1))); };
           narrate(L.src, L.times || [], hot, ()=> hot(0)); };
       }
       function tap(k){
         if(!live || !alive()) return;
-        if(isPlaying) stopAudio();   // a tap cuts the idle reminder short
+        if(isPlaying || sfxBusy()) return;   // [tap-lock] no tap while a line or a sound effect plays (the idle re-read and the hint lines included)
         reread++; L.words.forEach(w=> w.classList.remove("hot"));
         const t = tiles[k], ok = k === pick, opt = opts[k] || {};
         GameBus.sendQuestionAnswered(slide, { is_correct: ok, score: ok && state.attempts === 0 ? 1 : 0, attempt: state.attempts + 1,
@@ -6481,11 +6490,11 @@ const SlideModules = {
           hintLadder(state.attempts);   // [vo-rec]
           return;
         }
-        // the right one: pressed, the others dim, its mark lands in the slot as its name sounds; then the page moves on
+        // the right one: pressed (the other two untouched since [tap-lock]), its mark lands in the slot as its name sounds; then the page moves on
         live = false; state.locked = true; state.demoRunning = true;
         if(hintHand){ hintHand.remove(); hintHand = null; }   // [vo-rec]
         blanks.forEach(b=> b.classList.remove("blink"));
-        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle"); x.classList.add(j === pick ? "on" : "off"); });
+        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle"); if(j === pick) x.classList.add("on"); });   // [tap-lock] only the tapped tile answers: the other two stay as they are (the demos' auto tap, stage4, still dims them)
         marks.forEach((m, j)=> after(j * (d.mark_stagger_ms || 300), ()=>{ centreInk(m); m.classList.add("in"); }));
         sfxCorrect(); confettiCannon(); setSwMood("happy");
         GameBus.emit("punct_build_done", { slide_id: slide.id, phase: slide.phase, value: true,
@@ -6549,7 +6558,8 @@ const SlideModules = {
      lines, every pill broken after the same word.
      - entry: the title's instruction (audio.prompt); it speaks AGAIN after every 5 s of quiet (no tap anywhere, nothing
        speaking, no read-out) for as long as the page is open, the picture giving a small silent pop-and-hold with each
-       repeat; the chip replays it too. A tap on a pill cuts any line that is speaking.
+       repeat; the chip replays it too. Since [tap-lock] (2026-10-28) no tap lands while a line or a sound effect plays: the
+       pills, the hand and the chip wait for silence (a tap used to cut the line).
      - a wrong pill: the kit's wiggle + the soft buzz (the pill is not read out), 1 s (taps wait), then — 1st wrong:
        audio.try_again; 2nd: all three pills read one by one in row order (each lifted, its words lit, 0.5 s apart; taps
        wait); 3rd (max_attempts): the reveal — the two wrong pills greyed out and dead, the right one ringed green and
@@ -6645,7 +6655,7 @@ const SlideModules = {
         }
         play(promptSrc, ()=>{});
       };
-      state.replayAudio = ()=>{ if(!hold && !reviewing && !state.locked) speakPrompt(false); };
+      state.replayAudio = ()=>{ if(!hold && !reviewing && !state.locked && !isPlaying && !sfxBusy()) speakPrompt(false); };   // [tap-lock] the chip waits for silence too
       let lastPoke = Date.now();
       const poke = ()=>{ lastPoke = Date.now(); };
       document.addEventListener("pointerdown", poke, true);
@@ -6668,7 +6678,7 @@ const SlideModules = {
         if(!alive() || hold || reviewing || state.hintActive) return;
         if(["crossed", "correct", "opt-dim"].some(c=> it.cell.classList.contains(c)) || (state.locked && !guided)) return;
         stopNudge(); wordStop();
-        if(isPlaying) stopAudio();   // a tap cuts whatever speaks (the instruction, the try-again line)
+        if(isPlaying || sfxBusy()) return;   // [tap-lock] no tap while a line or a sound effect plays (the instruction, its repeats, the try-again line, hint 3)
         if(it === right) ok(it, guided); else wrong(it);
       }
       function wrong(it){
@@ -7799,6 +7809,7 @@ function mountSlide(idx){
   state.demoRunning = false;  // [24a N8] true while a self-driving teach chain runs (blocks the replay chips)
   const slide = CARD.slides[idx];
   clearHost();
+  document.querySelectorAll(".slide-stage .reveal-hand").forEach(h=> h.remove());   // [tap-lock] no page's pointing hand outlives it
 
   // header prompt
   $("promptText").textContent = slide.prompt_hi || "";

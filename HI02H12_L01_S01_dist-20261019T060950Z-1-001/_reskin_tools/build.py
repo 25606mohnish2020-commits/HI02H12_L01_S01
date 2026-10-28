@@ -62,6 +62,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          pop — in place of the light-yellow box (.dmf-sent .sfig-w.hot); timing, the slot highlight and all else unchanged.
          [sent-50] (2026-10-28): on T2 / T3 / G1 / G2 the sentence is 50px (same font) and it and the yellow slot 4px after its
          ink are centred in the bar together (data.layout.sent = SENT50 + each page's slot x); the mark, the bar and all else unchanged.
+         [tap-lock] (2026-10-28): G1-G3 and G4 / P1 / P2 take no tap while a line or a sound effect plays (tiles, pills, the hand,
+         the chip); the picks' right tap no longer dims the other two tiles; a page's pointing hand is swept at every mount.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -1072,14 +1074,14 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
           t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); }; });
         // a punctuation-only word shares the start of the word before it ("हैं ।"): the two light together
-        state.replayAudio = ()=>{ if(!live) return; const mine = ++reread;
+        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy()) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too
           const hot = (n)=>{ if(mine !== reread) return; const t = n > 0 && L.times ? L.times[n - 1] : null;
             L.words.forEach((w, i)=> w.classList.toggle("hot", n > 0 && (L.times ? L.times[i] === t : i === n - 1))); };
           narrate(L.src, L.times || [], hot, ()=> hot(0)); };
       }
       function tap(k){
         if(!live || !alive()) return;
-        if(isPlaying) stopAudio();   // a tap cuts the idle reminder short
+        if(isPlaying || sfxBusy()) return;   // [tap-lock] no tap while a line or a sound effect plays (the idle re-read and the hint lines included)
         reread++; L.words.forEach(w=> w.classList.remove("hot"));
         const t = tiles[k], ok = k === pick, opt = opts[k] || {};
         GameBus.sendQuestionAnswered(slide, { is_correct: ok, score: ok && state.attempts === 0 ? 1 : 0, attempt: state.attempts + 1,
@@ -1092,10 +1094,10 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
           setSwMood("tryagain");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird
           return;
         }
-        // the right one: pressed, the others dim, its mark lands in the slot as its name sounds; then the page moves on
+        // the right one: pressed (the other two untouched since [tap-lock]), its mark lands in the slot as its name sounds; then the page moves on
         live = false; state.locked = true; state.demoRunning = true;
         blanks.forEach(b=> b.classList.remove("blink"));
-        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle"); x.classList.add(j === pick ? "on" : "off"); });
+        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle"); if(j === pick) x.classList.add("on"); });   // [tap-lock] only the tapped tile answers: the other two stay as they are (the demos' auto tap, stage4, still dims them)
         marks.forEach((m, j)=> after(j * (d.mark_stagger_ms || 300), ()=>{ centreInk(m); m.classList.add("in"); }));
         sfxCorrect(); confettiCannon(); setSwMood("happy");
         GameBus.emit("punct_build_done", { slide_id: slide.id, phase: slide.phase, value: true,
@@ -1161,7 +1163,8 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
      lines, every pill broken after the same word.
      - entry: the title's instruction (audio.prompt); it speaks AGAIN after every 5 s of quiet (no tap anywhere, nothing
        speaking, no read-out) for as long as the page is open, the picture giving a small silent pop-and-hold with each
-       repeat; the chip replays it too. A tap on a pill cuts any line that is speaking.
+       repeat; the chip replays it too. Since [tap-lock] (2026-10-28) no tap lands while a line or a sound effect plays: the
+       pills, the hand and the chip wait for silence (a tap used to cut the line).
      - a wrong pill: the kit's wiggle + the soft buzz (the pill is not read out), 1 s (taps wait), then — 1st wrong:
        audio.try_again; 2nd: all three pills read one by one in row order (each lifted, its words lit, 0.5 s apart; taps
        wait); 3rd (max_attempts): the reveal — the two wrong pills greyed out and dead, the right one ringed green and
@@ -1257,7 +1260,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
         }
         play(promptSrc, ()=>{});
       };
-      state.replayAudio = ()=>{ if(!hold && !reviewing && !state.locked) speakPrompt(false); };
+      state.replayAudio = ()=>{ if(!hold && !reviewing && !state.locked && !isPlaying && !sfxBusy()) speakPrompt(false); };   // [tap-lock] the chip waits for silence too
       let lastPoke = Date.now();
       const poke = ()=>{ lastPoke = Date.now(); };
       document.addEventListener("pointerdown", poke, true);
@@ -1280,7 +1283,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
         if(!alive() || hold || reviewing || state.hintActive) return;
         if(["crossed", "correct", "opt-dim"].some(c=> it.cell.classList.contains(c)) || (state.locked && !guided)) return;
         stopNudge(); wordStop();
-        if(isPlaying) stopAudio();   // a tap cuts whatever speaks (the instruction, the try-again line)
+        if(isPlaying || sfxBusy()) return;   // [tap-lock] no tap while a line or a sound effect plays (the instruction, its repeats, the try-again line, hint 3)
         if(it === right) ok(it, guided); else wrong(it);
       }
       function wrong(it){
@@ -2804,6 +2807,26 @@ js = rep1(js, _recap_tail,
   },
 
   /* ===== [demo-fig] PUNCT_DEMO""", "recap lead")
+# [tap-lock] (2026-10-28) the engine: (1) a page's pointing hand never outlives its page — the picks' and the sentence picks'
+# hands are appended to .slide-stage, which clearHost() leaves alone, so a dev-nav jump kept them on the next page (T1's CSS even
+# blew the sentence picks' up to 405x508); (2) sfxBusy(): is a sound effect sounding? Every effect path (playSfx, the kit's
+# playKitSfx, the procedural _tone) marks itself busy for its length, so the picks can refuse taps while an effect — not only
+# a line — plays.
+js = rep1(js, "  const slide = CARD.slides[idx];\n  clearHost();\n",
+              "  const slide = CARD.slides[idx];\n  clearHost();\n"
+              "  document.querySelectorAll(\".slide-stage .reveal-hand\").forEach(h=> h.remove());   // [tap-lock] no page's pointing hand outlives it\n", "tap-lock: strays")
+js = rep1(js, "function playSfx(id){\n  if(!id) return;\n  try{\n    const a = new Audio(\"assets/Audio/\" + id + \".\" + AUDIO_EXT);\n",
+              "/* [tap-lock] is a sound effect sounding? The picks (G1-G3) and the sentence picks (G4 / P1 / P2) take no tap while a line\n"
+              "   (isPlaying) or an effect plays; each effect path marks itself busy for its length (a 6 s cap in case 'ended' never comes). */\n"
+              "let _sfxBusy = 0, _sfxUntil = 0;\n"
+              "function sfxTrack(a){ if(!a) return; let done = false; const end = ()=>{ if(done) return; done = true; _sfxBusy = Math.max(0, _sfxBusy - 1); };\n"
+              "  _sfxBusy++; a.addEventListener(\"ended\", end, { once: true }); a.addEventListener(\"error\", end, { once: true }); setTimeout(end, 6000); }\n"
+              "function sfxBusy(){ return _sfxBusy > 0 || performance.now() < _sfxUntil; }\n"
+              "function playSfx(id){\n  if(!id) return;\n  try{\n    const a = new Audio(\"assets/Audio/\" + id + \".\" + AUDIO_EXT);\n    sfxTrack(a);   // [tap-lock]\n", "tap-lock: playSfx")
+js = rep1(js, "  a.volume = volume == null ? .85 : volume; a.currentTime = 0;\n  const p = a.play(); if(p && p.catch) p.catch(()=>{});\n",
+              "  a.volume = volume == null ? .85 : volume; a.currentTime = 0;\n  sfxTrack(a);   // [tap-lock]\n  const p = a.play(); if(p && p.catch) p.catch(()=>{});\n", "tap-lock: playKitSfx")
+js = rep1(js, "function _tone(freqs, type, dur, vol){ const c = _ac(); if(!c) return; const t0 = c.currentTime;\n",
+              "function _tone(freqs, type, dur, vol){ _sfxUntil = Math.max(_sfxUntil, performance.now() + dur * 1000);   // [tap-lock]\n  const c = _ac(); if(!c) return; const t0 = c.currentTime;\n", "tap-lock: _tone")
 # the demos: a line between beats; the explanation, "अब दोबारा देखिए", the conclusion; the picks' "शाबाश!" and hint ladder
 js = rep1(js, "        if(times.length) tick();\n      };\n      // 1. the title bar, appearing the moment the intro line starts to sound",
 """        if(times.length) tick();

@@ -518,6 +518,34 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The big-slot pages' sentence at 50px, it and the slot centred together ([sent-50], 2026-10-28)
+- Asked: on pages 4 T2, 5 T3, 7 G1 and 8 G2 make the main sentence 50px instead of 64 in the same font, place it at the centre
+  of its box, and move the light-yellow blank box accordingly; everything else unchanged. Then, seeing it: the sentence and the
+  empty box TOGETHER should be centred — as a pair they did not look centred.
+- Before: the four big-slot pages set the sentence at 64px in each frame's text box (T2 at 96.5 in the bar, T3 / G2 at 120, G1
+  560 wide at 47.5) with the slot at the frame's x (583 / 583 / 612 / 573) — on screen the ink ended 2.5-12.5 px before the slot
+  and sat up to 32 px off the bar's centre (the frames' own placements).
+- Built: data.layout.sent = SENT50 on all four — {x 0, y 18, w 719 - 63 = 656, size 50, lh 110, ws -3}: the text box is the
+  719px bar LESS the slot's column (the 4px gap + the 59px slot), so the centred sentence and the slot right after it are
+  centred on the bar as a pair (the first pass had the box the whole bar: the sentence alone centred and the pair 31.5 px right
+  of centre — the user's eye was right); the font the same Story Noto Sans Devanagari SemiBold, the line box the 64px one (y 18,
+  110px: the glyphs keep their vertical place), the word spacing the 50px pages' -3 (T4 / G3) — and each page's slot x = its
+  sentence's ink right edge + 4 px, measured in Chrome at 1280x720 with the fonts loaded: T2 521.5, T3 496.5, G1 547.5, G2 495.5
+  (the slot's size, y, dashes, blink and the mark in it unchanged; the mark stays 64px as the slot stays 59x100). The module
+  needed no change (lay.sent / lay.slot were already its data). The built dist differs from before in those four slides'
+  layout fields only (app.js, style.css and the rest of index.html byte-identical).
+- Measured after the build (the scratchpad's sent50_measure.py): on all four pages the sentence is 50px / 110px, the pair's
+  centre — from the ink's first column to the slot's right edge — 0.21-0.22 px (T2 -0.22, T3 -0.21, G1 -0.22, G2 -0.21) from the bar's centre (724.5), the sentence's vertical
+  centre as before (280 / 280 / 277.5 / 280), and the slot's left edge 3.5 px after the ink's last column (the 4 px rule on the
+  integer ink box).
+- Checked: demo_check.py (T2 / T3) and pick_check.py (G1 / G2) carry the new boxes (the sentence box 656 wide at 0, 50px, the
+  slots' new x) and, since the Figma frames still show the 64px text, measure the bar's interior directly (the sentence + slot
+  pair centred within 1 px of 724.5, the slot 2.5-5 px after the ink, 45-62 px glyphs at y 276-283) and leave it out of the
+  render diffs: demo_check.py T2 40 / 40, T3 39 / 39 (the pair centred within 0.22 px, the slot 3.5 px after the ink, 50px glyphs, the mark
+  landing centred in the moved slot, every beat as before), T4 40 / 40 unchanged; pick_check.py G1 46 / 46, G2 46 / 46 (the
+  same measures, the taps, hints and hand as before), G3 45 / 45 unchanged; smoke.py 47 / 47 on the same build.
+  `../_before_sent50/` holds build.py, README.md, demo_check.py, pick_check.py and the dist's three files from before.
+
 The read word lit as on G4 ([word-hot], 2026-10-28)
 - Asked: on pages 4 T2, 5 T3, 6 T4, 7 G1, 8 G2 and 9 G3, when the words are highlighted one by one with the VO, light them in
   page 10 G4's orange with G4's exact word-by-word animation instead of the current light-yellow box; everything else unchanged.
