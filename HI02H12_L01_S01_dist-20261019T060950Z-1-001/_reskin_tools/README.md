@@ -546,8 +546,11 @@ The speaker chip on the title-bar pages T2-T4, G1-G3 ([band-chip], 2026-10-28)
   and wv1 blinking; after it: colour again. T2 - 172 samples through the demo: always grey and untappable, state.demoRunning
   true throughout, arcs blinking exactly while a line speaks. demo_check.py (T2 / T3 / T4) and pick_check.py (G1 / G2 / G3) now
   expect the chip (its box, grey through the opening lines; the pick pages also: live once the tiles are, the tap's re-read, grey
-  + blinking meanwhile, colour after) instead of "no chip". `../_before_band_chip/` holds the dist's three files, build.py,
-  README.md, demo_check.py and pick_check.py from before.
+  + blinking meanwhile, colour after) instead of "no chip", and leave the chip's measured box (plus its shadow) out of their
+  pixel diff against the Figma render, as they do the bar's live bird head (the grey disc over the pale pill had added ~480
+  solid differing px on the pick pages, just over their 0.05 % bar; ~330 on the demo pages, just under). Results: smoke 47/47;
+  demo_check T2 36 / T3 36 / T4 38 all pass; pick_check G1, G2, G3 39 each, all pass. `../_before_band_chip/` holds the dist's
+  three files, build.py, README.md, demo_check.py and pick_check.py from before.
 
 The cover's sky seen, the play button's fade ([cover-sky], 2026-10-28)
 - Asked (the cover alone, again): take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and apply, exactly the same, the
