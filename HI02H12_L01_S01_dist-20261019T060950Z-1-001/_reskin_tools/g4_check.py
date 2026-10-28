@@ -17,9 +17,9 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
    taps ignored meanwhile; the 3rd: the reveal — two pills greyed and dead, the right one ringed, the 96px hand under it.
    A tap on the hand: the green mark at once, 1 s, the ding + confetti, no line, and the page moves on (success false).
 3. Left alone: the instruction again ~5 s after each time it ends (with the picture's pop-and-hold, not on entry); a tap
-   during a repeat does nothing since [tap-lock] 2026-10-28 (nothing is tappable while a line or a sound effect sounds; it
-   used to cut the repeat), and counts once it is quiet; the reveal hand is swept when another page mounts. No आगे, no hint
-   bulb; the header chip, the picture and the pills where P4 has them.
+   during a repeat cuts it and counts. [tap-lock] 2026-10-28: while a FEEDBACK sound or line plays (the buzz, the try-again
+   line, hint 3) no pill, not the hand and not the chip answers; the reveal hand is swept when another page mounts. No आगे,
+   no hint bulb; the header chip, the picture and the pills where P4 has them.
 4. --ref: the page with P4's own picture, title and sentences (same order) pixel-matches the live P4 at rest.
 """
 import sys, json, pathlib
@@ -232,7 +232,7 @@ with sync_playwright() as p:
           done and done[0]["success"] is False and len(rv) == 1 and pg.evaluate("CARD.slides[state.idx].id") == NEXT and mst == ([1, 0] if CFG["mastery"] else [0, 0]), (done, rv, mst))
     pg.close()
 
-    # ---- 3. left alone: the idle repeat, a tap during it (ignored since [tap-lock]) and one after it
+    # ---- 3. left alone: the idle repeat and a tap during it (it cuts the repeat: the instruction is no feedback, [tap-lock])
     pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
     d, labels, opt, right = run(pg)
     pg.wait_for_timeout(21000)   # [vo-rec] the recorded prompt is ~4.7 s: three plays need ~20 s
@@ -247,10 +247,7 @@ with sync_playwright() as p:
     wr = [i for i in range(3) if i != right]
     pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(120)
     cut = pg.evaluate("[isPlaying, state.attempts]")
-    check("a tap during a repeat does nothing — the repeat plays on, nothing counted ([tap-lock]; it used to cut it and count)", cut == [True, 0], cut)
-    pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20); pg.wait_for_timeout(300)
-    pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(120)
-    check("...and the same tap counts once it is quiet", pg.evaluate("state.attempts") == 1, pg.evaluate("state.attempts"))
+    check("a tap during a repeat cuts it and counts (the instruction is no feedback, [tap-lock])", cut == [False, 1], cut)
     pg.close()
 
     # ---- 4. against the live P4 (its picture, title and sentences, in its order)

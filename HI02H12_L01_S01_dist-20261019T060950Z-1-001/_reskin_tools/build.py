@@ -62,8 +62,11 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          pop — in place of the light-yellow box (.dmf-sent .sfig-w.hot); timing, the slot highlight and all else unchanged.
          [sent-50] (2026-10-28): on T2 / T3 / G1 / G2 the sentence is 50px (same font) and it and the yellow slot 4px after its
          ink are centred in the bar together (data.layout.sent = SENT50 + each page's slot x); the mark, the bar and all else unchanged.
-         [tap-lock] (2026-10-28): G1-G3 and G4 / P1 / P2 take no tap while a line or a sound effect plays (tiles, pills, the hand,
-         the chip); the picks' right tap no longer dims the other two tiles; a page's pointing hand is swept at every mount.
+         [tap-lock] (2026-10-28): on G1-G3 and G4 / P1 / P2 only the tapped option answers (the picks' right tap no longer dims the
+         other two tiles); while a FEEDBACK sound or line plays (the buzz, a hint / try-again line, hint 3, the chime) no other
+         option, the hand or the chip answers (sfxBusy() + the feedback line's own Audio); a tap during the instruction or the
+         idle re-read still cuts it and answers at once (this change's first build held those too: a tester's taps seemed to do
+         nothing, since the instruction repeats after every 5 s of quiet); a page's pointing hand is swept at every mount.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -1068,7 +1071,7 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
       }
       // [pick-fig] PUNCT_PICK: from here the tiles are the child's. The idle reminder (the engine's one per slide, after 7 s
       // of quiet) reads the sentence again, each word highlighted as it is read
-      let live = false, reread = 0;
+      let live = false, reread = 0, fbAudio = null;   // [tap-lock] fbAudio: the hint line now speaking, if any (feedback holds the tiles; the re-read does not)
       function arm(){
         live = true; state.demoRunning = false; fig.classList.add("dmf-live");
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
@@ -1081,7 +1084,8 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
       }
       function tap(k){
         if(!live || !alive()) return;
-        if(isPlaying || sfxBusy()) return;   // [tap-lock] no tap while a line or a sound effect plays (the idle re-read and the hint lines included)
+        if(sfxBusy() || (isPlaying && currentAudio && currentAudio === fbAudio)) return;   // [tap-lock] while a feedback sound or line plays (the buzz, a hint line) no other tile answers
+        if(isPlaying) stopAudio();   // the idle re-read is no feedback: a tap cuts it short and answers at once
         reread++; L.words.forEach(w=> w.classList.remove("hot"));
         const t = tiles[k], ok = k === pick, opt = opts[k] || {};
         GameBus.sendQuestionAnswered(slide, { is_correct: ok, score: ok && state.attempts === 0 ? 1 : 0, attempt: state.attempts + 1,
@@ -1163,8 +1167,9 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
      lines, every pill broken after the same word.
      - entry: the title's instruction (audio.prompt); it speaks AGAIN after every 5 s of quiet (no tap anywhere, nothing
        speaking, no read-out) for as long as the page is open, the picture giving a small silent pop-and-hold with each
-       repeat; the chip replays it too. Since [tap-lock] (2026-10-28) no tap lands while a line or a sound effect plays: the
-       pills, the hand and the chip wait for silence (a tap used to cut the line).
+       repeat; the chip replays it too. A tap on a pill cuts the instruction (or a repeat) short and answers at once; since
+       [tap-lock] (2026-10-28) nothing answers while a FEEDBACK sound or line plays (the buzz, the try-again line, hint 3):
+       the pills, the hand and the chip wait for it to end.
      - a wrong pill: the kit's wiggle + the soft buzz (the pill is not read out), 1 s (taps wait), then — 1st wrong:
        audio.try_again; 2nd: all three pills read one by one in row order (each lifted, its words lit, 0.5 s apart; taps
        wait); 3rd (max_attempts): the reveal — the two wrong pills greyed out and dead, the right one ringed green and
@@ -1277,13 +1282,15 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
 
       const report = (it, ok)=> GameBus.sendQuestionAnswered(slide, { is_correct: ok, score: ok && state.attempts === 0 ? 1 : 0,
         attempt: state.attempts + 1, ui_index: items.indexOf(it), original_index: it.index, text: it.opt.label_hi || null });
+      let fbAudio = null;   // [tap-lock] the feedback line now speaking (the try-again line, hint 3), if any: it holds the pills; the instruction does not
       items.forEach(it=>{ it.cell.onclick = ()=> tap(it); });
       function tap(it){
         const guided = it.cell.classList.contains("opt-guided");
         if(!alive() || hold || reviewing || state.hintActive) return;
         if(["crossed", "correct", "opt-dim"].some(c=> it.cell.classList.contains(c)) || (state.locked && !guided)) return;
+        if(sfxBusy() || (isPlaying && currentAudio && currentAudio === fbAudio)) return;   // [tap-lock] while a feedback sound or line plays (the buzz, the try-again line, hint 3) no other pill answers
         stopNudge(); wordStop();
-        if(isPlaying || sfxBusy()) return;   // [tap-lock] no tap while a line or a sound effect plays (the instruction, its repeats, the try-again line, hint 3)
+        if(isPlaying) stopAudio();   // the instruction and its repeats are no feedback: a tap cuts them short and answers at once
         if(it === right) ok(it, guided); else wrong(it);
       }
       function wrong(it){
@@ -1300,7 +1307,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
           if(state.attempts >= maxA){ reveal(); return; }
           if(state.attempts >= 2){ state.scaffoldLevel = Math.max(state.scaffoldLevel, 2); review(()=> it.cell.classList.remove("crossed")); return; }
           state.scaffoldLevel = Math.max(state.scaffoldLevel, 1);
-          play(audioFor(slide, "try_again"), ()=> it.cell.classList.remove("crossed"));
+          play(audioFor(slide, "try_again"), ()=> it.cell.classList.remove("crossed")); fbAudio = currentAudio;   // [tap-lock] feedback: no other pill answers while it speaks
         });
       }
       // the 2nd wrong tap: every pill read out, one by one in row order, each lifted while its line speaks
@@ -2816,8 +2823,8 @@ js = rep1(js, "  const slide = CARD.slides[idx];\n  clearHost();\n",
               "  const slide = CARD.slides[idx];\n  clearHost();\n"
               "  document.querySelectorAll(\".slide-stage .reveal-hand\").forEach(h=> h.remove());   // [tap-lock] no page's pointing hand outlives it\n", "tap-lock: strays")
 js = rep1(js, "function playSfx(id){\n  if(!id) return;\n  try{\n    const a = new Audio(\"assets/Audio/\" + id + \".\" + AUDIO_EXT);\n",
-              "/* [tap-lock] is a sound effect sounding? The picks (G1-G3) and the sentence picks (G4 / P1 / P2) take no tap while a line\n"
-              "   (isPlaying) or an effect plays; each effect path marks itself busy for its length (a 6 s cap in case 'ended' never comes). */\n"
+              "/* [tap-lock] is a sound effect sounding? The picks (G1-G3) and the sentence picks (G4 / P1 / P2) take no tap while an effect\n"
+              "   or a feedback line plays; each effect path marks itself busy for its length (a 6 s cap in case 'ended' never comes). */\n"
               "let _sfxBusy = 0, _sfxUntil = 0;\n"
               "function sfxTrack(a){ if(!a) return; let done = false; const end = ()=>{ if(done) return; done = true; _sfxBusy = Math.max(0, _sfxBusy - 1); };\n"
               "  _sfxBusy++; a.addEventListener(\"ended\", end, { once: true }); a.addEventListener(\"error\", end, { once: true }); setTimeout(end, 6000); }\n"
@@ -2840,7 +2847,7 @@ js = rep1(js, "        if(times.length) tick();\n      };\n      // 1. the title
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
       const hintLadder = (n)=>{
         const id = n <= 1 ? d.hint1_audio : n === 2 ? d.hint2_audio : (d.hint3_audio || d.hint2_audio);
-        after(500, ()=>{ if(!live || isPlaying) return; if(id) play(A(id), ()=>{}); });
+        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // [tap-lock] a hint line is feedback: no tile answers while it speaks
         if(n >= 3 && !hintHand){ const st = document.querySelector(".slide-stage"); if(!st) return;
           hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
           st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); }
@@ -2863,7 +2870,7 @@ js = rep1(js, "        live = false; state.locked = true; state.demoRunning = tr
 # the sentence picks: hint 3's line at the reveal, the praise before the right pill's line
 js = rep1(js, "        right.cell.classList.add(\"opt-guided\");\n        GameBus.emit(\"answer_revealed\", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: \"wrong\" });\n",
               "        right.cell.classList.add(\"opt-guided\");\n        GameBus.emit(\"answer_revealed\", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: \"wrong\" });\n"
-              "        if(audioFor(slide, \"hint3\")) play(audioFor(slide, \"hint3\"), ()=>{});   // [vo-rec] \"यह सही वाक्य है, इसपर टैप कीजिए\" — the hand follows once it is quiet\n", "sent hint3")
+              "        if(audioFor(slide, \"hint3\")){ play(audioFor(slide, \"hint3\"), ()=>{}); fbAudio = currentAudio; }   // [vo-rec] \"यह सही वाक्य है, इसपर टैप कीजिए\" — the hand follows once it is quiet; [tap-lock] feedback: nothing answers while it speaks\n", "sent hint3")
 js = rep1(js, "          playCorrectSelect(it.cell); setSwMood(\"happy\");\n          say(it, ()=> after(700, ()=> completeSlide(true)));",
               "          playCorrectSelect(it.cell); setSwMood(\"happy\");\n          const okSrc = audioFor(slide, \"ok\"), readIt = ()=> say(it, ()=> after(700, ()=> completeSlide(true)));   // [vo-rec] \"शाबाश! यह सही वाक्य है ।\" then the pill's own line\n          if(okSrc) play(okSrc, readIt); else readIt();", "sent ok")
 # the letter: the narration first, the scene's beats after it

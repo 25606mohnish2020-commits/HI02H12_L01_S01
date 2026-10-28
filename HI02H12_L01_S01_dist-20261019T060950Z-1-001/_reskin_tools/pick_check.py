@@ -17,8 +17,8 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts.
 2. The engine's idle reminder (once, after ~7 s of quiet with the tiles live) reads the sentence again, each word
    highlighted as the clip reaches it (as on G4 since [word-hot] 2026-10-28: orange #E86A00 with G4's p2WordPop, no yellow
-   box); a tap during it does nothing ([tap-lock] 2026-10-28: nothing is tappable while a line or a sound effect sounds — the
-   tiles, the chip — and the pointing hand is swept at every page mount; a tap used to cut the reminder short).
+   box); a tap during it cuts it short and clears the highlight (the tap counts). [tap-lock] 2026-10-28: while a FEEDBACK sound
+   or line plays (the buzz, a hint line) no tile and not the chip answers; the pointing hand is swept at every page mount.
 3. 1280x720 viewport (= frame px): every element's box vs the frame, the fonts, each text's ink vs the Figma render,
    (G1 / G2 since [sent-50] 2026-10-28: the sentence 50px and the slot 4 px after its ink centred in the bar as a pair — the bar's interior is
    measured directly and left out of the render diffs, the frames still showing the 64px text),
