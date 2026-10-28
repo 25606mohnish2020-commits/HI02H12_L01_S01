@@ -518,6 +518,26 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The option tiles press as a whole ([tile-tap], 2026-10-28)
+- Asked: on pages 4 T2, 5 T3, 6 T4, 7 G1, 8 G2 and 9 G3 the symbol options should be tappable as a whole: the complete option
+  shows the tapping animation, not only the white box inside the grey stroke — for the auto tap and the child's tap alike;
+  everything else unchanged.
+- Found: the tap target was already the whole tile (.dmf-tile carries the onclick), but the press animation (dmfTap: a 6 px
+  dip at 35% of .45 s and back) was on the white face alone (.dmf-tile.on .dmf-face). The mark and the name are the tile's
+  children, not the face's, and the grey base is the tile's own layer — so on a tap the white box dipped under a mark, a name
+  and a grey frame that stood still. The wrong-tap wiggle (wgNo) was on the tile already.
+- Built: one CSS rule moved — .dmf-tile.on{animation:dmfTap .45s ease-out} — so base, face, mark and name press together on
+  every tap: the demos' auto tap (T2 / T3 / T4, the module adds .on as the mark's name starts) and the child's right tap on
+  G1 / G2 / G3. Same keyframes, same timing, same colours (the face's border and shadow rules are untouched: still no blue
+  ring), the dim of the other two tiles unchanged. The dist differs from before in style.css only (that rule and its
+  comment); index.html and app.js are byte-identical. Measured in Chrome at 1280x720 on G1: tile, base, face, mark and name
+  all 5.7 px lower mid-press (the same frame), back at their rest tops 0.6 s later, the face with no animation of its own.
+- Checked: demo_check.py and pick_check.py now sample the pressed tile's, its face's, mark's and name's tops in one frame and
+  require them to dip together by 6 frame px (5-7, within 0.6 px of each other) and come back, the face animation-free: demo_check.py T2 38 / 38, T3 37 / 37, T4 39 / 39 (the auto tap: the tile, its face, mark and name dip together by 5.98 px
+  and come back, the face animation-free, every other beat as before); pick_check.py G1 44 / 44, G2 44 / 44, G3 44 / 44 (the
+  child's right tap: 5.98 / 5.69 / 5.98 px, the wrong taps' wiggle as before); smoke.py 47 / 47 on the same build.
+  `../_before_tile_tap/` holds build.py, README.md, demo_check.py, pick_check.py and the dist's three files from before.
+
 T3 and T4 without their intro line ([demo-intro], 2026-10-28)
 - Asked: remove the title instruction VO "सुनो यह वाक्य बिना रुके पढ़ा गया" from pages 5 T3 and 6 T4; everything else unchanged.
 - Built: that line is the two pages' intro clip (vo_demo2_intro and vo_demo3_intro, TTS: "सुनो, यह वाक्य बिना रुके पढ़ा गया ।";
