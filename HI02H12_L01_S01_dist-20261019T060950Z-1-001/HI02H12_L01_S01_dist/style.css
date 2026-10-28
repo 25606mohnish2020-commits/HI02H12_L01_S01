@@ -3067,6 +3067,7 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dmf-tile.on{animation:dmfTap .45s ease-out;}
 @keyframes dmfTap{0%{transform:none;}35%{transform:translateY(6px);}100%{transform:none;}}
 .dmf-tile.off{opacity:.35;filter:saturate(.6);transition:opacity .3s,filter .3s;}
+.dmf-live .dmf-tile.off{pointer-events:none;cursor:default;}   /* [hand-quiet] the picks' other two tiles once the hand points: dead */
 /* [pick-fig] G1 (frame 525:354 "7 G1", PUNCT_PICK): the tiles are the child's once the sentence has been read; a wrong
    one shakes with the engine's own wrong-answer wiggle (wgNo, one --fx-beat), its colours unchanged */
 .dmf-live .dmf-tile{cursor:pointer;}

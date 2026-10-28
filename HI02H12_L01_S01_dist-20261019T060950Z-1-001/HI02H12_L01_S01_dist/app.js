@@ -6423,17 +6423,22 @@ const SlideModules = {
       };
       // [vo-rec] an optional line between beats (data.explain_audio / again_audio / conclude_audio): a breath, the line, a breath
       const speakThen = (id, then)=>{ const src = A(id); if(!src){ then(); return; } after(350, ()=> narrate(src, [], ()=>{}, ()=> after(300, then))); };
-      // [vo-rec] the deck's hint ladder on the picks' wrong taps: 1st = hint 1 (data.hint1_audio), 2nd = hint 2, 3rd and later = hint 3
-      // (hint 2 again without one) and the pointing hand under the right tile until it is tapped; the line starts after the wiggle
+      // [vo-rec] the deck's hint ladder on the picks' wrong taps: 1st = hint 1 (data.hint1_audio), 2nd = hint 2 — each line after the
+      // wiggle; the 3rd ([hand-quiet] 2026-10-28): the pointing hand under the right tile until it is tapped, the other two tiles dead
+      // and dim, and NO line (hint 3 / data.hint3_audio is no longer spoken; nothing speaks again on the page)
       let hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
       const hintLadder = (n)=>{
-        const id = n <= 1 ? d.hint1_audio : n === 2 ? d.hint2_audio : (d.hint3_audio || d.hint2_audio);
+        if(n >= 3){   // [hand-quiet] the 3rd wrong tap: the hand under the right tile, the other two tiles dead and dim, no line
+          if(!hintHand){ const st = document.querySelector(".slide-stage"); if(st){
+            hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+            st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); } }
+          tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.add("off"); } });   // the wiggle just started runs out on its own
+          return;
+        }
+        const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
         after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // [tap-lock] a hint line is feedback: no tile answers while it speaks
-        if(n >= 3 && !hintHand){ const st = document.querySelector(".slide-stage"); if(!st) return;
-          hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
-          st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); }
       };
       // 1. the title bar, appearing the moment the intro line starts to sound
       const introSrc = A(d.intro_audio);
@@ -6463,13 +6468,15 @@ const SlideModules = {
       }
       // [pick-fig] PUNCT_PICK: from here the tiles are the child's. The idle reminder (the engine's one per slide, after 7 s
       // of quiet) reads the sentence again, each word highlighted as it is read
+      // [hand-quiet] (2026-10-28) once the hand points (the 3rd wrong tap) nothing speaks any more: no hint 3, no idle re-read, no
+      // chip, no praise after the guided tap; the other two tiles are dead and dim (CSS: .dmf-live .dmf-tile.off)
       let live = false, reread = 0, fbAudio = null;   // [tap-lock] fbAudio: the hint line now speaking, if any (feedback holds the tiles; the re-read does not)
       function arm(){
         live = true; state.demoRunning = false; fig.classList.add("dmf-live");
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
           t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); }; });
         // a punctuation-only word shares the start of the word before it ("हैं ।"): the two light together
-        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy()) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too
+        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too; [hand-quiet] silent while the hand shows
           const hot = (n)=>{ if(mine !== reread) return; const t = n > 0 && L.times ? L.times[n - 1] : null;
             L.words.forEach((w, i)=> w.classList.toggle("hot", n > 0 && (L.times ? L.times[i] === t : i === n - 1))); };
           narrate(L.src, L.times || [], hot, ()=> hot(0)); };
@@ -6493,6 +6500,7 @@ const SlideModules = {
         }
         // the right one: pressed (the other two untouched since [tap-lock]), its mark lands in the slot as its name sounds; then the page moves on
         live = false; state.locked = true; state.demoRunning = true;
+        const guided = !!hintHand;   // [hand-quiet] after the hand: no praise line — the mark, the ding + confetti, 1.7 s, the page moves on
         if(hintHand){ hintHand.remove(); hintHand = null; }   // [vo-rec]
         blanks.forEach(b=> b.classList.remove("blink"));
         tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle"); if(j === pick) x.classList.add("on"); });   // [tap-lock] only the tapped tile answers: the other two stay as they are (the demos' auto tap, stage4, still dims them)
@@ -6500,6 +6508,7 @@ const SlideModules = {
         sfxCorrect(); confettiCannon(); setSwMood("happy");
         GameBus.emit("punct_build_done", { slide_id: slide.id, phase: slide.phase, value: true,
           first_try: state.attempts === 0, wrong: state.attempts, latency_ms: Date.now() - state.slideStart });
+        if(guided){ after(1700 + (marks.length - 1) * (d.mark_stagger_ms || 300), ()=> completeSlide(true)); return; }   // [hand-quiet] no line after the guided tap
         narrate(A(d.ok_audio || d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));   // [vo-rec] "शाबाश!" (data.ok_audio) in the name's place
       }
       // 4. the mark's name: its tile is tapped for the child, the others go dim; then the mark lands in the slot(s), one

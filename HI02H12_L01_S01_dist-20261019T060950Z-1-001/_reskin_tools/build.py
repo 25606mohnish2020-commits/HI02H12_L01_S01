@@ -70,6 +70,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [tile-hit] (2026-10-28): on the pick pages a tap on a tile's mark or name lands on THAT tile — the text boxes, far wider
          than the tile, overflowed onto the next tiles and took their taps (G2 / G3 judged a tap by the wrong tile); .dmf-sym and
          .dmf-name take no pointer events (CSS only; nothing drawn changes).
+         [hand-quiet] (2026-10-28): on G1-G3, once the pointing hand shows (the 3rd wrong tap) the other two tiles are dead and dim
+         (.off + pointer-events:none) and nothing speaks any more — no hint 3, no idle re-read, no chip, and no praise line after
+         the guided tap (the mark, the ding + confetti, 1.7 s, then the page moves on, as the sentence picks' guided tap does).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -1074,13 +1077,15 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
       }
       // [pick-fig] PUNCT_PICK: from here the tiles are the child's. The idle reminder (the engine's one per slide, after 7 s
       // of quiet) reads the sentence again, each word highlighted as it is read
+      // [hand-quiet] (2026-10-28) once the hand points (the 3rd wrong tap) nothing speaks any more: no hint 3, no idle re-read, no
+      // chip, no praise after the guided tap; the other two tiles are dead and dim (CSS: .dmf-live .dmf-tile.off)
       let live = false, reread = 0, fbAudio = null;   // [tap-lock] fbAudio: the hint line now speaking, if any (feedback holds the tiles; the re-read does not)
       function arm(){
         live = true; state.demoRunning = false; fig.classList.add("dmf-live");
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
           t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); }; });
         // a punctuation-only word shares the start of the word before it ("हैं ।"): the two light together
-        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy()) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too
+        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too; [hand-quiet] silent while the hand shows
           const hot = (n)=>{ if(mine !== reread) return; const t = n > 0 && L.times ? L.times[n - 1] : null;
             L.words.forEach((w, i)=> w.classList.toggle("hot", n > 0 && (L.times ? L.times[i] === t : i === n - 1))); };
           narrate(L.src, L.times || [], hot, ()=> hot(0)); };
@@ -2255,6 +2260,7 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dmf-tile.on{animation:dmfTap .45s ease-out;}
 @keyframes dmfTap{0%{transform:none;}35%{transform:translateY(6px);}100%{transform:none;}}
 .dmf-tile.off{opacity:.35;filter:saturate(.6);transition:opacity .3s,filter .3s;}
+.dmf-live .dmf-tile.off{pointer-events:none;cursor:default;}   /* [hand-quiet] the picks' other two tiles once the hand points: dead */
 /* [pick-fig] G1 (frame 525:354 "7 G1", PUNCT_PICK): the tiles are the child's once the sentence has been read; a wrong
    one shakes with the engine's own wrong-answer wiggle (wgNo, one --fx-beat), its colours unchanged */
 .dmf-live .dmf-tile{cursor:pointer;}
@@ -2847,17 +2853,22 @@ js = rep1(js, "        if(times.length) tick();\n      };\n      // 1. the title
       };
       // [vo-rec] an optional line between beats (data.explain_audio / again_audio / conclude_audio): a breath, the line, a breath
       const speakThen = (id, then)=>{ const src = A(id); if(!src){ then(); return; } after(350, ()=> narrate(src, [], ()=>{}, ()=> after(300, then))); };
-      // [vo-rec] the deck's hint ladder on the picks' wrong taps: 1st = hint 1 (data.hint1_audio), 2nd = hint 2, 3rd and later = hint 3
-      // (hint 2 again without one) and the pointing hand under the right tile until it is tapped; the line starts after the wiggle
+      // [vo-rec] the deck's hint ladder on the picks' wrong taps: 1st = hint 1 (data.hint1_audio), 2nd = hint 2 — each line after the
+      // wiggle; the 3rd ([hand-quiet] 2026-10-28): the pointing hand under the right tile until it is tapped, the other two tiles dead
+      // and dim, and NO line (hint 3 / data.hint3_audio is no longer spoken; nothing speaks again on the page)
       let hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
       const hintLadder = (n)=>{
-        const id = n <= 1 ? d.hint1_audio : n === 2 ? d.hint2_audio : (d.hint3_audio || d.hint2_audio);
+        if(n >= 3){   // [hand-quiet] the 3rd wrong tap: the hand under the right tile, the other two tiles dead and dim, no line
+          if(!hintHand){ const st = document.querySelector(".slide-stage"); if(st){
+            hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+            st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); } }
+          tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.add("off"); } });   // the wiggle just started runs out on its own
+          return;
+        }
+        const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
         after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // [tap-lock] a hint line is feedback: no tile answers while it speaks
-        if(n >= 3 && !hintHand){ const st = document.querySelector(".slide-stage"); if(!st) return;
-          hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
-          st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); }
       };
       // 1. the title bar, appearing the moment the intro line starts to sound""", "demo helpers")
 js = rep1(js, "after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), stage3));",
@@ -2869,11 +2880,11 @@ js = rep1(js, "        narrate(A(F.audio), F.word_times || [], hot, ()=>{\n     
 js = rep1(js, "              completeSlide(true); }); });\n        });\n      }\n    }\n  },\n\n  /* ===== [sent-fig] SENT_PICK",
               "              completeSlide(true); }); });\n        }));\n      }\n    }\n  },\n\n  /* ===== [sent-fig] SENT_PICK", "demo conclude close")
 js = rep1(js, "narrate(A(d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));",
-              "narrate(A(d.ok_audio || d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));   // [vo-rec] \"शाबाश!\" (data.ok_audio) in the name's place", "pick ok")
+              "if(guided){ after(1700 + (marks.length - 1) * (d.mark_stagger_ms || 300), ()=> completeSlide(true)); return; }   // [hand-quiet] no line after the guided tap\n        narrate(A(d.ok_audio || d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));   // [vo-rec] \"शाबाश!\" (data.ok_audio) in the name's place", "pick ok")
 js = rep1(js, "          setSwMood(\"tryagain\");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird\n          return;\n",
               "          setSwMood(\"tryagain\");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird\n          hintLadder(state.attempts);   // [vo-rec]\n          return;\n", "pick hints")
 js = rep1(js, "        live = false; state.locked = true; state.demoRunning = true;\n",
-              "        live = false; state.locked = true; state.demoRunning = true;\n        if(hintHand){ hintHand.remove(); hintHand = null; }   // [vo-rec]\n", "pick hand off")
+              "        live = false; state.locked = true; state.demoRunning = true;\n        const guided = !!hintHand;   // [hand-quiet] after the hand: no praise line — the mark, the ding + confetti, 1.7 s, the page moves on\n        if(hintHand){ hintHand.remove(); hintHand = null; }   // [vo-rec]\n", "pick hand off")
 # the sentence picks: hint 3's line at the reveal, the praise before the right pill's line
 js = rep1(js, "        right.cell.classList.add(\"opt-guided\");\n        GameBus.emit(\"answer_revealed\", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: \"wrong\" });\n",
               "        right.cell.classList.add(\"opt-guided\");\n        GameBus.emit(\"answer_revealed\", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: \"wrong\" });\n"

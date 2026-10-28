@@ -16,7 +16,10 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    next slide by itself — no round gate, आगे never shows. The page is the frame's whole stage: no engine header, no
    standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts. A tap on any visible
    part of a tile — its mark and its name included — is that tile's ([tile-hit] 2026-10-28: their text boxes, far wider than the
-   tile, used to overflow onto the next tiles and take their taps, so G2 / G3 judged taps by the wrong tile).
+   tile, used to overflow onto the next tiles and take their taps, so G2 / G3 judged taps by the wrong tile). [hand-quiet]
+   2026-10-28: the third wrong tap brings the pointing hand and NO line (hint 3 is not spoken); the other two tiles go dead and
+   dim; no idle re-read and no chip meanwhile; the guided right tap presses the tile, lands the mark with the ding + confetti and
+   no praise line, and 1.7 s later the page moves on (the praise stays on the un-guided path: the [tile-hit] block's right tap).
 2. The engine's idle reminder (once, after ~7 s of quiet with the tiles live) reads the sentence again, each word
    highlighted as the clip reaches it (as on G4 since [word-hot] 2026-10-28: orange #E86A00 with G4's p2WordPop, no yellow
    box); a tap during it cuts it short and clears the highlight (the tap counts). [tap-lock] 2026-10-28: while a FEEDBACK sound
@@ -160,7 +163,14 @@ with sync_playwright() as p:
     quiet = lambda: (pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20), pg.wait_for_timeout(300))   # [tap-lock] silence = no line, no effect   # [vo-rec] the tap's hint line said
     quiet(); pg.click(f".dmf-tile.t{WRONG[1]}"); pg.wait_for_timeout(700)
     quiet(); pg.click(f".dmf-tile.t{WRONG[2]}"); pg.wait_for_timeout(700)   # the same wrong tile again: it stays tappable
-    quiet(); pg.screenshot(path=str(out / "c2_hand_1333.png"))
+    quiet(); pg.wait_for_timeout(500); pg.screenshot(path=str(out / "c2_hand_1333.png"))
+    # [hand-quiet] with the hand: the other two tiles are dead (a tap counts nothing, nothing wiggles) and dim; the chip says nothing
+    pg.click(f".dmf-tile.t{WRONG[1]}", force=True); pg.wait_for_timeout(200)
+    dead = pg.evaluate("[state.attempts, !!document.querySelector('.dmf-tile.wiggle'), [...document.querySelectorAll('.dmf-tile')].map(t => t.classList.contains('off')), [...document.querySelectorAll('.dmf-tile')].map(t => getComputedStyle(t).pointerEvents)]")
+    check("with the hand the other two tiles are dead and dim: a tap on one counts nothing and nothing wiggles; the right tile stays live ([hand-quiet])",
+          dead[0] == 3 and not dead[1] and dead[2] == [k != PICK for k in range(3)] and dead[3] == ["none" if k != PICK else "auto" for k in range(3)], dead)
+    pg.evaluate("state.replayAudio()"); pg.wait_for_timeout(300)
+    check("...and the chip (the idle re-read's handler too) says nothing while the hand shows ([hand-quiet])", pg.evaluate("!isPlaying && !document.querySelector('.dmf-sent .sfig-w.hot')"))
     pg.click(f".dmf-tile.t{PICK + 1}"); pg.wait_for_timeout(700); pg.screenshot(path=str(out / "d_right_1333.png"))
     pg.click(f".dmf-tile.t{WRONG[1]}", force=True); pg.wait_for_timeout(100)
     check("after the right tap the tiles are done: a further tap does nothing", pg.evaluate("state.attempts === 3 && !document.querySelector('.dmf-tile.wiggle')"))
@@ -201,7 +211,8 @@ with sync_playwright() as p:
     check(f"each wrong tap counts an attempt and wiggles that tile only ({', '.join(d['options'][t - 1]['name_hi'] for t in WRONG)})",
           samples[i_w1]["wiggle"] == only(WRONG[0]) and samples[i_w2]["wiggle"] == only(WRONG[1]) and samples[i_w3]["wiggle"] == only(WRONG[2]))
     i_ok = first(lambda s: any(s["on"]))
-    check("no mark, no pressed or dimmed tile before the right tap", not any(any(s["marksIn"]) or any(s["on"]) or any(s["off"]) for s in samples[:i_ok]))
+    check("no mark, no pressed tile before the right tap; no dimmed tile before the hand (the third wrong tap)",
+          not any(any(s["marksIn"]) or any(s["on"]) for s in samples[:i_ok]) and not any(any(s["off"]) for s in samples[:i_w3]))
     i_mark = first(lambda s: any(s["marksIn"]))
     # [tile-tap] the press is the whole option's: the tile, its face, mark and name dip together (dmfTap: 6 frame px at 35% of .45 s) and
     # come back; the face has no press of its own
@@ -211,32 +222,32 @@ with sync_playwright() as p:
           5.0 <= deep[0] / k <= 7.0 and max(abs(v - deep[0]) for v in deep) <= 0.6 and any(s["press"][4] == "dmfTap" for s in win)
           and all(s["press"][5] == "none" for s in win) and abs(win[-1]["press"][0] - pre[0]) <= 0.6,
           f"deepest dip tile / face / mark / name {[round(v / k, 2) for v in deep]} px; animations seen {sorted({(s['press'][4], s['press'][5]) for s in win})}")
-    check("the right tap: its tile pressed, the other two untouched (not dimmed since [tap-lock]), its mark in the slot at once",
-          samples[i_ok]["on"] == [k == PICK for k in range(3)] and samples[i_ok]["off"] == [False, False, False] and not any(any(x["off"]) for x in samples[i_ok:]) and ms(i_mark) - ms(i_ok) <= 160, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")   # [dun-chrome] the reference's 100-piece 1.5x burst is built on this tap: ~100 ms (was 50 with the 80-piece burst)
+    check("the right (guided) tap: its tile pressed, the other two as the hand left them (dim since the third wrong tap, [hand-quiet]; the tap dims nothing), its mark in the slot at once",
+          samples[i_ok]["on"] == [k == PICK for k in range(3)] and all(x["off"] == [k != PICK for k in range(3)] for x in samples[i_w3 + 1:] if x["slide"] == SLIDE) and ms(i_mark) - ms(i_ok) <= 160, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")   # [dun-chrome] the reference's 100-piece 1.5x burst is built on this tap: ~100 ms (was 50 with the 80-piece burst)
     i_bl_end = first(lambda s: not s["blink"], i_bl)
     check("the blink stops at the right tap if it is still running, else after its 3.5 s",
           (i_bl_end <= i_ok and abs(ms(i_bl_end) - ms(i_bl) - 3500) <= 150) or abs(ms(i_bl_end) - ms(i_ok)) <= 50, f"{ms(i_bl_end) - ms(i_bl):.0f} ms")
-    i_s2 = start_of(NAME, i_ok); i_e2 = end_of(NAME, i_s2)
-    check("the praise (“शाबाश!”, vo_ok) sounds as the tile is tapped — the mark's name is not said", 0 <= ms(i_s2) - ms(i_ok) <= 200, f"{ms(i_s2) - ms(i_ok):.0f} ms after")
-    check(f"one beat (~1 s) after the praise the page moves on to {NEXT} by itself, with no round gate",
-          samples[-1]["slide"] == NEXT and 900 <= ms(len(samples) - 1) - ms(i_e2) <= 1400 and not any(s["gate"] for s in samples),
-          f"{ms(len(samples) - 1) - ms(i_e2):.0f} ms after the praise")
+    check("after the guided tap no line at all — no praise: the hand's silence holds to the page's end ([hand-quiet]); the ding + confetti only",
+          not any(s["playing"] for s in samples[i_ok:] if s["slide"] == SLIDE), [s["clip"] for s in samples[i_ok:] if s["slide"] == SLIDE and s["playing"]][:3])
+    check(f"1.7 s after the guided tap the page moves on to {NEXT} by itself, with no round gate ([hand-quiet])",
+          samples[-1]["slide"] == NEXT and 1600 <= ms(len(samples) - 1) - ms(i_ok) <= 2400 and not any(s["gate"] for s in samples),
+          f"{ms(len(samples) - 1) - ms(i_ok):.0f} ms after the tap")
     # [vo-rec] the deck's hint ladder on the wrong taps: hint 1, hint 2, then hint 3 (hint 2 again where the page has none) with
     # the pointing hand under the right tile, gone at the right tap; each line 0.5 s after its tap
-    H1, H2 = (d.get("hint1_audio") or "")[3:], (d.get("hint2_audio") or "")[3:]; H3 = (d.get("hint3_audio") or d.get("hint2_audio") or "")[3:]
-    i_h1 = start_of(H1, i_w1); i_h2 = start_of(H2, i_w2); i_h3 = start_of(H3, i_w3)
-    check(f"wrong tap 1: hint 1 ({H1}) 0.5 s after the wiggle; wrong tap 2: hint 2 ({H2}); wrong tap 3: hint 3 ({H3}" + (", hint 2 again)" if H3 == H2 else ")"),
-          all(450 <= ms(i) - ms(w) <= 800 for i, w in ((i_h1, i_w1), (i_h2, i_w2), (i_h3, i_w3))) and i_h1 < i_w2 and i_h2 < i_w3,
-          [round(ms(i) - ms(w)) for i, w in ((i_h1, i_w1), (i_h2, i_w2), (i_h3, i_w3))])
+    H1, H2 = (d.get("hint1_audio") or "")[3:], (d.get("hint2_audio") or "")[3:]; H3 = (d.get("hint3_audio") or "")[3:]
+    i_h1 = start_of(H1, i_w1); i_h2 = start_of(H2, i_w2)
+    check(f"wrong tap 1: hint 1 ({H1}) 0.5 s after the wiggle; wrong tap 2: hint 2 ({H2}); wrong tap 3: NO line — the hand's silence ([hand-quiet]; hint 3 {H3 or '-'} is not spoken)",
+          all(450 <= ms(i) - ms(w) <= 800 for i, w in ((i_h1, i_w1), (i_h2, i_w2))) and i_h1 < i_w2 and i_h2 < i_w3 and not any(s["playing"] for s in samples[i_w3:] if s["slide"] == SLIDE),
+          ([round(ms(i) - ms(w)) for i, w in ((i_h1, i_w1), (i_h2, i_w2))], [s["clip"] for s in samples[i_w3:] if s["slide"] == SLIDE and s["playing"]][:3]))
     check("the pointing hand (.reveal-hand.dmf-hand) comes with the third wrong tap, under the right tile, and goes at the right tap",
-          not any(s["hand"] for s in samples[:i_w3]) and samples[i_h3]["hand"] and all(not s["hand"] for s in samples[i_ok + 2:]),
-          (any(s["hand"] for s in samples[:i_w3]), samples[i_h3]["hand"], any(s["hand"] for s in samples[i_ok + 2:])))
+          not any(s["hand"] for s in samples[:i_w3]) and all(s["hand"] for s in samples[i_w3 + 1:i_ok]) and all(not s["hand"] for s in samples[i_ok + 2:]),
+          (any(s["hand"] for s in samples[:i_w3]), all(s["hand"] for s in samples[i_w3 + 1:i_ok]), any(s["hand"] for s in samples[i_ok + 2:])))
     check("आगे never shows on this page", not any(s["navShown"] for s in mine))
     # counted on this page's samples only: the next page may open with the same clip (G2 replays G1's instruction)
     starts = lambda k: sum(1 for i, s in enumerate(mine) if s["clip"] == k and s["playing"] and (i == 0 or not (mine[i-1]["clip"] == k and mine[i-1]["playing"])))
-    check("each clip plays once on this page (the hint lines as the ladder says; no idle reminder: the taps came within 7 s)",
-          all(starts(k) == 1 for k in ("g1_intro", SENT, NAME, H1)) and starts(H2) == (2 if H3 == H2 else 1) and (H3 == H2 or starts(H3) == 1),
-          [starts(k) for k in ("g1_intro", SENT, NAME, H1, H2, H3)])
+    check("each clip plays once on this page (hint 1 and hint 2 as the ladder says; no hint 3 and no praise after the guided tap, [hand-quiet]; no idle reminder: the taps came within 7 s)",
+          all(starts(k) == 1 for k in ("g1_intro", SENT, H1, H2)) and starts(NAME) == 0 and (not H3 or H3 == H2 or starts(H3) == 0),
+          [starts(k) for k in ("g1_intro", SENT, NAME, H1, H2, H3 or "-")])
     check("punct_build_done is reported once, with the two wrong tiles counted (3 wrong taps)",
           len(sig) == 1 and sig[0]["first_try"] is False and sig[0]["wrong"] == 3 and wrong_sig == 3, (sig, wrong_sig))
     pg.close()
@@ -314,6 +325,11 @@ with sync_playwright() as p:
     jr = pg.evaluate("[state.attempts, [...document.querySelectorAll('.dmf-tile')].map(t => t.classList.contains('on')), !!document.querySelector('.dmf-mark.in')]")
     check(f"a mouse tap on the RIGHT tile t{PICK + 1}'s name: judged right — that tile alone pressed, its mark in the slot ([tile-hit])",
           jr == [1, [k == PICK for k in range(3)], True], jr)
+    try: pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_ok')", timeout=3000, polling=20); praised = True
+    except Exception: praised = False
+    try: pg.wait_for_function(f"CARD.slides[state.idx].id === '{NEXT}'", timeout=20000, polling=20); moved = True
+    except Exception: moved = False
+    check(f"...the un-guided right tap (one wrong tap before it, no hand): the praise (vo_ok) sounds and the page moves on to {NEXT} — the praise stays on this path ([hand-quiet])", praised and moved, (praised, moved))
     pg.close()
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e)))

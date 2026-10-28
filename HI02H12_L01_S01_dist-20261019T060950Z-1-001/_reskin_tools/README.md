@@ -518,6 +518,81 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+A tap on a tile's mark or name is that tile's: G2 / G3 judged taps by the wrong tile ([tile-hit], 2026-10-28)
+- Asked (pages 8 G2 and 9 G3): a lot of problems tapping the right or wrong option — the tapped option, right or wrong, should be
+  judged correctly and show its own right or wrong animation; everything else unchanged.
+- Found (the scratchpad's g23_probe.py: each tile's parts and document.elementFromPoint at its visible points, at 1333x750 and
+  1280x720): the tiles' own boxes are right (227x169 at 197 / 527 / 857), but the mark's and the name's text boxes are far
+  wider than the tile — .dmf-sym 483 px and .dmf-name 1075 px, centred on the tile so the glyphs centre whatever their
+  width (the frame's text nodes) — and so overflow onto the next tiles: tile 1's name box runs from x -236 to 884, over
+  tiles 2 and 3. A later tile's box paints on top, so a tap on tile 1's NAME reached tile 2 and a tap on tile 2's name
+  reached tile 3; the right third of a tile at the mark's height reached the next tile's mark too. The module judges by the
+  tile that got the tap, so on G3 (the comma, tile 2) a tap on the wrong tile 1's name was judged right and the mark
+  landed, and a tap on the right tile 2's name was judged wrong and tile 3 wiggled; on G2 (the ?, tile 3) taps on tile
+  1's or 2's names wiggled the tile to their right. G1 (the danda, tile 1) mostly escaped, its answer being the first tile,
+  which is why the earlier pick checks — Playwright clicks at each tile's box centre, where the tile's own mark sits — never
+  saw it. Every judgement was right once the tap reached the right tile: the right / wrong animations themselves were
+  never the fault.
+- Built: .dmf-sym and .dmf-name take no pointer events (pointer-events:none, CSS only), so every tap on a tile's visible area
+  — mark, name, face, base — falls to the tile's own box and the tile that was tapped is the tile that answers. Nothing
+  drawn changes: the dist differs from before in style.css only (the one rule), index.html and app.js byte-identical;
+  T2-T4 share the CSS but take no taps.
+- Measured (g23_probe.py again): on G1, G2 and G3 at both viewports every probed point of every tile — the mark's and the
+  name's glyph centres, the face centre, the tile's edges, the base's corners — now resolves to that tile; a real mouse tap
+  on a wrong tile's name wiggles that tile alone, on the right tile's name presses it alone and lands the mark.
+- Checked: pick_check.py gained the hit-test (seven points per tile) and the two mouse taps on the names: G1 52/52, G2 52/52, G3 51/51 (the scratchpad's chk21 logs); smoke.py 47/47; demo_check T2 40/40, T3 39/39, T4 40/40 (the CSS
+  is shared with the demos; nothing drawn changed).
+  `../_before_tile_hit/` holds build.py, pick_check.py, README.md and the dist's three files from before.
+
+Only the tapped option answers, nothing answers while feedback sounds, no stray hand ([tap-lock], 2026-10-28)
+- Asked (pages 7 G1, 8 G2, 9 G3, 10 G4, 11 P1, 12 P2): only the option tapped should show the right or wrong animation; why does
+  the hand nudge (or anything else) sometimes stay on when jumping to another page; and while a VO or any sound effect plays,
+  no other option or button should be tappable; everything else unchanged. Then, on the first build: why is the tapped option
+  not showing its right or wrong animation at all?
+- Found: (1) the picks' right tap pressed the tapped tile AND dimmed the other two (the demos' faded-option look); the wrong tap
+  already wiggled only the tapped tile; on the sentence picks the right tap marks only the tapped pill and the wrong tap
+  wiggles / crosses only the tapped pill. (2) Both page types append their pointing hand (the picks' after the 3rd wrong tap,
+  the sentence picks' at the reveal) to .slide-stage — outside #slideHost, which is all clearHost() empties on a page change —
+  so a dev-nav jump left the hand standing on the next page (reproduced: on T1 the sentence picks' hand even grew to 405x508
+  under that page's CSS). Their idle loops and listeners do stop themselves (they check the page is still mounted). (3) A
+  tap during a line CUT the line (the picks' idle re-read, the sentence picks' instruction / try-again line) and taps during a
+  sound effect counted; the chips already refused taps during a line but not during an effect.
+- Built: (1) the picks' right tap presses the tapped tile only — the other two stay as they are (the demos' auto tap, which
+  is not a response, still dims them as before). The hint ladder is untouched: the sentence picks' 2nd wrong tap still reads
+  all three pills in turn and the 3rd still reveals the answer (greyed decoys, ringed answer, the hand) — those are the
+  reference's scaffold beats, not response animations; say so if they should go too. (2) The engine sweeps every
+  .slide-stage .reveal-hand at the top of mountSlide (right after clearHost), so no page's hand outlives it. (3) The engine
+  gained sfxBusy(): playSfx, the kit's playKitSfx (correct / wrong / confetti / star / buttons) and the procedural _tone mark
+  themselves busy for their length (an 'ended' listener with a 6 s cap). The picks' tap() and the sentence picks' tap() — the
+  tiles, the pills, the reveal hand and its pad — return while an effect sounds (sfxBusy()), and both pages' chip replays
+  refuse while anything sounds (the engine's chip handler already refused during a line).
+- The follow-up (same day): the first build held the options during EVERY line, the instruction and the idle re-read
+  included. On G4 / P1 / P2 the instruction repeats after every 5 s of quiet and lasts about 4.4 s, on G1-G3 the re-read
+  comes 6.5 s after the tiles go live and lasts about 2.7 s — so a tester tapping at a natural moment hit a held page about
+  half the time and saw the tapped option do nothing, which read as "no right or wrong animation" (the scratchpad's
+  feel_probe.py timelines). The ask was about feedback ("any OTHER option while one plays"), so the lock is now: a tap during
+  the instruction, a repeat or the idle re-read cuts it and answers at once, as before; while a FEEDBACK sound or line plays
+  — the buzz, the picks' hint 1 / 2 / 3, the sentence picks' try-again line and hint 3, the chime and the ok line — no other
+  option, the hand or the chip answers. Each module keeps the feedback line's own Audio (fbAudio, set right after play() of a
+  hint / try-again / hint-3 line) and tap() returns while sfxBusy() or that very clip is the one playing; the sentence picks'
+  check now sits before stopNudge() / wordStop(), so a refused tap changes nothing. Nothing else moved: in both builds the
+  dist differs from before in app.js only (index.html and style.css byte-identical); the T0-T4, L1, L2 and end-screen pages
+  are not touched by the lock.
+- Measured (the scratchpad's lock2_probe.py, 1280x720): G1 — a wrong tap during the idle re-read: counted, the tapped tile
+  wiggles, the re-read cut and its highlight gone; a 2nd tap at +0.2 s (the buzz): still 1; the right tile during hint 1 and
+  the chip during hint 1: nothing, the line plays on; the right tile in silence, or during the re-read: pressed, no tile
+  dimmed. G4 — a wrong pill during the instruction: counted, crossed, the line cut; the right pill and the chip during the
+  try-again line: nothing; the right pill during a repeat: the mark, the repeat cut. P1 — three wrong taps, the right
+  (guided) pill during hint 3: nothing; once quiet with the hand shown: the mark. Earlier (lock_probe.py): G1 and G4, three
+  wrong taps, the hand, a jump to T1: no .reveal-hand on T1 at once or 2.5 s later. No page errors anywhere.
+- Checked: pick_check.py (the buzz hold, the hint-line hold, the re-read cut by a tap, the right tap's others untouched,
+  the hand gone after a jump) and g4_check.py (the try-again-line hold, a repeat cut by a tap, the hand gone after a jump):
+  on the narrowed build (the scratchpad's chk20 logs; app.js unchanged by the two changes after it) pick_check G1 49/49, G2 49/49,
+  G3 48/48; g4_check G4 25/25, P1 25/25, P2 25/25; demo_check T2 40/40; smoke.py 47/47 once its own follow-up taps waited for
+  quiet (it tapped again 0.5 s after a wrong tap, inside the hint line the hold now covers; a quiet(pg) helper, chk21).
+  `../_before_tap_lock/` holds build.py, README.md, pick_check.py, g4_check.py, smoke.py and the dist's three files from
+  before the first build; `../_before_tap_lock2/` the same (less smoke.py) from before the follow-up.
+
 The big-slot pages' sentence at 50px, it and the slot centred together ([sent-50], 2026-10-28)
 - Asked: on pages 4 T2, 5 T3, 7 G1 and 8 G2 make the main sentence 50px instead of 64 in the same font, place it at the centre
   of its box, and move the light-yellow blank box accordingly; everything else unchanged. Then, seeing it: the sentence and the
