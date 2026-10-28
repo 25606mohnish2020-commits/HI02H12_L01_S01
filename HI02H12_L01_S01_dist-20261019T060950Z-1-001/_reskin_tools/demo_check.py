@@ -13,7 +13,8 @@ usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdi
    blink for 3.5 s from the moment that clip ends — every slot the same animation, starting and stopping in the same
    frame — nothing sounding meanwhile; then the mark's name sounds with its tile tapped and the other two dim; the mark
    lands in each slot after that line (left to right, 0.3 s apart); the sentence's second reading follows, every tile
-   dim, each word and each slot highlighted as the reading reaches it; 1.5 s after it the slots' boxes go and the page
+   dim, each word and each slot highlighted as the reading reaches it (the word as on G4 since [word-hot] 2026-10-28: orange
+   #E86A00 with G4's p2WordPop, no yellow box; the slot's own highlight as before); 1.5 s after it the slots' boxes go and the page
    moves on by itself (T4: through the engine's peek gate into the guided round, as the old T4 did); आगे never shows.
    The blink is three slow blinks; the tapped tile keeps its colours (no blue ring) and, since [tile-tap] 2026-10-28, presses as a
    whole (base, face, mark and name dip together), not its white face alone.
@@ -94,6 +95,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     on: tiles.map(t => t.classList.contains('on')), off: tiles.map(t => t.classList.contains('off')),
     marksIn: [...document.querySelectorAll('.dmf-mark')].map(m => m.classList.contains('in')),
     hot: [...document.querySelectorAll('.dmf-sent .sfig-w')].findIndex(w => w.classList.contains('hot')), hotSlot: blanks.findIndex(b => b.classList.contains('hot')),
+    hotLook: (() => { const w = document.querySelector('.dmf-sent .sfig-w.hot'); if (!w) return null; const cs = getComputedStyle(w), r = w.getBoundingClientRect();
+      return [cs.color, cs.animationName, cs.animationDuration, cs.backgroundColor, cs.boxShadow, +(r.width / w.offsetWidth).toFixed(3)]; })(),
     gone: blanks.length > 0 && blanks.every(b => b.classList.contains('gone')), gate: !!document.getElementById('phaseGate') && document.getElementById('phaseGate').classList.contains('show'),
     face1: (() => { const f = q('.tPICK .dmf-face'); if (!f) return ''; const cs = getComputedStyle(f); return cs.borderTopColor + '|' + cs.boxShadow; })(),
     press: (() => { const t = q('.tPICK'); if (!t) return null; const f = q('.tPICK .dmf-face'), sy = q('.tPICK .dmf-sym'), nm = q('.tPICK .dmf-name');
@@ -230,6 +233,11 @@ with sync_playwright() as p:
     want_seen = {state_of(n) for n in range(1, len(tF) + 1)}
     check("each word, and each slot, is highlighted as the second reading reaches it (within -150/+40 ms)",
           len(timed) > 20 and not off_time and want_seen <= seen, f"{len(timed)} samples, states seen {sorted(seen)}, off-time {len(off_time)}")
+    # [word-hot] the lit word looks and moves as G4's: the picks' orange, G4's p2WordPop (.28 s, up to a 1.1 scale), no yellow box
+    looks = {tuple(s["hotLook"][:5]) for s in timed if s["hotLook"]}; k = 1333 / 1280; pops = [s["hotLook"][5] / k for s in timed if s["hotLook"]]
+    check("the word being read is lit as on G4: orange #E86A00 with G4's p2WordPop (.28 s, up to a 1.1 scale), no yellow box or shadow",
+          looks == {("rgb(232, 106, 0)", "p2WordPop", "0.28s", "rgba(0, 0, 0, 0)", "none")} and bool(pops) and 1.07 <= max(pops) <= 1.13 and min(pops) >= 0.98,
+          f"looks {sorted(looks)}, pop {min(pops) if pops else 0:.3f}-{max(pops) if pops else 0:.3f}")
     i_gone = first(lambda s: s["gone"])
     if K_CONC:   # [vo-rec] the conclusion after the second reading, before the boxes go
         i_c1 = start_of(K_CONC, i_e3); i_c2 = end_of(K_CONC, i_c1)

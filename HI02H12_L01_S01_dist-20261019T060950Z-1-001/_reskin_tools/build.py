@@ -58,6 +58,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          white face alone — the dmfTap animation moved from .dmf-face to .dmf-tile.on; nothing else.
          [p1-pic] (2026-10-28): P1's picture is the user's new one (two girls with the picture book), framed like P4's by
          g4_picture.py into the same file; nothing else.
+         [word-hot] (2026-10-28): on T2-T4 and G1-G3 the word being read lights as on G4 — orange #E86A00 with G4's p2WordPop
+         pop — in place of the light-yellow box (.dmf-sent .sfig-w.hot); timing, the slot highlight and all else unchanged.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2181,8 +2183,11 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
    box (1.714 x 64 = 110px) with its spaces (-4px at this size) */
 .dmf-sent{position:absolute;left:97.614px;top:15.614px;width:479px;height:104px;white-space:nowrap;text-align:center;
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:110px;word-spacing:-4px;color:#012F76;}
-.dmf-sent .sfig-w{border-radius:10px;transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25),background-color .15s,box-shadow .15s;}
-.dmf-sent .sfig-w.hot{background:#FFF1B6;box-shadow:0 0 0 6px #FFF1B6;}   /* the word being read */
+.dmf-sent .sfig-w{border-radius:10px;transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
+/* the word being read: [word-hot] (2026-10-28) G4's own look and motion in place of the light-yellow box — the word turns the
+   picks' orange and pops once (SENT_PICK's .p2-word.on: #E86A00, p2WordPop .28s ease-out, origin 50% 60%); one word at a
+   time, as G4 lights its pill's words; the slot's own highlight (.dmf-blank.hot) is unchanged */
+.dmf-sent .sfig-w.hot{color:#E86A00;transform-origin:50% 60%;animation:p2WordPop .28s ease-out 1;}
 /* the empty slot 520:231: 59x100 at 583,20 in the bar, #FFF1B6, 8px corners, a 2px dashed rgba(86,86,86,.85) stroke inside
    — drawn as an SVG stroke so the dashes are the render's (10 on, 5 off), which a CSS dashed border cannot be told */
 .dmf-blank{position:absolute;left:580.614px;top:17.614px;width:59px;height:100px;background:#FFF1B6;border-radius:8px;

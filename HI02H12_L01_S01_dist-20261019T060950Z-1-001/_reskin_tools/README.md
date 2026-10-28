@@ -518,6 +518,20 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+P1's picture replaced ([p1-pic], 2026-10-28)
+- Asked: at page 11 P1 replace the picture with the user's new one (two girls with the picture book, one pointing at its red
+  car: a 1448x1086 PNG, the same size as the earlier source); everything else unchanged.
+- Built: the new PNG is p1_assets/p1_book_source.png (the earlier one kept as p1_book_source_v1_2026-10-25.png) and
+  g4_picture.py frames it exactly as before — P4's grey ring baked into the bitmap at 1058 px high, 1411 wide — into the same
+  img_p1_book_gry.webp (the earlier picture kept as img_p1_book_gry_v1_2026-10-25.webp); the frame band of the new bitmap is
+  identical to the old one's (same alpha, same grey), only the picture inside differs. The page's data, id, sentences, clips
+  and layout are untouched; build.py gained only a comment and a docstring line, and the built dist differs from before in
+  that one image file (index.html, app.js and style.css byte-identical).
+- Checked: g4_check.py --page P1 23 / 23 (the page shows img_p1_book_gry.webp at its natural 1411 px width, the picture box 403x302 at
+  438,140 of the page as before, the taps, hints, review and reveal as before); smoke.py 47 / 47 on the same build; no page
+  errors or failed requests.
+  `../_before_p1_pic/` holds build.py, README.md, the old source + framed picture (p1_assets/) and the dist's old copy.
+
 The option tiles press as a whole ([tile-tap], 2026-10-28)
 - Asked: on pages 4 T2, 5 T3, 6 T4, 7 G1, 8 G2 and 9 G3 the symbol options should be tappable as a whole: the complete option
   shows the tapping animation, not only the white box inside the grey stroke — for the auto tap and the child's tap alike;

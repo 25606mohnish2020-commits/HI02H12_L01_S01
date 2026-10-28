@@ -16,7 +16,8 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    next slide by itself — no round gate, आगे never shows. The page is the frame's whole stage: no engine header, no
    standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts.
 2. The engine's idle reminder (once, after ~7 s of quiet with the tiles live) reads the sentence again, each word
-   highlighted as the clip reaches it; a tap cuts it short and clears the highlight.
+   highlighted as the clip reaches it (as on G4 since [word-hot] 2026-10-28: orange #E86A00 with G4's p2WordPop, no yellow
+   box); a tap cuts it short and clears the highlight.
 3. 1280x720 viewport (= frame px): every element's box vs the frame, the fonts, each text's ink vs the Figma render,
    per-pixel diffs vs the render (less the slot's dashes, whose phase is not the render's), and the mark's ink centred
    in the slot (within 1 px) after the right tap.
@@ -87,6 +88,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     press: (() => { const t = tiles[PICKI]; if (!t) return null; const f = t.querySelector('.dmf-face'), sy = t.querySelector('.dmf-sym'), nm = t.querySelector('.dmf-name');
       return [t.getBoundingClientRect().top, f.getBoundingClientRect().top, sy.getBoundingClientRect().top, nm.getBoundingClientRect().top, getComputedStyle(t).animationName, getComputedStyle(f).animationName]; })(),
     hot: [...document.querySelectorAll('.dmf-sent .sfig-w')].findIndex(w => w.classList.contains('hot')),
+    hotLook: (() => { const w = document.querySelector('.dmf-sent .sfig-w.hot'); if (!w) return null; const cs = getComputedStyle(w), r = w.getBoundingClientRect();
+      return [cs.color, cs.animationName, cs.animationDuration, cs.backgroundColor, cs.boxShadow, +(r.width / w.offsetWidth).toFixed(3)]; })(),
     attempts: state.attempts, gate: document.getElementById('phaseGate').classList.contains('show'), hand: !!document.querySelector('.reveal-hand.dmf-hand'),
     navShown: nav.classList.contains('visible') && getComputedStyle(nav).display !== 'none', ms: performance.now() }; }"""
 SAMPLE = SAMPLE.replace("PICKI", str(PICK))   # [tile-tap] the right tile's press is measured
@@ -253,6 +256,11 @@ with sync_playwright() as p:
         want = {lead(n) for n in range(2, nW + 1)}   # the first word may already be lit when the sampling catches the clip
         check("...each word highlighted as the reminder reaches it, the highlight gone after", len(timed) > 20 and not off and {s["hot"] for s in timed} >= want and samples[min(r1 + 5, len(samples) - 1)]["hot"] == -1,
               f"{len(timed)} samples, words seen {sorted({s['hot'] for s in timed})}, off-time {len(off)}")
+        # [word-hot] the lit word looks and moves as G4's: the picks' orange, G4's p2WordPop (.28 s, up to a 1.1 scale), no yellow box
+        looks = {tuple(s["hotLook"][:5]) for s in timed if s["hotLook"]}; k = 1333 / 1280; pops = [s["hotLook"][5] / k for s in timed if s["hotLook"]]
+        check("...the word being read lit as on G4: orange #E86A00 with G4's p2WordPop (.28 s, up to a 1.1 scale), no yellow box or shadow",
+              looks == {("rgb(232, 106, 0)", "p2WordPop", "0.28s", "rgba(0, 0, 0, 0)", "none")} and bool(pops) and 1.07 <= max(pops) <= 1.13 and min(pops) >= 0.98,
+              f"looks {sorted(looks)}, pop {min(pops) if pops else 0:.3f}-{max(pops) if pops else 0:.3f}")
     check("...and the tiles stay live meanwhile", all(s["live"] for s in samples[i_l:]))
     pg.close()
     pg = b.new_page(viewport={"width": 1333, "height": 750})
