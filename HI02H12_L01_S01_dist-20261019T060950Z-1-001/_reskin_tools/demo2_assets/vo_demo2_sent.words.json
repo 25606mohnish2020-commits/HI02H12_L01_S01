@@ -1,25 +1,26 @@
 {
- "text": "तुम्हारा नाम क्या है",
+ "text": "तुम्हारा नाम क्या है?",
  "shown": "तुम्हारा नाम क्या है",
  "voice": "hi-IN-SwaraNeural",
  "rate": "-15%",
  "pitch": "+0Hz",
  "word_times": [
   [
-   0.1,
-   0.762
+   0.0,
+   0.76
   ],
   [
-   0.776,
-   1.159
+   0.76,
+   1.18
   ],
   [
-   1.174,
-   1.453
+   1.18,
+   1.48
   ],
   [
-   1.468,
-   1.791
+   1.48,
+   1.66
   ]
- ]
+ ],
+ "source": "recording vo_demo2_sent.wav (2026-10-28), faster-whisper word times, vo_rec.py"
 }

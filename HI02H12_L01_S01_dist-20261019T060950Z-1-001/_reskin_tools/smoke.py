@@ -147,7 +147,7 @@ with sync_playwright() as p:
     pg.wait_for_function("CARD.slides[state.idx].id==='L1' && !!document.querySelector('.ltr')", timeout=60000)
     check("P2 then crosses the gate (VO + animation) into L1, the letter page; the gates since T1: T4's, then P2's",
           *gate_after(pg.evaluate("window._gate"), "P2", "L1", "अब आपकी बारी!", "vo_pt_practice.ogg", ["T4", "P2"]))
-    pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=20000)
+    pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=40000)   # [vo-rec] the 11.4 s narration plays before the scene's beats
     check("L1: the scene has played itself to the pulsing letter in the cloud, tappable, no आगे",
           pg.evaluate("getComputedStyle(document.getElementById('navBtn')).display === 'none' && !!document.querySelector('.ltr.ready .ltr-env-pos')"))
     bb = pg.locator(".ltr-env-pos").bounding_box(); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)

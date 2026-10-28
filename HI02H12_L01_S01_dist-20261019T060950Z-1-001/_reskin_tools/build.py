@@ -40,6 +40,10 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          CSS only (band_chip_css).
          [cel-vo] (2026-10-28): the celebration's line is the reference's own vo_well_done (its clip as Opus .ogg, its beak bits,
          its text) in place of vo_celebrate; the bird and the finish button were already the reference's.
+         [vo-rec] (2026-10-28): the recorded voice-overs (the user's voiceovers/ folder, 75 wavs named by the VO manifest's Audio IDs)
+         in their places — vo_rec.py (run before this) re-containers them, re-syncs every word-timed line from the clip's own
+         words and reads the gate cue; here the card gets the new IDs and the deck's extra beats (explain / again / conclude
+         lines, hint ladders, the letter narration, per-round stamp instructions, the praise lines) get their JS hooks.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2583,6 +2587,228 @@ SlideModules.CELEBRATION.mount = function(host, slide){
 /* ===== [dun-chrome] end ===== */
 """
 js = js + dun_js
+# ---------- [vo-rec] (asked 2026-10-28: "I have added the folder (voiceovers) which contains all the new VOs so now implement all
+#            these VOs to their respective places and it must be sync"). vo_rec.py (run first; it keeps vo_rec/derived.json) heard
+#            every recording (faster-whisper), re-containered the ones whose words are the page's into assets/Audio/<Audio ID>.ogg
+#            (the manifest's IDs: the build's own slots where a line already had one, new IDs for the deck's lines the build never
+#            played), cut the letter's last block into rounds 4 and 5, re-derived every synced line's word times from the clip's
+#            own words, and read the gate's caption cue off vo_pt_tutorial. Here: the card learns the new IDs and the deck's beats
+#            get their places —
+#   T0 the story: "आइए इन वाक्यों को सुनते हैं।" (vo_story_s0) before the run-on (STORY_LISTEN intro_audio); the run-on and the re-read
+#      keep their TTS lines: the story recordings (1-4.wav, vo_story_s1, vo_story_r1) tell a different, shorter story (derived.json
+#      "skipped" has what they say); T0B's intro line (vo_story_r0) is the recording.
+#   T1 the recap: the lead line "आपने देखा, ..." (vo_recap_lead, MARKS_RECAP lead_audio) before the intro; the nine row lines recorded
+#      and re-synced (the पूर्ण विराम example now "पिंकी स्कूल गई ।", as the voice says it).
+#   T2-T4 the demos: the sentence and the full reading recorded and re-synced (T3's and T4's full readings do not name the mark: the
+#      slot lights in the voice's pause / at the end); the mark's name at the tile = the recap's recorded names (vo_recap_*_name);
+#      the deck's extra lines in their places — T2: the conclusion after the full reading; T3: the explanation after the sentence,
+#      "अब दोबारा देखिए ।" before the full reading, the conclusion after it; T4: the explanation and "अब दोबारा देखिए ।". The three
+#      intros (the bar's line) have no recording: TTS still.
+#   G1-G3 the picks: the intro line (vo_g1_intro) and G2's / G3's sentences recorded (G1's says राजू where the frame shows पिंकी: TTS
+#      still); the right tile = "शाबाश!" (vo_ok) in the name's place; the deck's hint ladder on wrong taps: 1st = hint 1
+#      (vo_build_hint1), 2nd = hint 2 (vo_build_hint2), 3rd+ = hint 3 (the page's own, vo_g2_hint3 / vo_g3_hint3; G1's says राजू, so
+#      hint 2 again there) + the pointing hand under the right tile.
+#   G4, P1, P2: the prompts (G4's recorded; P1 / P2 their own, vo_p1_prompt / vo_p2_prompt), the nine option lines recorded and
+#      re-synced; the 1st wrong = hint 1 (vo_g4_hint1 / vo_pick_hint1, the try_again slot), the 2nd = the three pills read (the
+#      engine's review = the deck's hint 2), the 3rd = hint 3 "यह सही वाक्य है, इसपर टैप कीजिए" (vo_pick_hint3) then the hand;
+#      the right pill: "शाबाश! यह सही वाक्य है ।" (vo_ok_pick) then its own line.
+#   L1 the letter: the narration (vo_letter_intro) over the girl writing; the scene's beats follow it.
+#   L2 the stamps: the instruction recorded; each later round opens with the deck's line for it (rounds 2: vo_stamp_intro again;
+#      3: "यह वाक्य सुनकर देखिए ..." = vo_g1_intro; 4 and 5: vo_stamp4_intro) and the idle reminder says that line; the sentences
+#      recorded and re-synced (sent4 / sent5 cut from the one take); wrong drops: 1st = the wiggle, 2nd = hint 2, 3rd+ = hint 3
+#      (rounds 4 / 5: the open slot's own line by its mark) + the guidance glide to the open slot; the round's last slot = "शाबाश!".
+#   The gate: the tutorial caption's cue at the recorded "चलिए". Title: vo_landing recorded. The celebration keeps vo_well_done.
+#   Not recorded (TTS still): vo_demo1/2/3_intro, vo_pt_guided, vo_pt_practice, the story's s1 / s2 / r1, G1's sentence. ----------
+def rep1(text, old, new, what=""):
+    n = text.count(old)
+    if n != 1: raise SystemExit(f"[vo-rec] anchor '{what or old[:70]}' found {n} times (need exactly 1)")
+    return text.replace(old, new)
+VR = json.loads((SCR / "vo_rec" / "derived.json").read_text(encoding="utf-8"))
+for vid, text in VR["texts"].items():
+    card["assets"]["audio"][vid] = f"assets/Audio/{vid}.ogg"; card["assets"]["audio_text"][vid] = text
+    assert (DIST / "assets" / "Audio" / f"{vid}.ogg").exists(), f"[vo-rec] missing {vid}.ogg — run vo_rec.py"
+SL = {s["id"]: s for s in card["slides"]}
+SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
+SL["T1"]["data"]["lead_audio"] = "vo_recap_lead"
+for sid, mk in (("T2", "purn"), ("T3", "prashn"), ("T4", "alp")): SL[sid]["data"]["mark_audio"] = f"vo_recap_{mk}_name"
+SL["T2"]["data"]["conclude_audio"] = "vo_demo1_conclude"
+SL["T3"]["data"].update({"explain_audio": "vo_demo2_explain", "again_audio": "vo_demo_again", "conclude_audio": "vo_demo2_conclude"})
+SL["T4"]["data"].update({"explain_audio": "vo_demo3_explain", "again_audio": "vo_demo_again"})
+for sid, mk, h3 in (("G1", "purn", None), ("G2", "prashn", "vo_g2_hint3"), ("G3", "alp", "vo_g3_hint3")):
+    SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": h3})
+SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["P1"]["audio"].update({"prompt": "vo_p1_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["P2"]["audio"].update({"prompt": "vo_p2_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["L1"]["data"]["intro_audio"] = "vo_letter_intro"
+_rounds = SL["L2"]["data"]["rounds"]; SL["L2"]["data"]["ok_audio"] = "vo_ok"
+_by_mark = {"।": "vo_stamp4_hint3_purn", "?": "vo_stamp4_hint3_prashn", ",": "vo_stamp4_hint3_alp"}
+_rounds[0].update({"hint2_audio": "vo_stamp1_hint2", "hint3_audio": "vo_stamp1_hint3"})
+_rounds[1].update({"intro_audio": "vo_stamp_intro", "hint2_audio": "vo_stamp2_hint2", "hint3_audio": "vo_stamp2_hint3"})
+_rounds[2].update({"intro_audio": "vo_g1_intro", "hint2_audio": "vo_stamp3_hint2", "hint3_audio": "vo_stamp3_hint3"})
+_rounds[3].update({"intro_audio": "vo_stamp4_intro", "hint2_audio": "vo_stamp4_hint2", "hint3_by_mark": _by_mark})
+_rounds[4].update({"intro_audio": "vo_stamp4_intro", "hint2_audio": "vo_stamp4_hint2", "hint3_by_mark": _by_mark})
+# the JS: the story's intro line
+js = rep1(js, "      state.replayAudio = start;\n      start();\n",
+"""      state.replayAudio = start;
+      // [vo-rec] "आइए इन वाक्यों को सुनते हैं।" (data.intro_audio) before the story; the chip waits it out
+      const introSrc = d.intro_audio ? ("assets/Audio/" + d.intro_audio + "." + AUDIO_EXT) : null;
+      if(introSrc){ state.demoRunning = true; let introDone = false;
+        const go = ()=>{ if(introDone || !alive()) return; introDone = true; state.demoRunning = false; start(); };
+        play(introSrc, go); setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(introSrc) + 10000); }
+      else start();
+""", "story intro")
+# the recap's lead line before its intro
+_recap_tail = """      play(introSrc, afterIntro);
+      // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
+      const a = currentAudio;
+      const whenSounding = ()=>{
+        if(!alive() || title.classList.contains("in")) return;
+        if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
+      };
+      if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
+      setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
+      // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
+      setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
+      state.replayAudio = readAll;
+    }
+  },
+
+  /* ===== [demo-fig] PUNCT_DEMO"""
+js = rep1(js, _recap_tail,
+"""      // [vo-rec] the lead line ("आपने देखा, ...", data.lead_audio) first, the title still out; then the intro as before
+      const startIntro = ()=>{
+        if(!alive()) return;
+        play(introSrc, afterIntro);
+        // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
+        const a = currentAudio;
+        const whenSounding = ()=>{
+          if(!alive() || title.classList.contains("in")) return;
+          if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
+        };
+        if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
+        setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
+        // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
+        setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
+      };
+      const leadSrc = d.lead_audio ? ("assets/Audio/" + d.lead_audio + "." + AUDIO_EXT) : null;
+      if(leadSrc){ let leadDone = false; const go = ()=>{ if(leadDone || !alive()) return; leadDone = true; startIntro(); };
+        play(leadSrc, go); setTimeout(()=>{ if(!leadDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(leadSrc) + 10000); }
+      else startIntro();
+      state.replayAudio = readAll;
+    }
+  },
+
+  /* ===== [demo-fig] PUNCT_DEMO""", "recap lead")
+# the demos: a line between beats; the explanation, "अब दोबारा देखिए", the conclusion; the picks' "शाबाश!" and hint ladder
+js = rep1(js, "        if(times.length) tick();\n      };\n      // 1. the title bar, appearing the moment the intro line starts to sound",
+"""        if(times.length) tick();
+      };
+      // [vo-rec] an optional line between beats (data.explain_audio / again_audio / conclude_audio): a breath, the line, a breath
+      const speakThen = (id, then)=>{ const src = A(id); if(!src){ then(); return; } after(350, ()=> narrate(src, [], ()=>{}, ()=> after(300, then))); };
+      // [vo-rec] the deck's hint ladder on the picks' wrong taps: 1st = hint 1 (data.hint1_audio), 2nd = hint 2, 3rd and later = hint 3
+      // (hint 2 again without one) and the pointing hand under the right tile until it is tapped; the line starts after the wiggle
+      let hintHand = null;
+      const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
+        const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
+      const hintLadder = (n)=>{
+        const id = n <= 1 ? d.hint1_audio : n === 2 ? d.hint2_audio : (d.hint3_audio || d.hint2_audio);
+        after(500, ()=>{ if(!live || isPlaying) return; if(id) play(A(id), ()=>{}); });
+        if(n >= 3 && !hintHand){ const st = document.querySelector(".slide-stage"); if(!st) return;
+          hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+          st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); }
+      };
+      // 1. the title bar, appearing the moment the intro line starts to sound""", "demo helpers")
+js = rep1(js, "after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), stage3));",
+              "after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), ()=> speakThen(d.explain_audio, stage3)));   // [vo-rec] the explanation after the sentence", "demo explain")
+js = rep1(js, "after(400 + (marks.length - 1) * gap + 700, stage5);",
+              "after(400 + (marks.length - 1) * gap + 700, ()=> speakThen(d.again_audio, stage5));   // [vo-rec] \"अब दोबारा देखिए ।\" before the full reading", "demo again")
+js = rep1(js, "        narrate(A(F.audio), F.word_times || [], hot, ()=>{\n          // 6. the slots' boxes go (the marks stay) and the page moves on by itself\n",
+              "        narrate(A(F.audio), F.word_times || [], hot, ()=> speakThen(d.conclude_audio, ()=>{   // [vo-rec] the conclusion before the page moves on\n          // 6. the slots' boxes go (the marks stay) and the page moves on by itself\n", "demo conclude")
+js = rep1(js, "              completeSlide(true); }); });\n        });\n      }\n    }\n  },\n\n  /* ===== [sent-fig] SENT_PICK",
+              "              completeSlide(true); }); });\n        }));\n      }\n    }\n  },\n\n  /* ===== [sent-fig] SENT_PICK", "demo conclude close")
+js = rep1(js, "narrate(A(d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));",
+              "narrate(A(d.ok_audio || d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));   // [vo-rec] \"शाबाश!\" (data.ok_audio) in the name's place", "pick ok")
+js = rep1(js, "          setSwMood(\"tryagain\");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird\n          return;\n",
+              "          setSwMood(\"tryagain\");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird\n          hintLadder(state.attempts);   // [vo-rec]\n          return;\n", "pick hints")
+js = rep1(js, "        live = false; state.locked = true; state.demoRunning = true;\n",
+              "        live = false; state.locked = true; state.demoRunning = true;\n        if(hintHand){ hintHand.remove(); hintHand = null; }   // [vo-rec]\n", "pick hand off")
+# the sentence picks: hint 3's line at the reveal, the praise before the right pill's line
+js = rep1(js, "        right.cell.classList.add(\"opt-guided\");\n        GameBus.emit(\"answer_revealed\", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: \"wrong\" });\n",
+              "        right.cell.classList.add(\"opt-guided\");\n        GameBus.emit(\"answer_revealed\", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: \"wrong\" });\n"
+              "        if(audioFor(slide, \"hint3\")) play(audioFor(slide, \"hint3\"), ()=>{});   // [vo-rec] \"यह सही वाक्य है, इसपर टैप कीजिए\" — the hand follows once it is quiet\n", "sent hint3")
+js = rep1(js, "          playCorrectSelect(it.cell); setSwMood(\"happy\");\n          say(it, ()=> after(700, ()=> completeSlide(true)));",
+              "          playCorrectSelect(it.cell); setSwMood(\"happy\");\n          const okSrc = audioFor(slide, \"ok\"), readIt = ()=> say(it, ()=> after(700, ()=> completeSlide(true)));   // [vo-rec] \"शाबाश! यह सही वाक्य है ।\" then the pill's own line\n          if(okSrc) play(okSrc, readIt); else readIt();", "sent ok")
+# the letter: the narration first, the scene's beats after it
+js = rep1(js, "      sound(sfx.magic, 0.6, null);\n      at(P.a_hold, ()=> root.classList.add(\"b-in\"));",
+              "      sound(sfx.magic, 0.6, null);\n      const runScene = ()=>{   // [vo-rec] the scene's beats, after the narration\n      at(P.a_hold, ()=> root.classList.add(\"b-in\"));", "letter scene open")
+js = rep1(js, "      // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page\n      let tapped = false;",
+"""      };
+      // [vo-rec] the page's narration (data.intro_audio: "पिंकी अपने दादाजी को पत्र में ...") over the girl writing; the scene's beats follow it
+      const introSrc = A(d.intro_audio);
+      if(introSrc){ let introDone = false; const go = ()=>{ if(introDone || !alive()) return; introDone = true; runScene(); };
+        play(introSrc, go); setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(introSrc) + 10000); }
+      else runScene();
+      // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
+      let tapped = false;""", "letter narration")
+# the stamps: a round's own instruction, the hint ladder, the praise
+js = rep1(js, "      let R = null, r = -1;\n", "      let R = null, r = -1, rWrong = 0, hintStamp = null;   // [vo-rec] the round's wrong drops (its hint ladder); the stamp the guidance holds\n", "stamp vars")
+js = rep1(js, "hinting = false; hintT = []; lastAct = Date.now();\n      }\n      // 1. the table shows",
+              "hinting = false; hintT = []; lastAct = Date.now(); rWrong = 0;\n      }\n      // 1. the table shows", "stamp round reset")
+js = rep1(js, "setRound(r + 1); stage3(); });", "setRound(r + 1); roundIntro(stage3); });   // [vo-rec] the round's own instruction first", "stamp round intro call")
+js = rep1(js, "      function remind(){\n",
+"""      // [vo-rec] a later round opens with its own instruction (rounds[i].intro_audio: the deck's line for that round) before its
+      // stamps pop in; the idle reminder says that line too
+      const roundSrc = ()=> (R && R.D.intro_audio) ? A(R.D.intro_audio) : introSrc;
+      function roundIntro(then){ const src = R && R.D.intro_audio ? A(R.D.intro_audio) : null; if(!src){ then(); return; }
+        let done = false; const go = ()=>{ if(done || !alive()) return; done = true; at(P.after_intro, then); };
+        play(src, go); at(authoredVoHoldMs(src) + 10000, ()=>{ if(!done){ stopAudio(); go(); } }); }
+      function remind(){
+""", "stamp roundIntro")
+js = rep1(js, "lastAct = Date.now(); play(introSrc, ()=>{ lastAct = Date.now(); });", "lastAct = Date.now(); play(roundSrc(), ()=>{ lastAct = Date.now(); });   // [vo-rec] the round's line", "stamp remind")
+_hint_old = """      function hint(){
+        if(hinting || solved || drag || !live || !R || R.D.guide === false) return;
+        const stamp = R.stamp; hinting = true; hintT = [];
+        stamp.classList.add("lift"); move(stamp, R.HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
+        hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));
+        hat(P.glide + P.hold + P.back - 150, ()=> stamp.classList.remove("lift"));
+        hat(P.glide + P.hold + P.back + 50, ()=>{ hinting = false; lastAct = Date.now(); });
+      }
+      function stopHint(taken){   // taken = the child took hold of the guiding stamp itself (it stays where it is, in hand)
+        if(!hinting) return; hinting = false; hintT.forEach(clearTimeout); hintT = [];
+        if(!taken) putBack(R.stamp, 350);
+      }"""
+js = rep1(js, _hint_old,
+"""      function hint(force){   // [vo-rec] force = hint 3's glide in a round without guidance; the glide goes to the OPEN slot's stamp
+        if(hinting || solved || drag || !live || !R || (R.D.guide === false && !force)) return;
+        const o = R.slots.find(q=> !q.done) || R.slots[0], stamp = o.stamp, HOV = o.HOVER; hinting = true; hintT = []; hintStamp = stamp;
+        stamp.classList.add("lift"); move(stamp, HOV, P.glide, "cubic-bezier(.45,0,.2,1)");
+        hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));
+        hat(P.glide + P.hold + P.back - 150, ()=> stamp.classList.remove("lift"));
+        hat(P.glide + P.hold + P.back + 50, ()=>{ hinting = false; lastAct = Date.now(); });
+      }
+      function stopHint(taken){   // taken = the child took hold of the guiding stamp itself (it stays where it is, in hand)
+        if(!hinting) return; hinting = false; hintT.forEach(clearTimeout); hintT = [];
+        if(!taken) putBack(hintStamp || R.stamp, 350);
+      }""", "stamp hint")
+js = rep1(js, "if(hinting) stopHint(s === R.stamp);", "if(hinting) stopHint(s === hintStamp);", "stamp stopHint")
+js = rep1(js, "        state.attempts = (state.attempts || 0) + 1; sfxWrongSoft();\n",
+"""        state.attempts = (state.attempts || 0) + 1; sfxWrongSoft();
+        rWrong++;   // [vo-rec] the deck's ladder: 1st = the wiggle alone; 2nd = hint 2's line; 3rd and later = hint 3's line (the open slot's own, by its mark) + the guidance glide
+        if(rWrong >= 2){ const D = R.D, open = R.slots.find(q=> !q.done), mk = open ? String(open.mark.textContent || "").trim() : "";
+          const id = rWrong === 2 ? D.hint2_audio : ((D.hint3_by_mark && D.hint3_by_mark[mk]) || D.hint3_audio || D.hint2_audio);
+          at(P.wiggle + P.reset, ()=>{ if(drag || solved || isPlaying) return; if(id) play(A(id), ()=>{ lastAct = Date.now(); }); if(rWrong >= 3) hint(true); }); }
+""", "stamp wrong ladder")
+js = rep1(js, "at(P.gone_at, ()=>{ o.el.classList.add(\"gone\"); sfxCorrect();",
+              "at(P.gone_at, ()=>{ o.el.classList.add(\"gone\"); sfxCorrect(); if(last && d.ok_audio) play(A(d.ok_audio), ()=>{}); /* [vo-rec] \"शाबाश!\" with the round's chime */", "stamp ok")   # a block comment: the line goes on
+# the gate: the tutorial caption's cue at the recorded "चलिए"
+_cue = int(VR["gate_cue_ms"]["tutorial"])
+js = rep1(js, "tutorial: 2850", f"tutorial: {_cue}", "gate cue")
+vo_css = """
+/* ===== [vo-rec] the pointing hand of the picks' hint 3 (G1-G3: the sentence picks' reveal hand, on the stage) ===== */
+.stage .slide-stage .reveal-hand.dmf-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.22));animation:guidedHandBob 1s ease-in-out infinite;}
+/* ===== [vo-rec] end ===== */
+"""
 # 5. the CSS, last in the cascade
 dun_css = ("\n/* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) — see build.py ===== */\n"
   "/* ---- the cover's sky: the kit's sky-drift + sky-burst + sky-adapt, the reference's block verbatim ---- */\n" + dun_block("sky_css.css") +
@@ -2704,7 +2930,7 @@ body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
 @keyframes bandChipIn{from{opacity:0;transform:translateY(-14px) scale(.97);}to{opacity:var(--chip-op,1);transform:none;}}
 /* ===== [band-chip] end ===== */
 """
-css = css + dun_css + band_chip_css
+css = css + dun_css + band_chip_css + vo_css
 html = f"""<!doctype html>
 <html lang="hi">
 <head>

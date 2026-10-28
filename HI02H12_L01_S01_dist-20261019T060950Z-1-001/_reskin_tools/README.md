@@ -518,6 +518,71 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The recorded voice-overs in their places ([vo-rec], 2026-10-28)
+- Asked: "I have added the folder (voiceovers) which contains all the new VOs so now implement all these VOs to their respective
+  places and it must be sync." The folder (`HI02H12_L01_S01_dist/voiceovers/`, 75 wavs, 24 kHz mono; copied to `vo_rec/` as the
+  build's source) holds the 71 lines of the VO manifest (named by Audio ID) and four numbered takes. Every file was heard with
+  faster-whisper (small, Hindi, word timestamps; `vo_rec/transcripts.json`) and checked against the manifest's script: 63 of the
+  71 named lines are their script (whisper's spelling aside); the demo's sentence / full reading and the recap's पूर्ण-विराम
+  example say "पिंकी" where the manifest says "रीना" (the artist worked from the renamed frames: used, the recap example's text
+  changed to "पिंकी स्कूल गई ।" to match); G1's sentence and hint 3 say "राजू गेंद से खेल रहा था" where the frame (656:66) shows
+  "पिंकी गेंद से खेल रही थी" (NOT used: the TTS sentence stays, hint 2 is said again in hint 3's place — re-record with पिंकी); the
+  story recordings are a DIFFERENT story: 1.wav "पिंकी बोली माँ बिल्ली रसोई में जा रही है", 2.wav "पिंकी ने पूछा, क्या उसे जाने दूँ?",
+  3.wav "माँ ने कहा, उसे रोको मत जाने दो", 4.wav "दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह लगा होने से वाक्य का पूरा
+  अर्थ ही बदल गया", vo_story_s1 "माँ ने कहा उसे रोको मत जाने दो", vo_story_r1 "यहाँ पहले वाक्य का अर्थ है ... दूसरे वाक्य का अर्थ है ..."
+  — none of it is the चिंटू / दादी story the pages T0 / T0B show (frames 435:5, 476:198, 488:190), so those six are NOT used and the
+  story's run-on and re-read keep their TTS lines; the two intro lines (vo_story_s0, vo_story_r0) are the recordings.
+- The pipeline: `python -I -X utf8 vo_rec.py` (then build.py) — re-containers each used recording to assets/Audio/<ID>.ogg
+  (Opus 48 kHz, no gain: the recordings sit within 2-4 dB of the clips they replace), cuts vo_stamp_sent4 (15.4 s, the deck's one
+  line for the letter's last block) into rounds 4 and 5 at the word boundary before "उनके" (4.34 s), re-derives every synced
+  line's word times (the *_assets/*.words.json files build.py already reads) by lining the page's SHOWN words up with the clip's
+  heard words (an order-keeping fuzzy match, nukta-blind, a bare mark matched to the word the voice says for it — "पूर्णविराम" for ।
+  in the G4 options; words the clip does not say — T4's "अल्पविराम," tokens, the picks' bare ।/? — spread over the pause between
+  their neighbours, so a slot lights in the voice's pause), and reads the gate caption's cue (the start of "चलिए" in
+  vo_pt_tutorial: 2940 ms). `vo_rec/derived.json` carries the applied IDs + texts, the skipped files with reasons, the cue.
+- build.py [vo-rec] gives the card the 68 clips (assets.audio + audio_text) and the deck's beats their places (JS hooks, all
+  data-driven: a page without the field behaves as before):
+  T0 "आइए इन वाक्यों को सुनते हैं।" (data.intro_audio) before the story, the chip waiting it out. T1 the lead "आपने देखा, ..."
+  (data.lead_audio) before the intro, the title still out; the nine row lines recorded + re-synced. T2-T4: the sentence and the
+  full reading recorded + re-synced; the mark's name at the tile = the recap's recorded names (vo_recap_*_name — the TTS
+  vo_demo1_purn / demo2_prashn / demo3_alp retired); T2: the conclusion (vo_demo1_conclude) after the full reading; T3: the
+  explanation (vo_demo2_explain) after the sentence, "अब दोबारा देखिए ।" (vo_demo_again) before the full reading, the conclusion
+  after it; T4: the explanation and "अब दोबारा देखिए ।" (a 350 ms breath before each such line, 300 ms after; T3's / T4's full
+  readings do not name the mark: the ? lights as the sentence ends, the commas in the pauses). G1-G3: the intro (vo_g1_intro) on
+  all three, G2's / G3's sentences recorded; the right tile = "शाबाश!" (vo_ok, data.ok_audio) in the name's place; the deck's hint
+  ladder on wrong taps — 1st = hint 1 (vo_build_hint1), 2nd = hint 2 (vo_build_hint2), 3rd and later = hint 3 (vo_g2_hint3 /
+  vo_g3_hint3; G1: hint 2 again) + the pointing hand under the right tile until it is tapped (the sentence picks' reveal hand,
+  .dmf-hand) — each line 0.5 s after the wiggle, skipped if something still speaks. G4 / P1 / P2: the prompts (vo_g4_prompt;
+  P1 / P2 their own vo_p1_prompt / vo_p2_prompt), the nine option lines recorded + re-synced; the 1st wrong = hint 1 (vo_g4_hint1
+  / vo_pick_hint1, the try_again slot), the 2nd = the three pills read (the engine's review = the deck's hint 2 note), the 3rd =
+  "यह सही वाक्य है, इसपर टैप कीजिए" (vo_pick_hint3, audio.hint3) and then the hand; the right pill first try: "शाबाश! यह सही वाक्य
+  है ।" (vo_ok_pick, audio.ok) then its own line with its words lit (the guided tap after the reveal: the ding + confetti alone, as
+  before). L1: the narration (vo_letter_intro, 11.4 s) over the girl writing with the shimmer; the scene's beats (the thinking
+  girl, the bubbles, the cloud, the chime, the letter) follow it. L2: the instruction recorded; each later round opens with the
+  deck's line for it before its stamps pop in (round 2: vo_stamp_intro again; 3: "यह वाक्य सुनकर देखिए ..." = vo_g1_intro; 4 and 5:
+  vo_stamp4_intro), the idle reminder says that round's line; the five sentences recorded + re-synced; wrong drops per round —
+  1st = the wiggle alone, 2nd = hint 2 (vo_stampN_hint2), 3rd and later = hint 3 (vo_stampN_hint3; rounds 4 / 5: the open slot's
+  own line by its mark — vo_stamp4_hint3_prashn / _purn / _alp) + the guidance glide to the open slot (hint(force): in a round
+  without guidance too); a round's last slot = "शाबाश!" (vo_ok) with the chime. The title's welcome (vo_landing) and the first
+  gate's line (vo_pt_tutorial, caption at 2940 ms) recorded. The celebration keeps the reference's vo_well_done ([cel-vo]).
+- Still TTS (no recording in the batch): the three demo intros (the bar's line: vo_demo1_intro "आइए कुछ वाक्यों के उदाहरण से समझते
+  हैं", vo_demo2/3_intro "सुनो, यह वाक्य बिना रुके पढ़ा गया"), the two later gates (vo_pt_guided, vo_pt_practice), the story's run-on
+  and re-read (vo_story_s1 / s2 / r1), G1's sentence (vo_g1_sent). The VO manifest's "when" line for अल्प विराम is the deck's full
+  sentence ("थोड़ा रुकने के लिए या अलग-अलग नाम ...") while the frame's row shows "वाक्य में थोड़ा रुकने पर": the row's words light
+  over the first 1.2 s of the recording and the line runs on.
+- Measured (the scratchpad's vo_flow_probe.py / vo_probe2.py / vo_probe3.py, every page driven, every play() logged): T0 s0 then s1;
+  T0B r0 then r1; T1 lead 0 s, intro 6.9 s, purn_name 13.1, _when 15.1, _eg 17.6 ...; T2 intro, sent 5.1, purn_name 11.0, full
+  13.8, conclude 17.9, T3 at 26.2; T3 intro, sent 5.0, explain 7.5, prashn_name 17.2, again 20.8, full 23.1, conclude 28.3; T4
+  intro, sent, explain 9.4, alp_name 21.9, again 25.3, full 27.5, the gate; G1-G3: intro, the sentence, wrong 1 → hint1, wrong 2 →
+  hint2, wrong 3 → hint3 (G1: hint2) + the hand, the right tile → sfx + vo_ok; G4 / P1 / P2: the prompt, wrong 1 → hint1, wrong 2 →
+  the three pills, wrong 3 → hint3 then the hand; G4 right first try → vo_ok_pick 5.3 s then vo_g4_o1 8.3 s; L1 narration 0 s, the
+  chime 19.0 s, the pop / paper on the tap; L2 intro 0.4, pops, sent 6.3, the right drop → thud, chime + vo_ok; round 2 opens with
+  vo_stamp_intro (23.3 s), sent2, wrong 1 → the wiggle alone, wrong 2 → hint2, wrong 3 → hint3 with the right stamp lifting and
+  gliding (27 samples of 100 ms), the right drop → vo_ok. No page errors anywhere. smoke.py 47/47 (its wait for the letter's
+  pulsing envelope lengthened for the narration). The page checks: see the next paragraph.
+- `../_before_vo_rec/` holds the dist's three files, build.py, README.md, every check script, every *_assets/*.words.json (words/)
+  and the 38 replaced clips (Audio/, from git HEAD) from before.
+
 The celebration's line is the reference's ([cel-vo], 2026-10-28)
 - Asked: take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and "apply the exact same VO, bird animation and the finish
   button exactly the same at the celebration screen". Both celebration screens were probed in Chrome at 1333x750 (the

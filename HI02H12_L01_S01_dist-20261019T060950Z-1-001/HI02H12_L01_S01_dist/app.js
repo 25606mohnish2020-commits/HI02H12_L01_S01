@@ -6111,7 +6111,12 @@ const SlideModules = {
         setTimeout(()=>{ if(!alive()) return; state.demoRunning = false; start(); }, 650);
       };
       state.replayAudio = start;
-      start();
+      // [vo-rec] "आइए इन वाक्यों को सुनते हैं।" (data.intro_audio) before the story; the chip waits it out
+      const introSrc = d.intro_audio ? ("assets/Audio/" + d.intro_audio + "." + AUDIO_EXT) : null;
+      if(introSrc){ state.demoRunning = true; let introDone = false;
+        const go = ()=>{ if(introDone || !alive()) return; introDone = true; state.demoRunning = false; start(); };
+        play(introSrc, go); setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(introSrc) + 10000); }
+      else start();
     }
   },
 
@@ -6235,17 +6240,25 @@ const SlideModules = {
         // 2. then the marks, one beat at a time
         setTimeout(()=>{ if(alive()) readAll(); }, GAP_MARK);
       };
-      play(introSrc, afterIntro);
-      // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
-      const a = currentAudio;
-      const whenSounding = ()=>{
-        if(!alive() || title.classList.contains("in")) return;
-        if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
+      // [vo-rec] the lead line ("आपने देखा, ...", data.lead_audio) first, the title still out; then the intro as before
+      const startIntro = ()=>{
+        if(!alive()) return;
+        play(introSrc, afterIntro);
+        // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
+        const a = currentAudio;
+        const whenSounding = ()=>{
+          if(!alive() || title.classList.contains("in")) return;
+          if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
+        };
+        if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
+        setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
+        // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
+        setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
       };
-      if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
-      setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
-      // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
-      setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
+      const leadSrc = d.lead_audio ? ("assets/Audio/" + d.lead_audio + "." + AUDIO_EXT) : null;
+      if(leadSrc){ let leadDone = false; const go = ()=>{ if(leadDone || !alive()) return; leadDone = true; startIntro(); };
+        play(leadSrc, go); setTimeout(()=>{ if(!leadDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(leadSrc) + 10000); }
+      else startIntro();
       state.replayAudio = readAll;
     }
   },
@@ -6356,6 +6369,20 @@ const SlideModules = {
         };
         if(times.length) tick();
       };
+      // [vo-rec] an optional line between beats (data.explain_audio / again_audio / conclude_audio): a breath, the line, a breath
+      const speakThen = (id, then)=>{ const src = A(id); if(!src){ then(); return; } after(350, ()=> narrate(src, [], ()=>{}, ()=> after(300, then))); };
+      // [vo-rec] the deck's hint ladder on the picks' wrong taps: 1st = hint 1 (data.hint1_audio), 2nd = hint 2, 3rd and later = hint 3
+      // (hint 2 again without one) and the pointing hand under the right tile until it is tapped; the line starts after the wiggle
+      let hintHand = null;
+      const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
+        const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
+      const hintLadder = (n)=>{
+        const id = n <= 1 ? d.hint1_audio : n === 2 ? d.hint2_audio : (d.hint3_audio || d.hint2_audio);
+        after(500, ()=>{ if(!live || isPlaying) return; if(id) play(A(id), ()=>{}); });
+        if(n >= 3 && !hintHand){ const st = document.querySelector(".slide-stage"); if(!st) return;
+          hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+          st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); }
+      };
       // 1. the title bar, appearing the moment the intro line starts to sound
       const introSrc = A(d.intro_audio);
       const showBand = ()=>{ if(alive()) band.classList.add("in"); };
@@ -6374,7 +6401,7 @@ const SlideModules = {
       //    without a pause, its words arriving one by one with the clip
       function stage2(){
         pic.classList.add("in"); bar.classList.add("in"); tiles.forEach(t=> t.classList.add("in"));
-        after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), stage3));
+        after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), ()=> speakThen(d.explain_audio, stage3)));   // [vo-rec] the explanation after the sentence
       }
       // 3. the empty slot(s) blink (3.5 s) — every slot the same blink, started together
       function stage3(){
@@ -6408,17 +6435,19 @@ const SlideModules = {
           GameBus.emit("answer_wrong", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts });
           t.classList.remove("wiggle"); void t.offsetWidth; t.classList.add("wiggle");
           setSwMood("tryagain");   // [dun-chrome] the title-bar bird's try-again face, as the reference's header bird
+          hintLadder(state.attempts);   // [vo-rec]
           return;
         }
         // the right one: pressed, the others dim, its mark lands in the slot as its name sounds; then the page moves on
         live = false; state.locked = true; state.demoRunning = true;
+        if(hintHand){ hintHand.remove(); hintHand = null; }   // [vo-rec]
         blanks.forEach(b=> b.classList.remove("blink"));
         tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle"); x.classList.add(j === pick ? "on" : "off"); });
         marks.forEach((m, j)=> after(j * (d.mark_stagger_ms || 300), ()=>{ centreInk(m); m.classList.add("in"); }));
         sfxCorrect(); confettiCannon(); setSwMood("happy");
         GameBus.emit("punct_build_done", { slide_id: slide.id, phase: slide.phase, value: true,
           first_try: state.attempts === 0, wrong: state.attempts, latency_ms: Date.now() - state.slideStart });
-        narrate(A(d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));
+        narrate(A(d.ok_audio || d.mark_audio), [], ()=>{}, ()=> after(PACE.tail, ()=> completeSlide(true)));   // [vo-rec] "शाबाश!" (data.ok_audio) in the name's place
       }
       // 4. the mark's name: its tile is tapped for the child, the others go dim; then the mark lands in the slot(s), one
       //    after the other (data.mark_stagger_ms apart) when there are several
@@ -6427,7 +6456,7 @@ const SlideModules = {
         const gap = d.mark_stagger_ms || 300;
         narrate(A(d.mark_audio), [], ()=>{}, ()=>{
           marks.forEach((m, k)=> after(400 + k * gap, ()=>{ centreInk(m); m.classList.add("in"); }));
-          after(400 + (marks.length - 1) * gap + 700, stage5);
+          after(400 + (marks.length - 1) * gap + 700, ()=> speakThen(d.again_audio, stage5));   // [vo-rec] "अब दोबारा देखिए ।" before the full reading
         });
       }
       // the danda's ink is not centred in its own line box (Noto's: it sits right of and above the box's centre), so the
@@ -6453,7 +6482,7 @@ const SlideModules = {
         const nW = L.words.length, tg = F.targets || (F.word_times || []).map((_, i)=> i < nW ? "w" + i : "s0");
         const hot = (n)=>{ const t = n > 0 ? String(tg[n - 1] || "") : "", wi = t[0] === "w" ? +t.slice(1) : -1, si = t[0] === "s" ? +t.slice(1) : -1;
           L.words.forEach((w, i)=> w.classList.toggle("hot", i === wi)); blanks.forEach((b, k)=> b.classList.toggle("hot", k === si)); };
-        narrate(A(F.audio), F.word_times || [], hot, ()=>{
+        narrate(A(F.audio), F.word_times || [], hot, ()=> speakThen(d.conclude_audio, ()=>{   // [vo-rec] the conclusion before the page moves on
           // 6. the slots' boxes go (the marks stay) and the page moves on by itself
           after(d.hold_ms || 1500, ()=>{ L.words.forEach(w=> w.classList.remove("hot")); blanks.forEach(b=>{ b.classList.remove("hot"); b.classList.add("gone"); });
             after(600, ()=>{
@@ -6463,7 +6492,7 @@ const SlideModules = {
               const nx = CARD.slides[state.idx + 1], nr = nx && PHASE_ROUND[nx.phase];
               if(nr && nr !== PHASE_ROUND[slide.phase]) _gatedPhases.delete(nr);
               completeSlide(true); }); });
-        });
+        }));
       }
     }
   },
@@ -6636,6 +6665,7 @@ const SlideModules = {
         items.forEach(x=>{ x.cell.classList.remove("crossed"); if(x !== right) x.cell.classList.add("opt-dim"); });
         right.cell.classList.add("opt-guided");
         GameBus.emit("answer_revealed", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts, reason: "wrong" });
+        if(audioFor(slide, "hint3")) play(audioFor(slide, "hint3"), ()=>{});   // [vo-rec] "यह सही वाक्य है, इसपर टैप कीजिए" — the hand follows once it is quiet
         const place = ()=>{
           if(!alive() || !right.cell.classList.contains("opt-guided")) return;
           if(isPlaying){ after(100, place); return; }
@@ -6684,7 +6714,8 @@ const SlideModules = {
           sfxCorrect(); confettiCannon();
           if(guided){ setSwMood("talk"); after(700, ()=> completeSlide(false)); return; }
           playCorrectSelect(it.cell); setSwMood("happy");
-          say(it, ()=> after(700, ()=> completeSlide(true)));
+          const okSrc = audioFor(slide, "ok"), readIt = ()=> say(it, ()=> after(700, ()=> completeSlide(true)));   // [vo-rec] "शाबाश! यह सही वाक्य है ।" then the pill's own line
+          if(okSrc) play(okSrc, readIt); else readIt();
         });
       }
     }
@@ -6778,6 +6809,7 @@ const SlideModules = {
         sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} }); bgmBack(); state.demoRunning = false; };
       // 1. the girl writing (538:2) with the shimmer; after a_hold the thinking girl (538:35) fades in over her
       sound(sfx.magic, 0.6, null);
+      const runScene = ()=>{   // [vo-rec] the scene's beats, after the narration
       at(P.a_hold, ()=> root.classList.add("b-in"));
       // 2. the thought bubbles pop one by one (nearest the head first), then the cloud grows in slowly; the piano loop starts with it
       bubEls.forEach((b, k)=> at(P.bub_start + k * P.bub_gap, ()=> b.classList.add("in")));
@@ -6800,6 +6832,12 @@ const SlideModules = {
         });
         at(P.aha_at + P.letter_in + 100, ()=>{ root.classList.add("ready"); state.demoRunning = false; });
       }));
+      };
+      // [vo-rec] the page's narration (data.intro_audio: "पिंकी अपने दादाजी को पत्र में ...") over the girl writing; the scene's beats follow it
+      const introSrc = A(d.intro_audio);
+      if(introSrc){ let introDone = false; const go = ()=>{ if(introDone || !alive()) return; introDone = true; runScene(); };
+        play(introSrc, go); setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(introSrc) + 10000); }
+      else runScene();
       // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
@@ -6907,7 +6945,7 @@ const SlideModules = {
       // the gap span where the slot sits —, its slot with the mark, its stamps' pictures and boxes, the right stamp and its two
       // places over the slot: its print point (the middle of its face's bottom edge, in its box: tips) lands press_down px under
       // the slot's centre (the stamp standing on the slot) after hovering hover_up px above that
-      let R = null, r = -1;
+      let R = null, r = -1, rWrong = 0, hintStamp = null;   // [vo-rec] the round's wrong drops (its hint ladder); the stamp the guidance holds
       // the slot's dashed stroke, one line per side carrying the render's own dash runs ([margin, dash, gap, ...]); the rounded
       // corners stay open, as in the render (the demos' way)
       const da = (q)=> q && q.length ? '0 ' + q.join(' ') : '10 5';
@@ -6944,7 +6982,7 @@ const SlideModules = {
         if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
         const s0 = slots[0];   // the first slot's box and places stand for the round's (the guidance glides to it)
         R = { D, S, n, bx, tips, slots, signs, sl: s0.sl, w: s0.w, h: s0.h, sentEl, slot: s0.el, mark: s0.mark, L, pick, stamp, HOVER: s0.HOVER, PRESS: s0.PRESS };
-        live = false; acted = false; solved = false; hinting = false; hintT = []; lastAct = Date.now();
+        live = false; acted = false; solved = false; hinting = false; hintT = []; lastAct = Date.now(); rWrong = 0;
       }
       // 1. the table shows as the letter page's veil lifts; then the title bar appears the moment its line starts to sound
       nextFrame(()=> nextFrame(()=>{ if(alive()) root.classList.add("lit"); }));
@@ -6994,9 +7032,15 @@ const SlideModules = {
         }, 200);
       }
       // [stamp-remind] the title's line said again (never over another clip, never with a stamp in hand); the idle count starts over
+      // [vo-rec] a later round opens with its own instruction (rounds[i].intro_audio: the deck's line for that round) before its
+      // stamps pop in; the idle reminder says that line too
+      const roundSrc = ()=> (R && R.D.intro_audio) ? A(R.D.intro_audio) : introSrc;
+      function roundIntro(then){ const src = R && R.D.intro_audio ? A(R.D.intro_audio) : null; if(!src){ then(); return; }
+        let done = false; const go = ()=>{ if(done || !alive()) return; done = true; at(P.after_intro, then); };
+        play(src, go); at(authoredVoHoldMs(src) + 10000, ()=>{ if(!done){ stopAudio(); go(); } }); }
       function remind(){
         if(solved || drag || !live || isPlaying){ lastAct = Date.now(); return; }
-        lastAct = Date.now(); play(introSrc, ()=>{ lastAct = Date.now(); });
+        lastAct = Date.now(); play(roundSrc(), ()=>{ lastAct = Date.now(); });   // [vo-rec] the round's line
       }
       // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand
       let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
@@ -7006,17 +7050,17 @@ const SlideModules = {
       // 6. the guidance: the right stamp lifts, glides SLOWLY over the slot, hovers there and glides home — it does not print (that
       //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
       const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
-      function hint(){
-        if(hinting || solved || drag || !live || !R || R.D.guide === false) return;
-        const stamp = R.stamp; hinting = true; hintT = [];
-        stamp.classList.add("lift"); move(stamp, R.HOVER, P.glide, "cubic-bezier(.45,0,.2,1)");
+      function hint(force){   // [vo-rec] force = hint 3's glide in a round without guidance; the glide goes to the OPEN slot's stamp
+        if(hinting || solved || drag || !live || !R || (R.D.guide === false && !force)) return;
+        const o = R.slots.find(q=> !q.done) || R.slots[0], stamp = o.stamp, HOV = o.HOVER; hinting = true; hintT = []; hintStamp = stamp;
+        stamp.classList.add("lift"); move(stamp, HOV, P.glide, "cubic-bezier(.45,0,.2,1)");
         hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));
         hat(P.glide + P.hold + P.back - 150, ()=> stamp.classList.remove("lift"));
         hat(P.glide + P.hold + P.back + 50, ()=>{ hinting = false; lastAct = Date.now(); });
       }
       function stopHint(taken){   // taken = the child took hold of the guiding stamp itself (it stays where it is, in hand)
         if(!hinting) return; hinting = false; hintT.forEach(clearTimeout); hintT = [];
-        if(!taken) putBack(R.stamp, 350);
+        if(!taken) putBack(hintStamp || R.stamp, 350);
       }
       // the child's drags: a stamp follows the finger from where it is (even mid-guidance, mid-return) at the lifted size; the
       // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's PRINT POINT against the slot
@@ -7028,7 +7072,7 @@ const SlideModules = {
         s.addEventListener("pointerdown", (e)=>{
           if(!live || solved || drag || !R || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
-          if(hinting) stopHint(s === R.stamp);
+          if(hinting) stopHint(s === hintStamp);
           const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
@@ -7057,6 +7101,10 @@ const SlideModules = {
       // a bare "wrong": the engine's style.css paints ANY .wrong element white (:is(.wrong,...){background-color:#fff!important})
       function wrong(s){
         state.attempts = (state.attempts || 0) + 1; sfxWrongSoft();
+        rWrong++;   // [vo-rec] the deck's ladder: 1st = the wiggle alone; 2nd = hint 2's line; 3rd and later = hint 3's line (the open slot's own, by its mark) + the guidance glide
+        if(rWrong >= 2){ const D = R.D, open = R.slots.find(q=> !q.done), mk = open ? String(open.mark.textContent || "").trim() : "";
+          const id = rWrong === 2 ? D.hint2_audio : ((D.hint3_by_mark && D.hint3_by_mark[mk]) || D.hint3_audio || D.hint2_audio);
+          at(P.wiggle + P.reset, ()=>{ if(drag || solved || isPlaying) return; if(id) play(A(id), ()=>{ lastAct = Date.now(); }); if(rWrong >= 3) hint(true); }); }
         s.classList.remove("stp-wrong"); void s.offsetWidth; s.classList.add("stp-wrong");
         at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("stp-wrong"); putBack(s, P.reset); } });
       }
@@ -7075,7 +7123,7 @@ const SlideModules = {
         at(P.back_at, ()=> putBack(stamp, P.back_home));
         // the box goes on the chime; with a slot still empty (frame 593:130's other row) the stamps are the child's again from
         // here — no confetti yet; the idle count starts over (the title's line after 7 s, as in any later round)
-        at(P.gone_at, ()=>{ o.el.classList.add("gone"); sfxCorrect(); if(!last && R === C){ solved = false; live = true; root.classList.add("live"); lastAct = Date.now(); } });
+        at(P.gone_at, ()=>{ o.el.classList.add("gone"); sfxCorrect(); if(last && d.ok_audio) play(A(d.ok_audio), ()=>{}); /* [vo-rec] "शाबाश!" with the round's chime */ if(!last && R === C){ solved = false; live = true; root.classList.add("live"); lastAct = Date.now(); } });
         if(!last) return;
         at(P.confetti_at, ()=> confettiCannon());
         at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else finale(); });   // [stamp-final] after the last round, the finale
@@ -7113,7 +7161,7 @@ const SlideModules = {
         C.signs.forEach(el=> el.classList.remove("on"));   // the sign-off came with the last word: it goes first
         C.L.words.slice().reverse().forEach((wd, i)=> at(i * P.words_out, ()=> wd.classList.remove("on")));
         C.slots.forEach(o=> o.el.classList.add("out"));
-        at(P.next_at, ()=>{ C.sentEl.remove(); C.slots.forEach(o=> o.el.remove()); C.signs.forEach(el=> el.remove()); setRound(r + 1); stage3(); });
+        at(P.next_at, ()=>{ C.sentEl.remove(); C.slots.forEach(o=> o.el.remove()); C.signs.forEach(el=> el.remove()); setRound(r + 1); roundIntro(stage3); });   // [vo-rec] the round's own instruction first
       }
       // the mark's INK on the slot's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
       // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy)
@@ -8949,7 +8997,7 @@ SlideModules.CELEBRATION.mount = function(host, slide){
   if(typeof phaseBlurTransition !== "function") return;
   var GATE_MS = 4000;                                                          // the reference's minimum hold (this engine had no such constant: 2.8 s)
   var GATE_REF_SRC = "assets/UI/peeking_talk_up.webp";
-  var GATE_CAPTION_AT_MS = { tutorial: 2850, guided: 3540, practice: 210 };   // this lesson's own vo_pt_* clips: the headline's words begin here (read off them, see README)   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
+  var GATE_CAPTION_AT_MS = { tutorial: 2940, guided: 3540, practice: 210 };   // this lesson's own vo_pt_* clips: the headline's words begin here (read off them, see README)   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
   var SINK_MS = 340;
   var gateRefBlob = null;
   if(location.protocol !== "file:") (window.__afterTitle || function(f){ f(); })(function(){ try{ return fetch(GATE_REF_SRC).then(function(r){ return r.ok ? r.blob() : null; }).then(function(b){ if(b) gateRefBlob = b; }).catch(function(){}); }catch(e){} });   // [ASSET-WARM] once the title art is in

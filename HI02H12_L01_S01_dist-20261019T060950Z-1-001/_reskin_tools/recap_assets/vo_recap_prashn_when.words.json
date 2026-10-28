@@ -6,16 +6,17 @@
  "pitch": "+0Hz",
  "word_times": [
   [
-   0.1,
-   0.865
+   0.0,
+   0.76
   ],
   [
-   0.879,
-   1.482
+   0.76,
+   1.28
   ],
   [
-   1.497,
-   1.865
+   1.28,
+   1.5
   ]
- ]
+ ],
+ "source": "recording vo_recap_prashn_when.wav (2026-10-28), faster-whisper word times, vo_rec.py"
 }

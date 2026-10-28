@@ -6,12 +6,13 @@
  "pitch": "+0Hz",
  "word_times": [
   [
-   0.1,
-   0.541
+   0.0,
+   0.66
   ],
   [
-   0.556,
-   1.262
+   0.66,
+   1.12
   ]
- ]
+ ],
+ "source": "recording vo_recap_alp_name.wav (2026-10-28), faster-whisper word times, vo_rec.py"
 }

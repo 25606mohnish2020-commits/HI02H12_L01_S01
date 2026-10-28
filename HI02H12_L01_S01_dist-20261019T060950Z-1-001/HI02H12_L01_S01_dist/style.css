@@ -3655,3 +3655,8 @@ body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
 .tut-card.sfig-card.sfig-full:has(.dmf-band.in) .tut-audio{animation:bandChipIn .55s cubic-bezier(.2,.9,.3,1.2);}
 @keyframes bandChipIn{from{opacity:0;transform:translateY(-14px) scale(.97);}to{opacity:var(--chip-op,1);transform:none;}}
 /* ===== [band-chip] end ===== */
+
+/* ===== [vo-rec] the pointing hand of the picks' hint 3 (G1-G3: the sentence picks' reveal hand, on the stage) ===== */
+.stage .slide-stage .reveal-hand.dmf-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;pointer-events:none;
+  filter:drop-shadow(0 6px 10px rgba(0,0,0,.22));animation:guidedHandBob 1s ease-in-out infinite;}
+/* ===== [vo-rec] end ===== */
