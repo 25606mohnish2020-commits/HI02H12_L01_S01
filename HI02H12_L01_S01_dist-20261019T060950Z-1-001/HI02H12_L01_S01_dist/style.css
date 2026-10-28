@@ -3031,8 +3031,8 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;color:#012F76;
   transition:opacity .35s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.3);}
 .dmf-blank .dmf-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
-.dmf-blank.hot{box-shadow:0 0 0 6px rgba(56,106,246,.22);}                            /* the mark being named */
-.dmf-blank.hot .dmf-dash{stroke:#386AF6;stroke-dasharray:none;}
+.dmf-blank.hot{box-shadow:0 0 0 6px rgba(232,106,0,.22);}                              /* the mark being named — [demo-hand] (2026-10-28) the words' orange, not blue (was rgba(56,106,246,.22)) */
+.dmf-blank.hot .dmf-dash{stroke:#E86A00;stroke-dasharray:none;}                      /* [demo-hand] the ring too (was #386AF6); T4's solid ring inherits it */
 .dmf-blank.hot .dmf-mark{transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.22);}
 .dmf-blank.gone{background:transparent;box-shadow:none;}                               /* the box goes, the mark stays */
 .dmf-blank.gone .dmf-dash{opacity:0;}

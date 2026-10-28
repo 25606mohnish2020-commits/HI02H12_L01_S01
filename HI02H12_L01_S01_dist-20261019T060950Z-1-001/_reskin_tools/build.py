@@ -76,6 +76,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [story-cat] (2026-10-28): T0 — as beat 1's line ends, the user's cat sound (assets/Audio/sfx_story_cat.mp3, 0.89 s) plays
          once (data.beat1_sfx, the kit player) and beat 1's picture gives G4's little pop (p2BirdPop1s, 1 s, .sfig-img.sfig-pop);
          the one-second pause and the turn to beat 2 are as before; a 🔊 replay of beat 1 does not repeat it.
+         [demo-hand] (2026-10-28): T2 / T3 / T4 — the highlighted slot's ring and glow are the words' orange (#E86A00, was blue
+         #386AF6), and the picks' pointing hand (showHand: .reveal-hand.dmf-hand, 96px, under the tile) appears as the right tile is
+         auto-tapped and leaves as the second reading begins.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -1124,6 +1127,7 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
       // 4. the mark's name: its tile is tapped for the child, the others go dim; then the mark lands in the slot(s), one
       //    after the other (data.mark_stagger_ms apart) when there are several
       function stage4(){
+        showHand();   // [demo-hand] the pointing hand under the tile as it is tapped for the child (the picks' hand)
         tiles.forEach((t, k)=> t.classList.add(k === pick ? "on" : "off"));
         const gap = d.mark_stagger_ms || 300;
         narrate(A(d.mark_audio), [], ()=>{}, ()=>{
@@ -1151,6 +1155,7 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
       //    without it, the words in order and then the slot for every token after them (T2, T3: the name at the end)
       function stage5(){
         tiles.forEach(t=>{ t.classList.remove("on"); t.classList.add("off"); });
+        if(hintHand){ hintHand.remove(); hintHand = null; }   // [demo-hand] the hand leaves as the second reading begins
         const nW = L.words.length, tg = F.targets || (F.word_times || []).map((_, i)=> i < nW ? "w" + i : "s0");
         const hot = (n)=>{ const t = n > 0 ? String(tg[n - 1] || "") : "", wi = t[0] === "w" ? +t.slice(1) : -1, si = t[0] === "s" ? +t.slice(1) : -1;
           L.words.forEach((w, i)=> w.classList.toggle("hot", i === wi)); blanks.forEach((b, k)=> b.classList.toggle("hot", k === si)); };
@@ -2229,8 +2234,8 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;color:#012F76;
   transition:opacity .35s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.3);}
 .dmf-blank .dmf-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
-.dmf-blank.hot{box-shadow:0 0 0 6px rgba(56,106,246,.22);}                            /* the mark being named */
-.dmf-blank.hot .dmf-dash{stroke:#386AF6;stroke-dasharray:none;}
+.dmf-blank.hot{box-shadow:0 0 0 6px rgba(232,106,0,.22);}                              /* the mark being named — [demo-hand] (2026-10-28) the words' orange, not blue (was rgba(56,106,246,.22)) */
+.dmf-blank.hot .dmf-dash{stroke:#E86A00;stroke-dasharray:none;}                      /* [demo-hand] the ring too (was #386AF6); T4's solid ring inherits it */
 .dmf-blank.hot .dmf-mark{transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.22);}
 .dmf-blank.gone{background:transparent;box-shadow:none;}                               /* the box goes, the mark stays */
 .dmf-blank.gone .dmf-dash{opacity:0;}
@@ -2866,11 +2871,14 @@ js = rep1(js, "        if(times.length) tick();\n      };\n      // 1. the title
       let hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
+      // the pointing hand under the right tile (the reference's 96px reveal hand): the picks' third wrong tap ([hand-quiet]) and, since
+      // [demo-hand] (2026-10-28), the demos' auto tap — it appears as the tile is tapped for the child and leaves as the second reading begins
+      const showHand = ()=>{ if(hintHand) return; const st = document.querySelector(".slide-stage"); if(!st) return;
+        hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+        st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
       const hintLadder = (n)=>{
         if(n >= 3){   // [hand-quiet] the 3rd wrong tap: the hand under the right tile, the other two tiles dead and dim, no line
-          if(!hintHand){ const st = document.querySelector(".slide-stage"); if(st){
-            hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
-            st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); } }
+          showHand();
           tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.add("off"); } });   // the wiggle just started runs out on its own
           return;
         }

@@ -6431,11 +6431,14 @@ const SlideModules = {
       let hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
+      // the pointing hand under the right tile (the reference's 96px reveal hand): the picks' third wrong tap ([hand-quiet]) and, since
+      // [demo-hand] (2026-10-28), the demos' auto tap — it appears as the tile is tapped for the child and leaves as the second reading begins
+      const showHand = ()=>{ if(hintHand) return; const st = document.querySelector(".slide-stage"); if(!st) return;
+        hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+        st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
       const hintLadder = (n)=>{
         if(n >= 3){   // [hand-quiet] the 3rd wrong tap: the hand under the right tile, the other two tiles dead and dim, no line
-          if(!hintHand){ const st = document.querySelector(".slide-stage"); if(st){
-            hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
-            st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); } }
+          showHand();
           tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.add("off"); } });   // the wiggle just started runs out on its own
           return;
         }
@@ -6516,6 +6519,7 @@ const SlideModules = {
       // 4. the mark's name: its tile is tapped for the child, the others go dim; then the mark lands in the slot(s), one
       //    after the other (data.mark_stagger_ms apart) when there are several
       function stage4(){
+        showHand();   // [demo-hand] the pointing hand under the tile as it is tapped for the child (the picks' hand)
         tiles.forEach((t, k)=> t.classList.add(k === pick ? "on" : "off"));
         const gap = d.mark_stagger_ms || 300;
         narrate(A(d.mark_audio), [], ()=>{}, ()=>{
@@ -6543,6 +6547,7 @@ const SlideModules = {
       //    without it, the words in order and then the slot for every token after them (T2, T3: the name at the end)
       function stage5(){
         tiles.forEach(t=>{ t.classList.remove("on"); t.classList.add("off"); });
+        if(hintHand){ hintHand.remove(); hintHand = null; }   // [demo-hand] the hand leaves as the second reading begins
         const nW = L.words.length, tg = F.targets || (F.word_times || []).map((_, i)=> i < nW ? "w" + i : "s0");
         const hot = (n)=>{ const t = n > 0 ? String(tg[n - 1] || "") : "", wi = t[0] === "w" ? +t.slice(1) : -1, si = t[0] === "s" ? +t.slice(1) : -1;
           L.words.forEach((w, i)=> w.classList.toggle("hot", i === wi)); blanks.forEach((b, k)=> b.classList.toggle("hot", k === si)); };

@@ -103,6 +103,9 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     face1: (() => { const f = q('.tPICK .dmf-face'); if (!f) return ''; const cs = getComputedStyle(f); return cs.borderTopColor + '|' + cs.boxShadow; })(),
     press: (() => { const t = q('.tPICK'); if (!t) return null; const f = q('.tPICK .dmf-face'), sy = q('.tPICK .dmf-sym'), nm = q('.tPICK .dmf-name');
       return [t.getBoundingClientRect().top, f.getBoundingClientRect().top, sy.getBoundingClientRect().top, nm.getBoundingClientRect().top, getComputedStyle(t).animationName, getComputedStyle(f).animationName]; })(),
+    hand: (() => { const h = q('.slide-stage .reveal-hand.dmf-hand'); if (!h) return null; const r = h.getBoundingClientRect(); return [r.left + r.width / 2, r.top, r.width, getComputedStyle(h).animationName]; })(),   // [demo-hand]
+    tileC: (() => { const t = q('.tPICK'); if (!t) return null; const r = t.getBoundingClientRect(); return [r.left + r.width / 2, r.bottom]; })(),
+    slotLook: (() => { const b = q('.dmf-blank.hot'); if (!b) return null; const d = b.querySelector('.dmf-dash'); return [getComputedStyle(d).stroke, getComputedStyle(b).boxShadow]; })(),   // [demo-hand] the orange ring
     navShown: nav.classList.contains('visible') && getComputedStyle(nav).display !== 'none', ms: performance.now() }; }"""
 SAMPLE = SAMPLE.replace("PAGE", CONFIG["page"]).replace("tPICK", "t" + str(PICK + 1))
 TIMELINE = "(sample) => { window._tl = []; const S = eval(sample); const step = () => { const s = S(); window._tl.push(s);" \
@@ -226,6 +229,18 @@ with sync_playwright() as p:
     else:
         check("the second reading starts ~0.7 s after the (last) mark, every tile dim", 650 <= ms(i_s3) - ms(i_mark) <= 1000 and all(samples[i_s3]["off"]) and not any(samples[i_s3]["on"]),
               f"{ms(i_s3) - ms(i_mark):.0f} ms; dim {samples[i_s3]['off']}")
+    # [demo-hand] the pointing hand (the picks' .reveal-hand.dmf-hand: 96px, the guided bob) under the right tile from the auto tap to the second reading
+    hand_on = [i for i, s in enumerate(samples) if s["hand"]]
+    h0 = samples[i_on]["hand"]; tc = samples[i_on]["tileC"]; k = 1333 / 1280
+    check("the auto tap brings the pointing hand under the tapped tile (the picks' hand: 96px, centred on the tile, 4 px below it, bobbing), not before ([demo-hand])",
+          bool(h0) and bool(tc) and abs(h0[0] - tc[0]) <= 2 and 2 <= h0[1] - tc[1] <= 7 and abs(h0[2] - 96 * k) <= 1.5 and h0[3] == "guidedHandBob" and not any(s["hand"] for s in samples[:i_on]),
+          (h0, tc))
+    check("...and it stays through the name, the mark and the line before the second reading, leaving as that reading begins ([demo-hand])",
+          all(s["hand"] for s in samples[i_on:i_s3 - 1]) and not any(s["hand"] for s in samples[i_s3:]),
+          (min(hand_on) if hand_on else None, max(hand_on) if hand_on else None, i_on, i_s3))
+    sl = {tuple(s["slotLook"]) for s in samples if s["slotLook"]}
+    check("the highlighted slot's ring and glow are the words' orange (#E86A00), not blue ([demo-hand])",
+          bool(sl) and all(l[0] == "rgb(232, 106, 0)" and l[1].startswith("rgba(232, 106, 0, 0.22)") for l in sl), sorted(sl))
     timed = [s for s in samples[i_s3:i_e3] if s["clip"] == K_FULL and s["playing"] and s["t"] is not None]
     def state_of(n):
         t = targets[n - 1] if n > 0 else ""
