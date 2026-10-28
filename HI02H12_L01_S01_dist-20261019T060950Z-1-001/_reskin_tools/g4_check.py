@@ -62,7 +62,7 @@ SAMPLE = r"""() => { window._tl = []; let last = ''; const step = () => {
 LABELS = "[...document.querySelectorAll('#slideHost .so-pill')].map(p => p.textContent.trim())"
 
 MEDIA_TRACE = """(() => { window.__media = []; const P = HTMLMediaElement.prototype, op = P.play, oq = P.pause;   // [g4-giggle] every play / pause, with its clock and volume
-  P.play = function(){ window.__media.push({ ev: 'play', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume }); return op.apply(this, arguments); };
+  P.play = function(){ window.__media.push({ ev: 'play', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume, ct: this.currentTime }); return op.apply(this, arguments); };
   P.pause = function(){ window.__media.push({ ev: 'pause', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume }); return oq.apply(this, arguments); }; })()"""
 def run(pg):
     pg.add_init_script(MEDIA_TRACE); pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
@@ -140,7 +140,8 @@ with sync_playwright() as p:
     if sfx:
         pl = [m for m in med if m["ev"] == "play" and m["src"] == sfx]; pa = [m for m in med if m["ev"] == "pause" and m["src"] == sfx]
         check(f"the right tap: {sfx} starts with the picture's pop (within 60 ms of the green mark) at the reference's .63, once on the page ([g4-giggle])",
-              len(pl) == 1 and abs(pl[0]["at"] - ms(i_tap)) <= 60 and abs(pl[0]["vol"] - 0.63) < 0.005, [(round(m["at"] - ms(i_tap)), m["vol"]) for m in pl])
+              len(pl) == 1 and abs(pl[0]["at"] - ms(i_tap)) <= 60 and abs(pl[0]["vol"] - 0.63) < 0.005 and abs(pl[0]["ct"] - (d["data"].get("tap_sfx_from") or 0)) <= 0.05,   # [p2-pencils] from its first sound where the data says so
+              [(round(m["at"] - ms(i_tap)), m["vol"], round(m["ct"], 3)) for m in pl])
         check("...and it ends with the 1 s hold: faded to silence over its last 150 ms and paused ~1 s after the tap, before the ding ([g4-giggle])",
               bool(pa) and 850 <= pa[-1]["at"] - ms(i_tap) <= 1150 and pa[-1]["vol"] <= 0.08 and pa[-1]["at"] <= ms(i_ok) + 60, [(round(m["at"] - ms(i_tap)), round(m["vol"], 3)) for m in pa])
     else:

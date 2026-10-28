@@ -82,6 +82,10 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [g4-giggle] (2026-10-28): G4 — the right tap's picture pop (the reference's p2BirdPop1s, unchanged) now comes with the
          user's giggle (assets/Audio/sfx_g4_giggle.mp3, data.tap_sfx): the reference game's G2 correct-tap effect — a fresh Audio
          at .63, faded over the last 150 ms of the 1 s hold and paused with it; the ding + confetti and all else as before.
+         [p1-book] (2026-10-28): P1 the same way — the user's book-opening sound (assets/Audio/sfx_p1_book.mp3, data.tap_sfx)
+         with the right tap's picture pop; the module's [g4-giggle] hook, no new code.
+         [p2-pencils] (2026-10-28): P2 likewise — the user's pencils sound (assets/Audio/sfx_p2_pencils.mp3, data.tap_sfx); the
+         17 s file is silent until 0.52 s, so data.tap_sfx_from = 0.51 starts it at its first shake (the hook's one new line).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -1390,7 +1394,8 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
         if(guided){ if(hand){ hand.remove(); hand = null; } it.cell.classList.remove("opt-guided"); }
         thumb.classList.remove("p6-pop"); thumb.classList.add("p2-pop"); setTimeout(()=> thumb.classList.remove("p2-pop"), POP_MS + 250);
         if(d.tap_sfx && !isMuted){ try{   // [g4-giggle] the reference's G2 correct-tap effect: the page's own sound with the picture's pop, at .63, ending with the 1 s hold (a 150 ms fade, then paused)
-          const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
+          const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; if(d.tap_sfx_from) sx.currentTime = d.tap_sfx_from;   // [p2-pencils] a file with a silent lead-in starts at its first sound
+          sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
           const v0 = sx.volume, t0 = Date.now() + HOLD_MS - 150;
           const fade = ()=>{ if(sx.paused || sx.ended) return; const k = Math.min(1, (Date.now() - t0) / 150); sx.volume = Math.max(0, v0 * (1 - k)); if(k < 1) setTimeout(fade, 16); else sx.pause(); };
           setTimeout(fade, HOLD_MS - 150); setTimeout(()=>{ try{ sx.pause(); }catch(e){} }, HOLD_MS);
@@ -2788,7 +2793,10 @@ for sid, mk, h3 in (("G1", "purn", None), ("G2", "prashn", "vo_g2_hint3"), ("G3"
 SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
 SL["G4"]["data"]["tap_sfx"] = "sfx_g4_giggle.mp3"   # [g4-giggle] the user's jule_joule-giggling-like-a-little-girl-322689.mp3 (1.06 s, as given) with the right tap's pop
 SL["P1"]["audio"].update({"prompt": "vo_p1_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["P1"]["data"]["tap_sfx"] = "sfx_p1_book.mp3"   # [p1-book] the user's soumages-book-opening-345808.mp3 (1.10 s, as given) with the right tap's pop, as G4's giggle
 SL["P2"]["audio"].update({"prompt": "vo_p2_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["P2"]["data"]["tap_sfx"] = "sfx_p2_pencils.mp3"   # [p2-pencils] the user's freesound_community-pencils-shake-throw-33800.mp3 (17.3 s, as given) with the right tap's pop, as G4's giggle
+SL["P2"]["data"]["tap_sfx_from"] = 0.51   # [p2-pencils] the file is silent until 0.52 s: it starts just before its first shake, so the sound lands with the pop (the reference's 1 s rule then plays that first second)
 SL["L1"]["data"]["intro_audio"] = "vo_letter_intro"
 _rounds = SL["L2"]["data"]["rounds"]; SL["L2"]["data"]["ok_audio"] = "vo_ok"
 _by_mark = {"।": "vo_stamp4_hint3_purn", "?": "vo_stamp4_hint3_prashn", ",": "vo_stamp4_hint3_alp"}
@@ -3217,8 +3225,8 @@ for name, sub in [(f"vo_g4_{k}.ogg", "Audio") for k in G4_KEYS] + [("img_g4_kite
 
 # ---------- 7k. [sent-fig] P1's and P2's clips and pictures (<page>_assets/: recap_vo.py <page>; the picture = g4_picture.py over
 #               the user's picture, <page>_*_source.png; their title + try-again clips are G4's) ----------
-for page, image_id in (("p1", "img_p1_book_gry"), ("p2", "img_p2_pencils_gry")):
-    for name, sub in [(f"vo_{page}_{k}.ogg", "Audio") for k in SENT_OPT_KEYS] + [(f"{image_id}.webp", "Images")]:
+for page, image_id, extra in (("p1", "img_p1_book_gry", [("sfx_p1_book.mp3", "Audio")]), ("p2", "img_p2_pencils_gry", [("sfx_p2_pencils.mp3", "Audio")])):   # [p1-book] / [p2-pencils] each page's tap sound rides along
+    for name, sub in [(f"vo_{page}_{k}.ogg", "Audio") for k in SENT_OPT_KEYS] + [(f"{image_id}.webp", "Images")] + extra:
         f, dst = SCR / f"{page}_assets" / name, DIST / "assets" / sub / name
         assert f.exists(), f"missing {page.upper()} asset {f}"
         if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
