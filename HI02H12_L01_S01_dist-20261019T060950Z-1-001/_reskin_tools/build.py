@@ -54,6 +54,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          and G2's reads G3's "वाक्य सुनिए और सही चिह्न लगाइए ।" — data.band_hi only; the spoken lines and all else unchanged.
          [demo-intro] (2026-10-28): T3 and T4 no longer speak their intro line "सुनो, यह वाक्य बिना रुके पढ़ा गया ।" (vo_demo2 /
          vo_demo3_intro: data.intro_audio null, the clips off the dist): the title bar comes on mount, the rest 1.3 s later.
+         [tile-tap] (2026-10-28): on T2-T4 and G1-G3 the tapped option presses as a whole (base, face, mark, name), not its
+         white face alone — the dmfTap animation moved from .dmf-face to .dmf-tile.on; nothing else.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2217,9 +2219,11 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dmf-name{position:absolute;left:113.5px;width:1075px;height:48px;transform:translateX(-50%);text-align:center;
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:28px;line-height:48px;word-spacing:-2px;color:#012F76;}
 .t1 .dmf-name{top:100px;} .t2 .dmf-name{top:101px;} .t3 .dmf-name{top:101px;}
-/* tapped for the child: the face presses down and comes back, its colours unchanged (no blue selection ring,
-   2026-10-25); the other tiles dim = the engine's faded option */
-.dmf-tile.on .dmf-face{animation:dmfTap .45s ease-out;}
+/* tapped for the child: the tile presses down and comes back, its colours unchanged (no blue selection ring,
+   2026-10-25); the other tiles dim = the engine's faded option. [tile-tap] (2026-10-28): the press is the WHOLE
+   option's — base, face, mark and name together (the mark and name are the tile's children, not the face's, so
+   the old face-only press left them and the grey base still); auto tap on T2-T4, the child's on G1-G3 alike */
+.dmf-tile.on{animation:dmfTap .45s ease-out;}
 @keyframes dmfTap{0%{transform:none;}35%{transform:translateY(6px);}100%{transform:none;}}
 .dmf-tile.off{opacity:.35;filter:saturate(.6);transition:opacity .3s,filter .3s;}
 /* [pick-fig] G1 (frame 525:354 "7 G1", PUNCT_PICK): the tiles are the child's once the sentence has been read; a wrong

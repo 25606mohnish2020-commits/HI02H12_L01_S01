@@ -15,7 +15,8 @@ usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdi
    lands in each slot after that line (left to right, 0.3 s apart); the sentence's second reading follows, every tile
    dim, each word and each slot highlighted as the reading reaches it; 1.5 s after it the slots' boxes go and the page
    moves on by itself (T4: through the engine's peek gate into the guided round, as the old T4 did); आगे never shows.
-   The blink is three slow blinks; the tapped tile keeps its colours (no blue ring).
+   The blink is three slow blinks; the tapped tile keeps its colours (no blue ring) and, since [tile-tap] 2026-10-28, presses as a
+   whole (base, face, mark and name dip together), not its white face alone.
 2. No standing Swiftie and no 🔊 chip on this page; the tutorial card is the whole stage.
 3. 1280x720 viewport (= frame px): every element's box vs the frame, the fonts, each text's ink vs the Figma render,
    per-pixel diffs vs the render (T2/T3 less the big slot's dashes, whose phase is not the render's), and the mark's
@@ -95,6 +96,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     hot: [...document.querySelectorAll('.dmf-sent .sfig-w')].findIndex(w => w.classList.contains('hot')), hotSlot: blanks.findIndex(b => b.classList.contains('hot')),
     gone: blanks.length > 0 && blanks.every(b => b.classList.contains('gone')), gate: !!document.getElementById('phaseGate') && document.getElementById('phaseGate').classList.contains('show'),
     face1: (() => { const f = q('.tPICK .dmf-face'); if (!f) return ''; const cs = getComputedStyle(f); return cs.borderTopColor + '|' + cs.boxShadow; })(),
+    press: (() => { const t = q('.tPICK'); if (!t) return null; const f = q('.tPICK .dmf-face'), sy = q('.tPICK .dmf-sym'), nm = q('.tPICK .dmf-name');
+      return [t.getBoundingClientRect().top, f.getBoundingClientRect().top, sy.getBoundingClientRect().top, nm.getBoundingClientRect().top, getComputedStyle(t).animationName, getComputedStyle(f).animationName]; })(),
     navShown: nav.classList.contains('visible') && getComputedStyle(nav).display !== 'none', ms: performance.now() }; }"""
 SAMPLE = SAMPLE.replace("PAGE", CONFIG["page"]).replace("tPICK", "t" + str(PICK + 1))
 TIMELINE = "(sample) => { window._tl = []; const S = eval(sample); const step = () => { const s = S(); window._tl.push(s);" \
@@ -192,6 +195,14 @@ with sync_playwright() as p:
     i_on = first(lambda s: bool(s["on"]) and s["on"][PICK])
     on_faces = {s["face1"] for s in samples if s["on"] and s["on"][PICK]}
     check("the tapped tile keeps its colours: its face's border stays #D5D8DF, no blue ring", on_faces == {"rgb(213, 216, 223)|none"}, on_faces)
+    # [tile-tap] the press is the whole option's: the tile, its face, mark and name dip together (dmfTap: 6 frame px at 35% of .45 s) and
+    # come back; the face has no press of its own
+    pre = samples[i_on - 1]["press"]; win = [s for s in samples[i_on:] if s["ms"] - ms(i_on) <= 500 and s["press"]]; k = 1333 / 1280
+    deep = max(([s["press"][j] - pre[j] for j in range(4)] for s in win), key=lambda v: v[0])
+    check("the tap presses the whole option: tile, face, mark and name dip together by 6 px (frame px) and come back; the face has no press of its own",
+          5.0 <= deep[0] / k <= 7.0 and max(abs(v - deep[0]) for v in deep) <= 0.6 and any(s["press"][4] == "dmfTap" for s in win)
+          and all(s["press"][5] == "none" for s in win) and abs(win[-1]["press"][0] - pre[0]) <= 0.6,
+          f"deepest dip tile / face / mark / name {[round(v / k, 2) for v in deep]} px; animations seen {sorted({(s['press'][4], s['press'][5]) for s in win})}")
     check("its tile is tapped and the other two dim as that line starts, not before",
           abs(ms(i_on) - ms(i_s2)) <= 150 and samples[i_on]["off"] == [k != PICK for k in range(3)] and samples[i_on]["on"] == [k == PICK for k in range(3)]
           and not any(any(s["on"]) or any(s["off"]) for s in samples[:i_bl_end]),

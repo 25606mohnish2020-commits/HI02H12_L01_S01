@@ -10,7 +10,8 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    in 0.5 s after it; the sentence's clip starts once they have landed and its words arrive one by one with it; the
    slot blinks for 3.5 s (three slow blinks) from the moment that clip ends, and the tiles go live in that same moment —
    a tap before then does nothing. A wrong tile wiggles (the engine's wgNo, one --fx-beat), its colours unchanged,
-   counts an attempt and stays tappable, and no mark appears; the right one is pressed, the others dim, its mark lands
+   counts an attempt and stays tappable, and no mark appears; the right one is pressed (the whole option dips — base, face,
+   mark and name — since [tile-tap] 2026-10-28), the others dim, its mark lands
    in the slot at once as its name sounds, later taps do nothing, and one beat after the name the page moves on to the
    next slide by itself — no round gate, आगे never shows. The page is the frame's whole stage: no engine header, no
    standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts.
@@ -83,9 +84,12 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     blink: blanks.some(b => b.classList.contains('blink')), blinkAnim: blanks.length ? anim(blanks[0]) : '',
     on: tiles.map(t => t.classList.contains('on')), off: tiles.map(t => t.classList.contains('off')),
     wiggle: tiles.map(t => t.classList.contains('wiggle')), marksIn: [...document.querySelectorAll('.dmf-mark')].map(m => m.classList.contains('in')),
+    press: (() => { const t = tiles[PICKI]; if (!t) return null; const f = t.querySelector('.dmf-face'), sy = t.querySelector('.dmf-sym'), nm = t.querySelector('.dmf-name');
+      return [t.getBoundingClientRect().top, f.getBoundingClientRect().top, sy.getBoundingClientRect().top, nm.getBoundingClientRect().top, getComputedStyle(t).animationName, getComputedStyle(f).animationName]; })(),
     hot: [...document.querySelectorAll('.dmf-sent .sfig-w')].findIndex(w => w.classList.contains('hot')),
     attempts: state.attempts, gate: document.getElementById('phaseGate').classList.contains('show'), hand: !!document.querySelector('.reveal-hand.dmf-hand'),
     navShown: nav.classList.contains('visible') && getComputedStyle(nav).display !== 'none', ms: performance.now() }; }"""
+SAMPLE = SAMPLE.replace("PICKI", str(PICK))   # [tile-tap] the right tile's press is measured
 TIMELINE = "(sample) => { window._tl = []; const S = eval(sample); const step = () => { const s = S(); window._tl.push(s);" \
     " if (s.slide !== 'NEXT') requestAnimationFrame(step); }; requestAnimationFrame(step); }".replace("NEXT", NEXT)
 FACES = """[...document.querySelectorAll('.dmf-face')].map(f => { const cs = getComputedStyle(f); return cs.borderTopColor + '|' + cs.boxShadow + '|' + cs.backgroundColor; })"""
@@ -185,6 +189,14 @@ with sync_playwright() as p:
     i_ok = first(lambda s: any(s["on"]))
     check("no mark, no pressed or dimmed tile before the right tap", not any(any(s["marksIn"]) or any(s["on"]) or any(s["off"]) for s in samples[:i_ok]))
     i_mark = first(lambda s: any(s["marksIn"]))
+    # [tile-tap] the press is the whole option's: the tile, its face, mark and name dip together (dmfTap: 6 frame px at 35% of .45 s) and
+    # come back; the face has no press of its own
+    pre = samples[i_ok - 1]["press"]; win = [s for s in samples[i_ok:] if s["ms"] - ms(i_ok) <= 500 and s["press"]]; k = 1333 / 1280
+    deep = max(([s["press"][j] - pre[j] for j in range(4)] for s in win), key=lambda v: v[0])
+    check("the right tap presses the whole option: tile, face, mark and name dip together by 6 px (frame px) and come back; the face has no press of its own",
+          5.0 <= deep[0] / k <= 7.0 and max(abs(v - deep[0]) for v in deep) <= 0.6 and any(s["press"][4] == "dmfTap" for s in win)
+          and all(s["press"][5] == "none" for s in win) and abs(win[-1]["press"][0] - pre[0]) <= 0.6,
+          f"deepest dip tile / face / mark / name {[round(v / k, 2) for v in deep]} px; animations seen {sorted({(s['press'][4], s['press'][5]) for s in win})}")
     check("the right tap: its tile pressed, the other two dim, its mark in the slot at once",
           samples[i_ok]["on"] == [k == PICK for k in range(3)] and samples[i_ok]["off"] == [k != PICK for k in range(3)] and ms(i_mark) - ms(i_ok) <= 160, f"mark {ms(i_mark) - ms(i_ok):.0f} ms after")   # [dun-chrome] the reference's 100-piece 1.5x burst is built on this tap: ~100 ms (was 50 with the 80-piece burst)
     i_bl_end = first(lambda s: not s["blink"], i_bl)
