@@ -20,6 +20,8 @@ usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdi
    whole (base, face, mark and name dip together), not its white face alone.
 2. No standing Swiftie and no 🔊 chip on this page; the tutorial card is the whole stage.
 3. 1280x720 viewport (= frame px): every element's box vs the frame, the fonts, each text's ink vs the Figma render,
+   (T2 / T3 since [sent-50] 2026-10-28: the sentence 50px, centred in the bar, the slot 4 px after its ink — the bar's interior is
+   measured directly and left out of the render diffs, the frames still showing the 64px text),
    per-pixel diffs vs the render (T2/T3 less the big slot's dashes, whose phase is not the render's), and the mark's
    ink centred in every slot (within 1 px) once it has landed and while that slot is highlighted.
 """
@@ -34,13 +36,13 @@ SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T2"
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box
-         "sent": (96.5, 18, 479, 64), "slots": BIG, "word": "पिंकी", "own": [(36, 26, 153, 146), (944, 227, 1011, 335)],   # [demo1-pinki] the text box 3.5 px further left on 656:2
-         "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
+         "sent": (0, 18, 719, 50), "slots": [(553, 20, 59, 100)], "word": "पिंकी", "own": [(36, 26, 153, 146), (367, 213, 1082, 348)], "sent50": True,   # [sent-50] the 50px sentence centred in the bar, the slot 4 px after its ink: the bar's interior is measured directly, not against the 64px render
+         "ink": {}, "content": (170, 20, 1280, 620),
          "next": "T3", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the second demo (PUNCT_DEMO)"},
   "T3": {"page": "demo2", "mark_clip": "prashn", "pick": 2, "pic_x": 197, "img": (223, 214, 90, 135), "bar": (365, 719),   # [demo2-girl] the user's picture at its native size
-         "sent": (120, 18, 479, 64), "slots": BIG, "word": "तुम्हारा", "own": [(36, 26, 153, 146), (944, 227, 1011, 335)],
-         "ink": {"sentence": (380, 214, 944, 346)}, "content": (170, 20, 1280, 620),
+         "sent": (0, 18, 719, 50), "slots": [(528, 20, 59, 100)], "word": "तुम्हारा", "own": [(36, 26, 153, 146), (367, 213, 1082, 348)], "sent50": True,   # [sent-50] as T2
+         "ink": {}, "content": (170, 20, 1280, 620),
          "next": "T4", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the third demo (PUNCT_DEMO)"},
   "T4": {"page": "demo3", "mark_clip": "alp", "pick": 1, "pic_x": 144, "img": (144, 229, 144, 96), "bar": (312, 824),
@@ -317,6 +319,11 @@ with sync_playwright() as p:
         worst_c = max(worst_c, abs(dc[0]), abs(dc[1])); worst_s = max(worst_s, abs(ds[0]), abs(ds[1]))
         print(f"  {name:20s} mine {tuple(int(v) for v in a)}  figma {tuple(int(v) for v in t)}  centre d=({dc[0]:+.1f},{dc[1]:+.1f})  size d=({ds[0]:+d},{ds[1]:+d})")
     check("each text's ink sits where the render's does (centre within 1.5 px, size within 3 px)", worst_c <= 1.5 and worst_s <= 3, f"centre {worst_c:.1f}px, size {worst_s}px")
+    if CONFIG.get("sent50"):   # [sent-50] the 50px sentence: its ink centred on the bar, the slot 4 px after it, 50px glyphs on the old line box
+        sl = boxes[".dmf-bar > .dmf-blank:nth-of-type(1)"]; a = ink_bbox(mine_img, (367, 213, int(sl[0]) - 1, 348))
+        gap = sl[0] - a[2] if a else None; cx = (a[0] + a[2]) / 2 if a else None; cy = (a[1] + a[3]) / 2 if a else None
+        check("the 50px sentence's ink is centred on the bar (within 1 px of 724.5), the slot starts 4 px after it (2.5-5 px), its glyphs 45-62 px tall centred at y 276-283",
+              a is not None and abs(cx - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 62 and 276 <= cy <= 283, f"ink {a}, centre x {cx}, gap {gap}")
     A = np.asarray(mine_img, np.int16); B = np.asarray(target, np.int16)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)

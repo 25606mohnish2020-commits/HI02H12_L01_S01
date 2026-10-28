@@ -60,6 +60,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          g4_picture.py into the same file; nothing else.
          [word-hot] (2026-10-28): on T2-T4 and G1-G3 the word being read lights as on G4 — orange #E86A00 with G4's p2WordPop
          pop — in place of the light-yellow box (.dmf-sent .sfig-w.hot); timing, the slot highlight and all else unchanged.
+         [sent-50] (2026-10-28): on T2 / T3 / G1 / G2 the sentence is 50px (same font) centred in its bar, and the yellow slot
+         sits 4px after its ink (data.layout.sent = SENT50 + each page's slot x); the mark, the bar and all else unchanged.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -181,6 +183,7 @@ for k in RECAP_KEYS:
 # two sentence clips (sent, full) were re-made by recap_vo.py demo1 with the new name, the intro and "पूर्ण विराम" kept.
 DEMO_KEYS = ["intro", "sent", "purn", "full"]
 DEMO_BAND = "विराम चिह्न का वाक्य में प्रयोग ।"   # [band-title] (2026-10-28) the title bar's line on T2 / T3 / T4 (frame 656:2's), in place of the intro line's shown text; the intro clip sounds as before
+SENT50 = {"x": 0, "y": 18, "w": 719, "size": 50, "lh": 110, "ws": -3}   # [sent-50] (2026-10-28) T2 / T3 / G1 / G2: the sentence at 50px (the 50px pages' -3px word spacing), its text box the whole 719px bar so its ink centres on the bar, the same line box (y 18, 110px) as the 64px one; each page's slot x = its ink's right edge + 4 (frame px, measured in Chrome)
 dl = {k: json.loads((SCR / "demo1_assets" / f"vo_demo1_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO_KEYS}
 i_t2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T2")
 assert card["slides"][i_t2]["type"] == "BUILD_PUNCT" and card["slides"][i_t2]["data"].get("auto"), "T2 is not the first auto demo"
@@ -190,7 +193,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
     "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
              "sentence": dpart("sent"), "mark": "।", "mark_audio": "vo_demo1_purn", "full": dpart("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132], "sent_x": 96.5}},   # [demo1-pinki] 656:2's picture box and text box
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132], "sent": SENT50, "slot": [553, 20]}},   # [demo1-pinki] 656:2's picture box; [sent-50] the sentence at 50px centred in the bar (was 656:2's 64px box at 96.5), the slot 4px after its ink (was 583)
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
@@ -220,7 +223,7 @@ card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "typ
     "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo2_girl",   # [demo2-girl]
              "sentence": dpart2("sent"), "mark": "?", "mark_audio": "vo_demo2_prashn", "full": dpart2("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent_x": 120, "img": [223, 214, 90, 135]}},   # [demo2-girl] the picture at its native size, centred in the box
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent": SENT50, "slot": [528, 20], "img": [223, 214, 90, 135]}},   # [demo2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 583)
     "signals": {"on_complete": []}}
 for k in DEMO2_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo2_{k}"] = f"assets/Audio/vo_demo2_{k}.ogg"
@@ -301,7 +304,7 @@ card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type"
              "mark": "।", "mark_audio": "vo_demo1_purn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
-             "layout": {"img": [207, 214, 125, 131], "sent": {"x": 47.5, "y": 18, "w": 560, "size": 64, "lh": 110, "ws": -4}, "slot": [612, 20],   # [g1-pinki] 656:66's places
+             "layout": {"img": [207, 214, 125, 131], "sent": SENT50, "slot": [579, 20],   # [g1-pinki] 656:66's places; [sent-50] the sentence at 50px centred in the bar (was 656:66's 64px box 560 wide at 47.5, ws -4), the slot 4px after its ink (was 612)
                         "tiles": [{"base": [197, 442, 227, 170], "face": [199, 444, 223, 162]},
                                   {"base": [525, 443, 231, 169], "face": [527, 445, 227, 161]}, None]}},
     "signals": {"on_complete": ["punct_build_done"]}}
@@ -334,7 +337,7 @@ card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type"
              "mark": "?", "mark_audio": "vo_demo2_prashn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
-             "layout": {"sent_x": 120, "img": [223, 216, 88, 132], "slot": [573, 20]}},   # [g2-girl] the picture at its native size, centred in the box
+             "layout": {"sent": SENT50, "img": [223, 216, 88, 132], "slot": [527, 20]}},   # [g2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 573)
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g2_sent"] = "assets/Audio/vo_g2_sent.ogg"
 card["assets"]["audio_text"]["vo_g2_sent"] = gl2["text"]
