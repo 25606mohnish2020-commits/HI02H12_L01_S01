@@ -518,6 +518,40 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The cover's sky seen, the play button's fade ([cover-sky], 2026-10-28)
+- Asked (the cover alone, again): take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and apply, exactly the same, the
+  cover page's background animation and the play button's placement, position, sound, appearing animation and look. The reference
+  page is unchanged since [dun-chrome] (md5 64ddd90b, the local copy still byte-identical). Both covers were probed in Chrome at
+  1333x750 (the scratchpad's cover_probe.py: every 100 ms the sky and the glow, the button's class / box / computed opacity /
+  animation, the bird, the chip, every play(); screenshots through the reveal and the tap) and compared value for value. Already the
+  same in both: the glow (sgBreathe 6.5 s, the same gradient), the 87 stars on the kit's own lanes (the per-star size / speed /
+  delay are random per load there and here alike), the hole 40 px inside the card, the button's art (btn-play.svg), 140 px,
+  centred on the card with its bottom edge 2 px above the card's bottom, hidden until the welcome has ended, then sgBtnReveal
+  .52 s cut over by sgBtnPulse 1.4 s / 1.04 at ~.3 s, the tap = the standard play sound at 0.8 and the tutorial line at once (the
+  reference's sfx_std_play.wav is this file's sfx_play_button.ogg). Two things were NOT the same, both in the 10-27 port's own CSS:
+  1. The stars and the glow were built (87 <i>, sgBreathe running) but never SEEN: the kit's sky-adapt rule
+     `.start-gate{background-image:startnew_bg_plain.webp}` (meant for the gate off the title page) painted a second sunburst on
+     the start gate, which sits in the stage at z 80 above the fixed sky layer at z 0. The reference keeps its gate transparent on
+     the title page by its own early rule `body.is-start .start-gate{background:transparent}` (which its kit block silently relies
+     on, and which this file never had: its gate's base rule is transparent, but the kit's later same-specificity rule won). That
+     rule is now in the [dun-chrome] block. A side effect put right with it: the first gate's field is now the plain blue (the
+     .start-bg's #7FC8F4, TOTA-GATE-NO-STARS) instead of the gate's own sunburst - the reference's look.
+  2. The pop-in had no fade: the ported `.sg-fig .sg-btn, .sg-fig .sg-btn.ready` rule carried `opacity:1 !important;
+     filter:none !important` (the reference has those two only on its waiting state, :not(.ready)), and an !important
+     declaration beats a keyframe, so the disc appeared fully opaque at scale .55 instead of fading in from 0. Dropped; nothing on
+     this file dims .sg-btn (grep: no opacity / filter rule on it).
+- Measured after (cover_probe.py on the built page): at the moment .ready lands the button's computed opacity is 0 (was 1; the
+  reference's is 0), at ready + 120 ms it is 1 at scale .99, then 140x140 at rest and breathing; the stars, sparks, rings and dots
+  drift around the card and the glow breathes under it; the tap: sfx_play_button at 0.8, vo_pt_tutorial 30 ms later; the first
+  gate: the blurred cover over the plain blue field, as the reference's tap+1.75 s shot. The build is still byte-identical to
+  the previous dist but for the two CSS changes (the unchanged build.py was run first and reproduced the dist exactly; the clone
+  of github.com/siddharthsharma-ctrl/Ek-aur-Anek that build.py takes as its first argument is not under _reskin_tools/ref - clone it
+  into the scratchpad, depth 1, commit 677222f). title_check.py has two new checks: the start gate's computed background is
+  none / transparent on the cover, and the button's opacity read synchronously by a MutationObserver when .ready lands is "0";
+  ALL PASS (the frame's geometry within 0.28 px, the card's pixels 0.83 % off, the welcome / button / chip / bird / sky / burst
+  as before); smoke.py 47/47. `../_before_cover_sky/` holds the dist's three files, build.py, README.md and title_check.py from
+  before.
+
 The chrome of HI02H04_L01_S01 on this file ([dun-chrome], 2026-10-27)
 - Asked: take https://hi-02-h04-l01-s01-dun.vercel.app/ as the reference and apply, exactly the same, (1) the cover page's
   background animation and the play button's placement, sound, appearing animation and look, (2) the next button, its sound,

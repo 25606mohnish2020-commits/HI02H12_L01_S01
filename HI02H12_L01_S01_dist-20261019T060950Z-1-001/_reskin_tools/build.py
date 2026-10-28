@@ -32,6 +32,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          face — Noto Sans Devanagari SemiBold — in place of the reference P4's Baloo 2 ExtraBold; sizes, lines, boxes as they were.
          [dun-chrome] (2026-10-27): the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app): the cover's sky and play
          button, आगे, the bird in the title bars, the speaker chips, the phase gates and confetti, the music bed, the celebration.
+         [cover-sky] (2026-10-28): the cover's sky is SEEN (the start gate transparent on the title page, as the reference's: it had
+         been painting a second sunburst over the glow and the stars) and the play button's pop-in fades in from 0 (its
+         opacity:1 !important, which beat the keyframe, dropped); two CSS lines in the [dun-chrome] block, nothing else.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2569,13 +2572,22 @@ body.is-start .start-bg{background-image:url("assets/UI/startnew_bg_plain.webp")
 body.is-start .sg-glow,body.is-start .sg-sky{display:block !important;}
 body.gating .sg-glow,body.gating .sg-sky{display:none !important;}
 body.gating .start-bg{background-image:none !important;background-color:#7FC8F4 !important;}
+/* [cover-sky] (2026-10-28): the start gate must be TRANSPARENT on the title page, as the reference's is (its own rule
+   `body.is-start .start-gate{background:transparent}`, which its sky-adapt block relies on). Without it the kit's
+   `.start-gate{background-image:startnew_bg_plain}` above (meant for the gate OFF the title page) painted a second sunburst on
+   the gate - which sits in the stage at z 80, above the fixed sky layer at z 0 - so the breathing glow and the 87 drifting
+   stars were built but never seen. Same specificity as the reference's rule; nothing else on the cover changes. */
+body.is-start .start-gate{background:transparent;}
 /* ---- the cover: the play button (LANDING-START-AFTER-VO + LANDING-PLAY-BTN + PLAY-BTN-140 + NO-WAITING-PLAY-BTN, value for value,
    written for this title page's scaled frame: 140x140 on the stage, centred, its bottom edge 2 px above the card's bottom — the
    card's 9 px border is inside its box here, hence the -9px); hidden until .ready, then the pop-in, then the breathing; the tap
    lands even while a line speaks (the reference's: the welcome's replay is cut) ---- */
+/* [cover-sky] (2026-10-28): no `opacity:1 !important` / `filter:none !important` on the READY button - an !important declaration
+   beats a keyframe, so the pop-in's fade (sgBtnReveal 0 % = opacity 0) never ran and the disc appeared opaque at scale .55; the
+   reference carries those two only on its waiting state (:not(.ready), display:none here). Nothing on this file dims .sg-btn. */
 .sg-fig .sg-btn,.sg-fig .sg-btn.ready{position:absolute;left:50%;bottom:calc(2px / var(--fig-s) - 9px) !important;top:auto !important;transform:translateX(-50%);z-index:4;
   width:calc(140px / var(--fig-s)) !important;min-width:0 !important;max-width:none !important;height:calc(140px / var(--fig-s)) !important;
-  padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;cursor:pointer;opacity:1 !important;filter:none !important;
+  padding:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important;cursor:pointer;
   background:transparent url("assets/UI/btn-play.svg") center / 100% 100% no-repeat !important;
   font-size:0 !important;line-height:0 !important;color:transparent !important;overflow:visible !important;}
 .start-gate .sg-btn:not(.ready){display:none !important;}
