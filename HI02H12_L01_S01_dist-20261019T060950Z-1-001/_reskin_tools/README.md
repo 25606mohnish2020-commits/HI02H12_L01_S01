@@ -518,6 +518,46 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The re-listen page T0B: the two contrast sentences, their meanings, the moral ([relisten-pinki], 2026-10-28)
+- Asked: at page 2 (T0B) replace the white box's text with Figma frame 654:567's; after the intro VO (vo_story_r0) the first and
+  second sentences appear at the frame's placement and size with the same word-by-word animation synced to their VOs; then
+  vo_story_r1 with a little zoom and the same light-yellow highlight behind the whole first sentence while the VO speaks of it,
+  the same for the second; then 4.wav, in which the commas light in the same orange with a little zoom when the VO reaches
+  that part; then the next button; all in smooth sync; everything else unchanged.
+- Built (STORY_RELISTEN keeps its title / box / intro beat and the 🔊 chip; data-driven, the old one-block form still works):
+  the box holds the frame's two sentence nodes — "उसे रोको, मत जाने दो।" (654:752: 401 wide, 30px, centred on 540.5,204.5 of
+  the card's padding box) and "उसे रोको मत, जाने दो।" (654:753: 390 wide, centred on 540,302.5) — 8 px right of the box's
+  centre, as the frame has them (its render: the ink centres at x 647 / 646.5 for a box centre of 640.5). data.lines gives
+  each its clip and word times; sfigLine + sfigNarrate read them one after the other (0.6 s between), the words arriving
+  on the clip's own clock as on T0. The clips are the user's two "माँ ने कहा ..." takes cut after their "माँ ने कहा," (vo_rec.py
+  TRIM: 3.wav from 1.40 s -> vo_story_c1, the comma-after-रोको reading; vo_story_s1.wav from 1.45 s -> vo_story_c2, the
+  comma-after-मत reading; the cuts in the pause before "उसे", measured on the waveforms), re-synced to the frame's words
+  (story_assets/vo_story_c1 / c2.words.json). Then data.explain_audio = vo_story_r1 (the recording: "यहाँ पहले वाक्य का अर्थ है ...
+  जबकि दूसरे वाक्य का अर्थ है ..."), 0.5 s after sentence 2: a cue list on the clip's clock (data.explain_cues, read by vo_rec.py
+  off the clip: its "पहले" at 0.68 s and "जबकि" at 5.28 s) lifts sentence 1 (scale 1.06, 0.45 s) on the demos' hot-word yellow
+  #FFF1B6 (.sfig-sent.hl, the box hugging the words), then sentence 2 in its place, both plain again 0.4 s after the clip.
+  Then data.moral_audio = vo_story_moral (4.wav: "दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह लगा होने से ..."),
+  0.5 s later: at its "विराम" (data.moral_cue 4.2 s) each sentence's comma — its own span (.sfig-mk) split off its word at
+  mount — turns the picks' orange #E86A00 and lifts (scale 1.4, 0.45 s); they stay lit; 0.3 s after the clip आगे goes live.
+  Each cued clip runs on a rAF tick of its own currentTime (cues not yet reached fire at its end; a 10 s watchdog past the
+  authored length stops a stalled clip), so the beats sit on the voice, not on timers. The 🔊 chip replays the whole reading
+  (sentences, explanation, moral) with the highlights cleared first; आगे is the reference's disabled pill until the moral
+  has ended ([dun-chrome]). 4.wav and vo_story_r1.wav are no longer skipped by vo_rec.py (2 of the 75 remain: G1's राजू lines).
+- Measured (the scratchpad's t0b_probe.py, 1280x720, every frame): r0 0-2.79 s; c1 3.44-5.98 (5 words); c2 6.59-9.14 (5);
+  r1 9.65-19.95 with sentence 1 lit at 0.66 s of its clock and sentence 2 at 5.26, both off at +0.39 s; the moral 20.84-29.93
+  with the commas lit at 4.18 s of its clock; आगे live at +0.32 s; no page errors.
+- Checked: relisten_check.py rewritten for the page (usage: relisten2_figma_render_1280x720.png, the frame's render): 36 of 36 pass — the data (c1 / c2 / r1's two cues / the moral's cue), the title with the intro line, the box as it ends, each
+  sentence word by word on its clip (no word early, none >150 ms late), sentence 2 0.6 s after sentence 1, the explanation 0.5 s
+  after it with sentence 1 lit at "पहले" and sentence 2 at "जबकि" (both within 0.02 s of the cues), both plain 0.4 s after the clip,
+  the commas lit at "विराम" (0.02 s), आगे the disabled pill through every clip and live 0.32 s after the moral, the 🔊 replay of
+  the whole reading (highlights cleared, commas lit again, आगे back), आगे -> T1 with no extra gate, G4 clean of story styling,
+  the title / box / two sentence nodes within 0.17 px of the frame on one line each in Noto SemiBold 64 / 30 px, the title + box
+  pixel-matching the frame's render (0.94% of the area, 3 solid px over the whole card), no page errors or failed requests.
+  Re-run after it on the same build: smoke.py 47 / 47, gate_check.py 12 / 12, story_check.py 58 / 58 (the T0 build untouched).
+  `../_before_relisten_pinki/` holds build.py, vo_rec.py, relisten_check.py, README.md and the dist's three files from before
+  (the files rebuilt from that build.py; their asset map also lists the three clips this change added, since derived.json
+  is shared).
+
 The story page T0 retold in four beats ([story-pinki], 2026-10-28)
 - Asked: at page 1 (T0) replace the picture and the text with Figma frame 652:3's and make its VO; when that sentence is over,
   frame 652:192's picture and text on the same screen, then 660:127's, then 653:381's — each with the same synced animation —
