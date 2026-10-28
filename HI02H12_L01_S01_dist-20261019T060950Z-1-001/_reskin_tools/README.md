@@ -518,6 +518,29 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+T3 and T4 without their intro line ([demo-intro], 2026-10-28)
+- Asked: remove the title instruction VO "सुनो यह वाक्य बिना रुके पढ़ा गया" from pages 5 T3 and 6 T4; everything else unchanged.
+- Built: that line is the two pages' intro clip (vo_demo2_intro and vo_demo3_intro, TTS: "सुनो, यह वाक्य बिना रुके पढ़ा गया ।";
+  T2's intro clip says "आइए कुछ वाक्यों के उदाहरण से समझते हैं ।" and stays). On T3 and T4 data.intro_audio is now null and the
+  slide's audio.prompt is gone (its prompt_hi, the engine's prompt text — hidden under the band on these pages — is the bar's
+  line). The PUNCT_DEMO module needed no change: with no intro source it shows the title bar the moment the page mounts
+  (its "else showBand()" path), the engine's play() fires the after-intro step 0.8 s later for a missing clip, and the same
+  0.5 s beat follows — so the picture, the sentence bar and the tiles come in 1.3 s after the bar, the sentence's clip 0.65 s
+  after they land, and everything from there (the blink, the name, the mark, the second reading, the explanation lines,
+  T4's gate) runs as before. The two clips are off the dist (the asset map and assets/Audio; build.py unlinks them after the
+  page's copy step, as it does the Chintu files); their sources and word files stay in demo2_assets/ and demo3_assets/.
+  The built dist differs from before in those entries only (app.js and style.css byte-identical; index.html's cardData
+  diffed field by field: the two slides' audio.prompt / data.intro_audio / prompt_hi and the two asset-map rows).
+- Checked: demo_check.py learned pages without an intro line (the bar on mount, nothing sounding until the sentence's clip, no
+  intro clip ever, the rest 1.1-1.7 s after the bar; T2 keeps the intro-line checks): T3 36 / 36 and T4 38 / 38 (the bar at 0-26 ms of the mount, the picture / bar / tiles 1.30-1.31 s after it, the sentence's clip
+  0.65 s after they land, nothing sounding before it, the intro clip never heard, each remaining clip once, the beats and the
+  frame match as before), T2 37 / 37 unchanged (its intro line still first); smoke.py 47 / 47 and gate_check.py 12 / 12 on
+  the same build (T4's end still crosses the gate into G1). The first T4 run failed its new check only because the check
+  required the bar to be absent from the sampler's first frame — the bar comes synchronously with the mount, so that frame
+  may already show it; the condition is gone, the re-run passes with the same timings.
+  `../_before_demo_intro/` holds build.py, demo_check.py, README.md and the dist's three files from before (the [band-title]
+  build).
+
 The demo and G2 title bars re-worded ([band-title], 2026-10-28)
 - Asked: on pages 4 T2, 5 T3 and 6 T4 the title text becomes "विराम चिह्न का वाक्य में प्रयोग ।", and on page 8 G2 the title
   text becomes exactly page 9 G3's; everything else unchanged.

@@ -151,8 +151,9 @@ with sync_playwright() as p:
         check("the picture, the bar and the tiles come in 0.5 s after the intro", 450 <= ms(i_boxes) - ms(i_end0) <= 800, f"{ms(i_boxes) - ms(i_end0):.0f} ms")
     else:   # [demo-intro] no intro line: the bar on mount, nothing sounding, the rest 1.3 s later (the engine's 0.8 s beat for a missing clip + 0.5 s)
         K_INTRO = None
+        # (the bar comes synchronously with the mount, so the sampler's first frame may already show it: no "not samples[0]['band']" here)
         check("no intro line: the title bar appears as the page mounts, nothing sounding before the sentence's clip and no intro clip ever",
-              not samples[0]["band"] and ms(i_band) - ms(0) <= 400 and not any(s["playing"] for s in samples[:i_boxes]) and all(s["clip"] != f"{CONFIG['page']}_intro" for s in samples),
+              ms(i_band) - ms(0) <= 400 and not any(s["playing"] for s in samples[:i_boxes]) and all(s["clip"] != f"{CONFIG['page']}_intro" for s in samples),
               f"bar at {ms(i_band) - ms(0):.0f} ms")
         check("nothing else shows before the bar has stood ~1.3 s; then the picture, the bar and the tiles come in",
               not any(s["boxes"] or s["shown"] or any(s["on"]) or any(s["off"]) for s in samples[:i_boxes]) and 1100 <= ms(i_boxes) - ms(i_band) <= 1700,
