@@ -86,6 +86,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          with the right tap's picture pop; the module's [g4-giggle] hook, no new code.
          [p2-pencils] (2026-10-28): P2 likewise — the user's pencils sound (assets/Audio/sfx_p2_pencils.mp3, data.tap_sfx); the
          17 s file is silent until 0.52 s, so data.tap_sfx_from = 0.51 starts it at its first shake (the hook's one new line).
+         [l1-quiet] (2026-10-28): L1 (the letter page) has no music bed — the bed block's onSlide honours a slide's no_bgm flag:
+         the bed fades out (0.6 s) as L1 mounts and starts again (its first-page fade-in) as L2 mounts, i.e. once the envelope's
+         dive and veil are over; the page's own piano loop and sounds are as before.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2658,7 +2661,10 @@ _bgm_js = dun_block("bgm_duck_js.js")
 _bgm_js = _bgm_js.replace('  var FIRST = 0, LAST = 12;                                                   // T1 .. P6\n', '  var FIRST = 0, LAST = CARD.slides.length - 2;                               // page 1 .. the last page before the celebration\n')
 _bgm_js = _bgm_js.replace('var SRC = "assets/Audio/bgm_standard_2.wav", BASE = 0.13', 'var SRC = "assets/Audio/standard_background_music_2.mp3", BASE = 0.13')
 _bgm_js = _bgm_js.replace('  window.__bgm = { get el(){ return el; },', '  backgroundMusic = el;                                                       // this engine\'s own handle (its fades are no-ops now; the checks read its volume)\n  window.__bgm = { get el(){ return el; },')
-assert "LAST = CARD.slides.length - 2" in _bgm_js and "standard_background_music_2.mp3" in _bgm_js and "backgroundMusic = el;" in _bgm_js, "dun: bgm adaptation"
+_bgm_js = _bgm_js.replace('  function onSlide(idx){ wanted = idx >= FIRST && idx <= LAST; if(wanted) start(); else if(el) setTarget(0, OUT_MS); }\n',
+    '  function onSlide(idx){ var sl = CARD.slides[idx]; wanted = idx >= FIRST && idx <= LAST && !(sl && sl.no_bgm);   // [l1-quiet] a slide flagged no_bgm (L1, the letter page) has no bed: it fades out (OUT_MS) at that mount and starts again, as on the first page, when the next page mounts\n'
+    '    if(wanted) start(); else if(el) setTarget(0, OUT_MS); }\n')   # [l1-quiet]
+assert "LAST = CARD.slides.length - 2" in _bgm_js and "standard_background_music_2.mp3" in _bgm_js and "backgroundMusic = el;" in _bgm_js and "!(sl && sl.no_bgm)" in _bgm_js, "dun: bgm adaptation"
 _cel_js = dun_block("cel_swiftie_js.js")
 assert "SlideModules.CELEBRATION" in _cel_js and "runCelSprite" in _cel_js, "dun: cel block"
 dun_js = r"""
@@ -2798,6 +2804,7 @@ SL["P2"]["audio"].update({"prompt": "vo_p2_prompt", "try_again": "vo_pick_hint1"
 SL["P2"]["data"]["tap_sfx"] = "sfx_p2_pencils.mp3"   # [p2-pencils] the user's freesound_community-pencils-shake-throw-33800.mp3 (17.3 s, as given) with the right tap's pop, as G4's giggle
 SL["P2"]["data"]["tap_sfx_from"] = 0.51   # [p2-pencils] the file is silent until 0.52 s: it starts just before its first shake, so the sound lands with the pop (the reference's 1 s rule then plays that first second)
 SL["L1"]["data"]["intro_audio"] = "vo_letter_intro"
+SL["L1"]["no_bgm"] = True   # [l1-quiet] no music bed on the letter page: it fades out as L1 mounts and starts again (a 0.6 s fade-in) as L2 mounts after the envelope's dive
 _rounds = SL["L2"]["data"]["rounds"]; SL["L2"]["data"]["ok_audio"] = "vo_ok"
 _by_mark = {"।": "vo_stamp4_hint3_purn", "?": "vo_stamp4_hint3_prashn", ",": "vo_stamp4_hint3_alp"}
 _rounds[0].update({"hint2_audio": "vo_stamp1_hint2", "hint3_audio": "vo_stamp1_hint3"})

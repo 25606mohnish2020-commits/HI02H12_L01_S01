@@ -72,6 +72,8 @@ with sync_playwright() as p:
     t0 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
     # 1. scene A with the magic shimmer, no आगे, no header
     until(t0, 500); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); magic = first(pl, "sfx_letter_magic")
+    bq = pg.evaluate("window.__bgm ? [window.__bgm.wanted, window.__bgm.el ? window.__bgm.el.paused : null, window.__bgm.target] : null")   # [l1-quiet]
+    check("the music bed is off on this page: not wanted, its target 0, the element paused ([l1-quiet])", bq is not None and bq[0] is False and bq[1] is True and bq[2] == 0, bq)
     check("mounts as a whole-stage page: no आगे, the first scene (538:2) alone (the letter's wrapper at 1/255: painted so decoded, unseen), the cleanup hook set", s and s["nav"] == "none" and s["bOp"] == 0 and s["cloudOp"] == 0 and s["growOp"] < 0.01 and s["cleanup"],
           {k: s[k] for k in ("nav", "bOp", "cloudOp", "growOp", "cleanup")} if s else s)
     check("the magic shimmer sounds as the page opens", magic is not None and magic["t"] - t0 < 300, round(magic["t"] - t0) if magic else None)
@@ -227,6 +229,9 @@ with sync_playwright() as p:
           moving and all(f["apex"][1] >= f["hinge"][1] - 2 for f in moving), (len(moving), round(min(f["apex"][1] - f["hinge"][1] for f in moving), 1) if moving else None))
     until(t_end, 800); pl = pg.evaluate(PLAYS); bgm = pg.evaluate("(typeof backgroundMusic !== 'undefined' && backgroundMusic) ? (backgroundMusic.paused ? 0 : 1) : null")   # [dun-chrome] the bed runs (its level follows the sounds: ducked under L2's line just now)
     page_sounds = [x for x in pl if "letter" in x["src"]]
+    bq = pg.evaluate("window.__bgm ? [window.__bgm.wanted, window.__bgm.el ? window.__bgm.el.paused : null, window.__bgm.target, +window.__bgm.level.toFixed(3)] : null")   # [l1-quiet]
+    check("the bed starts again as the stamp page mounts, once the dive and the veil are over: wanted, playing, its target up (0.13, or the duck under L2's line) 0.8 s in ([l1-quiet])",
+          bq is not None and bq[0] is True and bq[1] is False and bq[2] > 0, bq)
     check("leaving the page stopped every one of its sounds (the narration too) and the music bed runs on (ducked under the next page's line)", len(page_sounds) == 6 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),
           ([(x["src"], x["paused"]) for x in page_sounds], bgm))
     check("no round gate between the letter page and the stamp page", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
@@ -250,6 +255,13 @@ with sync_playwright() as p:
     pg.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'P2'))"); pg.wait_for_timeout(500); pl = pg.evaluate(PLAYS)
     check("leaving mid-way (to P2): the page's loop and sounds stop, its hook is cleared, its scene is gone", all(x["paused"] for x in pl if "letter" in x["src"]) and pg.evaluate("window.oceanCleanup == null") and pg.evaluate("!document.querySelector('.ltr')"),
           [(x["src"], x["paused"]) for x in pl if "letter" in x["src"]])
+    # [l1-quiet] the bed fades out as the letter page mounts: from P2 (the bed up) to L1 — falling at 0.3 s, paused and at 0 by 0.9 s
+    pg.wait_for_function("window.__bgm && window.__bgm.el && !window.__bgm.el.paused && window.__bgm.level > 0.05", timeout=8000, polling=20)
+    tq = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
+    until(tq, 300); b1 = pg.evaluate("[window.__bgm.wanted, window.__bgm.target, +window.__bgm.level.toFixed(3), window.__bgm.el.paused]")
+    until(tq, 900); b2 = pg.evaluate("[window.__bgm.wanted, window.__bgm.target, +window.__bgm.level.toFixed(3), window.__bgm.el.paused]")
+    check("coming from P2 with the bed up, the letter page's mount fades the bed out over 0.6 s and pauses it: falling at 0.3 s, silent and paused by 0.9 s ([l1-quiet])",
+          b1[0] is False and b1[1] == 0 and 0 < b1[2] < 0.13 and b2[0] is False and b2[2] == 0 and b2[3] is True, (b1, b2))
     check("no page errors", not errs, errs[:3])
     b.close()
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
