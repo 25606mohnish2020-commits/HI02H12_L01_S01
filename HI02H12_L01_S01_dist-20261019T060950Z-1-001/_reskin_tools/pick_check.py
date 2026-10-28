@@ -19,7 +19,7 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    highlighted as the clip reaches it (as on G4 since [word-hot] 2026-10-28: orange #E86A00 with G4's p2WordPop, no yellow
    box); a tap cuts it short and clears the highlight.
 3. 1280x720 viewport (= frame px): every element's box vs the frame, the fonts, each text's ink vs the Figma render,
-   (G1 / G2 since [sent-50] 2026-10-28: the sentence 50px, centred in the bar, the slot 4 px after its ink — the bar's interior is
+   (G1 / G2 since [sent-50] 2026-10-28: the sentence 50px and the slot 4 px after its ink centred in the bar as a pair — the bar's interior is
    measured directly and left out of the render diffs, the frames still showing the 64px text),
    per-pixel diffs vs the render (less the slot's dashes, whose phase is not the render's), and the mark's ink centred
    in the slot (within 1 px) after the right tap.
@@ -38,12 +38,12 @@ BIG = lambda x: (365 + x, 211 + 20, 59, 100)   # 519:32's slot, at x in its bar
 CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's boxes (frame px), the wrong taps to try,
              # the text regions for the ink comparison and what the pixel diff leaves out (the big slot's dashes: their phase)
   "G1": {"next": "G2", "pick": 0, "sent_clip": "g1_sent", "name_clip": "demo1_purn", "pic_x": 197, "img": (207, 214, 125, 131),   # [g1-pinki] 656:66's places
-         "bar": (365, 719), "slot": BIG(579), "sent_c": (365+719/2, 211+18), "size": 50, "word": "पिंकी", "wrong": [2, 3, 2], "sent50": True,   # [sent-50] the 50px sentence centred in the bar, the slot 4 px after its ink
+         "bar": (365, 719), "slot": BIG(548), "sent_c": (365+656/2, 211+18), "size": 50, "word": "पिंकी", "wrong": [2, 3, 2], "sent50": True,   # [sent-50] the 50px sentence in the bar less the slot's column, the slot 4 px after its ink (the pair centred)
          "tiles": {".t1 .dmf-base": (197, 442, 227, 170), ".t2 .dmf-base": (525, 443, 231, 169), ".t3 .dmf-base": (857, 443, 227, 169),
                    ".t1 .dmf-face": (199, 444, 223, 162), ".t2 .dmf-face": (527, 445, 227, 161), ".t3 .dmf-face": (859, 445, 223, 161)},   # [g1-pinki] the first face 1 px taller
          "ink": {}, "own": [(36, 26, 153, 146), (367, 213, 1082, 348)]},   # [sent-50] the bar's interior measured directly, not against the 64px render
   "G2": {"next": "G3", "pick": 2, "sent_clip": "g2_sent", "name_clip": "demo2_prashn", "pic_x": 197, "img": (223, 216, 88, 132),   # [g2-girl] the user's picture at its native size
-         "bar": (365, 719), "slot": BIG(527), "sent_c": (365+719/2, 211+18), "size": 50, "word": "तुम", "wrong": [1, 2, 1], "sent50": True,   # [sent-50] as G1
+         "bar": (365, 719), "slot": BIG(496), "sent_c": (365+656/2, 211+18), "size": 50, "word": "तुम", "wrong": [1, 2, 1], "sent50": True,   # [sent-50] as G1
          "tiles": T3_TILES, "ink": {}, "own": [(36, 26, 153, 146), (367, 213, 1082, 348)]},
   # T4's layout: the wide bar, a 50px sentence and one small slot whose dashes are drawn per side — in the pixel diff
   "G3": {"next": "G4", "pick": 1, "sent_clip": "g3_sent", "name_clip": "demo3_alp", "pic_x": 144, "img": (146, 211, 140, 140),
@@ -337,11 +337,11 @@ with sync_playwright() as p:
         worst_c = max(worst_c, abs(dc[0]), abs(dc[1])); worst_s = max(worst_s, abs(ds[0]), abs(ds[1]))
         print(f"  {name:20s} mine {tuple(int(v) for v in a)}  figma {tuple(int(v) for v in t)}  centre d=({dc[0]:+.1f},{dc[1]:+.1f})  size d=({ds[0]:+d},{ds[1]:+d})")
     check("each text's ink sits where the render's does (centre within 1.5 px, size within 3 px)", worst_c <= 1.5 and worst_s <= 3, f"centre {worst_c:.1f}px, size {worst_s}px")
-    if CONFIG.get("sent50"):   # [sent-50] the 50px sentence: its ink centred on the bar, the slot 4 px after it, 50px glyphs on the old line box
+    if CONFIG.get("sent50"):   # [sent-50] the 50px sentence + the slot 4 px after it, centred on the bar as a pair, 50px glyphs on the old line box
         sl = boxes[".dmf-bar > .dmf-blank"]; a = ink_bbox(mine_img, (367, 213, int(sl[0]) - 1, 348))
-        gap = sl[0] - a[2] if a else None; cx = (a[0] + a[2]) / 2 if a else None; cy = (a[1] + a[3]) / 2 if a else None
-        check("the 50px sentence's ink is centred on the bar (within 1 px of 724.5), the slot starts 4 px after it (2.5-5 px), its glyphs 45-62 px tall centred at y 276-283",
-              a is not None and abs(cx - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 62 and 276 <= cy <= 283, f"ink {a}, centre x {cx}, gap {gap}")
+        gap = sl[0] - a[2] if a else None; px = (a[0] + sl[0] + sl[2]) / 2 if a else None; cy = (a[1] + a[3]) / 2 if a else None
+        check("the 50px sentence and the slot are centred on the bar as a pair (ink left .. slot right, within 1 px of 724.5), the slot 4 px after the ink (2.5-5 px), the glyphs 45-62 px tall centred at y 276-283",
+              a is not None and abs(px - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 62 and 276 <= cy <= 283, f"ink {a}, pair centre x {px}, gap {gap}")
     A = np.asarray(mine_img, np.int16); B = np.asarray(target, np.int16)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
