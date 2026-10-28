@@ -6777,6 +6777,12 @@ const SlideModules = {
         it.cell.classList.add("correct");
         if(guided){ if(hand){ hand.remove(); hand = null; } it.cell.classList.remove("opt-guided"); }
         thumb.classList.remove("p6-pop"); thumb.classList.add("p2-pop"); setTimeout(()=> thumb.classList.remove("p2-pop"), POP_MS + 250);
+        if(d.tap_sfx && !isMuted){ try{   // [g4-giggle] the reference's G2 correct-tap effect: the page's own sound with the picture's pop, at .63, ending with the 1 s hold (a 150 ms fade, then paused)
+          const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
+          const v0 = sx.volume, t0 = Date.now() + HOLD_MS - 150;
+          const fade = ()=>{ if(sx.paused || sx.ended) return; const k = Math.min(1, (Date.now() - t0) / 150); sx.volume = Math.max(0, v0 * (1 - k)); if(k < 1) setTimeout(fade, 16); else sx.pause(); };
+          setTimeout(fade, HOLD_MS - 150); setTimeout(()=>{ try{ sx.pause(); }catch(e){} }, HOLD_MS);
+        }catch(e){} }
         if(!guided){
           report(it, true);
           GameBus.emit(d.signal_name || "story_question_first_try", { slide_id: slide.id, phase: slide.phase, value: true,

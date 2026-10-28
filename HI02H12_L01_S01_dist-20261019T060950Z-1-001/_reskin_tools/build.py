@@ -79,6 +79,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [demo-hand] (2026-10-28): T2 / T3 / T4 — the highlighted slot's ring and glow are the words' orange (#E86A00, was blue
          #386AF6), and the picks' pointing hand (showHand: .reveal-hand.dmf-hand, 96px, under the tile) appears as the right tile is
          auto-tapped and leaves as the second reading begins.
+         [g4-giggle] (2026-10-28): G4 — the right tap's picture pop (the reference's p2BirdPop1s, unchanged) now comes with the
+         user's giggle (assets/Audio/sfx_g4_giggle.mp3, data.tap_sfx): the reference game's G2 correct-tap effect — a fresh Audio
+         at .63, faded over the last 150 ms of the 1 s hold and paused with it; the ding + confetti and all else as before.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -1386,6 +1389,12 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
         it.cell.classList.add("correct");
         if(guided){ if(hand){ hand.remove(); hand = null; } it.cell.classList.remove("opt-guided"); }
         thumb.classList.remove("p6-pop"); thumb.classList.add("p2-pop"); setTimeout(()=> thumb.classList.remove("p2-pop"), POP_MS + 250);
+        if(d.tap_sfx && !isMuted){ try{   // [g4-giggle] the reference's G2 correct-tap effect: the page's own sound with the picture's pop, at .63, ending with the 1 s hold (a 150 ms fade, then paused)
+          const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
+          const v0 = sx.volume, t0 = Date.now() + HOLD_MS - 150;
+          const fade = ()=>{ if(sx.paused || sx.ended) return; const k = Math.min(1, (Date.now() - t0) / 150); sx.volume = Math.max(0, v0 * (1 - k)); if(k < 1) setTimeout(fade, 16); else sx.pause(); };
+          setTimeout(fade, HOLD_MS - 150); setTimeout(()=>{ try{ sx.pause(); }catch(e){} }, HOLD_MS);
+        }catch(e){} }
         if(!guided){
           report(it, true);
           GameBus.emit(d.signal_name || "story_question_first_try", { slide_id: slide.id, phase: slide.phase, value: true,
@@ -2777,6 +2786,7 @@ SL["T4"]["data"].update({"explain_audio": "vo_demo3_explain", "again_audio": "vo
 for sid, mk, h3 in (("G1", "purn", None), ("G2", "prashn", "vo_g2_hint3"), ("G3", "alp", "vo_g3_hint3")):
     SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": h3})
 SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["G4"]["data"]["tap_sfx"] = "sfx_g4_giggle.mp3"   # [g4-giggle] the user's jule_joule-giggling-like-a-little-girl-322689.mp3 (1.06 s, as given) with the right tap's pop
 SL["P1"]["audio"].update({"prompt": "vo_p1_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
 SL["P2"]["audio"].update({"prompt": "vo_p2_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
 SL["L1"]["data"]["intro_audio"] = "vo_letter_intro"
@@ -3200,7 +3210,7 @@ for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images")
 # ---------- 7j. [sent-fig] G4's clips and picture (g4_assets/: recap_vo.py g4; img_g4_kite_gry.webp = g4_picture.py over the
 #               user's picture, g4_kite_source.png) ----------
 G4_SRC = SCR / "g4_assets"
-for name, sub in [(f"vo_g4_{k}.ogg", "Audio") for k in G4_KEYS] + [("img_g4_kite_gry.webp", "Images")]:
+for name, sub in [(f"vo_g4_{k}.ogg", "Audio") for k in G4_KEYS] + [("img_g4_kite_gry.webp", "Images"), ("sfx_g4_giggle.mp3", "Audio")]:   # [g4-giggle]
     f, dst = G4_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing G4 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)

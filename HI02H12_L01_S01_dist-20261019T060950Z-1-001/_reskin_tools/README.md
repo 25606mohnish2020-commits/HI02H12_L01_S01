@@ -518,6 +518,22 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The demos' slot highlight in orange, the pointing hand at the auto tap ([demo-hand], 2026-10-28)
+- Asked (pages 4 T2, 5 T3, 6 T4): when the empty box is highlighted with the mark inside it, its stroke should be the words'
+  orange, not blue; and when the right option is auto-tapped, the same hand nudge (the picks') should appear at it; everything
+  else unchanged.
+- Built: (1) .dmf-blank.hot's ring is #E86A00 (the read word's orange, [word-hot]) and its 6 px glow rgba(232,106,0,.22), in place
+  of the blue #386AF6 / rgba(56,106,246,.22); T4's solid ring inherits the same stroke, the mark's 1.22 scale and the grow are
+  as before (two CSS values). (2) The shared module's hand code became one helper, showHand() — the same <img class="reveal-hand
+  dmf-hand"> (nudge_hand_new.svg, 96 px, the guided bob, centred under the tile 4 px below it) the picks place at the third wrong
+  tap — and stage 4 (the mark's name: the right tile tapped for the child) calls it as the tile presses; stage 5 (the second
+  reading, every tile dim) removes it. So the hand points at the tapped tile through the name, the mark's landing and
+  "अब दोबारा देखिए", and leaves as the sentence is read again. The picks' behaviour is unchanged (the same helper). Nothing else
+  moved: the dist differs from before in style.css (two values) and app.js (the helper and two calls); index.html byte-identical.
+- Checked: demo_check.py samples the hand (place, size, bob) and the hot slot's stroke and glow every frame: demo_check T2 43/43, T3 42/42, T4 43/43 (the scratchpad's chk26 logs: the three new checks included); pick_check G1 55/55 and
+  smoke.py 47/47 on the same build (chk25; the hand helper is shared with the picks).
+  `../_before_demo_hand/` holds build.py, demo_check.py, README.md and the dist's three files from before.
+
 The story's first beat ends on the cat's sound and the picture's little pop ([story-cat], 2026-10-28)
 - Asked (page 1 T0): after the VO of the first sentence is over, the user's sound "stu9-cute-cat-352656.mp3" (Downloads) plays
   once, synced with the little picture pop G4's picture gives; everything else unchanged.

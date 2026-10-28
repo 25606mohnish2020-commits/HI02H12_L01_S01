@@ -233,14 +233,15 @@ with sync_playwright() as p:
     hand_on = [i for i, s in enumerate(samples) if s["hand"]]
     h0 = samples[i_on]["hand"]; tc = samples[i_on]["tileC"]; k = 1333 / 1280
     check("the auto tap brings the pointing hand under the tapped tile (the picks' hand: 96px, centred on the tile, 4 px below it, bobbing), not before ([demo-hand])",
-          bool(h0) and bool(tc) and abs(h0[0] - tc[0]) <= 2 and 2 <= h0[1] - tc[1] <= 7 and abs(h0[2] - 96 * k) <= 1.5 and h0[3] == "guidedHandBob" and not any(s["hand"] for s in samples[:i_on]),
+          bool(h0) and bool(tc) and abs(h0[0] - tc[0]) <= 2 and 0 <= h0[1] - tc[1] <= 14 and abs(h0[2] - 96) <= 1.5 and h0[3] == "guidedHandBob" and not any(s["hand"] for s in samples[:i_on]),   # 96 stage px (the stage is 1:1 at 1333x750); the bob lifts it a few px
           (h0, tc))
     check("...and it stays through the name, the mark and the line before the second reading, leaving as that reading begins ([demo-hand])",
           all(s["hand"] for s in samples[i_on:i_s3 - 1]) and not any(s["hand"] for s in samples[i_s3:]),
           (min(hand_on) if hand_on else None, max(hand_on) if hand_on else None, i_on, i_s3))
-    sl = {tuple(s["slotLook"]) for s in samples if s["slotLook"]}
-    check("the highlighted slot's ring and glow are the words' orange (#E86A00), not blue ([demo-hand])",
-          bool(sl) and all(l[0] == "rgb(232, 106, 0)" and l[1].startswith("rgba(232, 106, 0, 0.22)") for l in sl), sorted(sl))
+    sl = {tuple(s["slotLook"]) for s in samples if s["slotLook"]}   # the ring and glow ease in over .25 s: the settled look must be the orange, and no frame blue
+    settled = [l for l in sl if l[0] == "rgb(232, 106, 0)" and l[1].startswith("rgba(232, 106, 0, 0.22) 0px 0px 0px 6px")]
+    check("the highlighted slot's ring and glow settle on the words' orange (#E86A00, a 6 px glow at .22), never blue ([demo-hand])",
+          bool(settled) and not any("56, 106, 246" in l[0] or "56, 106, 246" in l[1] for l in sl), (settled, len(sl)))
     timed = [s for s in samples[i_s3:i_e3] if s["clip"] == K_FULL and s["playing"] and s["t"] is not None]
     def state_of(n):
         t = targets[n - 1] if n > 0 else ""

@@ -61,8 +61,11 @@ SAMPLE = r"""() => { window._tl = []; let last = ''; const step = () => {
   if (r.slide !== window._stopAt) requestAnimationFrame(step); }; requestAnimationFrame(step); }"""
 LABELS = "[...document.querySelectorAll('#slideHost .so-pill')].map(p => p.textContent.trim())"
 
+MEDIA_TRACE = """(() => { window.__media = []; const P = HTMLMediaElement.prototype, op = P.play, oq = P.pause;   // [g4-giggle] every play / pause, with its clock and volume
+  P.play = function(){ window.__media.push({ ev: 'play', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume }); return op.apply(this, arguments); };
+  P.pause = function(){ window.__media.push({ ev: 'pause', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume }); return oq.apply(this, arguments); }; })()"""
 def run(pg):
-    pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
+    pg.add_init_script(MEDIA_TRACE); pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
     pg.evaluate(f"window._stopAt = '{NEXT}'"); pg.evaluate(SAMPLE); pg.evaluate(f"mountSlide(CARD.slides.findIndex(s => s.id === '{PAGE}'))")
     d = pg.evaluate(f"CARD.slides.find(s => s.id === '{PAGE}')")
     pg.wait_for_function(f"!isPlaying && currentAudio && currentAudio.src.includes('{d['audio']['prompt']}')", timeout=15000, polling=20); pg.wait_for_timeout(400)   # [vo-rec] the page's own instruction clip
@@ -132,6 +135,16 @@ with sync_playwright() as p:
     i_line = first(lambda s: s["clip"] == rc and s["playing"], i_ok)
     i_end = first(lambda s: s["clip"] == rc and not s["playing"], i_line)
     i_gate = first(gone, i_end)
+    # [g4-giggle] G4's right tap: the page's own sound with the pop (the reference's G2 effect), ending with the hold; P1 / P2 have none
+    med = pg.evaluate("window.__media || []"); sfx = d["data"].get("tap_sfx")
+    if sfx:
+        pl = [m for m in med if m["ev"] == "play" and m["src"] == sfx]; pa = [m for m in med if m["ev"] == "pause" and m["src"] == sfx]
+        check(f"the right tap: {sfx} starts with the picture's pop (within 60 ms of the green mark) at the reference's .63, once on the page ([g4-giggle])",
+              len(pl) == 1 and abs(pl[0]["at"] - ms(i_tap)) <= 60 and abs(pl[0]["vol"] - 0.63) < 0.005, [(round(m["at"] - ms(i_tap)), m["vol"]) for m in pl])
+        check("...and it ends with the 1 s hold: faded to silence over its last 150 ms and paused ~1 s after the tap, before the ding ([g4-giggle])",
+              bool(pa) and 850 <= pa[-1]["at"] - ms(i_tap) <= 1150 and pa[-1]["vol"] <= 0.08 and pa[-1]["at"] <= ms(i_ok) + 60, [(round(m["at"] - ms(i_tap)), round(m["vol"], 3)) for m in pa])
+    else:
+        check("no tap sound on this page (G4 alone has one, [g4-giggle])", not any("giggle" in m["src"] for m in med))
     check("the tap: the green mark and the picture's pop at once, Swiftie unchanged, nothing sounding for the 1 s hold",
           tl[i_tap]["pop"] == "p2" and not any(s["playing"] for s in tl[i_tap:i_ok]) and 950 <= ms(i_ok) - ms(i_tap) <= 1250, f"the praise {ms(i_ok) - ms(i_tap):.0f} ms after the mark")
     check("after the hold: the kit's correct-select, the confetti and the happy Swiftie with the praise (vo_ok_pick, “शाबाश! यह सही वाक्य है ।”), then the pill's own line as it ends",
