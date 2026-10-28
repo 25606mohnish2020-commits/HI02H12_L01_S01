@@ -49,15 +49,20 @@ SPOKEN = {
   "vo_recap_purn_eg": "उदाहरण- पिंकी स्कूल गई ।",
   "vo_story_b1": "पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”", "vo_story_b2": "माँ ने कहा, “उसे रोको मत जाने दो।”",   # [story-pinki] the frames' texts
   "vo_story_b3": "पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”", "vo_story_b4": "माँ ने कहा, “उसे रोको, मत जाने दो।”",
+  "vo_story_c1": "उसे रोको, मत जाने दो।", "vo_story_c2": "उसे रोको मत, जाने दो।",   # [relisten-pinki] frame 654:567's lines
+  "vo_story_moral": "दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह लगा होने से वाक्य का पूरा अर्थ ही बदल गया।",
+  "vo_story_r1": "यहाँ पहले वाक्य का अर्थ है, बिल्ली को रोको, उसे अंदर मत जाने दो। जबकि दूसरे वाक्य का अर्थ है, बिल्ली को मत भगाओ, उसे अंदर जाने दो।",
 }
 SHOWN_OVERRIDE = { "vo_recap_purn_eg": "पिंकी स्कूल गई ।" }   # the row's example reads as the voice says it
 # [story-pinki] the four story recordings are the new story page's beats (frames 652:3, 652:192, 660:127, 653:381): the two
 # "माँ ने कहा" takes are told apart by their pause — vo_story_s1.wav pauses after "मत" (frame 652:192, no comma),
 # 3.wav after "रोको" (frame 653:381, "उसे रोको, मत जाने दो")
-RENAME = { "1.wav": "vo_story_b1", "vo_story_s1.wav": "vo_story_b2", "2.wav": "vo_story_b3", "3.wav": "vo_story_b4" }
+RENAME = { "1.wav": "vo_story_b1", "vo_story_s1.wav": "vo_story_b2", "2.wav": "vo_story_b3", "3.wav": "vo_story_b4",
+           "4.wav": "vo_story_moral" }   # [relisten-pinki] the moral ("दोनों वाक्यों में शब्द एक जैसे हैं ...") on T0B
+# [relisten-pinki] T0B's two contrast sentences are the two "माँ ने कहा ..." takes without their "माँ ने कहा,": a second clip cut
+# from each wav in the pause before "उसे" (measured on the waveforms: 3.wav quiet 1.14-1.52 s, vo_story_s1.wav 1.16-1.58 s)
+TRIM = { "3.wav": ("vo_story_c1", 1.40), "vo_story_s1.wav": ("vo_story_c2", 1.45) }   # wav -> (the cut clip's ID, its start in the wav)
 SKIP = {
-  "4.wav": "the new story's moral (heard: दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह ...) — no page carries it yet",
-  "vo_story_r1.wav": "the new story's two meanings (heard: यहाँ पहले वाक्य का अर्थ है ... दूसरे वाक्य का अर्थ है ...) — T0B still re-reads the Chintu story; its TTS line stays",
   "vo_g1_sent.wav": "says राजू गेंद से खेल रहा था; the frame (656:66) shows पिंकी गेंद से खेल रही थी — the TTS line stays",
   "vo_g1_hint3.wav": "says राजू ... (the sentence as recorded) — not played on G1 (hint 2's line is said again there)",
 }
@@ -73,6 +78,7 @@ SYNC = {
   **{f"vo_p2_{k}": SCR / "p2_assets" / f"vo_p2_{k}.words.json" for k in ("o1", "o2", "o3")},
   **{f"vo_stamp_{k}": SCR / "stamp_assets" / f"vo_stamp_{k}.words.json" for k in ("sent", "sent2", "sent3", "sent4", "sent5")},
   **{f"vo_story_b{k}": SCR / "story_assets" / f"vo_story_b{k}.words.json" for k in (1, 2, 3, 4)},   # [story-pinki]
+  **{f"vo_story_c{k}": SCR / "story_assets" / f"vo_story_c{k}.words.json" for k in (1, 2)},   # [relisten-pinki]
 }
 
 def norm(s):   # letters and vowel signs only, the nukta dropped (whisper writes ज़/ज, ढ़/ढ either way), marks as the words the voice says for them
@@ -187,6 +193,9 @@ for f in sorted(REC.glob("*.wav")):
         durs = {"vo_stamp_sent4": mid, "vo_stamp_sent5": round(T[f.name]["dur"] - mid, 3)}
     else:
         encode(f, AUD / f"{vid}.ogg"); parts = {vid: heard}; durs = {vid: T[f.name]["dur"]}
+        if f.name in TRIM:   # [relisten-pinki] the same take without its opening words, as a clip of its own
+            cid, cut = TRIM[f.name]; encode(f, AUD / f"{cid}.ogg", ss=cut)
+            parts[cid] = [(h[0], round(h[1] - cut, 3), round(h[2] - cut, 3)) for h in heard if h[1] >= cut - 0.05]; durs[cid] = round(T[f.name]["dur"] - cut, 3)
     for pid, hw in parts.items():
         texts[pid] = SPOKEN.get(pid, MAN.get(vid, T[f.name]["text"]))
         applied[pid] = {"file": f.name, "dur": durs[pid], "heard_to": round(hw[-1][2], 3) if hw else None, "heard": " ".join(h[0] for h in hw)}   # dur: the clip's length (whisper's last end may overrun it)
@@ -204,7 +213,11 @@ for f in sorted(REC.glob("*.wav")):
 # ---- 4. the gate cue: the moment vo_pt_tutorial says its last phrase ("चलिए शुरू करें") ----
 pt = [tuple(w) for w in T["vo_pt_tutorial.wav"]["words"]]
 cue = next(h for h in pt if norm(h[0]).startswith("चल"))
-derived = {"applied": applied, "texts": texts, "skipped": skipped, "gate_cue_ms": {"tutorial": int(round(cue[1] * 1000))},
+# [relisten-pinki] T0B's cues on the clips' own clocks: the explanation lights sentence 1 at "पहले" and sentence 2 at "जबकि"; the
+# moral lights the commas at "विराम"
+def _at(fname, prefix): return round(next(h[1] for h in T[fname]["words"] if norm(h[0]).startswith(prefix)), 3)
+cues = {"explain_s": [_at("vo_story_r1.wav", "पहल"), _at("vo_story_r1.wav", "जबक")], "moral_s": _at("4.wav", "विराम")}
+derived = {"applied": applied, "texts": texts, "skipped": skipped, "gate_cue_ms": {"tutorial": int(round(cue[1] * 1000))}, "cues": cues,
            "stamp_sent4_split_s": split_at, "gain_db": GAIN, "note": "written by vo_rec.py; build.py reads texts, gate_cue_ms"}
 (REC / "derived.json").write_text(json.dumps(derived, ensure_ascii=False, indent=1), encoding="utf-8")
 print(f"applied {len(applied)} clips, skipped {len(skipped)}; gate cue {derived['gate_cue_ms']} ms; sent4 split at {split_at} s")

@@ -6130,13 +6130,23 @@ const SlideModules = {
   STORY_RELISTEN: {
     mount(host, slide){
       const d = slide.data || {};
+      // [relisten-pinki] d.lines: the frame's sentences, each with its own clip and word times (frame 654:567); without it, the
+      // one text block (d.text_hi) read on d.audio, as before
+      const multi = !!(d.lines && d.lines.length);
+      const lines = multi ? d.lines : [{ text_hi: d.text_hi, word_times: d.word_times, audio: d.audio }];
       const fig = sfigMount(host, '<div class="sfig-title"><p></p></div><div class="sfig-sbox"></div>' +
-        '<div class="sfig-stext"><p></p><p>​</p></div>');
+        (multi ? '<div class="sfig-stext sfig-lines">' + lines.map((_, k)=> '<p class="l' + (k + 1) + '"><span class="sfig-sent"></span></p>').join("") + '</div>'
+               : '<div class="sfig-stext"><p></p><p>&#8203;</p></div>'));
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round");
       const title = fig.querySelector(".sfig-title"), box = fig.querySelector(".sfig-sbox");
       title.querySelector("p").textContent = d.title_hi || "";
-      const L = sfigLine(fig.querySelector(".sfig-stext p"), d.text_hi, d.word_times, d.audio);
-      const introSrc = d.intro_audio ? ("assets/Audio/" + d.intro_audio + "." + AUDIO_EXT) : null;
+      const Ls = lines.map((ln, k)=> sfigLine(multi ? fig.querySelector(".sfig-stext p.l" + (k + 1) + " .sfig-sent") : fig.querySelector(".sfig-stext p"), ln.text_hi, ln.word_times, ln.audio));
+      // [relisten-pinki] a comma ending a word gets its own span, so the moral can light the marks alone
+      const sents = multi ? [...fig.querySelectorAll(".sfig-sent")] : [], marks = [];
+      if(multi) fig.querySelectorAll(".sfig-stext .sfig-w").forEach(w=>{ const m = w.textContent.match(/^(.+?)(,)$/);
+        if(m){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "sfig-mk"; s.textContent = m[2]; w.appendChild(s); marks.push(s); } });
+      const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const introSrc = A(d.intro_audio);
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -6144,10 +6154,43 @@ const SlideModules = {
       const alive = ()=> fig.isConnected;
       let run = 0;
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
+      const reset = ()=>{ sents.forEach(s=> s.classList.remove("hl")); marks.forEach(m=> m.classList.remove("on")); };
+      // a clip with cues (seconds on its own clock): onCue(i) as each is reached, onEnd once it has ended (a watchdog stops a
+      // stalled clip; the cues not yet reached fire at the end, so nothing is skipped)
+      const speak = (src, cues, onCue, onEnd, live)=>{
+        if(!src){ onEnd(); return; }
+        let done = false, next = 0; const began = Date.now();
+        const end = ()=>{ if(done || !live()) return; done = true; while(next < cues.length) onCue(next++); onEnd(); };
+        play(src, end);
+        const file = src.split("/").pop();
+        setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, authoredVoHoldMs(src) + 10000);
+        const tick = ()=>{ if(done || !live()) return;
+          const a = currentAudio, own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === file;
+          const t = own ? a.currentTime : (Date.now() - began) / 1000;
+          while(next < cues.length && t + 0.04 >= cues[next]) onCue(next++);
+          if(next < cues.length) nextFrame(tick); };
+        tick();
+      };
       const readAll = ()=>{
-        const mine = ++run;
+        const mine = ++run; const live = ()=> mine === run && alive();
         setNavActive(false);   // a replay hides आगे until its narration has ended
-        sfigNarrate(L, ()=> mine === run && alive(), armNav);
+        reset(); Ls.forEach(L=> sfigShow(L, 0));
+        // [relisten-pinki] the explanation: each sentence lit (lifted, on its yellow) as its meaning is told; then the moral:
+        // the commas lit orange, lifted, as it names the marks — they stay lit; then आगे
+        const moral = ()=>{
+          if(!multi || !d.moral_audio){ armNav(); return; }
+          setTimeout(()=>{ if(!live()) return;
+            speak(A(d.moral_audio), d.moral_cue != null ? [d.moral_cue] : [], ()=> marks.forEach(m=> m.classList.add("on")),
+                  ()=> setTimeout(()=>{ if(live()) armNav(); }, 300), live); }, 500);
+        };
+        const explain = ()=>{
+          if(!multi || !d.explain_audio){ moral(); return; }
+          setTimeout(()=>{ if(!live()) return;
+            speak(A(d.explain_audio), d.explain_cues || [], (i)=> sents.forEach((s, k)=> s.classList.toggle("hl", k === i)),
+                  ()=> setTimeout(()=>{ if(!live()) return; sents.forEach(s=> s.classList.remove("hl")); moral(); }, 400), live); }, 500);
+        };
+        const readLine = (k)=> sfigNarrate(Ls[k], live, ()=>{ if(k + 1 < Ls.length) setTimeout(()=>{ if(live()) readLine(k + 1); }, 600); else explain(); });
+        readLine(0);
       };
       // 1. the intro line, with the title appearing the moment it starts to sound
       state.demoRunning = true;   // the replay chip waits until the sentences are on screen

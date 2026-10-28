@@ -87,11 +87,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 14986.10000000149
+"ms": 14938.20000000298
 },
 {
 "clip": "s0",
-"t": 0.006375,
+"t": 0,
 "playing": true,
 "shown": [
 0,
@@ -113,11 +113,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15021.60000000149
+"ms": 14976.400000002235
 },
 {
 "clip": "s0",
-"t": 0.017013,
+"t": 0.010005,
 "playing": true,
 "shown": [
 0,
@@ -139,11 +139,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15052.200000001118
+"ms": 15006.70000000298
 },
 {
 "clip": "s0",
-"t": 0.017013,
+"t": 0.010361,
 "playing": true,
 "shown": [
 0,
@@ -165,11 +165,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15083.800000000745
+"ms": 15038.60000000149
 },
 {
 "clip": "s0",
-"t": 0.046115,
+"t": 0.05581,
 "playing": true,
 "shown": [
 0,
@@ -191,11 +191,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15115.400000000373
+"ms": 15084.20000000298
 },
 {
 "clip": "s0",
-"t": 0.078113,
+"t": 0.102357,
 "playing": true,
 "shown": [
 0,
@@ -217,11 +217,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15147.60000000149
+"ms": 15130.400000002235
 },
 {
 "clip": "s0",
-"t": 0.1245,
+"t": 0.133253,
 "playing": true,
 "shown": [
 0,
@@ -243,11 +243,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15193.900000000373
+"ms": 15161.5
 },
 {
 "clip": "s0",
-"t": 0.156243,
+"t": 0.164874,
 "playing": true,
 "shown": [
 0,
@@ -269,11 +269,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15225.60000000149
+"ms": 15193
 },
 {
 "clip": "s0",
-"t": 0.189052,
+"t": 0.196751,
 "playing": true,
 "shown": [
 0,
@@ -295,11 +295,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15258.400000000373
+"ms": 15224.900000002235
 },
 {
 "clip": "s0",
-"t": 0.234003,
+"t": 0.227855,
 "playing": true,
 "shown": [
 0,
@@ -321,11 +321,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15303.60000000149
+"ms": 15256.10000000149
 },
 {
 "clip": "s0",
-"t": 0.26536,
+"t": 0.260222,
 "playing": true,
 "shown": [
 0,
@@ -347,11 +347,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15334.800000000745
+"ms": 15288.400000002235
 },
 {
 "clip": "s0",
-"t": 0.297979,
+"t": 0.289956,
 "playing": true,
 "shown": [
 0,
@@ -373,11 +373,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15367.5
+"ms": 15318.10000000149
 },
 {
 "clip": "s0",
-"t": 0.343491,
+"t": 0.320777,
 "playing": true,
 "shown": [
 0,
@@ -399,11 +399,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15412.800000000745
+"ms": 15348.900000002235
 },
 {
 "clip": "s0",
-"t": 0.387899,
+"t": 0.353162,
 "playing": true,
 "shown": [
 0,
@@ -425,11 +425,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15457.5
+"ms": 15381.300000000745
 },
 {
 "clip": "s0",
-"t": 0.419202,
+"t": 0.383641,
 "playing": true,
 "shown": [
 0,
@@ -451,11 +451,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15488.60000000149
+"ms": 15411.70000000298
 },
 {
 "clip": "s0",
-"t": 0.450094,
+"t": 0.414507,
 "playing": true,
 "shown": [
 0,
@@ -477,11 +477,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15519.60000000149
+"ms": 15442.70000000298
 },
 {
 "clip": "s0",
-"t": 0.480557,
+"t": 0.44592,
 "playing": true,
 "shown": [
 0,
@@ -503,11 +503,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15549.900000000373
+"ms": 15474.10000000149
 },
 {
 "clip": "s0",
-"t": 0.510926,
+"t": 0.477713,
 "playing": true,
 "shown": [
 0,
@@ -529,11 +529,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15580.400000000373
+"ms": 15505.900000002235
 },
 {
 "clip": "s0",
-"t": 0.543839,
+"t": 0.509914,
 "playing": true,
 "shown": [
 0,
@@ -555,11 +555,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15613.10000000149
+"ms": 15538.10000000149
 },
 {
 "clip": "s0",
-"t": 0.573621,
+"t": 0.54234,
 "playing": true,
 "shown": [
 0,
@@ -581,11 +581,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15643
+"ms": 15570.70000000298
 },
 {
 "clip": "s0",
-"t": 0.604619,
+"t": 0.588888,
 "playing": true,
 "shown": [
 0,
@@ -607,11 +607,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15674
+"ms": 15617.20000000298
 },
 {
 "clip": "s0",
-"t": 0.636124,
+"t": 0.635968,
 "playing": true,
 "shown": [
 0,
@@ -633,11 +633,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15705.5
+"ms": 15664.400000002235
 },
 {
 "clip": "s0",
-"t": 0.666262,
+"t": 0.682269,
 "playing": true,
 "shown": [
 0,
@@ -659,11 +659,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15735.900000000373
+"ms": 15710.70000000298
 },
 {
 "clip": "s0",
-"t": 0.697586,
+"t": 0.71415,
 "playing": true,
 "shown": [
 0,
@@ -685,11 +685,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15766.900000000373
+"ms": 15742.60000000149
 },
 {
 "clip": "s0",
-"t": 0.729257,
+"t": 0.760325,
 "playing": true,
 "shown": [
 0,
@@ -711,11 +711,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15798.700000001118
+"ms": 15789
 },
 {
 "clip": "s0",
-"t": 0.759856,
+"t": 0.806847,
 "playing": true,
 "shown": [
 0,
@@ -737,11 +737,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15829.300000000745
+"ms": 15835.300000000745
 },
 {
 "clip": "s0",
-"t": 0.791646,
+"t": 0.852085,
 "playing": true,
 "shown": [
 0,
@@ -763,11 +763,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15861.200000001118
+"ms": 15880.70000000298
 },
 {
 "clip": "s0",
-"t": 0.823357,
+"t": 0.898407,
 "playing": true,
 "shown": [
 0,
@@ -789,11 +789,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15892.800000000745
+"ms": 15927
 },
 {
 "clip": "s0",
-"t": 0.854645,
+"t": 0.945716,
 "playing": true,
 "shown": [
 0,
@@ -815,11 +815,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15924.10000000149
+"ms": 15974.20000000298
 },
 {
 "clip": "s0",
-"t": 0.885475,
+"t": 0.99184,
 "playing": true,
 "shown": [
 0,
@@ -841,11 +841,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15955.10000000149
+"ms": 16020.300000000745
 },
 {
 "clip": "s0",
-"t": 0.91785,
+"t": 1.039176,
 "playing": true,
 "shown": [
 0,
@@ -867,11 +867,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 15987.400000000373
+"ms": 16067.60000000149
 },
 {
 "clip": "s0",
-"t": 0.948788,
+"t": 1.086262,
 "playing": true,
 "shown": [
 0,
@@ -893,11 +893,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16018.300000000745
+"ms": 16114.70000000298
 },
 {
 "clip": "s0",
-"t": 0.993384,
+"t": 1.132415,
 "playing": true,
 "shown": [
 0,
@@ -919,11 +919,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16062.700000001118
+"ms": 16161.10000000149
 },
 {
 "clip": "s0",
-"t": 1.02407,
+"t": 1.163705,
 "playing": true,
 "shown": [
 0,
@@ -945,11 +945,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16093.300000000745
+"ms": 16192.300000000745
 },
 {
 "clip": "s0",
-"t": 1.054548,
+"t": 1.209817,
 "playing": true,
 "shown": [
 0,
@@ -971,11 +971,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16124
+"ms": 16238.20000000298
 },
 {
 "clip": "s0",
-"t": 1.087561,
+"t": 1.255629,
 "playing": true,
 "shown": [
 0,
@@ -997,11 +997,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16157.200000001118
+"ms": 16284
 },
 {
 "clip": "s0",
-"t": 1.132818,
+"t": 1.286645,
 "playing": true,
 "shown": [
 0,
@@ -1023,11 +1023,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16202.5
+"ms": 16315.20000000298
 },
 {
 "clip": "s0",
-"t": 1.166009,
+"t": 1.335281,
 "playing": true,
 "shown": [
 0,
@@ -1049,11 +1049,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16235.5
+"ms": 16363.900000002235
 },
 {
 "clip": "s0",
-"t": 1.196348,
+"t": 1.381379,
 "playing": true,
 "shown": [
 0,
@@ -1075,11 +1075,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16265.800000000745
+"ms": 16409.70000000298
 },
 {
 "clip": "s0",
-"t": 1.228033,
+"t": 1.413151,
 "playing": true,
 "shown": [
 0,
@@ -1101,11 +1101,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16297.60000000149
+"ms": 16441.60000000149
 },
 {
 "clip": "s0",
-"t": 1.2591,
+"t": 1.459156,
 "playing": true,
 "shown": [
 0,
@@ -1127,11 +1127,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16328.700000001118
+"ms": 16487.400000002235
 },
 {
 "clip": "s0",
-"t": 1.289514,
+"t": 1.505387,
 "playing": true,
 "shown": [
 0,
@@ -1153,11 +1153,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16359
+"ms": 16533.70000000298
 },
 {
 "clip": "s0",
-"t": 1.322275,
+"t": 1.549541,
 "playing": true,
 "shown": [
 0,
@@ -1179,11 +1179,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16391.800000000745
+"ms": 16577.60000000149
 },
 {
 "clip": "s0",
-"t": 1.35335,
+"t": 1.580566,
 "playing": true,
 "shown": [
 0,
@@ -1205,11 +1205,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16422.900000000373
+"ms": 16608.800000000745
 },
 {
 "clip": "s0",
-"t": 1.385116,
+"t": 1.612222,
 "playing": true,
 "shown": [
 0,
@@ -1231,11 +1231,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16454.60000000149
+"ms": 16640.60000000149
 },
 {
 "clip": "s0",
-"t": 1.430055,
+"t": 1.644805,
 "playing": true,
 "shown": [
 0,
@@ -1257,11 +1257,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16499.400000000373
+"ms": 16673.300000000745
 },
 {
 "clip": "s0",
-"t": 1.460684,
+"t": 1.691021,
 "playing": true,
 "shown": [
 0,
@@ -1283,11 +1283,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16530.200000001118
+"ms": 16719.20000000298
 },
 {
 "clip": "s0",
-"t": 1.492201,
+"t": 1.720891,
 "playing": true,
 "shown": [
 0,
@@ -1309,11 +1309,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16561.700000001118
+"ms": 16749.20000000298
 },
 {
 "clip": "s0",
-"t": 1.524009,
+"t": 1.752534,
 "playing": true,
 "shown": [
 0,
@@ -1335,11 +1335,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16593.5
+"ms": 16780.900000002235
 },
 {
 "clip": "s0",
-"t": 1.554811,
+"t": 1.798069,
 "playing": true,
 "shown": [
 0,
@@ -1361,11 +1361,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16624.400000000373
+"ms": 16826.400000002235
 },
 {
 "clip": "s0",
-"t": 1.587139,
+"t": 1.828648,
 "playing": true,
 "shown": [
 0,
@@ -1387,11 +1387,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16656.5
+"ms": 16856.900000002235
 },
 {
 "clip": "s0",
-"t": 1.618379,
+"t": 1.859578,
 "playing": true,
 "shown": [
 0,
@@ -1413,11 +1413,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16687.900000000373
+"ms": 16887.900000002235
 },
 {
 "clip": "s0",
-"t": 1.649358,
+"t": 1.890448,
 "playing": true,
 "shown": [
 0,
@@ -1439,11 +1439,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16718.900000000373
+"ms": 16918.900000002235
 },
 {
 "clip": "s0",
-"t": 1.679549,
+"t": 1.922097,
 "playing": true,
 "shown": [
 0,
@@ -1465,11 +1465,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16749
+"ms": 16950.400000002235
 },
 {
 "clip": "s0",
-"t": 1.710764,
+"t": 1.954725,
 "playing": true,
 "shown": [
 0,
@@ -1491,11 +1491,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16780.300000000745
+"ms": 16983.10000000149
 },
 {
 "clip": "s0",
-"t": 1.742163,
+"t": 2.000499,
 "playing": true,
 "shown": [
 0,
@@ -1517,11 +1517,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16811.700000001118
+"ms": 17028.900000002235
 },
 {
 "clip": "s0",
-"t": 1.773923,
+"t": 2.047318,
 "playing": true,
 "shown": [
 0,
@@ -1543,11 +1543,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16843.5
+"ms": 17075.900000002235
 },
 {
 "clip": "s0",
-"t": 1.805305,
+"t": 2.094695,
 "playing": true,
 "shown": [
 0,
@@ -1569,11 +1569,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16874.800000000745
+"ms": 17123.5
 },
 {
 "clip": "s0",
-"t": 1.836642,
+"t": 2.140091,
 "playing": true,
 "shown": [
 0,
@@ -1595,11 +1595,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16906.200000001118
+"ms": 17168.5
 },
 {
 "clip": "s0",
-"t": 1.868005,
+"t": 2.1865,
 "playing": true,
 "shown": [
 0,
@@ -1621,11 +1621,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16937.5
+"ms": 17214.800000000745
 },
 {
 "clip": "s0",
-"t": 1.898316,
+"t": 2.233367,
 "playing": true,
 "shown": [
 0,
@@ -1647,11 +1647,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 16967.900000000373
+"ms": 17261.800000000745
 },
 {
 "clip": "s0",
-"t": 1.931257,
+"t": 2.279098,
 "playing": true,
 "shown": [
 0,
@@ -1673,11 +1673,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17000.5
+"ms": 17307.70000000298
 },
 {
 "clip": "s0",
-"t": 1.961421,
+"t": 2.326491,
 "playing": true,
 "shown": [
 0,
@@ -1699,11 +1699,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17030.700000001118
+"ms": 17354.900000002235
 },
 {
 "clip": "s0",
-"t": 1.991536,
+"t": 2.372241,
 "playing": true,
 "shown": [
 0,
@@ -1725,11 +1725,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17060.800000000745
+"ms": 17400.900000002235
 },
 {
 "clip": "s0",
-"t": 2.022882,
+"t": 2.418319,
 "playing": true,
 "shown": [
 0,
@@ -1751,11 +1751,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17092.300000000745
+"ms": 17446.900000002235
 },
 {
 "clip": "s0",
-"t": 2.053693,
+"t": 2.464006,
 "playing": true,
 "shown": [
 0,
@@ -1777,11 +1777,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17123.300000000745
+"ms": 17492.400000002235
 },
 {
 "clip": "s0",
-"t": 2.0846,
+"t": 2.511856,
 "playing": true,
 "shown": [
 0,
@@ -1803,11 +1803,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17154.10000000149
+"ms": 17540.20000000298
 },
 {
 "clip": "s0",
-"t": 2.11653,
+"t": 2.55715,
 "playing": true,
 "shown": [
 0,
@@ -1829,11 +1829,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17186
+"ms": 17585.400000002235
 },
 {
 "clip": "s0",
-"t": 2.147409,
+"t": 2.604695,
 "playing": true,
 "shown": [
 0,
@@ -1855,11 +1855,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17216.800000000745
+"ms": 17632.900000002235
 },
 {
 "clip": "s0",
-"t": 2.178477,
+"t": 2.650972,
 "playing": true,
 "shown": [
 0,
@@ -1881,397 +1881,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17247.800000000745
-},
-{
-"clip": "s0",
-"t": 2.210475,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17280
-},
-{
-"clip": "s0",
-"t": 2.241255,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17310.60000000149
-},
-{
-"clip": "s0",
-"t": 2.271795,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17341.300000000745
-},
-{
-"clip": "s0",
-"t": 2.304044,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17373.400000000373
-},
-{
-"clip": "s0",
-"t": 2.333417,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17402.900000000373
-},
-{
-"clip": "s0",
-"t": 2.364638,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17434.10000000149
-},
-{
-"clip": "s0",
-"t": 2.397628,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17466.900000000373
-},
-{
-"clip": "s0",
-"t": 2.444745,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17514.10000000149
-},
-{
-"clip": "s0",
-"t": 2.475829,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17545.10000000149
-},
-{
-"clip": "s0",
-"t": 2.507795,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17577.300000000745
-},
-{
-"clip": "s0",
-"t": 2.539337,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17608.60000000149
-},
-{
-"clip": "s0",
-"t": 2.570064,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17639.400000000373
-},
-{
-"clip": "s0",
-"t": 2.600186,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17669.700000001118
-},
-{
-"clip": "s0",
-"t": 2.631377,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17700.700000001118
-},
-{
-"clip": "s0",
-"t": 2.662709,
-"playing": true,
-"shown": [
-0,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 17732.10000000149
+"ms": 17679.300000000745
 },
 {
 "clip": "b1",
@@ -2297,11 +1907,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17759.300000000745
+"ms": 17723.800000000745
 },
 {
 "clip": "b1",
-"t": 0.011778,
+"t": 0.000659,
 "playing": true,
 "shown": [
 1,
@@ -2323,11 +1933,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17795.5
+"ms": 17757.20000000298
 },
 {
 "clip": "b1",
-"t": 0.011778,
+"t": 0.014403,
 "playing": true,
 "shown": [
 1,
@@ -2349,11 +1959,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17825.10000000149
+"ms": 17803.400000002235
 },
 {
 "clip": "b1",
-"t": 0.028376,
+"t": 0.040952,
 "playing": true,
 "shown": [
 1,
@@ -2375,11 +1985,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17857.800000000745
+"ms": 17849.5
 },
 {
 "clip": "b1",
-"t": 0.059411,
+"t": 0.086119,
 "playing": true,
 "shown": [
 1,
@@ -2401,11 +2011,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17888.800000000745
+"ms": 17894.5
 },
 {
 "clip": "b1",
-"t": 0.091004,
+"t": 0.117433,
 "playing": true,
 "shown": [
 1,
@@ -2427,11 +2037,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17920.800000000745
+"ms": 17925.5
 },
 {
 "clip": "b1",
-"t": 0.120951,
+"t": 0.15132,
 "playing": true,
 "shown": [
 1,
@@ -2453,11 +2063,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17950.60000000149
+"ms": 17959.400000002235
 },
 {
 "clip": "b1",
-"t": 0.152697,
+"t": 0.196507,
 "playing": true,
 "shown": [
 1,
@@ -2479,11 +2089,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 17982.200000001118
+"ms": 18004.70000000298
 },
 {
 "clip": "b1",
-"t": 0.184825,
+"t": 0.227219,
 "playing": true,
 "shown": [
 1,
@@ -2505,11 +2115,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18014.300000000745
+"ms": 18035.5
 },
 {
 "clip": "b1",
-"t": 0.216773,
+"t": 0.258586,
 "playing": true,
 "shown": [
 1,
@@ -2531,11 +2141,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18046.200000001118
+"ms": 18066.900000002235
 },
 {
 "clip": "b1",
-"t": 0.247299,
+"t": 0.289778,
 "playing": true,
 "shown": [
 1,
@@ -2557,11 +2167,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18076.700000001118
+"ms": 18097.900000002235
 },
 {
 "clip": "b1",
-"t": 0.27799,
+"t": 0.321191,
 "playing": true,
 "shown": [
 1,
@@ -2583,11 +2193,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18107.5
+"ms": 18129.400000002235
 },
 {
 "clip": "b1",
-"t": 0.311424,
+"t": 0.352398,
 "playing": true,
 "shown": [
 1,
@@ -2609,11 +2219,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18141.10000000149
+"ms": 18160.60000000149
 },
 {
 "clip": "b1",
-"t": 0.3589,
+"t": 0.384077,
 "playing": true,
 "shown": [
 1,
@@ -2635,11 +2245,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18188.5
+"ms": 18192.300000000745
 },
 {
 "clip": "b1",
-"t": 0.403114,
+"t": 0.41462,
 "playing": true,
 "shown": [
 1,
@@ -2661,11 +2271,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18232.700000001118
+"ms": 18222.70000000298
 },
 {
 "clip": "b1",
-"t": 0.435077,
+"t": 0.447144,
 "playing": true,
 "shown": [
 1,
@@ -2687,11 +2297,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18264.5
+"ms": 18255.300000000745
 },
 {
 "clip": "b1",
-"t": 0.463693,
+"t": 0.477862,
 "playing": true,
 "shown": [
 1,
@@ -2713,11 +2323,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18293.10000000149
+"ms": 18286
 },
 {
 "clip": "b1",
-"t": 0.495553,
+"t": 0.508021,
 "playing": true,
 "shown": [
 1,
@@ -2739,11 +2349,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18325.400000000373
+"ms": 18316.20000000298
 },
 {
 "clip": "b1",
-"t": 0.54294,
+"t": 0.539679,
 "playing": true,
 "shown": [
 1,
@@ -2765,11 +2375,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18372.400000000373
+"ms": 18347.800000000745
 },
 {
 "clip": "b1",
-"t": 0.588965,
+"t": 0.570141,
 "playing": true,
 "shown": [
 1,
@@ -2791,11 +2401,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18418.5
+"ms": 18378.300000000745
 },
 {
 "clip": "b1",
-"t": 0.634049,
+"t": 0.60183,
 "playing": true,
 "shown": [
 1,
@@ -2817,11 +2427,37 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18463.60000000149
+"ms": 18409.900000002235
 },
 {
 "clip": "b1",
-"t": 0.681409,
+"t": 0.631936,
+"playing": true,
+"shown": [
+1,
+0,
+0,
+0
+],
+"gone": [
+false,
+false,
+false,
+false
+],
+"pic": [
+true,
+false,
+false,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 18440
+},
+{
+"clip": "b1",
+"t": 0.663388,
 "playing": true,
 "shown": [
 2,
@@ -2843,11 +2479,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18511.200000001118
+"ms": 18471.5
 },
 {
 "clip": "b1",
-"t": 0.726747,
+"t": 0.693268,
 "playing": true,
 "shown": [
 2,
@@ -2869,11 +2505,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18556.200000001118
+"ms": 18501.5
 },
 {
 "clip": "b1",
-"t": 0.757685,
+"t": 0.725338,
 "playing": true,
 "shown": [
 2,
@@ -2895,11 +2531,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18587.300000000745
+"ms": 18533.60000000149
 },
 {
 "clip": "b1",
-"t": 0.788116,
+"t": 0.772214,
 "playing": true,
 "shown": [
 2,
@@ -2921,11 +2557,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18617.900000000373
+"ms": 18580.70000000298
 },
 {
 "clip": "b1",
-"t": 0.834121,
+"t": 0.817085,
 "playing": true,
 "shown": [
 2,
@@ -2947,11 +2583,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18663.400000000373
+"ms": 18625.5
 },
 {
 "clip": "b1",
-"t": 0.866056,
+"t": 0.863178,
 "playing": true,
 "shown": [
 2,
@@ -2973,11 +2609,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18695.300000000745
+"ms": 18671.5
 },
 {
 "clip": "b1",
-"t": 0.8971,
+"t": 0.909315,
 "playing": true,
 "shown": [
 2,
@@ -2999,11 +2635,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18726.400000000373
+"ms": 18717.60000000149
 },
 {
 "clip": "b1",
-"t": 0.927973,
+"t": 0.954829,
 "playing": true,
 "shown": [
 2,
@@ -3025,11 +2661,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18757.300000000745
+"ms": 18763.20000000298
 },
 {
 "clip": "b1",
-"t": 0.959696,
+"t": 0.986427,
 "playing": true,
 "shown": [
 2,
@@ -3051,11 +2687,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18789.10000000149
+"ms": 18795
 },
 {
 "clip": "b1",
-"t": 0.989221,
+"t": 1.033278,
 "playing": true,
 "shown": [
 2,
@@ -3077,11 +2713,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18818.60000000149
+"ms": 18841.900000002235
 },
 {
 "clip": "b1",
-"t": 1.020091,
+"t": 1.080023,
 "playing": true,
 "shown": [
 2,
@@ -3103,11 +2739,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18849.400000000373
+"ms": 18888.20000000298
 },
 {
 "clip": "b1",
-"t": 1.051478,
+"t": 1.111244,
 "playing": true,
 "shown": [
 2,
@@ -3129,37 +2765,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18880.900000000373
+"ms": 18919.400000002235
 },
 {
 "clip": "b1",
-"t": 1.08223,
-"playing": true,
-"shown": [
-2,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 18911.400000000373
-},
-{
-"clip": "b1",
-"t": 1.11452,
+"t": 1.157848,
 "playing": true,
 "shown": [
 3,
@@ -3181,11 +2791,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18943.800000000745
+"ms": 18966.300000000745
 },
 {
 "clip": "b1",
-"t": 1.146355,
+"t": 1.187855,
 "playing": true,
 "shown": [
 3,
@@ -3207,11 +2817,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 18975.700000001118
+"ms": 18996.20000000298
 },
 {
 "clip": "b1",
-"t": 1.190867,
+"t": 1.219506,
 "playing": true,
 "shown": [
 3,
@@ -3233,11 +2843,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19020.200000001118
+"ms": 19028.20000000298
 },
 {
 "clip": "b1",
-"t": 1.237019,
+"t": 1.252097,
 "playing": true,
 "shown": [
 3,
@@ -3259,11 +2869,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19066.400000000373
+"ms": 19060.5
 },
 {
 "clip": "b1",
-"t": 1.268209,
+"t": 1.297949,
 "playing": true,
 "shown": [
 3,
@@ -3285,11 +2895,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19097.60000000149
+"ms": 19106.60000000149
 },
 {
 "clip": "b1",
-"t": 1.299918,
+"t": 1.343062,
 "playing": true,
 "shown": [
 3,
@@ -3311,11 +2921,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19129.200000001118
+"ms": 19151.60000000149
 },
 {
 "clip": "b1",
-"t": 1.331138,
+"t": 1.38975,
 "playing": true,
 "shown": [
 3,
@@ -3337,11 +2947,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19160.5
+"ms": 19197.900000002235
 },
 {
 "clip": "b1",
-"t": 1.364193,
+"t": 1.436258,
 "playing": true,
 "shown": [
 3,
@@ -3363,11 +2973,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19193.60000000149
+"ms": 19244.900000002235
 },
 {
 "clip": "b1",
-"t": 1.393816,
+"t": 1.482401,
 "playing": true,
 "shown": [
 3,
@@ -3389,11 +2999,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19223.200000001118
+"ms": 19290.800000000745
 },
 {
 "clip": "b1",
-"t": 1.425306,
+"t": 1.530112,
 "playing": true,
 "shown": [
 3,
@@ -3415,11 +3025,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19254.800000000745
+"ms": 19338.400000002235
 },
 {
 "clip": "b1",
-"t": 1.455788,
+"t": 1.575899,
 "playing": true,
 "shown": [
 3,
@@ -3441,11 +3051,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19285.200000001118
+"ms": 19384.400000002235
 },
 {
 "clip": "b1",
-"t": 1.487633,
+"t": 1.622296,
 "playing": true,
 "shown": [
 3,
@@ -3467,11 +3077,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19317
+"ms": 19430.400000002235
 },
 {
 "clip": "b1",
-"t": 1.518606,
+"t": 1.651593,
 "playing": true,
 "shown": [
 3,
@@ -3493,11 +3103,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19348
+"ms": 19460.10000000149
 },
 {
 "clip": "b1",
-"t": 1.548709,
+"t": 1.683751,
 "playing": true,
 "shown": [
 3,
@@ -3519,11 +3129,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19378.10000000149
+"ms": 19491.900000002235
 },
 {
 "clip": "b1",
-"t": 1.579286,
+"t": 1.731541,
 "playing": true,
 "shown": [
 3,
@@ -3545,11 +3155,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19408.60000000149
+"ms": 19539.800000000745
 },
 {
 "clip": "b1",
-"t": 1.612036,
+"t": 1.779307,
 "playing": true,
 "shown": [
 3,
@@ -3571,11 +3181,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19441.300000000745
+"ms": 19587.70000000298
 },
 {
 "clip": "b1",
-"t": 1.643467,
+"t": 1.823883,
 "playing": true,
 "shown": [
 3,
@@ -3597,11 +3207,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19472.800000000745
+"ms": 19632.300000000745
 },
 {
 "clip": "b1",
-"t": 1.674571,
+"t": 1.856171,
 "playing": true,
 "shown": [
 3,
@@ -3623,11 +3233,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19503.900000000373
+"ms": 19664.5
 },
 {
 "clip": "b1",
-"t": 1.705274,
+"t": 1.90155,
 "playing": true,
 "shown": [
 3,
@@ -3649,193 +3259,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19534.5
+"ms": 19709.70000000298
 },
 {
 "clip": "b1",
-"t": 1.736633,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19566
-},
-{
-"clip": "b1",
-"t": 1.767671,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19597.10000000149
-},
-{
-"clip": "b1",
-"t": 1.798943,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19628.300000000745
-},
-{
-"clip": "b1",
-"t": 1.82944,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19658.800000000745
-},
-{
-"clip": "b1",
-"t": 1.860266,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19689.800000000745
-},
-{
-"clip": "b1",
-"t": 1.891693,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19721
-},
-{
-"clip": "b1",
-"t": 1.922056,
-"playing": true,
-"shown": [
-3,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 19751.5
-},
-{
-"clip": "b1",
-"t": 1.953756,
+"t": 1.933771,
 "playing": true,
 "shown": [
 4,
@@ -3857,11 +3285,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19783.200000001118
+"ms": 19741.900000002235
 },
 {
 "clip": "b1",
-"t": 2.061622,
+"t": 2.059138,
 "playing": true,
 "shown": [
 4,
@@ -3883,11 +3311,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19891.10000000149
+"ms": 19867.10000000149
 },
 {
 "clip": "b1",
-"t": 2.092387,
+"t": 2.089469,
 "playing": true,
 "shown": [
 4,
@@ -3909,11 +3337,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19921.900000000373
+"ms": 19897.5
 },
 {
 "clip": "b1",
-"t": 2.124148,
+"t": 2.120953,
 "playing": true,
 "shown": [
 4,
@@ -3935,11 +3363,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19953.5
+"ms": 19929
 },
 {
 "clip": "b1",
-"t": 2.154948,
+"t": 2.153621,
 "playing": true,
 "shown": [
 4,
@@ -3961,11 +3389,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 19984.400000000373
+"ms": 19961.800000000745
 },
 {
 "clip": "b1",
-"t": 2.187441,
+"t": 2.183682,
 "playing": true,
 "shown": [
 4,
@@ -3987,11 +3415,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20016.700000001118
+"ms": 19991.800000000745
 },
 {
 "clip": "b1",
-"t": 2.217546,
+"t": 2.217058,
 "playing": true,
 "shown": [
 4,
@@ -4013,11 +3441,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20047
+"ms": 20025.5
 },
 {
 "clip": "b1",
-"t": 2.249023,
+"t": 2.263422,
 "playing": true,
 "shown": [
 4,
@@ -4039,11 +3467,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20078.400000000373
+"ms": 20072
 },
 {
 "clip": "b1",
-"t": 2.279028,
+"t": 2.311509,
 "playing": true,
 "shown": [
 4,
@@ -4065,11 +3493,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20108.400000000373
+"ms": 20119.800000000745
 },
 {
 "clip": "b1",
-"t": 2.310046,
+"t": 2.357402,
 "playing": true,
 "shown": [
 4,
@@ -4091,11 +3519,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20139.60000000149
+"ms": 20165.60000000149
 },
 {
 "clip": "b1",
-"t": 2.341845,
+"t": 2.402775,
 "playing": true,
 "shown": [
 4,
@@ -4117,11 +3545,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20171.300000000745
+"ms": 20210.800000000745
 },
 {
 "clip": "b1",
-"t": 2.374156,
+"t": 2.435103,
 "playing": true,
 "shown": [
 4,
@@ -4143,11 +3571,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20203.60000000149
+"ms": 20243.300000000745
 },
 {
 "clip": "b1",
-"t": 2.405505,
+"t": 2.484246,
 "playing": true,
 "shown": [
 4,
@@ -4169,11 +3597,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20234.800000000745
+"ms": 20292.5
 },
 {
 "clip": "b1",
-"t": 2.454808,
+"t": 2.527197,
 "playing": true,
 "shown": [
 4,
@@ -4195,11 +3623,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20284.300000000745
+"ms": 20335.400000002235
 },
 {
 "clip": "b1",
-"t": 2.499984,
+"t": 2.55757,
 "playing": true,
 "shown": [
 4,
@@ -4221,11 +3649,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20329.300000000745
+"ms": 20365.900000002235
 },
 {
 "clip": "b1",
-"t": 2.531631,
+"t": 2.589423,
 "playing": true,
 "shown": [
 4,
@@ -4247,11 +3675,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20361.300000000745
+"ms": 20397.800000000745
 },
 {
 "clip": "b1",
-"t": 2.565549,
+"t": 2.619998,
 "playing": true,
 "shown": [
 4,
@@ -4273,11 +3701,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20395.200000001118
+"ms": 20428.300000000745
 },
 {
 "clip": "b1",
-"t": 2.610709,
+"t": 2.651464,
 "playing": true,
 "shown": [
 4,
@@ -4299,11 +3727,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20440
+"ms": 20459.800000000745
 },
 {
 "clip": "b1",
-"t": 2.643679,
+"t": 2.682009,
 "playing": true,
 "shown": [
 4,
@@ -4325,11 +3753,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20473
+"ms": 20490.20000000298
 },
 {
 "clip": "b1",
-"t": 2.673007,
+"t": 2.714602,
 "playing": true,
 "shown": [
 4,
@@ -4351,11 +3779,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20502.400000000373
+"ms": 20523
 },
 {
 "clip": "b1",
-"t": 2.704477,
+"t": 2.74566,
 "playing": true,
 "shown": [
 4,
@@ -4377,11 +3805,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20533.800000000745
+"ms": 20554
 },
 {
 "clip": "b1",
-"t": 2.73491,
+"t": 2.791968,
 "playing": true,
 "shown": [
 4,
@@ -4403,37 +3831,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20564.60000000149
+"ms": 20600.300000000745
 },
 {
 "clip": "b1",
-"t": 2.766858,
-"playing": true,
-"shown": [
-4,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 20596.200000001118
-},
-{
-"clip": "b1",
-"t": 2.799256,
+"t": 2.83779,
 "playing": true,
 "shown": [
 5,
@@ -4455,11 +3857,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20628.700000001118
+"ms": 20646.400000002235
 },
 {
 "clip": "b1",
-"t": 2.828966,
+"t": 2.870185,
 "playing": true,
 "shown": [
 5,
@@ -4481,11 +3883,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20658.700000001118
+"ms": 20678.300000000745
 },
 {
 "clip": "b1",
-"t": 2.860034,
+"t": 2.901112,
 "playing": true,
 "shown": [
 5,
@@ -4507,11 +3909,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20689.60000000149
+"ms": 20709.300000000745
 },
 {
 "clip": "b1",
-"t": 2.891007,
+"t": 2.932586,
 "playing": true,
 "shown": [
 5,
@@ -4533,11 +3935,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20720.60000000149
+"ms": 20741
 },
 {
 "clip": "b1",
-"t": 2.937162,
+"t": 2.978894,
 "playing": true,
 "shown": [
 5,
@@ -4559,11 +3961,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20766.700000001118
+"ms": 20787.60000000149
 },
 {
 "clip": "b1",
-"t": 2.968645,
+"t": 3.011154,
 "playing": true,
 "shown": [
 5,
@@ -4585,11 +3987,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20798.10000000149
+"ms": 20819.5
 },
 {
 "clip": "b1",
-"t": 3.000556,
+"t": 3.058012,
 "playing": true,
 "shown": [
 5,
@@ -4611,11 +4013,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20830.10000000149
+"ms": 20866.400000002235
 },
 {
 "clip": "b1",
-"t": 3.03062,
+"t": 3.104093,
 "playing": true,
 "shown": [
 5,
@@ -4637,11 +4039,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20860.10000000149
+"ms": 20912.300000000745
 },
 {
 "clip": "b1",
-"t": 3.062707,
+"t": 3.13541,
 "playing": true,
 "shown": [
 5,
@@ -4663,11 +4065,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20892.300000000745
+"ms": 20944
 },
 {
 "clip": "b1",
-"t": 3.108692,
+"t": 3.183303,
 "playing": true,
 "shown": [
 5,
@@ -4689,11 +4091,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20938.300000000745
+"ms": 20991.60000000149
 },
 {
 "clip": "b1",
-"t": 3.154204,
+"t": 3.227646,
 "playing": true,
 "shown": [
 5,
@@ -4715,63 +4117,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 20983.700000001118
+"ms": 21036.20000000298
 },
 {
 "clip": "b1",
-"t": 3.186057,
-"playing": true,
-"shown": [
-5,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 21015.700000001118
-},
-{
-"clip": "b1",
-"t": 3.216197,
-"playing": true,
-"shown": [
-5,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 21045.800000000745
-},
-{
-"clip": "b1",
-"t": 3.247532,
+"t": 3.274268,
 "playing": true,
 "shown": [
 6,
@@ -4793,11 +4143,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21076.800000000745
+"ms": 21082.70000000298
 },
 {
 "clip": "b1",
-"t": 3.276714,
+"t": 3.320238,
 "playing": true,
 "shown": [
 6,
@@ -4819,63 +4169,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21106.200000001118
+"ms": 21128.60000000149
 },
 {
 "clip": "b1",
-"t": 3.308389,
-"playing": true,
-"shown": [
-6,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 21137.800000000745
-},
-{
-"clip": "b1",
-"t": 3.353358,
-"playing": true,
-"shown": [
-6,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 21182.900000000373
-},
-{
-"clip": "b1",
-"t": 3.384202,
+"t": 3.365817,
 "playing": true,
 "shown": [
 7,
@@ -4897,11 +4195,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21213.700000001118
+"ms": 21174.20000000298
 },
 {
 "clip": "b1",
-"t": 3.415474,
+"t": 3.398161,
 "playing": true,
 "shown": [
 7,
@@ -4923,11 +4221,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21244.900000000373
+"ms": 21206.400000002235
 },
 {
 "clip": "b1",
-"t": 3.446157,
+"t": 3.428344,
 "playing": true,
 "shown": [
 7,
@@ -4949,11 +4247,37 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21275.60000000149
+"ms": 21236.5
 },
 {
 "clip": "b1",
-"t": 3.476669,
+"t": 3.458391,
+"playing": true,
+"shown": [
+7,
+0,
+0,
+0
+],
+"gone": [
+false,
+false,
+false,
+false
+],
+"pic": [
+true,
+false,
+false,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 21266.5
+},
+{
+"clip": "b1",
+"t": 3.489891,
 "playing": true,
 "shown": [
 8,
@@ -4975,11 +4299,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21306.200000001118
+"ms": 21298.10000000149
 },
 {
 "clip": "b1",
-"t": 3.5098,
+"t": 3.520956,
 "playing": true,
 "shown": [
 8,
@@ -5001,11 +4325,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21339.300000000745
+"ms": 21329.10000000149
 },
 {
 "clip": "b1",
-"t": 3.55465,
+"t": 3.552223,
 "playing": true,
 "shown": [
 8,
@@ -5027,11 +4351,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21384.200000001118
+"ms": 21360.300000000745
 },
 {
 "clip": "b1",
-"t": 3.586784,
+"t": 3.582863,
 "playing": true,
 "shown": [
 8,
@@ -5053,11 +4377,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21416.300000000745
+"ms": 21391
 },
 {
 "clip": "b1",
-"t": 3.616992,
+"t": 3.615004,
 "playing": true,
 "shown": [
 8,
@@ -5079,11 +4403,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21446.400000000373
+"ms": 21423.20000000298
 },
 {
 "clip": "b1",
-"t": 3.647315,
+"t": 3.645722,
 "playing": true,
 "shown": [
 8,
@@ -5105,11 +4429,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21476.700000001118
+"ms": 21454
 },
 {
 "clip": "b1",
-"t": 3.68024,
+"t": 3.677065,
 "playing": true,
 "shown": [
 8,
@@ -5131,11 +4455,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21509.800000000745
+"ms": 21485.300000000745
 },
 {
 "clip": "b1",
-"t": 3.726058,
+"t": 3.708733,
 "playing": true,
 "shown": [
 8,
@@ -5157,11 +4481,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21555.400000000373
+"ms": 21516.900000002235
 },
 {
 "clip": "b1",
-"t": 3.757762,
+"t": 3.740086,
 "playing": true,
 "shown": [
 8,
@@ -5183,11 +4507,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21587.5
+"ms": 21548.20000000298
 },
 {
 "clip": "b1",
-"t": 3.788803,
+"t": 3.770233,
 "playing": true,
 "shown": [
 8,
@@ -5209,11 +4533,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21618.200000001118
+"ms": 21578.400000002235
 },
 {
 "clip": "b1",
-"t": 3.819696,
+"t": 3.800261,
 "playing": true,
 "shown": [
 8,
@@ -5235,11 +4559,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21648.900000000373
+"ms": 21608.5
 },
 {
 "clip": "b1",
-"t": 3.851006,
+"t": 3.83222,
 "playing": true,
 "shown": [
 8,
@@ -5261,11 +4585,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21680.5
+"ms": 21640.400000002235
 },
 {
 "clip": "b1",
-"t": 3.8821,
+"t": 3.864977,
 "playing": true,
 "shown": [
 8,
@@ -5287,11 +4611,37 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21711.700000001118
+"ms": 21673.10000000149
 },
 {
 "clip": "b1",
-"t": 3.913489,
+"t": 3.895061,
+"playing": true,
+"shown": [
+8,
+0,
+0,
+0
+],
+"gone": [
+false,
+false,
+false,
+false
+],
+"pic": [
+true,
+false,
+false,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 21703.20000000298
+},
+{
+"clip": "b1",
+"t": 3.939915,
 "playing": true,
 "shown": [
 9,
@@ -5313,11 +4663,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21743
+"ms": 21748.10000000149
 },
 {
 "clip": "b1",
-"t": 3.944859,
+"t": 3.970635,
 "playing": true,
 "shown": [
 9,
@@ -5339,11 +4689,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21774.300000000745
+"ms": 21778.900000002235
 },
 {
 "clip": "b1",
-"t": 3.975844,
+"t": 4.001534,
 "playing": true,
 "shown": [
 9,
@@ -5365,11 +4715,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21805.300000000745
+"ms": 21809.70000000298
 },
 {
 "clip": "b1",
-"t": 4.007687,
+"t": 4.033027,
 "playing": true,
 "shown": [
 9,
@@ -5391,11 +4741,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21837.200000001118
+"ms": 21841.10000000149
 },
 {
 "clip": "b1",
-"t": 4.038019,
+"t": 4.065603,
 "playing": true,
 "shown": [
 9,
@@ -5417,11 +4767,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21867.400000000373
+"ms": 21873.800000000745
 },
 {
 "clip": "b1",
-"t": 4.069511,
+"t": 4.097137,
 "playing": true,
 "shown": [
 9,
@@ -5443,11 +4793,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21899
+"ms": 21905.400000002235
 },
 {
 "clip": "b1",
-"t": 4.10016,
+"t": 4.126262,
 "playing": true,
 "shown": [
 9,
@@ -5469,11 +4819,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21929.60000000149
+"ms": 21934.5
 },
 {
 "clip": "b1",
-"t": 4.132201,
+"t": 4.157826,
 "playing": true,
 "shown": [
 9,
@@ -5495,11 +4845,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21961.60000000149
+"ms": 21965.900000002235
 },
 {
 "clip": "b1",
-"t": 4.162479,
+"t": 4.188489,
 "playing": true,
 "shown": [
 9,
@@ -5521,11 +4871,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 21992.10000000149
+"ms": 21996.70000000298
 },
 {
 "clip": "b1",
-"t": 4.208357,
+"t": 4.220306,
 "playing": true,
 "shown": [
 9,
@@ -5547,11 +4897,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22037.700000001118
+"ms": 22028.800000000745
 },
 {
 "clip": "b1",
-"t": 4.238916,
+"t": 4.266969,
 "playing": true,
 "shown": [
 9,
@@ -5573,11 +4923,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22068.300000000745
+"ms": 22075.20000000298
 },
 {
 "clip": "b1",
-"t": 4.270681,
+"t": 4.298762,
 "playing": true,
 "shown": [
 9,
@@ -5599,11 +4949,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22100.10000000149
+"ms": 22107.300000000745
 },
 {
 "clip": "b1",
-"t": 4.301548,
+"t": 4.34216,
 "playing": true,
 "shown": [
 9,
@@ -5625,11 +4975,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22130.900000000373
+"ms": 22150.400000002235
 },
 {
 "clip": "b1",
-"t": 4.333764,
+"t": 4.372887,
 "playing": true,
 "shown": [
 9,
@@ -5651,11 +5001,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22163.300000000745
+"ms": 22181.10000000149
 },
 {
 "clip": "b1",
-"t": 4.363639,
+"t": 4.404751,
 "playing": true,
 "shown": [
 9,
@@ -5677,11 +5027,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22193
+"ms": 22213
 },
 {
 "clip": "b1",
-"t": 4.395094,
+"t": 4.437446,
 "playing": true,
 "shown": [
 9,
@@ -5703,11 +5053,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22224.60000000149
+"ms": 22245.900000002235
 },
 {
 "clip": "b1",
-"t": 4.427197,
+"t": 4.46838,
 "playing": true,
 "shown": [
 9,
@@ -5729,11 +5079,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22256.60000000149
+"ms": 22276.70000000298
 },
 {
 "clip": "b1",
-"t": 4.458297,
+"t": 4.500084,
 "playing": true,
 "shown": [
 9,
@@ -5755,11 +5105,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22288
+"ms": 22308.60000000149
 },
 {
 "clip": "b1",
-"t": 4.490402,
+"t": 4.547287,
 "playing": true,
 "shown": [
 9,
@@ -5781,11 +5131,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22319.800000000745
+"ms": 22355.60000000149
 },
 {
 "clip": "b1",
-"t": 4.520326,
+"t": 4.578217,
 "playing": true,
 "shown": [
 9,
@@ -5807,59 +5157,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22349.800000000745
-},
-{
-"clip": "b1",
-"t": 4.552008,
-"playing": true,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 22381.400000000373
-},
-{
-"clip": "b1",
-"t": 4.584163,
-"playing": true,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 22413.60000000149
+"ms": 22386.60000000149
 },
 {
 "clip": "b1",
@@ -5885,7 +5183,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22443.10000000149
+"ms": 22431.800000000745
 },
 {
 "clip": "b1",
@@ -5911,7 +5209,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22569.5
+"ms": 22586.5
 },
 {
 "clip": "b1",
@@ -5937,7 +5235,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22599.300000000745
+"ms": 22621.400000002235
 },
 {
 "clip": "b1",
@@ -5963,7 +5261,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22630.800000000745
+"ms": 22711.900000002235
 },
 {
 "clip": "b1",
@@ -5989,7 +5287,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22661.700000001118
+"ms": 22776
 },
 {
 "clip": "b1",
@@ -6015,7 +5313,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22692.700000001118
+"ms": 22819.900000002235
 },
 {
 "clip": "b1",
@@ -6041,7 +5339,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22724
+"ms": 22865
 },
 {
 "clip": "b1",
@@ -6067,7 +5365,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22755.300000000745
+"ms": 22896.400000002235
 },
 {
 "clip": "b1",
@@ -6093,7 +5391,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22786.400000000373
+"ms": 22926.60000000149
 },
 {
 "clip": "b1",
@@ -6119,7 +5417,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22817
+"ms": 22958.10000000149
 },
 {
 "clip": "b1",
@@ -6145,7 +5443,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22847.200000001118
+"ms": 22991.10000000149
 },
 {
 "clip": "b1",
@@ -6171,7 +5469,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22879.300000000745
+"ms": 23036.400000002235
 },
 {
 "clip": "b1",
@@ -6197,7 +5495,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22911.400000000373
+"ms": 23067.400000002235
 },
 {
 "clip": "b1",
@@ -6223,7 +5521,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22941.200000001118
+"ms": 23097.800000000745
 },
 {
 "clip": "b1",
@@ -6249,7 +5547,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 22972.800000000745
+"ms": 23129.20000000298
 },
 {
 "clip": "b1",
@@ -6275,7 +5573,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23019.200000001118
+"ms": 23159.400000002235
 },
 {
 "clip": "b1",
@@ -6301,7 +5599,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23049.10000000149
+"ms": 23191.10000000149
 },
 {
 "clip": "b1",
@@ -6327,7 +5625,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23081
+"ms": 23221.10000000149
 },
 {
 "clip": "b1",
@@ -6353,7 +5651,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23110.900000000373
+"ms": 23252
 },
 {
 "clip": "b1",
@@ -6379,7 +5677,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23142.900000000373
+"ms": 23282.900000002235
 },
 {
 "clip": "b1",
@@ -6405,7 +5703,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23173
+"ms": 23314.20000000298
 },
 {
 "clip": "b1",
@@ -6431,7 +5729,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23207
+"ms": 23345.5
 },
 {
 "clip": "b1",
@@ -6457,7 +5755,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23237.700000001118
+"ms": 23376.10000000149
 },
 {
 "clip": "b1",
@@ -6483,137 +5781,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23268.5
-},
-{
-"clip": "b1",
-"t": 4.6065,
-"playing": false,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 23299.5
-},
-{
-"clip": "b1",
-"t": 4.6065,
-"playing": false,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 23329.800000000745
-},
-{
-"clip": "b1",
-"t": 4.6065,
-"playing": false,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 23361.200000001118
-},
-{
-"clip": "b1",
-"t": 4.6065,
-"playing": false,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 23392.60000000149
-},
-{
-"clip": "b1",
-"t": 4.6065,
-"playing": false,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-false,
-false,
-false,
-false
-],
-"pic": [
-true,
-false,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 23423.800000000745
+"ms": 23407.5
 },
 {
 "clip": "b1",
@@ -6639,7 +5807,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23456.60000000149
+"ms": 23439.800000000745
 },
 {
 "clip": "b1",
@@ -6665,7 +5833,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23657
+"ms": 23642.5
 },
 {
 "clip": "b1",
@@ -6691,7 +5859,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23688.800000000745
+"ms": 23673.5
 },
 {
 "clip": "b1",
@@ -6717,7 +5885,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23720.300000000745
+"ms": 23703.800000000745
 },
 {
 "clip": "b1",
@@ -6743,7 +5911,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23751
+"ms": 23734.800000000745
 },
 {
 "clip": "b1",
@@ -6769,7 +5937,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23781.900000000373
+"ms": 23765.400000002235
 },
 {
 "clip": "b1",
@@ -6795,7 +5963,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23813.300000000745
+"ms": 23796.300000000745
 },
 {
 "clip": "b1",
@@ -6821,7 +5989,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23844.10000000149
+"ms": 23828.300000000745
 },
 {
 "clip": "b1",
@@ -6847,7 +6015,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23875.400000000373
+"ms": 23860.10000000149
 },
 {
 "clip": "b1",
@@ -6873,7 +6041,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23906.700000001118
+"ms": 23891.800000000745
 },
 {
 "clip": "b1",
@@ -6899,7 +6067,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23938.5
+"ms": 23938.60000000149
 },
 {
 "clip": "b1",
@@ -6925,7 +6093,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 23982.700000001118
+"ms": 23983.900000002235
 },
 {
 "clip": "b1",
@@ -6951,7 +6119,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24014.5
+"ms": 24030.300000000745
 },
 {
 "clip": "b1",
@@ -6977,33 +6145,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24045.300000000745
-},
-{
-"clip": "b1",
-"t": 4.6065,
-"playing": false,
-"shown": [
-9,
-0,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 24076.300000000745
+"ms": 24060.300000000745
 },
 {
 "clip": "b2",
@@ -7029,11 +6171,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24106.5
+"ms": 24090.900000002235
 },
 {
 "clip": "b2",
-"t": 0.004244,
+"t": 0.008179,
 "playing": true,
 "shown": [
 9,
@@ -7055,11 +6197,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24138.5
+"ms": 24123
 },
 {
 "clip": "b2",
-"t": 0.017493,
+"t": 0.016003,
 "playing": true,
 "shown": [
 9,
@@ -7081,11 +6223,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24169.5
+"ms": 24152.5
 },
 {
 "clip": "b2",
-"t": 0.030016,
+"t": 0.03589,
 "playing": true,
 "shown": [
 9,
@@ -7107,11 +6249,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24199.5
+"ms": 24184.20000000298
 },
 {
 "clip": "b2",
-"t": 0.062003,
+"t": 0.082184,
 "playing": true,
 "shown": [
 9,
@@ -7133,11 +6275,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24231.400000000373
+"ms": 24230.60000000149
 },
 {
 "clip": "b2",
-"t": 0.091854,
+"t": 0.128271,
 "playing": true,
 "shown": [
 9,
@@ -7159,11 +6301,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24261.300000000745
+"ms": 24276.400000002235
 },
 {
 "clip": "b2",
-"t": 0.12222,
+"t": 0.159275,
 "playing": true,
 "shown": [
 9,
@@ -7185,11 +6327,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24291.60000000149
+"ms": 24307.5
 },
 {
 "clip": "b2",
-"t": 0.153286,
+"t": 0.19137,
 "playing": true,
 "shown": [
 9,
@@ -7211,11 +6353,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24322.800000000745
+"ms": 24339.70000000298
 },
 {
 "clip": "b2",
-"t": 0.184237,
+"t": 0.235664,
 "playing": true,
 "shown": [
 9,
@@ -7237,11 +6379,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24353.700000001118
+"ms": 24383.900000002235
 },
 {
 "clip": "b2",
-"t": 0.21571,
+"t": 0.26752,
 "playing": true,
 "shown": [
 9,
@@ -7263,11 +6405,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24385.10000000149
+"ms": 24416.10000000149
 },
 {
 "clip": "b2",
-"t": 0.247757,
+"t": 0.29885,
 "playing": true,
 "shown": [
 9,
@@ -7289,11 +6431,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24417.300000000745
+"ms": 24447.300000000745
 },
 {
 "clip": "b2",
-"t": 0.278301,
+"t": 0.330246,
 "playing": true,
 "shown": [
 9,
@@ -7315,63 +6457,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24447.700000001118
+"ms": 24478.400000002235
 },
 {
 "clip": "b2",
-"t": 0.308058,
-"playing": true,
-"shown": [
-9,
-1,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 24477.60000000149
-},
-{
-"clip": "b2",
-"t": 0.339876,
-"playing": true,
-"shown": [
-9,
-1,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 24509.700000001118
-},
-{
-"clip": "b2",
-"t": 0.370949,
+"t": 0.377065,
 "playing": true,
 "shown": [
 9,
@@ -7393,11 +6483,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24540.5
+"ms": 24525.300000000745
 },
 {
 "clip": "b2",
-"t": 0.403467,
+"t": 0.409162,
 "playing": true,
 "shown": [
 9,
@@ -7419,11 +6509,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24572.800000000745
+"ms": 24557.400000002235
 },
 {
 "clip": "b2",
-"t": 0.433351,
+"t": 0.454857,
 "playing": true,
 "shown": [
 9,
@@ -7445,11 +6535,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24602.700000001118
+"ms": 24603.5
 },
 {
 "clip": "b2",
-"t": 0.465011,
+"t": 0.500475,
 "playing": true,
 "shown": [
 9,
@@ -7471,11 +6561,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24634.400000000373
+"ms": 24648.60000000149
 },
 {
 "clip": "b2",
-"t": 0.496457,
+"t": 0.531802,
 "playing": true,
 "shown": [
 9,
@@ -7497,11 +6587,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24666
+"ms": 24679.900000002235
 },
 {
 "clip": "b2",
-"t": 0.52737,
+"t": 0.561882,
 "playing": true,
 "shown": [
 9,
@@ -7523,11 +6613,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24696.700000001118
+"ms": 24709.900000002235
 },
 {
 "clip": "b2",
-"t": 0.557742,
+"t": 0.592683,
 "playing": true,
 "shown": [
 9,
@@ -7549,11 +6639,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24727.200000001118
+"ms": 24740.900000002235
 },
 {
 "clip": "b2",
-"t": 0.589991,
+"t": 0.630146,
 "playing": true,
 "shown": [
 9,
@@ -7575,11 +6665,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24759.5
+"ms": 24778.20000000298
 },
 {
 "clip": "b2",
-"t": 0.62001,
+"t": 0.686769,
 "playing": true,
 "shown": [
 9,
@@ -7601,11 +6691,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24789.5
+"ms": 24835.10000000149
 },
 {
 "clip": "b2",
-"t": 0.651444,
+"t": 0.718115,
 "playing": true,
 "shown": [
 9,
@@ -7627,63 +6717,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24820.900000000373
+"ms": 24866.400000002235
 },
 {
 "clip": "b2",
-"t": 0.682049,
-"playing": true,
-"shown": [
-9,
-2,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 24851.400000000373
-},
-{
-"clip": "b2",
-"t": 0.713796,
-"playing": true,
-"shown": [
-9,
-2,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 24883.300000000745
-},
-{
-"clip": "b2",
-"t": 0.743013,
+"t": 0.749317,
 "playing": true,
 "shown": [
 9,
@@ -7705,11 +6743,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24912.5
+"ms": 24897.70000000298
 },
 {
 "clip": "b2",
-"t": 0.774601,
+"t": 0.79594,
 "playing": true,
 "shown": [
 9,
@@ -7731,11 +6769,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24944
+"ms": 24944.300000000745
 },
 {
 "clip": "b2",
-"t": 0.804464,
+"t": 0.843362,
 "playing": true,
 "shown": [
 9,
@@ -7757,11 +6795,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 24974
+"ms": 24991.70000000298
 },
 {
 "clip": "b2",
-"t": 0.837559,
+"t": 0.887769,
 "playing": true,
 "shown": [
 9,
@@ -7783,11 +6821,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25007
+"ms": 25036.300000000745
 },
 {
 "clip": "b2",
-"t": 0.8683,
+"t": 0.918857,
 "playing": true,
 "shown": [
 9,
@@ -7809,11 +6847,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25037.700000001118
+"ms": 25067.20000000298
 },
 {
 "clip": "b2",
-"t": 0.897746,
+"t": 0.949862,
 "playing": true,
 "shown": [
 9,
@@ -7835,11 +6873,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25067.200000001118
+"ms": 25098.300000000745
 },
 {
 "clip": "b2",
-"t": 0.928193,
+"t": 0.995956,
 "playing": true,
 "shown": [
 9,
@@ -7861,11 +6899,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25097.60000000149
+"ms": 25144.300000000745
 },
 {
 "clip": "b2",
-"t": 0.96066,
+"t": 1.026721,
 "playing": true,
 "shown": [
 9,
@@ -7887,11 +6925,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25130.10000000149
+"ms": 25175.10000000149
 },
 {
 "clip": "b2",
-"t": 0.992589,
+"t": 1.057971,
 "playing": true,
 "shown": [
 9,
@@ -7913,11 +6951,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25162
+"ms": 25206.20000000298
 },
 {
 "clip": "b2",
-"t": 1.023789,
+"t": 1.089952,
 "playing": true,
 "shown": [
 9,
@@ -7939,11 +6977,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25193
+"ms": 25238.20000000298
 },
 {
 "clip": "b2",
-"t": 1.054608,
+"t": 1.136153,
 "playing": true,
 "shown": [
 9,
@@ -7965,89 +7003,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25223.900000000373
+"ms": 25284.800000000745
 },
 {
 "clip": "b2",
-"t": 1.08735,
-"playing": true,
-"shown": [
-9,
-3,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 25256.800000000745
-},
-{
-"clip": "b2",
-"t": 1.118312,
-"playing": true,
-"shown": [
-9,
-3,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 25287.800000000745
-},
-{
-"clip": "b2",
-"t": 1.1489,
-"playing": true,
-"shown": [
-9,
-3,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 25318.300000000745
-},
-{
-"clip": "b2",
-"t": 1.180268,
+"t": 1.181753,
 "playing": true,
 "shown": [
 9,
@@ -8069,11 +7029,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25349.60000000149
+"ms": 25330.10000000149
 },
 {
 "clip": "b2",
-"t": 1.303826,
+"t": 1.308263,
 "playing": true,
 "shown": [
 9,
@@ -8095,11 +7055,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25473.300000000745
+"ms": 25456.400000002235
 },
 {
 "clip": "b2",
-"t": 1.334949,
+"t": 1.33972,
 "playing": true,
 "shown": [
 9,
@@ -8121,11 +7081,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25504.400000000373
+"ms": 25487.900000002235
 },
 {
 "clip": "b2",
-"t": 1.36526,
+"t": 1.386158,
 "playing": true,
 "shown": [
 9,
@@ -8147,11 +7107,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25534.800000000745
+"ms": 25534.5
 },
 {
 "clip": "b2",
-"t": 1.397308,
+"t": 1.418947,
 "playing": true,
 "shown": [
 9,
@@ -8173,11 +7133,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25566.60000000149
+"ms": 25567.300000000745
 },
 {
 "clip": "b2",
-"t": 1.428645,
+"t": 1.464028,
 "playing": true,
 "shown": [
 9,
@@ -8199,11 +7159,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25597.900000000373
+"ms": 25612.60000000149
 },
 {
 "clip": "b2",
-"t": 1.459589,
+"t": 1.511806,
 "playing": true,
 "shown": [
 9,
@@ -8225,11 +7185,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25628.800000000745
+"ms": 25660
 },
 {
 "clip": "b2",
-"t": 1.492751,
+"t": 1.557055,
 "playing": true,
 "shown": [
 9,
@@ -8251,11 +7211,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25662
+"ms": 25705.20000000298
 },
 {
 "clip": "b2",
-"t": 1.540379,
+"t": 1.589387,
 "playing": true,
 "shown": [
 9,
@@ -8277,11 +7237,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25709.700000001118
+"ms": 25737.60000000149
 },
 {
 "clip": "b2",
-"t": 1.584686,
+"t": 1.635757,
 "playing": true,
 "shown": [
 9,
@@ -8303,11 +7263,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25754
+"ms": 25783.900000002235
 },
 {
 "clip": "b2",
-"t": 1.615313,
+"t": 1.679985,
 "playing": true,
 "shown": [
 9,
@@ -8329,11 +7289,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25784.60000000149
+"ms": 25828.10000000149
 },
 {
 "clip": "b2",
-"t": 1.646889,
+"t": 1.711094,
 "playing": true,
 "shown": [
 9,
@@ -8355,11 +7315,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25816.200000001118
+"ms": 25859.20000000298
 },
 {
 "clip": "b2",
-"t": 1.677056,
+"t": 1.740638,
 "playing": true,
 "shown": [
 9,
@@ -8381,11 +7341,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25846.300000000745
+"ms": 25888.900000002235
 },
 {
 "clip": "b2",
-"t": 1.708248,
+"t": 1.773119,
 "playing": true,
 "shown": [
 9,
@@ -8407,63 +7367,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25877.5
+"ms": 25921.400000002235
 },
 {
 "clip": "b2",
-"t": 1.739499,
-"playing": true,
-"shown": [
-9,
-4,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 25908.800000000745
-},
-{
-"clip": "b2",
-"t": 1.770431,
-"playing": true,
-"shown": [
-9,
-4,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 25939.700000001118
-},
-{
-"clip": "b2",
-"t": 1.801984,
+"t": 1.807189,
 "playing": true,
 "shown": [
 9,
@@ -8485,11 +7393,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 25971.200000001118
+"ms": 25955.70000000298
 },
 {
 "clip": "b2",
-"t": 1.832559,
+"t": 1.851319,
 "playing": true,
 "shown": [
 9,
@@ -8511,11 +7419,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26001.900000000373
+"ms": 25999.5
 },
 {
 "clip": "b2",
-"t": 1.862658,
+"t": 1.895669,
 "playing": true,
 "shown": [
 9,
@@ -8537,11 +7445,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26032
+"ms": 26043.70000000298
 },
 {
 "clip": "b2",
-"t": 1.894441,
+"t": 1.926683,
 "playing": true,
 "shown": [
 9,
@@ -8563,11 +7471,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26063.800000000745
+"ms": 26074.800000000745
 },
 {
 "clip": "b2",
-"t": 1.924813,
+"t": 1.957827,
 "playing": true,
 "shown": [
 9,
@@ -8589,11 +7497,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26094.200000001118
+"ms": 26106
 },
 {
 "clip": "b2",
-"t": 1.956879,
+"t": 1.989878,
 "playing": true,
 "shown": [
 9,
@@ -8615,11 +7523,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26126.10000000149
+"ms": 26138.20000000298
 },
 {
 "clip": "b2",
-"t": 1.987672,
+"t": 2.036165,
 "playing": true,
 "shown": [
 9,
@@ -8641,11 +7549,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26156.900000000373
+"ms": 26184.400000002235
 },
 {
 "clip": "b2",
-"t": 2.019898,
+"t": 2.06674,
 "playing": true,
 "shown": [
 9,
@@ -8667,11 +7575,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26189.5
+"ms": 26215.20000000298
 },
 {
 "clip": "b2",
-"t": 2.051746,
+"t": 2.098361,
 "playing": true,
 "shown": [
 9,
@@ -8693,11 +7601,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26221.10000000149
+"ms": 26246.70000000298
 },
 {
 "clip": "b2",
-"t": 2.084743,
+"t": 2.14412,
 "playing": true,
 "shown": [
 9,
@@ -8719,11 +7627,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26254.200000001118
+"ms": 26292.800000000745
 },
 {
 "clip": "b2",
-"t": 2.114675,
+"t": 2.189867,
 "playing": true,
 "shown": [
 9,
@@ -8745,11 +7653,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26284.10000000149
+"ms": 26338.20000000298
 },
 {
 "clip": "b2",
-"t": 2.145354,
+"t": 2.234552,
 "playing": true,
 "shown": [
 9,
@@ -8771,89 +7679,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26314.900000000373
+"ms": 26382.900000002235
 },
 {
 "clip": "b2",
-"t": 2.176776,
-"playing": true,
-"shown": [
-9,
-5,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 26346.200000001118
-},
-{
-"clip": "b2",
-"t": 2.20762,
-"playing": true,
-"shown": [
-9,
-5,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 26377.400000000373
-},
-{
-"clip": "b2",
-"t": 2.237925,
-"playing": true,
-"shown": [
-9,
-5,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 26407.200000001118
-},
-{
-"clip": "b2",
-"t": 2.268857,
+"t": 2.266334,
 "playing": true,
 "shown": [
 9,
@@ -8875,11 +7705,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26438.200000001118
+"ms": 26414.60000000149
 },
 {
 "clip": "b2",
-"t": 2.300632,
+"t": 2.296508,
 "playing": true,
 "shown": [
 9,
@@ -8901,11 +7731,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26470.10000000149
+"ms": 26444.800000000745
 },
 {
 "clip": "b2",
-"t": 2.332554,
+"t": 2.326709,
 "playing": true,
 "shown": [
 9,
@@ -8927,11 +7757,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26502.300000000745
+"ms": 26474.900000002235
 },
 {
 "clip": "b2",
-"t": 2.37858,
+"t": 2.357384,
 "playing": true,
 "shown": [
 9,
@@ -8953,11 +7783,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26548.300000000745
+"ms": 26505.60000000149
 },
 {
 "clip": "b2",
-"t": 2.423869,
+"t": 2.391303,
 "playing": true,
 "shown": [
 9,
@@ -8979,11 +7809,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26593.200000001118
+"ms": 26539.5
 },
 {
 "clip": "b2",
-"t": 2.454179,
+"t": 2.43798,
 "playing": true,
 "shown": [
 9,
@@ -9005,11 +7835,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26623.60000000149
+"ms": 26586.5
 },
 {
 "clip": "b2",
-"t": 2.485992,
+"t": 2.485756,
 "playing": true,
 "shown": [
 9,
@@ -9031,11 +7861,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26655.5
+"ms": 26634
 },
 {
 "clip": "b2",
-"t": 2.517752,
+"t": 2.532443,
 "playing": true,
 "shown": [
 9,
@@ -9057,11 +7887,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26687.200000001118
+"ms": 26680.800000000745
 },
 {
 "clip": "b2",
-"t": 2.563004,
+"t": 2.578821,
 "playing": true,
 "shown": [
 9,
@@ -9083,11 +7913,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26732.60000000149
+"ms": 26727.400000002235
 },
 {
 "clip": "b2",
-"t": 2.595007,
+"t": 2.62631,
 "playing": true,
 "shown": [
 9,
@@ -9109,11 +7939,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26764.300000000745
+"ms": 26774.70000000298
 },
 {
 "clip": "b2",
-"t": 2.625909,
+"t": 2.669859,
 "playing": true,
 "shown": [
 9,
@@ -9135,11 +7965,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26795.300000000745
+"ms": 26818
 },
 {
 "clip": "b2",
-"t": 2.656822,
+"t": 2.702221,
 "playing": true,
 "shown": [
 9,
@@ -9161,11 +7991,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26826.200000001118
+"ms": 26850.5
 },
 {
 "clip": "b2",
-"t": 2.688453,
+"t": 2.748664,
 "playing": true,
 "shown": [
 9,
@@ -9187,11 +8017,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26857.900000000373
+"ms": 26897
 },
 {
 "clip": "b2",
-"t": 2.719657,
+"t": 2.794731,
 "playing": true,
 "shown": [
 9,
@@ -9213,11 +8043,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26889.300000000745
+"ms": 26943.400000002235
 },
 {
 "clip": "b2",
-"t": 2.751098,
+"t": 2.827355,
 "playing": true,
 "shown": [
 9,
@@ -9239,11 +8069,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26920.700000001118
+"ms": 26976.10000000149
 },
 {
 "clip": "b2",
-"t": 2.798793,
+"t": 2.873756,
 "playing": true,
 "shown": [
 9,
@@ -9265,11 +8095,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26968.300000000745
+"ms": 27022.20000000298
 },
 {
 "clip": "b2",
-"t": 2.829346,
+"t": 2.920002,
 "playing": true,
 "shown": [
 9,
@@ -9291,11 +8121,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 26999
+"ms": 27068.5
 },
 {
 "clip": "b2",
-"t": 2.859846,
+"t": 2.966698,
 "playing": true,
 "shown": [
 9,
@@ -9317,11 +8147,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27029.400000000373
+"ms": 27115.10000000149
 },
 {
 "clip": "b2",
-"t": 2.891058,
+"t": 3.011332,
 "playing": true,
 "shown": [
 9,
@@ -9343,11 +8173,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27060.60000000149
+"ms": 27159.60000000149
 },
 {
 "clip": "b2",
-"t": 2.920018,
+"t": 3.041905,
 "playing": true,
 "shown": [
 9,
@@ -9369,11 +8199,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27089.400000000373
+"ms": 27190.5
 },
 {
 "clip": "b2",
-"t": 2.951247,
+"t": 3.074742,
 "playing": true,
 "shown": [
 9,
@@ -9395,11 +8225,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27120.5
+"ms": 27222.900000002235
 },
 {
 "clip": "b2",
-"t": 2.982423,
+"t": 3.120828,
 "playing": true,
 "shown": [
 9,
@@ -9421,11 +8251,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27151.700000001118
+"ms": 27269
 },
 {
 "clip": "b2",
-"t": 3.015055,
+"t": 3.165169,
 "playing": true,
 "shown": [
 9,
@@ -9447,11 +8277,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27184.300000000745
+"ms": 27313.60000000149
 },
 {
 "clip": "b2",
-"t": 3.059516,
+"t": 3.19863,
 "playing": true,
 "shown": [
 9,
@@ -9473,11 +8303,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27228.800000000745
+"ms": 27347.10000000149
 },
 {
 "clip": "b2",
-"t": 3.089522,
+"t": 3.245173,
 "playing": true,
 "shown": [
 9,
@@ -9499,11 +8329,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27259
+"ms": 27393.70000000298
 },
 {
 "clip": "b2",
-"t": 3.126019,
+"t": 3.276597,
 "playing": true,
 "shown": [
 9,
@@ -9525,141 +8355,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27295.400000000373
+"ms": 27424.900000002235
 },
 {
 "clip": "b2",
-"t": 3.168762,
-"playing": true,
-"shown": [
-9,
-7,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 27338.10000000149
-},
-{
-"clip": "b2",
-"t": 3.199208,
-"playing": true,
-"shown": [
-9,
-7,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 27368.60000000149
-},
-{
-"clip": "b2",
-"t": 3.230942,
-"playing": true,
-"shown": [
-9,
-7,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 27400.300000000745
-},
-{
-"clip": "b2",
-"t": 3.262853,
-"playing": true,
-"shown": [
-9,
-7,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 27432.300000000745
-},
-{
-"clip": "b2",
-"t": 3.293521,
-"playing": true,
-"shown": [
-9,
-7,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 27463
-},
-{
-"clip": "b2",
-"t": 3.323786,
+"t": 3.307732,
 "playing": true,
 "shown": [
 9,
@@ -9681,11 +8381,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27493
+"ms": 27456
 },
 {
 "clip": "b2",
-"t": 3.354297,
+"t": 3.339914,
 "playing": true,
 "shown": [
 9,
@@ -9707,11 +8407,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27523.60000000149
+"ms": 27488
 },
 {
 "clip": "b2",
-"t": 3.3843,
+"t": 3.370455,
 "playing": true,
 "shown": [
 9,
@@ -9733,11 +8433,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27553.800000000745
+"ms": 27518.400000002235
 },
 {
 "clip": "b2",
-"t": 3.415821,
+"t": 3.402237,
 "playing": true,
 "shown": [
 9,
@@ -9759,11 +8459,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27585.10000000149
+"ms": 27550.300000000745
 },
 {
 "clip": "b2",
-"t": 3.446912,
+"t": 3.43287,
 "playing": true,
 "shown": [
 9,
@@ -9785,11 +8485,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27616.300000000745
+"ms": 27580.900000002235
 },
 {
 "clip": "b2",
-"t": 3.477206,
+"t": 3.463262,
 "playing": true,
 "shown": [
 9,
@@ -9811,11 +8511,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27646.5
+"ms": 27611.400000002235
 },
 {
 "clip": "b2",
-"t": 3.50988,
+"t": 3.49415,
 "playing": true,
 "shown": [
 9,
@@ -9837,11 +8537,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27679.200000001118
+"ms": 27642.5
 },
 {
 "clip": "b2",
-"t": 3.542026,
+"t": 3.526189,
 "playing": true,
 "shown": [
 9,
@@ -9863,11 +8563,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27711.300000000745
+"ms": 27674.5
 },
 {
 "clip": "b2",
-"t": 3.573732,
+"t": 3.556123,
 "playing": true,
 "shown": [
 9,
@@ -9889,11 +8589,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27743
+"ms": 27704.60000000149
 },
 {
 "clip": "b2",
-"t": 3.619441,
+"t": 3.58966,
 "playing": true,
 "shown": [
 9,
@@ -9915,11 +8615,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27788.700000001118
+"ms": 27738
 },
 {
 "clip": "b2",
-"t": 3.649257,
+"t": 3.63478,
 "playing": true,
 "shown": [
 9,
@@ -9941,11 +8641,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27818.60000000149
+"ms": 27783.300000000745
 },
 {
 "clip": "b2",
-"t": 3.68044,
+"t": 3.666299,
 "playing": true,
 "shown": [
 9,
@@ -9967,11 +8667,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27849.800000000745
+"ms": 27814.70000000298
 },
 {
 "clip": "b2",
-"t": 3.711676,
+"t": 3.712037,
 "playing": true,
 "shown": [
 9,
@@ -9993,11 +8693,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27881
+"ms": 27860.400000002235
 },
 {
 "clip": "b2",
-"t": 3.742476,
+"t": 3.758261,
 "playing": true,
 "shown": [
 9,
@@ -10019,11 +8719,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27911.900000000373
+"ms": 27906.70000000298
 },
 {
 "clip": "b2",
-"t": 3.773597,
+"t": 3.80402,
 "playing": true,
 "shown": [
 9,
@@ -10045,11 +8745,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27943
+"ms": 27952.5
 },
 {
 "clip": "b2",
-"t": 3.804609,
+"t": 3.850425,
 "playing": true,
 "shown": [
 9,
@@ -10071,11 +8771,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 27974
+"ms": 27998.70000000298
 },
 {
 "clip": "b2",
-"t": 3.836823,
+"t": 3.896562,
 "playing": true,
 "shown": [
 9,
@@ -10097,11 +8797,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28006.200000001118
+"ms": 28045
 },
 {
 "clip": "b2",
-"t": 3.86875,
+"t": 3.9265,
 "playing": true,
 "shown": [
 9,
@@ -10123,33 +8823,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28038.10000000149
-},
-{
-"clip": "b2",
-"t": 3.915745,
-"playing": true,
-"shown": [
-9,
-8,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 28085
+"ms": 28076.900000002235
 },
 {
 "clip": "b2",
@@ -10175,7 +8849,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28115.5
+"ms": 28108.800000000745
 },
 {
 "clip": "b2",
@@ -10201,7 +8875,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28147.200000001118
+"ms": 28156.800000000745
 },
 {
 "clip": "b2",
@@ -10227,7 +8901,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28177.200000001118
+"ms": 28203.800000000745
 },
 {
 "clip": "b2",
@@ -10253,7 +8927,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28208.800000000745
+"ms": 28248.800000000745
 },
 {
 "clip": "b2",
@@ -10279,7 +8953,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28239.900000000373
+"ms": 28294.800000000745
 },
 {
 "clip": "b2",
@@ -10305,7 +8979,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28270.60000000149
+"ms": 28326.20000000298
 },
 {
 "clip": "b2",
@@ -10331,7 +9005,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28302.60000000149
+"ms": 28357.900000002235
 },
 {
 "clip": "b2",
@@ -10357,7 +9031,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28347.5
+"ms": 28404.900000002235
 },
 {
 "clip": "b2",
@@ -10383,7 +9057,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28378.900000000373
+"ms": 28435.5
 },
 {
 "clip": "b2",
@@ -10409,7 +9083,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28410.400000000373
+"ms": 28482
 },
 {
 "clip": "b2",
@@ -10435,7 +9109,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28441.900000000373
+"ms": 28512.5
 },
 {
 "clip": "b2",
@@ -10461,7 +9135,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28473.300000000745
+"ms": 28545
 },
 {
 "clip": "b2",
@@ -10487,7 +9161,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28505.60000000149
+"ms": 28574.5
 },
 {
 "clip": "b2",
@@ -10513,7 +9187,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28536.60000000149
+"ms": 28605.400000002235
 },
 {
 "clip": "b2",
@@ -10539,7 +9213,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28567.400000000373
+"ms": 28636.10000000149
 },
 {
 "clip": "b2",
@@ -10565,7 +9239,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28598
+"ms": 28668.900000002235
 },
 {
 "clip": "b2",
@@ -10591,7 +9265,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28629.10000000149
+"ms": 28712
 },
 {
 "clip": "b2",
@@ -10617,7 +9291,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28660.900000000373
+"ms": 28743.10000000149
 },
 {
 "clip": "b2",
@@ -10643,7 +9317,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28691.300000000745
+"ms": 28775
 },
 {
 "clip": "b2",
@@ -10669,7 +9343,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28722.900000000373
+"ms": 28807.400000002235
 },
 {
 "clip": "b2",
@@ -10695,7 +9369,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28754
+"ms": 28837.70000000298
 },
 {
 "clip": "b2",
@@ -10721,7 +9395,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28784.10000000149
+"ms": 28869.400000002235
 },
 {
 "clip": "b2",
@@ -10747,7 +9421,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28815.200000001118
+"ms": 28901.10000000149
 },
 {
 "clip": "b2",
@@ -10773,7 +9447,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28845.400000000373
+"ms": 28932.300000000745
 },
 {
 "clip": "b2",
@@ -10799,7 +9473,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28876.700000001118
+"ms": 28964.5
 },
 {
 "clip": "b2",
@@ -10825,7 +9499,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28908.10000000149
+"ms": 29010
 },
 {
 "clip": "b2",
@@ -10851,137 +9525,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 28938.60000000149
-},
-{
-"clip": "b2",
-"t": 3.9265,
-"playing": false,
-"shown": [
-9,
-8,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 28970.700000001118
-},
-{
-"clip": "b2",
-"t": 3.9265,
-"playing": false,
-"shown": [
-9,
-8,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 29001.700000001118
-},
-{
-"clip": "b2",
-"t": 3.9265,
-"playing": false,
-"shown": [
-9,
-8,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 29033
-},
-{
-"clip": "b2",
-"t": 3.9265,
-"playing": false,
-"shown": [
-9,
-8,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 29064
-},
-{
-"clip": "b2",
-"t": 3.9265,
-"playing": false,
-"shown": [
-9,
-8,
-0,
-0
-],
-"gone": [
-true,
-false,
-false,
-false
-],
-"pic": [
-true,
-true,
-false,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 29096.5
+"ms": 29041.10000000149
 },
 {
 "clip": "b2",
@@ -11007,7 +9551,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29127.700000001118
+"ms": 29088.10000000149
 },
 {
 "clip": "b2",
@@ -11033,7 +9577,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29159.300000000745
+"ms": 29118.60000000149
 },
 {
 "clip": "b2",
@@ -11059,7 +9603,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29191.300000000745
+"ms": 29148.800000000745
 },
 {
 "clip": "b2",
@@ -11085,7 +9629,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29222.60000000149
+"ms": 29179.20000000298
 },
 {
 "clip": "b2",
@@ -11111,7 +9655,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29268.300000000745
+"ms": 29208.900000002235
 },
 {
 "clip": "b2",
@@ -11137,7 +9681,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29298.800000000745
+"ms": 29240.400000002235
 },
 {
 "clip": "b2",
@@ -11163,7 +9707,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29330.800000000745
+"ms": 29284.800000000745
 },
 {
 "clip": "b2",
@@ -11189,7 +9733,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29377.200000001118
+"ms": 29315.900000002235
 },
 {
 "clip": "b2",
@@ -11215,7 +9759,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29409.10000000149
+"ms": 29346.300000000745
 },
 {
 "clip": "b2",
@@ -11241,7 +9785,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29457.5
+"ms": 29377.800000000745
 },
 {
 "clip": "b2",
@@ -11267,7 +9811,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29502.400000000373
+"ms": 29410.400000002235
 },
 {
 "clip": "b2",
@@ -11293,7 +9837,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29534.10000000149
+"ms": 29440.400000002235
 },
 {
 "clip": "b2",
@@ -11319,7 +9863,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29580.5
+"ms": 29473.20000000298
 },
 {
 "clip": "b2",
@@ -11345,7 +9889,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29626
+"ms": 29503.300000000745
 },
 {
 "clip": "b2",
@@ -11371,7 +9915,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29673.5
+"ms": 29534.60000000149
 },
 {
 "clip": "b2",
@@ -11397,7 +9941,137 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29710.60000000149
+"ms": 29565.70000000298
+},
+{
+"clip": "b2",
+"t": 3.9265,
+"playing": false,
+"shown": [
+9,
+8,
+0,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 29597.20000000298
+},
+{
+"clip": "b2",
+"t": 3.9265,
+"playing": false,
+"shown": [
+9,
+8,
+0,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 29627.5
+},
+{
+"clip": "b2",
+"t": 3.9265,
+"playing": false,
+"shown": [
+9,
+8,
+0,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 29659.800000000745
+},
+{
+"clip": "b2",
+"t": 3.9265,
+"playing": false,
+"shown": [
+9,
+8,
+0,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 29690.10000000149
+},
+{
+"clip": "b2",
+"t": 3.9265,
+"playing": false,
+"shown": [
+9,
+8,
+0,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 29719.800000000745
 },
 {
 "clip": "b3",
@@ -11423,11 +10097,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29793.60000000149
+"ms": 29751.70000000298
 },
 {
 "clip": "b3",
-"t": 0,
+"t": 0.005755,
 "playing": true,
 "shown": [
 9,
@@ -11449,11 +10123,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29830.400000000373
+"ms": 29782.20000000298
 },
 {
 "clip": "b3",
-"t": 0.013972,
+"t": 0.017635,
 "playing": true,
 "shown": [
 9,
@@ -11475,11 +10149,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29888.10000000149
+"ms": 29814
 },
 {
 "clip": "b3",
-"t": 0.039693,
+"t": 0.017635,
 "playing": true,
 "shown": [
 9,
@@ -11501,11 +10175,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29949
+"ms": 29844.20000000298
 },
 {
 "clip": "b3",
-"t": 0.078652,
+"t": 0.047101,
 "playing": true,
 "shown": [
 9,
@@ -11527,11 +10201,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 29987.900000000373
+"ms": 29875.10000000149
 },
 {
 "clip": "b3",
-"t": 0.12523,
+"t": 0.080375,
 "playing": true,
 "shown": [
 9,
@@ -11553,11 +10227,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30034.5
+"ms": 29908.400000002235
 },
 {
 "clip": "b3",
-"t": 0.170312,
+"t": 0.125565,
 "playing": true,
 "shown": [
 9,
@@ -11579,11 +10253,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30079.60000000149
+"ms": 29953.800000000745
 },
 {
 "clip": "b3",
-"t": 0.223207,
+"t": 0.15566,
 "playing": true,
 "shown": [
 9,
@@ -11605,11 +10279,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30132.60000000149
+"ms": 29984.10000000149
 },
 {
 "clip": "b3",
-"t": 0.263933,
+"t": 0.187898,
 "playing": true,
 "shown": [
 9,
@@ -11631,11 +10305,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30173.10000000149
+"ms": 30016.5
 },
 {
 "clip": "b3",
-"t": 0.310746,
+"t": 0.219573,
 "playing": true,
 "shown": [
 9,
@@ -11657,11 +10331,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30220.10000000149
+"ms": 30047.800000000745
 },
 {
 "clip": "b3",
-"t": 0.359005,
+"t": 0.249889,
 "playing": true,
 "shown": [
 9,
@@ -11683,11 +10357,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30268.5
+"ms": 30077.900000002235
 },
 {
 "clip": "b3",
-"t": 0.404652,
+"t": 0.282731,
 "playing": true,
 "shown": [
 9,
@@ -11709,11 +10383,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30314.300000000745
+"ms": 30110.900000002235
 },
 {
 "clip": "b3",
-"t": 0.452512,
+"t": 0.313053,
 "playing": true,
 "shown": [
 9,
@@ -11735,11 +10409,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30362.10000000149
+"ms": 30141.20000000298
 },
 {
 "clip": "b3",
-"t": 0.498948,
+"t": 0.344855,
 "playing": true,
 "shown": [
 9,
@@ -11761,11 +10435,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30408.400000000373
+"ms": 30172.800000000745
 },
 {
 "clip": "b3",
-"t": 0.54626,
+"t": 0.376212,
 "playing": true,
 "shown": [
 9,
@@ -11787,11 +10461,167 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30455.700000001118
+"ms": 30204.400000002235
 },
 {
 "clip": "b3",
-"t": 0.591293,
+"t": 0.405498,
+"playing": true,
+"shown": [
+9,
+8,
+1,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30233.60000000149
+},
+{
+"clip": "b3",
+"t": 0.436965,
+"playing": true,
+"shown": [
+9,
+8,
+1,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30265
+},
+{
+"clip": "b3",
+"t": 0.467673,
+"playing": true,
+"shown": [
+9,
+8,
+1,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30295.70000000298
+},
+{
+"clip": "b3",
+"t": 0.498737,
+"playing": true,
+"shown": [
+9,
+8,
+1,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30326.800000000745
+},
+{
+"clip": "b3",
+"t": 0.529374,
+"playing": true,
+"shown": [
+9,
+8,
+1,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30357.5
+},
+{
+"clip": "b3",
+"t": 0.560587,
+"playing": true,
+"shown": [
+9,
+8,
+1,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30388.70000000298
+},
+{
+"clip": "b3",
+"t": 0.592656,
 "playing": true,
 "shown": [
 9,
@@ -11813,11 +10643,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30501
+"ms": 30420.800000000745
 },
 {
 "clip": "b3",
-"t": 0.636788,
+"t": 0.622816,
 "playing": true,
 "shown": [
 9,
@@ -11839,11 +10669,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30546.5
+"ms": 30451
 },
 {
 "clip": "b3",
-"t": 0.684262,
+"t": 0.656176,
 "playing": true,
 "shown": [
 9,
@@ -11865,11 +10695,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30593.5
+"ms": 30484.400000002235
 },
 {
 "clip": "b3",
-"t": 0.729342,
+"t": 0.686038,
 "playing": true,
 "shown": [
 9,
@@ -11891,11 +10721,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30638.900000000373
+"ms": 30514.20000000298
 },
 {
 "clip": "b3",
-"t": 0.760382,
+"t": 0.717686,
 "playing": true,
 "shown": [
 9,
@@ -11917,11 +10747,37 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30669.900000000373
+"ms": 30545.800000000745
 },
 {
 "clip": "b3",
-"t": 0.792241,
+"t": 0.748944,
+"playing": true,
+"shown": [
+9,
+8,
+2,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 30576.900000002235
+},
+{
+"clip": "b3",
+"t": 0.780071,
 "playing": true,
 "shown": [
 9,
@@ -11943,11 +10799,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30701.800000000745
+"ms": 30608.10000000149
 },
 {
 "clip": "b3",
-"t": 0.838756,
+"t": 0.811531,
 "playing": true,
 "shown": [
 9,
@@ -11969,11 +10825,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30748.5
+"ms": 30639.70000000298
 },
 {
 "clip": "b3",
-"t": 0.88445,
+"t": 0.841829,
 "playing": true,
 "shown": [
 9,
@@ -11995,11 +10851,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30794
+"ms": 30670
 },
 {
 "clip": "b3",
-"t": 0.91617,
+"t": 0.872384,
 "playing": true,
 "shown": [
 9,
@@ -12021,11 +10877,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30825.700000001118
+"ms": 30700.5
 },
 {
 "clip": "b3",
-"t": 0.963817,
+"t": 0.903178,
 "playing": true,
 "shown": [
 9,
@@ -12047,11 +10903,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30873.300000000745
+"ms": 30731.300000000745
 },
 {
 "clip": "b3",
-"t": 1.011324,
+"t": 0.934555,
 "playing": true,
 "shown": [
 9,
@@ -12073,11 +10929,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30921
+"ms": 30762.800000000745
 },
 {
 "clip": "b3",
-"t": 1.056956,
+"t": 0.963668,
 "playing": true,
 "shown": [
 9,
@@ -12099,11 +10955,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 30966.400000000373
+"ms": 30791.800000000745
 },
 {
 "clip": "b3",
-"t": 1.101784,
+"t": 0.996952,
 "playing": true,
 "shown": [
 9,
@@ -12125,11 +10981,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31011.5
+"ms": 30825.300000000745
 },
 {
 "clip": "b3",
-"t": 1.145247,
+"t": 1.044161,
 "playing": true,
 "shown": [
 9,
@@ -12151,11 +11007,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31054.900000000373
+"ms": 30872.20000000298
 },
 {
 "clip": "b3",
-"t": 1.179153,
+"t": 1.091102,
 "playing": true,
 "shown": [
 9,
@@ -12177,11 +11033,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31088.800000000745
+"ms": 30919.300000000745
 },
 {
 "clip": "b3",
-"t": 1.224414,
+"t": 1.134842,
 "playing": true,
 "shown": [
 9,
@@ -12203,11 +11059,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31134.200000001118
+"ms": 30962.900000002235
 },
 {
 "clip": "b3",
-"t": 1.255585,
+"t": 1.166196,
 "playing": true,
 "shown": [
 9,
@@ -12229,11 +11085,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31165.300000000745
+"ms": 30994.20000000298
 },
 {
 "clip": "b3",
-"t": 1.302034,
+"t": 1.197203,
 "playing": true,
 "shown": [
 9,
@@ -12255,11 +11111,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31211.60000000149
+"ms": 31025.300000000745
 },
 {
 "clip": "b3",
-"t": 1.350916,
+"t": 1.22758,
 "playing": true,
 "shown": [
 9,
@@ -12281,11 +11137,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31260.700000001118
+"ms": 31056.10000000149
 },
 {
 "clip": "b3",
-"t": 1.396071,
+"t": 1.261977,
 "playing": true,
 "shown": [
 9,
@@ -12307,11 +11163,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31305.700000001118
+"ms": 31090.400000002235
 },
 {
 "clip": "b3",
-"t": 1.440296,
+"t": 1.307466,
 "playing": true,
 "shown": [
 9,
@@ -12333,11 +11189,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31350.10000000149
+"ms": 31136
 },
 {
 "clip": "b3",
-"t": 1.472573,
+"t": 1.352422,
 "playing": true,
 "shown": [
 9,
@@ -12359,11 +11215,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31382
+"ms": 31180.5
 },
 {
 "clip": "b3",
-"t": 1.504309,
+"t": 1.382917,
 "playing": true,
 "shown": [
 9,
@@ -12385,11 +11241,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31413.800000000745
+"ms": 31211.10000000149
 },
 {
 "clip": "b3",
-"t": 1.534579,
+"t": 1.414334,
 "playing": true,
 "shown": [
 9,
@@ -12411,11 +11267,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31444.400000000373
+"ms": 31242.60000000149
 },
 {
 "clip": "b3",
-"t": 1.566311,
+"t": 1.446357,
 "playing": true,
 "shown": [
 9,
@@ -12437,11 +11293,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31475.800000000745
+"ms": 31274.60000000149
 },
 {
 "clip": "b3",
-"t": 1.59817,
+"t": 1.477863,
 "playing": true,
 "shown": [
 9,
@@ -12463,11 +11319,115 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31507.800000000745
+"ms": 31306.10000000149
 },
 {
 "clip": "b3",
-"t": 1.628639,
+"t": 1.507794,
+"playing": true,
+"shown": [
+9,
+8,
+3,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 31336
+},
+{
+"clip": "b3",
+"t": 1.538424,
+"playing": true,
+"shown": [
+9,
+8,
+3,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 31366.60000000149
+},
+{
+"clip": "b3",
+"t": 1.56997,
+"playing": true,
+"shown": [
+9,
+8,
+3,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 31398.20000000298
+},
+{
+"clip": "b3",
+"t": 1.601365,
+"playing": true,
+"shown": [
+9,
+8,
+3,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 31429.5
+},
+{
+"clip": "b3",
+"t": 1.63273,
 "playing": true,
 "shown": [
 9,
@@ -12489,11 +11449,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31538.10000000149
+"ms": 31460.800000000745
 },
 {
 "clip": "b3",
-"t": 1.799313,
+"t": 1.789641,
 "playing": true,
 "shown": [
 9,
@@ -12515,11 +11475,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31708.700000001118
+"ms": 31617.70000000298
 },
 {
 "clip": "b3",
-"t": 1.831299,
+"t": 1.820595,
 "playing": true,
 "shown": [
 9,
@@ -12541,11 +11501,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31740.60000000149
+"ms": 31648.60000000149
 },
 {
 "clip": "b3",
-"t": 1.862942,
+"t": 1.852088,
 "playing": true,
 "shown": [
 9,
@@ -12567,11 +11527,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31772.300000000745
+"ms": 31680.20000000298
 },
 {
 "clip": "b3",
-"t": 1.893449,
+"t": 1.88301,
 "playing": true,
 "shown": [
 9,
@@ -12593,11 +11553,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31803
+"ms": 31711.10000000149
 },
 {
 "clip": "b3",
-"t": 1.92563,
+"t": 1.913289,
 "playing": true,
 "shown": [
 9,
@@ -12619,11 +11579,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31835.200000001118
+"ms": 31741.60000000149
 },
 {
 "clip": "b3",
-"t": 1.957512,
+"t": 1.944504,
 "playing": true,
 "shown": [
 9,
@@ -12645,11 +11605,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31866.800000000745
+"ms": 31772.5
 },
 {
 "clip": "b3",
-"t": 1.988961,
+"t": 1.974569,
 "playing": true,
 "shown": [
 9,
@@ -12671,11 +11631,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31898.5
+"ms": 31802.60000000149
 },
 {
 "clip": "b3",
-"t": 2.034769,
+"t": 2.005313,
 "playing": true,
 "shown": [
 9,
@@ -12697,11 +11657,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31944.200000001118
+"ms": 31833.400000002235
 },
 {
 "clip": "b3",
-"t": 2.06665,
+"t": 2.036455,
 "playing": true,
 "shown": [
 9,
@@ -12723,11 +11683,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 31976
+"ms": 31864.400000002235
 },
 {
 "clip": "b3",
-"t": 2.097184,
+"t": 2.067069,
 "playing": true,
 "shown": [
 9,
@@ -12749,11 +11709,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32006.700000001118
+"ms": 31895.20000000298
 },
 {
 "clip": "b3",
-"t": 2.127331,
+"t": 2.098143,
 "playing": true,
 "shown": [
 9,
@@ -12775,11 +11735,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32036.700000001118
+"ms": 31926.300000000745
 },
 {
 "clip": "b3",
-"t": 2.159274,
+"t": 2.12991,
 "playing": true,
 "shown": [
 9,
@@ -12801,11 +11761,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32068.60000000149
+"ms": 31958
 },
 {
 "clip": "b3",
-"t": 2.190838,
+"t": 2.175825,
 "playing": true,
 "shown": [
 9,
@@ -12827,11 +11787,37 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32100.200000001118
+"ms": 32004.10000000149
 },
 {
 "clip": "b3",
-"t": 2.235815,
+"t": 2.205341,
+"playing": true,
+"shown": [
+9,
+8,
+5,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 32033.70000000298
+},
+{
+"clip": "b3",
+"t": 2.237646,
 "playing": true,
 "shown": [
 9,
@@ -12853,11 +11839,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32145.300000000745
+"ms": 32065.70000000298
 },
 {
 "clip": "b3",
-"t": 2.267559,
+"t": 2.26774,
 "playing": true,
 "shown": [
 9,
@@ -12879,11 +11865,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32177.10000000149
+"ms": 32095.800000000745
 },
 {
 "clip": "b3",
-"t": 2.313626,
+"t": 2.298619,
 "playing": true,
 "shown": [
 9,
@@ -12905,11 +11891,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32223.400000000373
+"ms": 32126.70000000298
 },
 {
 "clip": "b3",
-"t": 2.343647,
+"t": 2.330385,
 "playing": true,
 "shown": [
 9,
@@ -12931,11 +11917,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32253.60000000149
+"ms": 32158.400000002235
 },
 {
 "clip": "b3",
-"t": 2.375348,
+"t": 2.361449,
 "playing": true,
 "shown": [
 9,
@@ -12957,11 +11943,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32284.900000000373
+"ms": 32189.900000002235
 },
 {
 "clip": "b3",
-"t": 2.407217,
+"t": 2.393745,
 "playing": true,
 "shown": [
 9,
@@ -12983,11 +11969,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32316.60000000149
+"ms": 32222.300000000745
 },
 {
 "clip": "b3",
-"t": 2.438067,
+"t": 2.44047,
 "playing": true,
 "shown": [
 9,
@@ -13009,11 +11995,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32347.60000000149
+"ms": 32268.800000000745
 },
 {
 "clip": "b3",
-"t": 2.485868,
+"t": 2.48716,
 "playing": true,
 "shown": [
 9,
@@ -13035,11 +12021,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32395.400000000373
+"ms": 32315.60000000149
 },
 {
 "clip": "b3",
-"t": 2.54817,
+"t": 2.534558,
 "playing": true,
 "shown": [
 9,
@@ -13061,11 +12047,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32457.700000001118
+"ms": 32363.10000000149
 },
 {
 "clip": "b3",
-"t": 2.594039,
+"t": 2.582744,
 "playing": true,
 "shown": [
 9,
@@ -13087,11 +12073,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32503.60000000149
+"ms": 32411
 },
 {
 "clip": "b3",
-"t": 2.63947,
+"t": 2.62872,
 "playing": true,
 "shown": [
 9,
@@ -13113,11 +12099,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32548.900000000373
+"ms": 32456.900000002235
 },
 {
 "clip": "b3",
-"t": 2.670114,
+"t": 2.674632,
 "playing": true,
 "shown": [
 9,
@@ -13139,11 +12125,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32579.5
+"ms": 32502.900000002235
 },
 {
 "clip": "b3",
-"t": 2.701332,
+"t": 2.720089,
 "playing": true,
 "shown": [
 9,
@@ -13165,11 +12151,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32610.800000000745
+"ms": 32548.20000000298
 },
 {
 "clip": "b3",
-"t": 2.732751,
+"t": 2.749428,
 "playing": true,
 "shown": [
 9,
@@ -13191,11 +12177,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32642.10000000149
+"ms": 32577.70000000298
 },
 {
 "clip": "b3",
-"t": 2.763761,
+"t": 2.796213,
 "playing": true,
 "shown": [
 9,
@@ -13217,11 +12203,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32673.10000000149
+"ms": 32624.20000000298
 },
 {
 "clip": "b3",
-"t": 2.795769,
+"t": 2.82869,
 "playing": true,
 "shown": [
 9,
@@ -13243,11 +12229,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32705
+"ms": 32656.900000002235
 },
 {
 "clip": "b3",
-"t": 2.826834,
+"t": 2.873598,
 "playing": true,
 "shown": [
 9,
@@ -13269,11 +12255,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32736.300000000745
+"ms": 32702.10000000149
 },
 {
 "clip": "b3",
-"t": 2.8598,
+"t": 2.919371,
 "playing": true,
 "shown": [
 9,
@@ -13295,11 +12281,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32769.20000000112
+"ms": 32747.60000000149
 },
 {
 "clip": "b3",
-"t": 2.906324,
+"t": 2.948878,
 "playing": true,
 "shown": [
 9,
@@ -13321,11 +12307,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32815.90000000037
+"ms": 32777
 },
 {
 "clip": "b3",
-"t": 2.953137,
+"t": 2.980696,
 "playing": true,
 "shown": [
 9,
@@ -13347,11 +12333,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32862.70000000112
+"ms": 32808.900000002235
 },
 {
 "clip": "b3",
-"t": 2.999517,
+"t": 3.011936,
 "playing": true,
 "shown": [
 9,
@@ -13373,11 +12359,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32909.300000000745
+"ms": 32840
 },
 {
 "clip": "b3",
-"t": 3.047476,
+"t": 3.043498,
 "playing": true,
 "shown": [
 9,
@@ -13399,11 +12385,11 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 32956.90000000037
+"ms": 32871.60000000149
 },
 {
 "clip": "b3",
-"t": 3.095111,
+"t": 3.076163,
 "playing": true,
 "shown": [
 9,
@@ -13425,7 +12411,33 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33004.60000000149
+"ms": 32904.400000002235
+},
+{
+"clip": "b3",
+"t": 3.121211,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+0
+],
+"gone": [
+true,
+true,
+false,
+false
+],
+"pic": [
+true,
+true,
+true,
+false
+],
+"navVisible": false,
+"nav": false,
+"ms": 32949.70000000298
 },
 {
 "clip": "b3",
@@ -13451,7 +12463,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33048.40000000037
+"ms": 32980.300000000745
 },
 {
 "clip": "b3",
@@ -13477,7 +12489,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33081.70000000112
+"ms": 33012.70000000298
 },
 {
 "clip": "b3",
@@ -13503,7 +12515,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33129
+"ms": 33056.70000000298
 },
 {
 "clip": "b3",
@@ -13529,7 +12541,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33160.5
+"ms": 33088.5
 },
 {
 "clip": "b3",
@@ -13555,7 +12567,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33191.90000000037
+"ms": 33118.900000002235
 },
 {
 "clip": "b3",
@@ -13581,7 +12593,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33222
+"ms": 33152.10000000149
 },
 {
 "clip": "b3",
@@ -13607,7 +12619,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33252
+"ms": 33199.400000002235
 },
 {
 "clip": "b3",
@@ -13633,7 +12645,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33282.300000000745
+"ms": 33230.70000000298
 },
 {
 "clip": "b3",
@@ -13659,7 +12671,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33312.800000000745
+"ms": 33260.10000000149
 },
 {
 "clip": "b3",
@@ -13685,7 +12697,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33343.800000000745
+"ms": 33290.800000000745
 },
 {
 "clip": "b3",
@@ -13711,7 +12723,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33375
+"ms": 33323.5
 },
 {
 "clip": "b3",
@@ -13737,7 +12749,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33405.5
+"ms": 33355
 },
 {
 "clip": "b3",
@@ -13763,7 +12775,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33436.90000000037
+"ms": 33399.800000000745
 },
 {
 "clip": "b3",
@@ -13789,7 +12801,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33467.70000000112
+"ms": 33431.400000002235
 },
 {
 "clip": "b3",
@@ -13815,7 +12827,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33499.90000000037
+"ms": 33476.70000000298
 },
 {
 "clip": "b3",
@@ -13841,7 +12853,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33530.70000000112
+"ms": 33506.900000002235
 },
 {
 "clip": "b3",
@@ -13867,7 +12879,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33562
+"ms": 33538.60000000149
 },
 {
 "clip": "b3",
@@ -13893,7 +12905,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33593.5
+"ms": 33571.300000000745
 },
 {
 "clip": "b3",
@@ -13919,7 +12931,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33622.90000000037
+"ms": 33600.900000002235
 },
 {
 "clip": "b3",
@@ -13945,7 +12957,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33653.5
+"ms": 33633.10000000149
 },
 {
 "clip": "b3",
@@ -13971,7 +12983,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33683.60000000149
+"ms": 33663.800000000745
 },
 {
 "clip": "b3",
@@ -13997,7 +13009,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33715.60000000149
+"ms": 33694.70000000298
 },
 {
 "clip": "b3",
@@ -14023,7 +13035,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33747.10000000149
+"ms": 33727.300000000745
 },
 {
 "clip": "b3",
@@ -14049,7 +13061,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33778.10000000149
+"ms": 33757.70000000298
 },
 {
 "clip": "b3",
@@ -14075,7 +13087,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33809.70000000112
+"ms": 33804.800000000745
 },
 {
 "clip": "b3",
@@ -14101,7 +13113,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33855.90000000037
+"ms": 33837
 },
 {
 "clip": "b3",
@@ -14127,7 +13139,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33902.300000000745
+"ms": 33867.800000000745
 },
 {
 "clip": "b3",
@@ -14153,7 +13165,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33931.90000000037
+"ms": 33898.300000000745
 },
 {
 "clip": "b3",
@@ -14179,59 +13191,7 @@ false
 ],
 "navVisible": false,
 "nav": false,
-"ms": 33963.300000000745
-},
-{
-"clip": "b3",
-"t": 3.1265,
-"playing": false,
-"shown": [
-9,
-8,
-8,
-0
-],
-"gone": [
-true,
-true,
-false,
-false
-],
-"pic": [
-true,
-true,
-true,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 33994.5
-},
-{
-"clip": "b3",
-"t": 3.1265,
-"playing": false,
-"shown": [
-9,
-8,
-8,
-0
-],
-"gone": [
-true,
-true,
-false,
-false
-],
-"pic": [
-true,
-true,
-true,
-false
-],
-"navVisible": false,
-"nav": false,
-"ms": 34024.90000000037
+"ms": 33930.800000000745
 },
 {
 "clip": "b3",
@@ -14257,7 +13217,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34057.5
+"ms": 33961.70000000298
 },
 {
 "clip": "b3",
@@ -14283,7 +13243,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34103.5
+"ms": 34007.60000000149
 },
 {
 "clip": "b3",
@@ -14309,7 +13269,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34149.90000000037
+"ms": 34038.60000000149
 },
 {
 "clip": "b3",
@@ -14335,7 +13295,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34194.20000000112
+"ms": 34068.60000000149
 },
 {
 "clip": "b3",
@@ -14361,7 +13321,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34225.70000000112
+"ms": 34099.60000000149
 },
 {
 "clip": "b3",
@@ -14387,7 +13347,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34255.90000000037
+"ms": 34130.60000000149
 },
 {
 "clip": "b3",
@@ -14413,7 +13373,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34303.300000000745
+"ms": 34163.800000000745
 },
 {
 "clip": "b3",
@@ -14439,7 +13399,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34348.5
+"ms": 34195.400000002235
 },
 {
 "clip": "b3",
@@ -14465,7 +13425,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34381.20000000112
+"ms": 34242
 },
 {
 "clip": "b3",
@@ -14491,7 +13451,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34427.90000000037
+"ms": 34273.300000000745
 },
 {
 "clip": "b3",
@@ -14517,7 +13477,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34474.40000000037
+"ms": 34306
 },
 {
 "clip": "b3",
@@ -14543,7 +13503,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34520.40000000037
+"ms": 34352.70000000298
 },
 {
 "clip": "b3",
@@ -14569,7 +13529,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34566.70000000112
+"ms": 34400.5
 },
 {
 "clip": "b3",
@@ -14595,7 +13555,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34613.40000000037
+"ms": 34446.400000002235
 },
 {
 "clip": "b3",
@@ -14621,7 +13581,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34657.800000000745
+"ms": 34478.70000000298
 },
 {
 "clip": "b3",
@@ -14647,7 +13607,33 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34688.90000000037
+"ms": 34525.800000000745
+},
+{
+"clip": "b3",
+"t": 3.1265,
+"playing": false,
+"shown": [
+9,
+8,
+8,
+0
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 34573
 },
 {
 "clip": "b4",
@@ -14673,11 +13659,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34734.90000000037
+"ms": 34617.900000002235
 },
 {
 "clip": "b4",
-"t": 0.01742,
+"t": 0,
 "playing": true,
 "shown": [
 9,
@@ -14699,11 +13685,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34767.800000000745
+"ms": 34648.900000002235
 },
 {
 "clip": "b4",
-"t": 0.024199,
+"t": 0.013886,
 "playing": true,
 "shown": [
 9,
@@ -14725,11 +13711,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34813.800000000745
+"ms": 34680.20000000298
 },
 {
 "clip": "b4",
-"t": 0.071471,
+"t": 0.014795,
 "playing": true,
 "shown": [
 9,
@@ -14751,11 +13737,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34861
+"ms": 34711.20000000298
 },
 {
 "clip": "b4",
-"t": 0.118631,
+"t": 0.033648,
 "playing": true,
 "shown": [
 9,
@@ -14777,11 +13763,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34908.300000000745
+"ms": 34741.800000000745
 },
 {
 "clip": "b4",
-"t": 0.164065,
+"t": 0.066033,
 "playing": true,
 "shown": [
 9,
@@ -14803,11 +13789,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34954
+"ms": 34774.300000000745
 },
 {
 "clip": "b4",
-"t": 0.209749,
+"t": 0.097687,
 "playing": true,
 "shown": [
 9,
@@ -14829,11 +13815,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 34999
+"ms": 34806.20000000298
 },
 {
 "clip": "b4",
-"t": 0.241097,
+"t": 0.144053,
 "playing": true,
 "shown": [
 9,
@@ -14855,11 +13841,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35030.5
+"ms": 34852.60000000149
 },
 {
 "clip": "b4",
-"t": 0.27387,
+"t": 0.190998,
 "playing": true,
 "shown": [
 9,
@@ -14881,11 +13867,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35063.40000000037
+"ms": 34899.20000000298
 },
 {
 "clip": "b4",
-"t": 0.318332,
+"t": 0.234788,
 "playing": true,
 "shown": [
 9,
@@ -14907,11 +13893,89 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35107.60000000149
+"ms": 34943
 },
 {
 "clip": "b4",
-"t": 0.350035,
+"t": 0.265601,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+1
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 34973.800000000745
+},
+{
+"clip": "b4",
+"t": 0.29656,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+1
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 35004.70000000298
+},
+{
+"clip": "b4",
+"t": 0.326763,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+1
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 35035
+},
+{
+"clip": "b4",
+"t": 0.357192,
 "playing": true,
 "shown": [
 9,
@@ -14933,11 +13997,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35139.300000000745
+"ms": 35065.400000002235
 },
 {
 "clip": "b4",
-"t": 0.383759,
+"t": 0.389076,
 "playing": true,
 "shown": [
 9,
@@ -14959,11 +14023,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35173.10000000149
+"ms": 35097.10000000149
 },
 {
 "clip": "b4",
-"t": 0.428316,
+"t": 0.419701,
 "playing": true,
 "shown": [
 9,
@@ -14985,11 +14049,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35217.60000000149
+"ms": 35128.10000000149
 },
 {
 "clip": "b4",
-"t": 0.47406,
+"t": 0.451019,
 "playing": true,
 "shown": [
 9,
@@ -15011,11 +14075,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35263.60000000149
+"ms": 35159.10000000149
 },
 {
 "clip": "b4",
-"t": 0.505338,
+"t": 0.482327,
 "playing": true,
 "shown": [
 9,
@@ -15037,11 +14101,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35294.90000000037
+"ms": 35190.400000002235
 },
 {
 "clip": "b4",
-"t": 0.538089,
+"t": 0.51429,
 "playing": true,
 "shown": [
 9,
@@ -15063,11 +14127,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35327.300000000745
+"ms": 35222.5
 },
 {
 "clip": "b4",
-"t": 0.58667,
+"t": 0.544807,
 "playing": true,
 "shown": [
 9,
@@ -15089,11 +14153,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35376
+"ms": 35252.900000002235
 },
 {
 "clip": "b4",
-"t": 0.619516,
+"t": 0.576048,
 "playing": true,
 "shown": [
 9,
@@ -15115,11 +14179,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35408.800000000745
+"ms": 35284.10000000149
 },
 {
 "clip": "b4",
-"t": 0.664253,
+"t": 0.606023,
 "playing": true,
 "shown": [
 9,
@@ -15141,11 +14205,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35453.5
+"ms": 35314.10000000149
 },
 {
 "clip": "b4",
-"t": 0.694984,
+"t": 0.637103,
 "playing": true,
 "shown": [
 9,
@@ -15167,11 +14231,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35484.20000000112
+"ms": 35345.10000000149
 },
 {
 "clip": "b4",
-"t": 0.726354,
+"t": 0.668572,
 "playing": true,
 "shown": [
 9,
@@ -15193,11 +14257,37 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35515.70000000112
+"ms": 35376.60000000149
 },
 {
 "clip": "b4",
-"t": 0.758174,
+"t": 0.699105,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+2
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 35407.20000000298
+},
+{
+"clip": "b4",
+"t": 0.731015,
 "playing": true,
 "shown": [
 9,
@@ -15219,11 +14309,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35547.60000000149
+"ms": 35439.10000000149
 },
 {
 "clip": "b4",
-"t": 0.788345,
+"t": 0.762551,
 "playing": true,
 "shown": [
 9,
@@ -15245,11 +14335,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35577.70000000112
+"ms": 35470.70000000298
 },
 {
 "clip": "b4",
-"t": 0.822444,
+"t": 0.794411,
 "playing": true,
 "shown": [
 9,
@@ -15271,11 +14361,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35611.800000000745
+"ms": 35502.70000000298
 },
 {
 "clip": "b4",
-"t": 0.869781,
+"t": 0.825833,
 "playing": true,
 "shown": [
 9,
@@ -15297,11 +14387,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35659.20000000112
+"ms": 35534.20000000298
 },
 {
 "clip": "b4",
-"t": 0.916942,
+"t": 0.872597,
 "playing": true,
 "shown": [
 9,
@@ -15323,11 +14413,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35706.10000000149
+"ms": 35580.900000002235
 },
 {
 "clip": "b4",
-"t": 0.960693,
+"t": 0.902489,
 "playing": true,
 "shown": [
 9,
@@ -15349,11 +14439,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35750
+"ms": 35610.60000000149
 },
 {
 "clip": "b4",
-"t": 1.007085,
+"t": 0.932751,
 "playing": true,
 "shown": [
 9,
@@ -15375,11 +14465,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35796.300000000745
+"ms": 35640.900000002235
 },
 {
 "clip": "b4",
-"t": 1.038066,
+"t": 0.965295,
 "playing": true,
 "shown": [
 9,
@@ -15401,11 +14491,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35827.40000000037
+"ms": 35673.20000000298
 },
 {
 "clip": "b4",
-"t": 1.068666,
+"t": 0.996957,
 "playing": true,
 "shown": [
 9,
@@ -15427,11 +14517,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35858
+"ms": 35705
 },
 {
 "clip": "b4",
-"t": 1.099671,
+"t": 1.028924,
 "playing": true,
 "shown": [
 9,
@@ -15453,11 +14543,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35889
+"ms": 35737.10000000149
 },
 {
 "clip": "b4",
-"t": 1.132059,
+"t": 1.075427,
 "playing": true,
 "shown": [
 9,
@@ -15479,11 +14569,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35921.300000000745
+"ms": 35783.800000000745
 },
 {
 "clip": "b4",
-"t": 1.161899,
+"t": 1.121686,
 "playing": true,
 "shown": [
 9,
@@ -15505,11 +14595,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35951.20000000112
+"ms": 35830
 },
 {
 "clip": "b4",
-"t": 1.193272,
+"t": 1.165441,
 "playing": true,
 "shown": [
 9,
@@ -15531,11 +14621,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 35982.60000000149
+"ms": 35873.60000000149
 },
 {
 "clip": "b4",
-"t": 1.225086,
+"t": 1.196971,
 "playing": true,
 "shown": [
 9,
@@ -15557,11 +14647,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36014.40000000037
+"ms": 35905
 },
 {
 "clip": "b4",
-"t": 1.256182,
+"t": 1.229429,
 "playing": true,
 "shown": [
 9,
@@ -15583,11 +14673,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36045.60000000149
+"ms": 35937.400000002235
 },
 {
 "clip": "b4",
-"t": 1.287213,
+"t": 1.260507,
 "playing": true,
 "shown": [
 9,
@@ -15609,11 +14699,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36076.5
+"ms": 35968.70000000298
 },
 {
 "clip": "b4",
-"t": 1.319319,
+"t": 1.290915,
 "playing": true,
 "shown": [
 9,
@@ -15635,11 +14725,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36108.70000000112
+"ms": 35999.5
 },
 {
 "clip": "b4",
-"t": 1.351699,
+"t": 1.322562,
 "playing": true,
 "shown": [
 9,
@@ -15661,11 +14751,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36141.10000000149
+"ms": 36030.900000002235
 },
 {
 "clip": "b4",
-"t": 1.383505,
+"t": 1.369624,
 "playing": true,
 "shown": [
 9,
@@ -15687,11 +14777,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36172.800000000745
+"ms": 36078
 },
 {
 "clip": "b4",
-"t": 1.413401,
+"t": 1.415959,
 "playing": true,
 "shown": [
 9,
@@ -15713,37 +14803,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36202.800000000745
+"ms": 36124.20000000298
 },
 {
 "clip": "b4",
-"t": 1.444337,
-"playing": true,
-"shown": [
-9,
-8,
-8,
-3
-],
-"gone": [
-true,
-true,
-true,
-false
-],
-"pic": [
-true,
-true,
-true,
-true
-],
-"navVisible": false,
-"nav": false,
-"ms": 36233.60000000149
-},
-{
-"clip": "b4",
-"t": 1.47686,
+"t": 1.463883,
 "playing": true,
 "shown": [
 9,
@@ -15765,11 +14829,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36266.10000000149
+"ms": 36172.300000000745
 },
 {
 "clip": "b4",
-"t": 1.603172,
+"t": 1.617429,
 "playing": true,
 "shown": [
 9,
@@ -15791,11 +14855,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36392.40000000037
+"ms": 36325.60000000149
 },
 {
 "clip": "b4",
-"t": 1.6348,
+"t": 1.663812,
 "playing": true,
 "shown": [
 9,
@@ -15817,11 +14881,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36424.10000000149
+"ms": 36371.900000002235
 },
 {
 "clip": "b4",
-"t": 1.680398,
+"t": 1.695016,
 "playing": true,
 "shown": [
 9,
@@ -15843,11 +14907,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36469.60000000149
+"ms": 36403.300000000745
 },
 {
 "clip": "b4",
-"t": 1.71087,
+"t": 1.725553,
 "playing": true,
 "shown": [
 9,
@@ -15869,11 +14933,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36500
+"ms": 36433.60000000149
 },
 {
 "clip": "b4",
-"t": 1.743186,
+"t": 1.757641,
 "playing": true,
 "shown": [
 9,
@@ -15895,11 +14959,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36532.40000000037
+"ms": 36465.70000000298
 },
 {
 "clip": "b4",
-"t": 1.774203,
+"t": 1.788417,
 "playing": true,
 "shown": [
 9,
@@ -15921,37 +14985,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36563.40000000037
+"ms": 36496.5
 },
 {
 "clip": "b4",
-"t": 1.805516,
-"playing": true,
-"shown": [
-9,
-8,
-8,
-4
-],
-"gone": [
-true,
-true,
-true,
-false
-],
-"pic": [
-true,
-true,
-true,
-true
-],
-"navVisible": false,
-"nav": false,
-"ms": 36594.60000000149
-},
-{
-"clip": "b4",
-"t": 1.83675,
+"t": 1.821139,
 "playing": true,
 "shown": [
 9,
@@ -15973,11 +15011,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36626
+"ms": 36529.5
 },
 {
 "clip": "b4",
-"t": 1.867582,
+"t": 1.867013,
 "playing": true,
 "shown": [
 9,
@@ -15999,11 +15037,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36656.800000000745
+"ms": 36575.300000000745
 },
 {
 "clip": "b4",
-"t": 1.898342,
+"t": 1.899191,
 "playing": true,
 "shown": [
 9,
@@ -16025,11 +15063,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36687.5
+"ms": 36607.5
 },
 {
 "clip": "b4",
-"t": 1.929464,
+"t": 1.943177,
 "playing": true,
 "shown": [
 9,
@@ -16051,11 +15089,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36718.70000000112
+"ms": 36651.20000000298
 },
 {
 "clip": "b4",
-"t": 1.96086,
+"t": 1.9745,
 "playing": true,
 "shown": [
 9,
@@ -16077,11 +15115,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36750.20000000112
+"ms": 36682.800000000745
 },
 {
 "clip": "b4",
-"t": 1.99211,
+"t": 2.006991,
 "playing": true,
 "shown": [
 9,
@@ -16103,11 +15141,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36781.40000000037
+"ms": 36715.10000000149
 },
 {
 "clip": "b4",
-"t": 2.023198,
+"t": 2.037348,
 "playing": true,
 "shown": [
 9,
@@ -16129,11 +15167,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36812.5
+"ms": 36745.60000000149
 },
 {
 "clip": "b4",
-"t": 2.054471,
+"t": 2.067106,
 "playing": true,
 "shown": [
 9,
@@ -16155,11 +15193,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36843.90000000037
+"ms": 36775.20000000298
 },
 {
 "clip": "b4",
-"t": 2.085975,
+"t": 2.097345,
 "playing": true,
 "shown": [
 9,
@@ -16181,11 +15219,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36875.40000000037
+"ms": 36806
 },
 {
 "clip": "b4",
-"t": 2.132336,
+"t": 2.130113,
 "playing": true,
 "shown": [
 9,
@@ -16207,11 +15245,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36921.70000000112
+"ms": 36838.5
 },
 {
 "clip": "b4",
-"t": 2.164324,
+"t": 2.175906,
 "playing": true,
 "shown": [
 9,
@@ -16233,11 +15271,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36953.70000000112
+"ms": 36884.20000000298
 },
 {
 "clip": "b4",
-"t": 2.194512,
+"t": 2.223839,
 "playing": true,
 "shown": [
 9,
@@ -16259,11 +15297,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 36984
+"ms": 36932.20000000298
 },
 {
 "clip": "b4",
-"t": 2.226541,
+"t": 2.269495,
 "playing": true,
 "shown": [
 9,
@@ -16285,11 +15323,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37015.90000000037
+"ms": 36977.800000000745
 },
 {
 "clip": "b4",
-"t": 2.257182,
+"t": 2.315881,
 "playing": true,
 "shown": [
 9,
@@ -16311,37 +15349,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37046.40000000037
+"ms": 37024.10000000149
 },
 {
 "clip": "b4",
-"t": 2.290001,
-"playing": true,
-"shown": [
-9,
-8,
-8,
-5
-],
-"gone": [
-true,
-true,
-true,
-false
-],
-"pic": [
-true,
-true,
-true,
-true
-],
-"navVisible": false,
-"nav": false,
-"ms": 37079.300000000745
-},
-{
-"clip": "b4",
-"t": 2.342881,
+"t": 2.362682,
 "playing": true,
 "shown": [
 9,
@@ -16363,11 +15375,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37132.10000000149
+"ms": 37070.900000002235
 },
 {
 "clip": "b4",
-"t": 2.391369,
+"t": 2.407312,
 "playing": true,
 "shown": [
 9,
@@ -16389,11 +15401,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37180.90000000037
+"ms": 37115.60000000149
 },
 {
 "clip": "b4",
-"t": 2.436874,
+"t": 2.437213,
 "playing": true,
 "shown": [
 9,
@@ -16415,11 +15427,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37226.20000000112
+"ms": 37145.900000002235
 },
 {
 "clip": "b4",
-"t": 2.476051,
+"t": 2.468582,
 "playing": true,
 "shown": [
 9,
@@ -16441,11 +15453,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37265.40000000037
+"ms": 37176.800000000745
 },
 {
 "clip": "b4",
-"t": 2.507421,
+"t": 2.499628,
 "playing": true,
 "shown": [
 9,
@@ -16467,11 +15479,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37296.70000000112
+"ms": 37207.800000000745
 },
 {
 "clip": "b4",
-"t": 2.538924,
+"t": 2.531112,
 "playing": true,
 "shown": [
 9,
@@ -16493,11 +15505,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37328.300000000745
+"ms": 37239.300000000745
 },
 {
 "clip": "b4",
-"t": 2.572834,
+"t": 2.56363,
 "playing": true,
 "shown": [
 9,
@@ -16519,11 +15531,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37362.10000000149
+"ms": 37271.800000000745
 },
 {
 "clip": "b4",
-"t": 2.617113,
+"t": 2.595538,
 "playing": true,
 "shown": [
 9,
@@ -16545,11 +15557,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37407.10000000149
+"ms": 37303.800000000745
 },
 {
 "clip": "b4",
-"t": 2.662959,
+"t": 2.639516,
 "playing": true,
 "shown": [
 9,
@@ -16571,11 +15583,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37452.20000000112
+"ms": 37348
 },
 {
 "clip": "b4",
-"t": 2.694691,
+"t": 2.671201,
 "playing": true,
 "shown": [
 9,
@@ -16597,11 +15609,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37483.90000000037
+"ms": 37379.400000002235
 },
 {
 "clip": "b4",
-"t": 2.726151,
+"t": 2.718313,
 "playing": true,
 "shown": [
 9,
@@ -16623,37 +15635,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37515.40000000037
+"ms": 37426.70000000298
 },
 {
 "clip": "b4",
-"t": 2.757411,
-"playing": true,
-"shown": [
-9,
-8,
-8,
-6
-],
-"gone": [
-true,
-true,
-true,
-false
-],
-"pic": [
-true,
-true,
-true,
-true
-],
-"navVisible": false,
-"nav": false,
-"ms": 37546.800000000745
-},
-{
-"clip": "b4",
-"t": 2.787879,
+"t": 2.763465,
 "playing": true,
 "shown": [
 9,
@@ -16675,11 +15661,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37577.40000000037
+"ms": 37472
 },
 {
 "clip": "b4",
-"t": 2.820086,
+"t": 2.808394,
 "playing": true,
 "shown": [
 9,
@@ -16701,11 +15687,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37609.5
+"ms": 37516.60000000149
 },
 {
 "clip": "b4",
-"t": 2.850856,
+"t": 2.839379,
 "playing": true,
 "shown": [
 9,
@@ -16727,11 +15713,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37640.300000000745
+"ms": 37548.20000000298
 },
 {
 "clip": "b4",
-"t": 2.882735,
+"t": 2.871581,
 "playing": true,
 "shown": [
 9,
@@ -16753,11 +15739,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37672.10000000149
+"ms": 37579.800000000745
 },
 {
 "clip": "b4",
-"t": 2.927714,
+"t": 2.902204,
 "playing": true,
 "shown": [
 9,
@@ -16779,11 +15765,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37717.10000000149
+"ms": 37610.70000000298
 },
 {
 "clip": "b4",
-"t": 2.974484,
+"t": 2.93505,
 "playing": true,
 "shown": [
 9,
@@ -16805,11 +15791,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37764
+"ms": 37643.20000000298
 },
 {
 "clip": "b4",
-"t": 3.019888,
+"t": 2.979602,
 "playing": true,
 "shown": [
 9,
@@ -16831,11 +15817,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37809.300000000745
+"ms": 37687.800000000745
 },
 {
 "clip": "b4",
-"t": 3.066041,
+"t": 3.010307,
 "playing": true,
 "shown": [
 9,
@@ -16857,11 +15843,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37855.40000000037
+"ms": 37718.60000000149
 },
 {
 "clip": "b4",
-"t": 3.111832,
+"t": 3.041507,
 "playing": true,
 "shown": [
 9,
@@ -16883,11 +15869,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37901.20000000112
+"ms": 37749.800000000745
 },
 {
 "clip": "b4",
-"t": 3.159798,
+"t": 3.072383,
 "playing": true,
 "shown": [
 9,
@@ -16909,11 +15895,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37949.300000000745
+"ms": 37780.5
 },
 {
 "clip": "b4",
-"t": 3.205684,
+"t": 3.104747,
 "playing": true,
 "shown": [
 9,
@@ -16935,11 +15921,89 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 37995.300000000745
+"ms": 37813.300000000745
 },
 {
 "clip": "b4",
-"t": 3.237985,
+"t": 3.135273,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+7
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 37843.70000000298
+},
+{
+"clip": "b4",
+"t": 3.168282,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+7
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 37876.60000000149
+},
+{
+"clip": "b4",
+"t": 3.198463,
+"playing": true,
+"shown": [
+9,
+8,
+8,
+7
+],
+"gone": [
+true,
+true,
+true,
+false
+],
+"pic": [
+true,
+true,
+true,
+true
+],
+"navVisible": false,
+"nav": false,
+"ms": 37907.10000000149
+},
+{
+"clip": "b4",
+"t": 3.22924,
 "playing": true,
 "shown": [
 9,
@@ -16961,11 +16025,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38028
+"ms": 37937.400000002235
 },
 {
 "clip": "b4",
-"t": 3.283415,
+"t": 3.260448,
 "playing": true,
 "shown": [
 9,
@@ -16987,11 +16051,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38072.800000000745
+"ms": 37968.60000000149
 },
 {
 "clip": "b4",
-"t": 3.315541,
+"t": 3.291465,
 "playing": true,
 "shown": [
 9,
@@ -17013,11 +16077,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38104.90000000037
+"ms": 37999.800000000745
 },
 {
 "clip": "b4",
-"t": 3.345927,
+"t": 3.322648,
 "playing": true,
 "shown": [
 9,
@@ -17039,11 +16103,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38135.60000000149
+"ms": 38030.800000000745
 },
 {
 "clip": "b4",
-"t": 3.376968,
+"t": 3.355059,
 "playing": true,
 "shown": [
 9,
@@ -17065,11 +16129,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38166.300000000745
+"ms": 38063.20000000298
 },
 {
 "clip": "b4",
-"t": 3.40804,
+"t": 3.385525,
 "playing": true,
 "shown": [
 9,
@@ -17091,11 +16155,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38197.40000000037
+"ms": 38093.70000000298
 },
 {
 "clip": "b4",
-"t": 3.439555,
+"t": 3.416179,
 "playing": true,
 "shown": [
 9,
@@ -17117,11 +16181,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38229
+"ms": 38124.800000000745
 },
 {
 "clip": "b4",
-"t": 3.486085,
+"t": 3.448192,
 "playing": true,
 "shown": [
 9,
@@ -17143,11 +16207,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38275.5
+"ms": 38156.400000002235
 },
 {
 "clip": "b4",
-"t": 3.520491,
+"t": 3.479528,
 "playing": true,
 "shown": [
 9,
@@ -17169,11 +16233,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38310
+"ms": 38187.900000002235
 },
 {
 "clip": "b4",
-"t": 3.566341,
+"t": 3.526548,
 "playing": true,
 "shown": [
 9,
@@ -17195,11 +16259,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38355.70000000112
+"ms": 38234.70000000298
 },
 {
 "clip": "b4",
-"t": 3.596994,
+"t": 3.573203,
 "playing": true,
 "shown": [
 9,
@@ -17221,11 +16285,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38386.40000000037
+"ms": 38281.70000000298
 },
 {
 "clip": "b4",
-"t": 3.627169,
+"t": 3.620157,
 "playing": true,
 "shown": [
 9,
@@ -17247,11 +16311,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38416.5
+"ms": 38328.70000000298
 },
 {
 "clip": "b4",
-"t": 3.658219,
+"t": 3.666383,
 "playing": true,
 "shown": [
 9,
@@ -17273,11 +16337,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38447.60000000149
+"ms": 38374.70000000298
 },
 {
 "clip": "b4",
-"t": 3.690288,
+"t": 3.712527,
 "playing": true,
 "shown": [
 9,
@@ -17299,11 +16363,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38479.60000000149
+"ms": 38420.900000002235
 },
 {
 "clip": "b4",
-"t": 3.723091,
+"t": 3.758803,
 "playing": true,
 "shown": [
 9,
@@ -17325,11 +16389,11 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38512.300000000745
+"ms": 38467.20000000298
 },
 {
 "clip": "b4",
-"t": 3.753423,
+"t": 3.805483,
 "playing": true,
 "shown": [
 9,
@@ -17351,59 +16415,7 @@ true
 ],
 "navVisible": false,
 "nav": false,
-"ms": 38542.60000000149
-},
-{
-"clip": "b4",
-"t": 3.784484,
-"playing": true,
-"shown": [
-9,
-8,
-8,
-8
-],
-"gone": [
-true,
-true,
-true,
-false
-],
-"pic": [
-true,
-true,
-true,
-true
-],
-"navVisible": false,
-"nav": false,
-"ms": 38573.90000000037
-},
-{
-"clip": "b4",
-"t": 3.816073,
-"playing": true,
-"shown": [
-9,
-8,
-8,
-8
-],
-"gone": [
-true,
-true,
-true,
-false
-],
-"pic": [
-true,
-true,
-true,
-true
-],
-"navVisible": false,
-"nav": false,
-"ms": 38605.5
+"ms": 38514
 },
 {
 "clip": "b4",
@@ -17429,7 +16441,7 @@ true
 ],
 "navVisible": true,
 "nav": true,
-"ms": 38655.70000000112
+"ms": 38561.10000000149
 }
 ]
 }

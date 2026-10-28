@@ -518,6 +518,38 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The story page T0 retold in four beats ([story-pinki], 2026-10-28)
+- Asked: at page 1 (T0) replace the picture and the text with Figma frame 652:3's and make its VO; when that sentence is over,
+  frame 652:192's picture and text on the same screen, then 660:127's, then 653:381's — each with the same synced animation —
+  and then the next button; everything else unchanged. Then: the first two sentences centred in the white box like the third
+  and fourth.
+- Built: the STORY_LISTEN page keeps its layout, module and beat animation (the picture in the grey-bordered frame, the text
+  word by word in the white box, the finished text leaving a second after its clip, the next picture over the last, its clip
+  once it has landed, आगे once the last clip ends) and gets FOUR beats (data.beats; the module was already N-beat):
+  1 "पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”" (652:3), 2 "माँ ने कहा, “उसे रोको मत जाने दो।”" (652:192), 3 "पिंकी ने पूछा,
+  “क्या, उसे जाने दूँ ?”" (660:127), 4 "माँ ने कहा, “उसे रोको, मत जाने दो।”" (653:381) — the texts as the frames spell them,
+  punctuation included (beats 2 and 4 differ by one comma). The pictures are the frames' own source bitmaps (download_assets:
+  1774x887 for 1-3, 1672x941 for 4, saved as story_assets/img_story_pinki_{cat,listen,ask,maa}.webp) cropped by CSS exactly as
+  each image node sits in its 430x224 box (.sfig-img.b1 -14,-3 458x229; .b2 -16,-4 462x231; .b3 -14,-2 458x229; .b4 0,-9
+  430x242). The text boxes are the frames' nodes (.sfig-text.b1 427 wide centred on 532.5, 26px; .b2 / .b3 384 wide on 532,
+  28px; .b4 395 wide on 531.5, 28px). The opening line "आइए इन वाक्यों को सुनते हैं।" (vo_story_s0, [vo-rec]) still comes first.
+- The VOs: the four recorded takes in the user's batch ARE these lines (heard with whisper: 1.wav "पिंकी बोली माँ बिल्ली रसोई में
+  जा रही है", 2.wav "पिंकी ने पूछा, क्या उसे जाने दूँ?", and two "माँ ने कहा उसे रोको मत जाने दो" — vo_story_s1.wav and 3.wav —
+  told apart by their pause, measured on the waveforms: vo_story_s1.wav breathes after "मत" (beat 2, no comma), 3.wav after
+  "रोको" (beat 4, "उसे रोको, मत जाने दो")). So no TTS was generated: vo_rec.py (RENAME) re-containers them as vo_story_b1..b4
+  (Opus, assets/Audio), and re-derives each beat's word times from the recording (story_assets/vo_story_b*.words.json; a mark
+  such as "?”" lights with the word before it). 4.wav (the moral: "दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न ...")
+  and vo_story_r1.wav (the two meanings) belong to this story too but no page carries them yet: T0B still re-reads the Chintu
+  story (its TTS lines), as asked ("rest keep everything exactly the same"). The Chintu beats' files (img_story_chintu*.webp,
+  vo_story_s1 / s2.ogg) are removed from the dist; their sources stay in story_assets/.
+- The centring: the frames' texts end with spaces (two on the first), which this build had first reproduced as trailing
+  no-break spaces; on beats 1 and 2 that space wrapped onto a second line and lifted the text 17 px, and Figma's own renders
+  show no such shift anyway (every sentence's ink within 1.5 px of the box's centre). The rule is gone: all four sentences now
+  sit on the box's centre (ink centres within 0.5 px, measured in Chrome at 1280x720).
+- Checked: story_check.py rewritten for N beats (usage: the four renders story_b1..b4_figma_render_1280x720.png): 58/58 — the opening line then the four beats' word sync (none early, none late), the three turns (text leaves at 1.0 s, picture at the turn, the next clip ~0.65 s later), a 🔊 tap in the first turn ignored, the disabled pill through the beats and the live, breathing one once the last clip ends, the replay of the last beat, a stalled last clip, every frame element within 1 px of its frame and each beat's picture + text box pixel-matching its render (under 5 %), आगे -> T0B; and the whole suite after it (see the [vo-rec] checks line).
+  `../_before_story_pinki/` holds the dist's three files as built just before (rebuilt from the reversed edit, since both
+  changes happened in one uncommitted session), build.py, README.md, story_check.py and the Chintu story assets from before.
+
 The recorded voice-overs in their places ([vo-rec], 2026-10-28)
 - Asked: "I have added the folder (voiceovers) which contains all the new VOs so now implement all these VOs to their respective
   places and it must be sync." The folder (`HI02H12_L01_S01_dist/voiceovers/`, 75 wavs, 24 kHz mono; copied to `vo_rec/` as the
@@ -532,6 +564,8 @@ The recorded voice-overs in their places ([vo-rec], 2026-10-28)
   अर्थ ही बदल गया", vo_story_s1 "माँ ने कहा उसे रोको मत जाने दो", vo_story_r1 "यहाँ पहले वाक्य का अर्थ है ... दूसरे वाक्य का अर्थ है ..."
   — none of it is the चिंटू / दादी story the pages T0 / T0B show (frames 435:5, 476:198, 488:190), so those six are NOT used and the
   story's run-on and re-read keep their TTS lines; the two intro lines (vo_story_s0, vo_story_r0) are the recordings.
+  (Later that day the user re-pointed T0 at that very story — frames 652:3 ..: see [story-pinki]; 1 / 2 / 3.wav and
+  vo_story_s1.wav are its four beats now; 4.wav and vo_story_r1.wav still wait for a page.)
 - The pipeline: `python -I -X utf8 vo_rec.py` (then build.py) — re-containers each used recording to assets/Audio/<ID>.ogg
   (Opus 48 kHz, no gain: the recordings sit within 2-4 dB of the clips they replace), cuts vo_stamp_sent4 (15.4 s, the deck's one
   line for the letter's last block) into rounds 4 and 5 at the word boundary before "उनके" (4.34 s), re-derives every synced
@@ -579,7 +613,26 @@ The recorded voice-overs in their places ([vo-rec], 2026-10-28)
   chime 19.0 s, the pop / paper on the tap; L2 intro 0.4, pops, sent 6.3, the right drop → thud, chime + vo_ok; round 2 opens with
   vo_stamp_intro (23.3 s), sent2, wrong 1 → the wiggle alone, wrong 2 → hint2, wrong 3 → hint3 with the right stamp lifting and
   gliding (27 samples of 100 ms), the right drop → vo_ok. No page errors anywhere. smoke.py 47/47 (its wait for the letter's
-  pulsing envelope lengthened for the narration). The page checks: see the next paragraph.
+  pulsing envelope lengthened for the narration).
+- Found by the page checks the same evening, fixed (all in the same tag): (1) build.py's asset steps copy each page's clips
+  from its *_assets/ folder into the dist on EVERY build — so the 36 recordings vo_rec.py had written into assets/Audio
+  (the recap rows, the demos' sentences and full readings, G1's intro, G2's / G3's sentences, G4 / P1 / P2's prompts and
+  options, the stamp instruction and sentences) were put back to their TTS clips by the build that followed, with the
+  recordings' word times on them. vo_rec.py now writes each recording into the folder build.py copies it from as well
+  (the TTS original kept beside it as <ID>.tts.ogg), and an audit decodes every built clip against its recording's length
+  (72 of 72 within 60 ms). (2) The alignment: whisper's last-word END may overrun the file (vo_demo3_sent: 4.72 s in a
+  3.95 s clip), which put a mark's time past the clip's end; a line the recording says differently (the अल्प-विराम "when"
+  row: 2 of 5 words matched) stacked three words at 0 s; whisper's joined words ("उड़ारही") gave two words one time.
+  align() now clamps to the clip's length, spreads the shown words evenly when fewer than half match, spreads joined words
+  over their span, and lets a bare mark take a free heard word (its spoken name, "लड़की पूर्णविराम पतंग") or else the word
+  before it. (3) The engine's sfigNarrate tick could hide the last word again after the clip's end (the recap's "?" stayed
+  off and its p wrapped): the tick now stops once the clip has ended. (4) The checks themselves: the three story-page
+  checks still watched the pre-[dun-chrome] आगे (<img> arts, nextBtnPulse, a 198x90 box) and threw in the page — now the
+  text pill (.active, its ::after navBreathe, 170x62), and its disabled art IS shown through the clips (the reference's
+  way, as [dun-chrome] 2 says); demo_check / pick_check / g4_check / gate_check / letter_check / stamp_check learned the
+  new beats (clip IDs, the explain / again / conclude lines, the praise before the pill's line, the hint ladder + hand,
+  each page's own prompt, the narration before the letter scene, each round's own line before its pops, the 2940 cue).
+- Checked (every page check + smoke on the final build of the day, after [story-pinki]): story_check 58/58 (the four-beat page, see [story-pinki]), relisten_check 26/26, recap_check 46/46, demo_check T2 36 / T3 36 / T4 38 all pass, pick_check G1 / G2 / G3 42 each all pass, g4_check G4 / P1 / P2 23 each all pass, stamp_check 126/126, letter_check 39/39, gate_check 12/12, title_check 16/16, smoke 47/47 — no page errors, no failed requests anywhere.
 - `../_before_vo_rec/` holds the dist's three files, build.py, README.md, every check script, every *_assets/*.words.json (words/)
   and the 38 replaced clips (Audio/, from git HEAD) from before.
 

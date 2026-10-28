@@ -47,6 +47,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [story-pinki] (2026-10-28): the story page T0 is four beats from the frames 652:3, 652:192, 660:127, 653:381 (Pinki,
          her mother, the cat: new pictures, texts with their punctuation, the recorded takes 1 / vo_story_s1 / 2 / 3.wav as
          vo_story_b1..b4 via vo_rec.py, word-synced); same layout, module and beat animation; then आगे.
+         [relisten-pinki] (2026-10-28): T0B is frame 654:567 — the title, the story's two contrast sentences each on its own
+         clip (the T0 takes cut after "माँ ने कहा,", word-synced), the explanation (vo_story_r1) lighting each sentence as
+         its meaning is told, the moral (4.wav) lighting the commas as it names the marks; then आगे.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -117,13 +120,22 @@ for b in beats:
     card["assets"]["audio"][b["audio"]] = f"assets/Audio/{b['audio']}.ogg"
     card["assets"]["audio_text"][b["audio"]] = b["text_hi"]
     card["assets"]["image"][b["image_id"]] = f"assets/Images/{b['image_id']}.webp"
-# [story-fig] then "आइए वाक्य सुनें।" (frame 488:190): the intro line under the title, then the punctuated sentences
-for k in ("r0", "r1"):
+# [story-fig] then "आइए वाक्य सुनें।": the intro line under the title, then the sentences. [relisten-pinki] (2026-10-28): the
+# frame is 654:567 now — the title, then the story's two contrast sentences "उसे रोको, मत जाने दो।" / "उसे रोको मत, जाने दो।"
+# each on its own recorded clip (the T0 takes without their "माँ ने कहा,": vo_story_c1 / c2, cut by vo_rec.py) and read word by
+# word; then the explanation (vo_story_r1, the recording) lighting each sentence on its yellow as its meaning is told (cues =
+# the clip's "पहले" and "जबकि", read by vo_rec.py); then the moral (vo_story_moral = 4.wav) lighting the two commas orange as it
+# names the marks (cue = its "विराम"); then आगे. (Before: the Chintu story re-read in one block, frame 488:190, TTS vo_story_r1.)
+for k in ("r0", "r1", "c1", "c2"):
     lines[k] = json.loads((SCR / "story_assets" / f"vo_story_{k}.words.json").read_text(encoding="utf-8"))
+_vr0 = json.loads((SCR / "vo_rec" / "derived.json").read_text(encoding="utf-8"))["cues"]
 card["slides"].insert(1, {"id": "T0B", "phase": "tutorial", "eis": "iconic", "type": "STORY_RELISTEN",
-    "prompt_hi": "आइए वाक्य सुनें।", "audio": {"intro": "vo_story_r0", "narration": "vo_story_r1"},
-    "data": {"title_hi": "आइए वाक्य सुनें।", "intro_audio": "vo_story_r0", "text_hi": lines["r1"]["text"],
-             "word_times": [t[0] for t in lines["r1"]["word_times"]], "audio": "vo_story_r1"}})
+    "prompt_hi": "आइए वाक्य सुनें।",
+    "audio": {"intro": "vo_story_r0", "narration": "vo_story_c1", "narration_2": "vo_story_c2", "explain": "vo_story_r1", "moral": "vo_story_moral"},
+    "data": {"title_hi": "आइए वाक्य सुनें।", "intro_audio": "vo_story_r0",
+             "lines": [{"text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]], "audio": f"vo_story_{k}"} for k in ("c1", "c2")],
+             "explain_audio": "vo_story_r1", "explain_cues": _vr0["explain_s"], "moral_audio": "vo_story_moral", "moral_cue": _vr0["moral_s"],
+             "text_hi": lines["c1"]["text"] + "\n" + lines["c2"]["text"]}})
 for k in ("r0", "r1"):
     card["assets"]["audio"][f"vo_story_{k}"] = f"assets/Audio/vo_story_{k}.ogg"
     card["assets"]["audio_text"][f"vo_story_{k}"] = lines[k]["text"].replace("\n", " ")
@@ -729,13 +741,23 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
   STORY_RELISTEN: {
     mount(host, slide){
       const d = slide.data || {};
+      // [relisten-pinki] d.lines: the frame's sentences, each with its own clip and word times (frame 654:567); without it, the
+      // one text block (d.text_hi) read on d.audio, as before
+      const multi = !!(d.lines && d.lines.length);
+      const lines = multi ? d.lines : [{ text_hi: d.text_hi, word_times: d.word_times, audio: d.audio }];
       const fig = sfigMount(host, '<div class="sfig-title"><p></p></div><div class="sfig-sbox"></div>' +
-        '<div class="sfig-stext"><p></p><p>​</p></div>');
+        (multi ? '<div class="sfig-stext sfig-lines">' + lines.map((_, k)=> '<p class="l' + (k + 1) + '"><span class="sfig-sent"></span></p>').join("") + '</div>'
+               : '<div class="sfig-stext"><p></p><p>&#8203;</p></div>'));
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round");
       const title = fig.querySelector(".sfig-title"), box = fig.querySelector(".sfig-sbox");
       title.querySelector("p").textContent = d.title_hi || "";
-      const L = sfigLine(fig.querySelector(".sfig-stext p"), d.text_hi, d.word_times, d.audio);
-      const introSrc = d.intro_audio ? ("assets/Audio/" + d.intro_audio + "." + AUDIO_EXT) : null;
+      const Ls = lines.map((ln, k)=> sfigLine(multi ? fig.querySelector(".sfig-stext p.l" + (k + 1) + " .sfig-sent") : fig.querySelector(".sfig-stext p"), ln.text_hi, ln.word_times, ln.audio));
+      // [relisten-pinki] a comma ending a word gets its own span, so the moral can light the marks alone
+      const sents = multi ? [...fig.querySelectorAll(".sfig-sent")] : [], marks = [];
+      if(multi) fig.querySelectorAll(".sfig-stext .sfig-w").forEach(w=>{ const m = w.textContent.match(/^(.+?)(,)$/);
+        if(m){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "sfig-mk"; s.textContent = m[2]; w.appendChild(s); marks.push(s); } });
+      const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const introSrc = A(d.intro_audio);
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -743,10 +765,43 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
       const alive = ()=> fig.isConnected;
       let run = 0;
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
+      const reset = ()=>{ sents.forEach(s=> s.classList.remove("hl")); marks.forEach(m=> m.classList.remove("on")); };
+      // a clip with cues (seconds on its own clock): onCue(i) as each is reached, onEnd once it has ended (a watchdog stops a
+      // stalled clip; the cues not yet reached fire at the end, so nothing is skipped)
+      const speak = (src, cues, onCue, onEnd, live)=>{
+        if(!src){ onEnd(); return; }
+        let done = false, next = 0; const began = Date.now();
+        const end = ()=>{ if(done || !live()) return; done = true; while(next < cues.length) onCue(next++); onEnd(); };
+        play(src, end);
+        const file = src.split("/").pop();
+        setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, authoredVoHoldMs(src) + 10000);
+        const tick = ()=>{ if(done || !live()) return;
+          const a = currentAudio, own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === file;
+          const t = own ? a.currentTime : (Date.now() - began) / 1000;
+          while(next < cues.length && t + 0.04 >= cues[next]) onCue(next++);
+          if(next < cues.length) nextFrame(tick); };
+        tick();
+      };
       const readAll = ()=>{
-        const mine = ++run;
+        const mine = ++run; const live = ()=> mine === run && alive();
         setNavActive(false);   // a replay hides आगे until its narration has ended
-        sfigNarrate(L, ()=> mine === run && alive(), armNav);
+        reset(); Ls.forEach(L=> sfigShow(L, 0));
+        // [relisten-pinki] the explanation: each sentence lit (lifted, on its yellow) as its meaning is told; then the moral:
+        // the commas lit orange, lifted, as it names the marks — they stay lit; then आगे
+        const moral = ()=>{
+          if(!multi || !d.moral_audio){ armNav(); return; }
+          setTimeout(()=>{ if(!live()) return;
+            speak(A(d.moral_audio), d.moral_cue != null ? [d.moral_cue] : [], ()=> marks.forEach(m=> m.classList.add("on")),
+                  ()=> setTimeout(()=>{ if(live()) armNav(); }, 300), live); }, 500);
+        };
+        const explain = ()=>{
+          if(!multi || !d.explain_audio){ moral(); return; }
+          setTimeout(()=>{ if(!live()) return;
+            speak(A(d.explain_audio), d.explain_cues || [], (i)=> sents.forEach((s, k)=> s.classList.toggle("hl", k === i)),
+                  ()=> setTimeout(()=>{ if(!live()) return; sents.forEach(s=> s.classList.remove("hl")); moral(); }, 400), live); }, 500);
+        };
+        const readLine = (k)=> sfigNarrate(Ls[k], live, ()=>{ if(k + 1 < Ls.length) setTimeout(()=>{ if(live()) readLine(k + 1); }, 600); else explain(); });
+        readLine(0);
       };
       // 1. the intro line, with the title appearing the moment it starts to sound
       state.demoRunning = true;   // the replay chip waits until the sentences are on screen
@@ -2018,6 +2073,18 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-stext{position:absolute;left:217px;top:89px;width:631px;height:280px;display:flex;flex-direction:column;
   justify-content:flex-end;overflow-wrap:break-word;font-family:'Story Noto Sans Devanagari',var(--font-hi);
   font-weight:600;font-size:28px;line-height:37px;color:#002F76;text-align:center;}
+/* [relisten-pinki] frame 654:567: the two sentences are their own nodes in the box — 30px, 401 / 390 wide, centred on
+   540.5,204.5 and 540,302.5 (the card's padding box; 8 px right of the box's centre, as the frame has them). The
+   explanation lifts a sentence on its yellow (the demos' hot-word yellow); the moral lifts the commas in the picks' orange */
+.sfig-stext.sfig-lines{display:block;left:0;top:0;width:auto;height:auto;}
+.sfig-stext.sfig-lines p{position:absolute;margin:0;transform:translateY(-50%);font-size:30px;line-height:normal;}
+.sfig-stext.sfig-lines p.l1{left:340px;top:204.5px;width:401px;}   /* node 654:752 */
+.sfig-stext.sfig-lines p.l2{left:345px;top:302.5px;width:390px;}   /* node 654:753 */
+.sfig-sent{display:inline-block;padding:2px 14px;margin:-2px -14px;border-radius:12px;
+  transition:background-color .35s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.2);}
+.sfig-sent.hl{background:#FFF1B6;transform:scale(1.06);}
+.sfig-mk{display:inline-block;transition:color .3s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.3);}
+.sfig-mk.on{color:#E86A00;transform:scale(1.4);}
 """
 recap_css = """
 /* ===== [recap-fig] T1 "ये हैं तीन विराम चिह्न" (frame 508:2, MARKS_RECAP): T0B's card, grid, Swiftie and 🔊 chip (the
