@@ -84,7 +84,7 @@ with sync_playwright() as p:
               *gate_after(pg.evaluate("window._gate"), "P2", "L1", "अब आपकी बारी!", "vo_pt_practice.ogg", opens_expected))
         check(f"P2 run {run}: the letter page is up after the gate (its first scene, the girl writing), the gate closed and the stage unblurred", pg.evaluate(L1_UP))
         if run == 1:
-            pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=20000)
+            pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=45000)   # [vo-rec] the 11.4 s narration plays before the scene's beats
             bb = pg.locator(".ltr-env-pos").bounding_box(); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)
             pg.wait_for_function("CARD.slides[state.idx].id === 'L2' && !!document.querySelector('.stp')", timeout=15000)
             check("L1: the tap on the pulsing envelope opens it and L2, the stamp page, follows with no gate", openings(pg.evaluate("window._gate")) == ["P2"]

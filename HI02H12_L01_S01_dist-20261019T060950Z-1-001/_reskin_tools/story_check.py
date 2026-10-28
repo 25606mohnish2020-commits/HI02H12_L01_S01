@@ -2,7 +2,8 @@
 660:127 and 653:381 (Pinki, her mother and the cat) — each a new picture in the grey-bordered frame and a new text that
 arrives word by word with its recorded clip (vo_story_b1..b4). The page opens on the recorded line "आइए इन वाक्यों को सुनते
 हैं।" (vo_story_s0, [vo-rec]); between beats the finished text leaves one second after its clip, the next picture appears over
-the last one and its clip starts once it has landed. आगे only ever shows LIVE, once the LAST clip has ended (pulsing); the 🔊 chip
+the last one and its clip starts once it has landed. आगे is the reference's pill ([dun-chrome]): disabled through the beats, live
+and breathing once the LAST clip has ended; the 🔊 chip
 replays the beat on screen from its first word, hiding आगे until that replay ends.
 Checks: the real flow from the start gate (the opening line, each beat's word sync, the three turns, a 🔊 tap in the first turn
 ignored, आगे's states frame by frame, the replay, आगे -> T0B); a stalled last clip (the watchdog opens आगे live); geometry and
@@ -158,16 +159,17 @@ with sync_playwright() as p:
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T0"]
     with open(out / "nav_log.json", "w", encoding="utf-8") as f: json.dump(log, f, indent=0)
     print("  आगे on the story page:", [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
-    check("the greyed-out आगे never shows on the story page (frame by frame, incl. a replay)", not any(e["img"] == "DISABLED" for e in log))
-    first_on = next((e for e in log if e["img"] == "ON"), None)
-    check("आगे first shows only once the last clip has ended", first_on is not None and first_on["clip"] == f"vo_story_b{N}.ogg" and not first_on["playing"])
-    check("आगे never shows while a story clip plays", not any(e["img"] != "none" and e["playing"] for e in log))
+    first_on = next((e for e in log if e["img"] == "ON"), None)   # [dun-chrome] the reference's pill: disabled art through the clips, live once the last has ended
+    check("आगे shows the reference's disabled pill from the start, through every beat (frame by frame, incl. a replay)", bool(log) and log[0]["img"] == "DISABLED",
+          [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log][:6])
+    check("आगे goes live only once the last clip has ended", first_on is not None and first_on["clip"] == f"vo_story_b{N}.ogg" and not first_on["playing"])
+    check("आगे is never live while a story clip plays", not any(e["img"] == "ON" and e["playing"] for e in log))
     check("आगे leads to T0B (\"आइए वाक्य सुनें।\"), no extra gate", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
     pg.wait_for_timeout(1500); pg.screenshot(path=str(out / "4_T0B_after_story.png"))
     pg.close()
 
     # ---- 3b. the last clip never starts or ends (a stalled media load): the watchdog must still finish the page
-    #          and open आगे live — never leave the greyed-out pill under a "playing" clip
+    #          and open आगे live — never leave the disabled pill under a "playing" clip
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
@@ -177,8 +179,8 @@ with sync_playwright() as p:
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=60000)
     pg.wait_for_timeout(400)   # let the logger see the pill fade in
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T0"]
-    check("stalled last clip: the watchdog finishes the page and opens आगे live, never greyed out",
-          not any(e["img"] == "DISABLED" for e in log) and log[-1]["img"] == "ON" and not pg.evaluate("isPlaying")
+    check("stalled last clip: the watchdog finishes the page and opens आगे live (the disabled pill until then)",
+          log[-1]["img"] == "ON" and not any(e["img"] == "ON" and e["playing"] for e in log) and not pg.evaluate("isPlaying")
           and pg.evaluate(f"document.querySelectorAll('.sfig-text.b{N} .sfig-w.on').length") == len(T[-1]),
           [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
     pg.close()

@@ -2,8 +2,8 @@
 usage: python -I -X utf8 relisten_check.py <index.html> <relisten_figma_render_1280x720.png> <outdir>
 1. At 1333x750, the page mounted on its own: the title appears as the intro line ("अब इन्हीं वाक्यों को फिर से
    सुनते हैं।") starts to sound; the sentence box comes in only when that line has ended; the sentences' VO starts
-   once the box has landed and reveals the words one by one with the clip; आगे stays hidden (never the greyed-out
-   pill) until that VO has ended, then opens pulsing where it is on T0; a 🔊 tap before the sentences is ignored,
+   once the box has landed and reveals the words one by one with the clip; आगे shows the reference's disabled pill
+   ([dun-chrome]) until that VO has ended, then goes live, breathing, where it is on T0; a 🔊 tap before the sentences is ignored,
    and afterwards replays the sentences; आगे leads to T1 (the three-marks recap); past the Figma pages (G4) no story
    styling is left over.
 2. The card is the frame's (96,106 1088x508 x 1333/1280 = 100,110.39 1133x529.03 on the stage, 64px corners);
@@ -140,9 +140,11 @@ with sync_playwright() as p:
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=2000)
     pg.wait_for_timeout(300)
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T0B"]
-    check("the greyed-out आगे never shows on this page (frame by frame, incl. the replay)", not any(e["img"] == "DISABLED" for e in log),
+    first_on = next((e for e in log if e["img"] == "ON"), None)   # [dun-chrome] the reference's pill: disabled art through the clips, live once the last has ended
+    check("आगे shows the reference's disabled pill from the start, through every clip (frame by frame, incl. the replay), and goes live only once the sentences' clip has ended",
+          log and log[0]["img"] == "DISABLED" and first_on is not None and first_on["clip"] == "vo_story_r1.ogg" and not first_on["playing"],
           [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
-    check("आगे never shows while a VO plays", not any(e["img"] != "none" and e["playing"] for e in log))
+    check("आगे is never live while a VO plays", not any(e["img"] == "ON" and e["playing"] for e in log))
     pg.click("#navBtn", force=True)   # force: the active pill pulses forever, so it is never "stable"
     pg.wait_for_function("CARD.slides[state.idx].id === 'T1' && !!document.querySelector('.tut-card.sfig-recap .rcf-row')", timeout=10000)
     check("आगे leads to T1 (the three-marks recap, see recap_check.py), no extra gate", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))

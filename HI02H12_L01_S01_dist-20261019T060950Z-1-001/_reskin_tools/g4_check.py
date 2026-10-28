@@ -126,7 +126,7 @@ with sync_playwright() as p:
     i_tap = first(lambda s: s["cls"][right].startswith("correct"))
     i_ck = first(lambda s: "ck-correct" in s["cls"][right], i_tap)
     rc = clip_of(opt[labels[right]])   # the right pill's own clip (o1 on G4 / P1, o3 on P2)
-    i_ok = first(lambda s: s["clip"] == "ok" and s["playing"], i_tap); i_ok_e = first(lambda s: s["clip"] == "ok" and not s["playing"], i_ok)   # [vo-rec] the praise first
+    i_ok = first(lambda s: s["clip"] == "ok" and s["playing"], i_tap); i_ok_e = first(lambda s: s["clip"] != "ok" or not s["playing"], i_ok)   # [vo-rec] the praise first; the pill's line follows at once (no "ended" frame)
     i_line = first(lambda s: s["clip"] == rc and s["playing"], i_ok)
     i_end = first(lambda s: s["clip"] == rc and not s["playing"], i_line)
     i_gate = first(gone, i_end)

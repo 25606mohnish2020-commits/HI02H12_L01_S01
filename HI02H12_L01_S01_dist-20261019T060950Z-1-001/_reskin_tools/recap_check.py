@@ -4,8 +4,8 @@ usage: python -I -X utf8 recap_check.py <index.html> <recap_figma_render_1280x72
    प्रयोग कब किया जाता है।") starts to sound and nothing of the rows shows before that line has ended; then the nine beats
    — for each mark the box + mark with its name, the use, the yellow box with the example — each box pops in as its
    own clip starts and the words arrive one by one with the clip (none early, none >150 ms late); a 🔊 tap during the
-   intro or between beats is ignored (every clip plays once); आगे stays hidden (never the greyed-out pill) until the
-   last example has been read, then opens pulsing under the card; a 🔊 tap afterwards reads the marks again from the
+   intro or between beats is ignored (every clip plays once); आगे shows the reference's disabled pill ([dun-chrome]) until
+   the last example has been read, then goes live, breathing, under the card; a 🔊 tap afterwards reads the marks again from the
    first (boxes staying, words re-arriving) with आगे hidden meanwhile; आगे leads to T2 (no gate); past the Figma pages
    (G4) no story styling is left.
 2. Card, Swiftie and 🔊 chip exactly as on T0B / T0 (stage px); आगे centred in the gap under the card.
@@ -176,9 +176,11 @@ with sync_playwright() as p:
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=90000)
     pg.wait_for_timeout(300)
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T1"]
-    check("the greyed-out आगे never shows on this page (frame by frame, incl. the replay)", not any(e["img"] == "DISABLED" for e in log),
+    first_on = next((e for e in log if e["img"] == "ON"), None)   # [dun-chrome] the reference's pill: disabled art through the clips, live once the last has ended
+    check("आगे shows the reference's disabled pill from the start, through every clip (frame by frame, incl. the replay), and goes live only once the last example's clip has ended",
+          log and log[0]["img"] == "DISABLED" and first_on is not None and first_on["clip"] == "vo_recap_prashn_eg.ogg" and not first_on["playing"],
           [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
-    check("आगे never shows while a VO plays", not any(e["img"] != "none" and e["playing"] for e in log))
+    check("आगे is never live while a VO plays", not any(e["img"] == "ON" and e["playing"] for e in log))
     pg.click("#navBtn", force=True)   # force: the active pill pulses forever, so it is never "stable"
     pg.wait_for_function("CARD.slides[state.idx].id === 'T2'", timeout=10000)
     check("आगे leads to T2 (the run-on sentence demo, see demo_check.py), no extra gate",
@@ -226,9 +228,11 @@ with sync_playwright() as p:
         if not a or not t: print(f"  {name:8s} NO INK {a} {t}"); worst_c = 99; continue
         dc = ((a[0] + a[2]) / 2 - (t[0] + t[2]) / 2, (a[1] + a[3]) / 2 - (t[1] + t[3]) / 2)
         ds = ((a[2] - a[0]) - (t[2] - t[0]), (a[3] - a[1]) - (t[3] - t[1]))
-        worst_c = max(worst_c, abs(dc[0]), abs(dc[1])); worst_s = max(worst_s, abs(ds[0]), abs(ds[1]))
+        tol = 10 if name == "eg 1" else 3   # [vo-rec] the पूर्ण-विराम example reads "पिंकी स्कूल गई ।" (the recording's word), the frame's "रीना ..." is 8 px narrower
+        worst_c = max(worst_c, abs(dc[0]), abs(dc[1])); worst_s = max(worst_s, abs(ds[0]) - tol + 3, abs(ds[1]))
         print(f"  {name:8s} mine {a[:4]}  figma {t[:4]}  centre d=({dc[0]:+.1f},{dc[1]:+.1f})  size d=({ds[0]:+d},{ds[1]:+d})")
-    check("each text's ink sits where the render's does (centre within 1.5 px, size within 3 px)", worst_c <= 1.5 and worst_s <= 3, f"centre {worst_c:.1f}px, size {worst_s}px")
+    check("each text's ink sits where the render's does (centre within 1.5 px, size within 3 px; the पूर्ण-विराम example, reading पिंकी for the frame's रीना since [vo-rec], within 10 px)",
+          worst_c <= 1.5 and worst_s <= 3, f"centre {worst_c:.1f}px, size (over the allowance) {worst_s}px")
     A = np.asarray(mine, np.int16); B = np.asarray(target, np.int16)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2)

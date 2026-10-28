@@ -1,1 +1,106 @@
-[]
+[
+{
+"ms": 8.299999998882413,
+"img": "none",
+"slide": "T0",
+"playing": false,
+"clip": "vo_landing.ogg",
+"story": false
+},
+{
+"ms": 120.59999999962747,
+"img": "none",
+"slide": "T0",
+"playing": true,
+"clip": "vo_pt_tutorial.ogg",
+"story": false
+},
+{
+"ms": 5150.39999999851,
+"img": "none",
+"slide": "T0",
+"playing": false,
+"clip": "vo_pt_tutorial.ogg",
+"story": false
+},
+{
+"ms": 5737,
+"img": "DISABLED",
+"slide": "T0",
+"playing": true,
+"clip": "vo_story_s0.ogg",
+"story": true
+},
+{
+"ms": 13282.299999998882,
+"img": "DISABLED",
+"slide": "T0",
+"playing": false,
+"clip": "vo_story_b1.ogg",
+"story": true
+},
+{
+"ms": 14935.799999998882,
+"img": "DISABLED",
+"slide": "T0",
+"playing": true,
+"clip": "vo_story_b2.ogg",
+"story": true
+},
+{
+"ms": 19050,
+"img": "DISABLED",
+"slide": "T0",
+"playing": false,
+"clip": "vo_story_b2.ogg",
+"story": true
+},
+{
+"ms": 20701,
+"img": "DISABLED",
+"slide": "T0",
+"playing": true,
+"clip": "vo_story_b3.ogg",
+"story": true
+},
+{
+"ms": 23931.799999998882,
+"img": "DISABLED",
+"slide": "T0",
+"playing": false,
+"clip": "vo_story_b3.ogg",
+"story": true
+},
+{
+"ms": 25583.799999998882,
+"img": "DISABLED",
+"slide": "T0",
+"playing": true,
+"clip": "vo_story_b4.ogg",
+"story": true
+},
+{
+"ms": 29551.799999998882,
+"img": "ON",
+"slide": "T0",
+"playing": false,
+"clip": "vo_story_b4.ogg",
+"story": true
+},
+{
+"ms": 31172.099999999627,
+"img": "DISABLED",
+"slide": "T0",
+"playing": true,
+"clip": "vo_story_b4.ogg",
+"story": true
+},
+{
+"ms": 35148.5,
+"img": "ON",
+"slide": "T0",
+"playing": false,
+"clip": "vo_story_b4.ogg",
+"story": true
+}
+]

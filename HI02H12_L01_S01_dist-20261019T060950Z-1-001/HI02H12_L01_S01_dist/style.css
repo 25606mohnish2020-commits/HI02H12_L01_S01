@@ -2872,14 +2872,13 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-text{position:absolute;transform:translateY(-50%);overflow-wrap:break-word;
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:24px;line-height:normal;
   color:#002F76;text-align:center;}
-/* [story-pinki] the text boxes: each frame's node (centre, width, size); the frames' texts END with spaces (two on the
-   first), which Figma lays out as part of the centred line — so the ink sits a little left of centre, as drawn */
+/* [story-pinki] the text boxes: each frame's node (centre, width, size). The frames' texts end with spaces (two on the
+   first); Figma's renders show the ink centred all the same (measured: within 1.5 px of the box's centre on all four), so
+   they are NOT reproduced — a trailing no-break space had wrapped beats 1 and 2 onto a second line and lifted them 17 px */
 .sfig-text.b1{left:319px;top:310px;width:427px;font-size:26px;}    /* node 652:187: centred on 532.5,310 */
 .sfig-text.b2{left:340px;top:309.5px;width:384px;font-size:28px;}  /* node 652:376: centred on 532,309.5 */
 .sfig-text.b3{left:340px;top:309.5px;width:384px;font-size:28px;}  /* node 660:311: centred on 532,309.5 */
 .sfig-text.b4{left:334px;top:309.5px;width:395px;font-size:28px;}  /* node 653:565: centred on 531.5,309.5 */
-.sfig-text.b1 p::after{content:"\a0\a0";}
-.sfig-text.b2 p::after,.sfig-text.b3 p::after,.sfig-text.b4 p::after{content:"\a0";}
 .sfig-text.gone{opacity:0;visibility:hidden;transition:opacity .3s ease-out,visibility 0s .3s;}   /* a finished beat's text leaves */
 /* Swiftie at the reference's 76,472 190x190 on the stage (in .sfig-in's frame px) */
 .sfig-swiftie{position:absolute;left:calc(64px / var(--fig-s) - 96px);top:calc(460px / var(--fig-s) - 106px);
