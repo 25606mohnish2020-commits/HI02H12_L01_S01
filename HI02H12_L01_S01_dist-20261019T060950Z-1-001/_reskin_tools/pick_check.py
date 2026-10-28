@@ -1,6 +1,7 @@
 """Verify a sentence the child punctuates (PUNCT_PICK) against its Figma frame, its timing and its taps:
    G1 = frame 525:354 "7 G1" ("राजू गेंद से खेल रहा था", पूर्ण विराम), G2 = frame 600:197 "8 G2" ("तुम कहाँ जा रहे हो",
-   प्रश्नवाचक चिह्न; the title bar is T4's, its text too, over G1's instruction line), G3 = frame 528:424 "9 G3" ("बाग में
+   प्रश्नवाचक चिह्न; the title bar is T4's — its text G3's, "वाक्य सुनिए और सही चिह्न लगाइए ।", since [band-title] 2026-10-28:
+   its render's band is 528:424's pasted over its own, the frame still showing T4's line), G3 = frame 528:424 "9 G3" ("बाग में
    गुलाब    गेंदा और चमेली के फूल हैं ।", अल्प विराम; T4's layout with one small slot).
 usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdir> [G1|G2|G3]     (default G1)
        renders: g1_figma_render_1280x720.png (G1), g2_... (G2), g3_... (G3)
@@ -45,6 +46,7 @@ CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's 
          "bar": (312, 824), "slot": (312+278, 211+70, 33, 38), "sent_c": (312-28+893/2, 211+33), "size": 50, "word": "बाग", "wrong": [1, 3, 1],
          "tiles": T3_TILES, "ink": {"sent: बाग में गुलाब": (330, 236, 590, 336), "sent: गेंदा … हैं ।": (623, 236, 1130, 336)}, "own": [(36, 26, 153, 146)]},
 }[SLIDE]
+TITLE = "वाक्य सुनिए और सही चिह्न लगाइए ।"   # the title bar's line on G1 / G2 / G3 (G1's instruction line; on G2 since [band-title])
 NEXT, PICK, SENT, NAME, WRONG = CONFIG["next"], CONFIG["pick"], CONFIG["sent_clip"], "ok", CONFIG["wrong"]   # [vo-rec] the right tap is praised ("शाबाश!", vo_ok), the mark's name is not said
 fails = []
 def check(name, ok, detail=""):
@@ -300,6 +302,8 @@ with sync_playwright() as p:
       getComputedStyle(document.querySelector('.dmf-sym')).fontSize, getComputedStyle(document.querySelector('.dmf-name')).fontSize,
       document.fonts.check("600 32px 'Story Noto Sans Devanagari'", 'वाक्य'), document.fonts.check("600 SIZEpx 'Story Noto Sans Devanagari'", 'WORD')]""".replace("WORD", CONFIG["word"]).replace("SIZE", str(CONFIG["size"])))
     check(f"fonts: Noto Sans Devanagari SemiBold — 32px bar, {CONFIG['size']}px sentence, 64px marks, 28px names", fonts == ["32px", f"{CONFIG['size']}px", "64px", "28px", True, True], fonts)
+    band_text = pg.evaluate("document.querySelector('.dmf-pill p').textContent")
+    check("the title bar's line is G1's instruction line, " + TITLE, band_text == TITLE, band_text)
     mine_img = Image.open(shot).convert("RGB")
     print("== text ink vs the Figma render (page px): centre and size ==")
     worst_c = worst_s = 0

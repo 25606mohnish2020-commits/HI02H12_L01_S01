@@ -1,6 +1,8 @@
 """Verify a run-on sentence demo page (PUNCT_DEMO) against its Figma frame and its timing:
    T2 = frame 656:2 ("पिंकी स्कूल जा रही है", पूर्ण विराम; 519:32's layout with its own picture, [demo1-pinki]), T3 = frame 521:288 ("तुम्हारा नाम क्या है", प्रश्नवाचक चिह्न),
    T4 = frame 523:320 ("मेरे पास आम केला सेब और संतरा है ।", अल्प विराम, two slots).
+   [band-title] (2026-10-28): the title bar's line on all three is "विराम चिह्न का वाक्य में प्रयोग ।" — frame 656:2 carries it; the
+   demo2 / demo3 renders' bands are 656:2's band pasted over their own (their frames still show the old line).
 usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4]     (default T2)
        renders: demo1_figma_render_1280x720.png (T2), demo2_... (T3), demo3_... (T4)
 1. At 1333x750, the page mounted on its own: the title bar appears as the intro line starts to sound and nothing else
@@ -45,6 +47,7 @@ CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame'
          "next": "G1", "gate": True, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the first sentence the child punctuates (PUNCT_PICK, the Figma frame 525:354 — see pick_check.py)"},
 }[SLIDE]
+TITLE = "विराम चिह्न का वाक्य में प्रयोग ।"   # [band-title] the title bar's line on T2 / T3 / T4 (656:2's), in place of the intro line's text
 NEXT, PICK, MK, NS = CONFIG["next"], CONFIG["pick"], CONFIG["mark_clip"], len(CONFIG["slots"])
 fails = []
 def check(name, ok, detail=""):
@@ -268,9 +271,11 @@ with sync_playwright() as p:
     check("every box and text box within 1 px of the frame", worst <= 1.0, f"worst {worst:.2f}px")
     fonts = pg.evaluate("""[getComputedStyle(document.querySelector('.dmf-pill p')).fontSize, getComputedStyle(document.querySelector('.dmf-sent')).fontSize,
       getComputedStyle(document.querySelector('.dmf-sym')).fontSize, getComputedStyle(document.querySelector('.dmf-name')).fontSize,
-      document.fonts.check("600 32px 'Story Noto Sans Devanagari'", 'सुनो'), document.fonts.check("600 SIZEpx 'Story Noto Sans Devanagari'", 'WORD')]"""
+      document.fonts.check("600 32px 'Story Noto Sans Devanagari'", 'विराम'), document.fonts.check("600 SIZEpx 'Story Noto Sans Devanagari'", 'WORD')]"""
       .replace("WORD", CONFIG["word"]).replace("SIZE", str(SZ)))
     check(f"fonts: Noto Sans Devanagari SemiBold — 32px bar, {SZ}px sentence, 64px marks, 28px names", fonts == ["32px", f"{SZ}px", "64px", "28px", True, True], fonts)
+    band_text = pg.evaluate("document.querySelector('.dmf-pill p').textContent")
+    check("the title bar's line is the [band-title] one, " + TITLE, band_text == TITLE, band_text)
     mine_img = Image.open(shot).convert("RGB")
     print("== text ink vs the Figma render (page px): centre and size ==")
     worst_c = worst_s = 0

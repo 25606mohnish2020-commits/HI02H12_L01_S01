@@ -50,6 +50,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [relisten-pinki] (2026-10-28): T0B is frame 654:567 — the title, the story's two contrast sentences each on its own
          clip (the T0 takes cut after "माँ ने कहा,", word-synced), the explanation (vo_story_r1) lighting each sentence as
          its meaning is told, the moral (4.wav) lighting the commas as it names the marks; then आगे.
+         [band-title] (2026-10-28): the title bars of T2 / T3 / T4 read "विराम चिह्न का वाक्य में प्रयोग ।" (frame 656:2's line)
+         and G2's reads G3's "वाक्य सुनिए और सही चिह्न लगाइए ।" — data.band_hi only; the spoken lines and all else unchanged.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -170,13 +172,14 @@ for k in RECAP_KEYS:
 # place of 519:32's "image 228" box 227,221 80.052x120). The title line, the tiles, the slot and the flow are untouched; the
 # two sentence clips (sent, full) were re-made by recap_vo.py demo1 with the new name, the intro and "पूर्ण विराम" kept.
 DEMO_KEYS = ["intro", "sent", "purn", "full"]
+DEMO_BAND = "विराम चिह्न का वाक्य में प्रयोग ।"   # [band-title] (2026-10-28) the title bar's line on T2 / T3 / T4 (frame 656:2's), in place of the intro line's shown text; the intro clip sounds as before
 dl = {k: json.loads((SCR / "demo1_assets" / f"vo_demo1_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO_KEYS}
 i_t2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T2")
 assert card["slides"][i_t2]["type"] == "BUILD_PUNCT" and card["slides"][i_t2]["data"].get("auto"), "T2 is not the first auto demo"
 dpart = lambda k: {"text_hi": dl[k]["shown"], "audio": f"vo_demo1_{k}", "word_times": [t[0] for t in dl[k]["word_times"]]}
 card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
     "prompt_hi": dl["intro"]["shown"], "audio": {"prompt": "vo_demo1_intro"},
-    "data": {"band_hi": dl["intro"]["shown"], "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
+    "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
              "sentence": dpart("sent"), "mark": "।", "mark_audio": "vo_demo1_purn", "full": dpart("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132], "sent_x": 96.5}},   # [demo1-pinki] 656:2's picture box and text box
@@ -205,7 +208,7 @@ assert _t3["type"] == "BUILD_PUNCT" and _t3["data"].get("auto") and [m["mark"] f
 dpart2 = lambda k: {"text_hi": dl2[k]["shown"], "audio": f"vo_demo2_{k}", "word_times": [t[0] for t in dl2[k]["word_times"]]}
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
     "prompt_hi": dl2["intro"]["shown"], "audio": {"prompt": "vo_demo2_intro"},
-    "data": {"band_hi": dl2["intro"]["shown"], "intro_audio": "vo_demo2_intro", "image_id": "img_demo2_girl",   # [demo2-girl]
+    "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo2_intro", "image_id": "img_demo2_girl",   # [demo2-girl]
              "sentence": dpart2("sent"), "mark": "?", "mark_audio": "vo_demo2_prashn", "full": dpart2("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent_x": 120, "img": [223, 214, 90, 135]}},   # [demo2-girl] the picture at its native size, centred in the box
@@ -245,7 +248,7 @@ assert _sent3["text_hi"].split()[2:4] == ["आम", "केला"], "T4: the sl
 _slot = lambda x: {"x": x, "y": 76, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}
 card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
     "prompt_hi": dl3["intro"]["shown"], "audio": {"prompt": "vo_demo3_intro"},
-    "data": {"band_hi": dl3["intro"]["shown"], "intro_audio": "vo_demo3_intro", "image_id": "img_demo3_fruits",
+    "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo3_intro", "image_id": "img_demo3_fruits",
              "sentence": _sent3, "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 50, "mark_stagger_ms": 300,
              "full": _full3, "slots": [_slot(286), _slot(417)],
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
@@ -300,7 +303,7 @@ card["_emoji_fallback"]["img_g1_girl_ball"] = "✏️"
 # [pick-fig] G2 = the Figma frame 600:197 "8 G2", G1's page and flow for "तुम कहाँ जा रहे हो" (the ported builder had the same
 # sentence and mark): the प्रश्नवाचक चिह्न tile is the right one. The frame's title bar is T4's to the pixel — its text too,
 # "सुनो यह वाक्य बिना रुके पढ़ा गया ।" — while the line it plays is G1's instruction "वाक्य सुनिए और सही चिह्न लगाइए ।" (both as
-# asked); the tiles are T3's (no G1 tweaks), the sentence box is T3's (479 wide at 120), the picture "image 239" (a boy with
+# asked; [band-title] 2026-10-28: the bar's text is G3's — the instruction line — since, as asked); the tiles are T3's (no G1 tweaks), the sentence box is T3's (479 wide at 120), the picture "image 239" (a boy with
 # a school bag, 102x136 at 218,213) is drawn over its box, and the empty slot sits at 573,20 in the bar (T3's at 583) —
 # data.layout.slot. Its sentence clip + timings from g2_assets/ (recap_vo.py g2); the instruction is vo_g1_intro and the name
 # on the right tap T3's vo_demo2_prashn (the same voice).
@@ -316,7 +319,7 @@ assert _g2["type"] == "BUILD_PUNCT" and _g2["phase"] == "guided" and [m["mark"] 
 assert " ".join(_g2["data"]["words"]) == gl2["shown"], "G2's sentence is not the frame's"
 card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
-    "data": {"band_hi": dl3["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g2_girl_bag",   # [g2-girl]
+    "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g2_girl_bag",   # [g2-girl]; [band-title] the bar's text is G3's (the instruction line)
              "sentence": {"text_hi": gl2["shown"], "audio": "vo_g2_sent", "word_times": [t[0] for t in gl2["word_times"]]},
              "mark": "?", "mark_audio": "vo_demo2_prashn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
