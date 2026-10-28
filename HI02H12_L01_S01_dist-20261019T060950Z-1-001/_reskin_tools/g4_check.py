@@ -216,7 +216,7 @@ with sync_playwright() as p:
     # ---- 3. left alone: the idle repeat, and a tap that cuts it
     pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
     d, labels, opt, right = run(pg)
-    pg.wait_for_timeout(13500)
+    pg.wait_for_timeout(21000)   # [vo-rec] the recorded prompt is ~4.7 s: three plays need ~20 s
     tl = timeline(pg)
     ps = [i for i, s in enumerate(tl) if s["clip"] == "prompt" and s["playing"] and (i == 0 or not (tl[i - 1]["clip"] == "prompt" and tl[i - 1]["playing"]))]
     pe = [next(j for j in range(i, len(tl)) if not tl[j]["playing"]) for i in ps if any(not tl[j]["playing"] for j in range(i, len(tl)))]

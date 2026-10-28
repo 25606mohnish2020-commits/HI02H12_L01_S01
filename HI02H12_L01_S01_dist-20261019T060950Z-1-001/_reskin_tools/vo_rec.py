@@ -131,15 +131,19 @@ def align(shown, heard, dur=None):
                 a = heard[j0][1]; b_ = min(heard[j1][2], end_t, heard[j1 + 1][1] if j1 + 1 < m else end_t)
                 for q in range(ns): starts[i0 + q] = a + (b_ - a) * q / ns
             else:
-                said = [i for i in range(i0, i1 + 1) if not is_mark(shown[i])]
+                said = [i for i in range(i0, i1 + 1) if not is_mark(shown[i])]; marks = [i for i in range(i0, i1 + 1) if is_mark(shown[i])]
+                prev_end = min(heard[j0 - 1][2], end_t) if j0 - 1 >= 0 else 0.0; next_start = heard[j0][1] if j0 < m else end_t
                 if j0 - 1 >= 0:   # nothing free after a heard word: the said words inside it
-                    a = heard[j0 - 1][1]; b_ = min(heard[j0 - 1][2], end_t, heard[j0][1] if j0 < m else end_t)
+                    a = heard[j0 - 1][1]; b_ = min(heard[j0 - 1][2], end_t, next_start)
                     for q, i in enumerate(said): starts[i] = a + (b_ - a) * (q + 1) / (len(said) + 1)
                 else:             # nothing free before the first heard word
                     a, b_ = 0.0, (heard[0][1] if heard else end_t)
                     for q, i in enumerate(said): starts[i] = a + (b_ - a) * q / max(1, len(said))
+                # a bare mark the voice does not name ("लाल । नीली ।" read with pauses) lights in the pause after its word:
+                # mid-pause, at most 0.35 s after the word ends
+                for i in marks: starts[i] = min(prev_end + 0.5 * max(0.0, next_start - prev_end), prev_end + 0.35)
     for i in range(n):
-        if starts[i] is None: starts[i] = starts[i - 1] if i else 0.0   # a mark lights with the word before it
+        if starts[i] is None: starts[i] = starts[i - 1] if i else 0.0   # a mark attached to its word ("है।”") shares its start
     cap = max(0.0, end_t - 0.05)
     for q in range(n):   # never backwards, never past the clip's end
         if q and starts[q] < starts[q - 1]: starts[q] = starts[q - 1]

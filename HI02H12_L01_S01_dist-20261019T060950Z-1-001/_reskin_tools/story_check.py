@@ -160,7 +160,8 @@ with sync_playwright() as p:
     with open(out / "nav_log.json", "w", encoding="utf-8") as f: json.dump(log, f, indent=0)
     print("  आगे on the story page:", [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
     first_on = next((e for e in log if e["img"] == "ON"), None)   # [dun-chrome] the reference's pill: disabled art through the clips, live once the last has ended
-    check("आगे shows the reference's disabled pill from the start, through every beat (frame by frame, incl. a replay)", bool(log) and log[0]["img"] == "DISABLED",
+    first_story = next((e for e in log if e["clip"] and e["clip"].startswith("vo_story")), None)   # the entries before it are the gate's (the slide is T0 under it)
+    check("आगे shows the reference's disabled pill from the story's first clip, through every beat (frame by frame, incl. a replay)", first_story is not None and first_story["img"] == "DISABLED",
           [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log][:6])
     check("आगे goes live only once the last clip has ended", first_on is not None and first_on["clip"] == f"vo_story_b{N}.ogg" and not first_on["playing"])
     check("आगे is never live while a story clip plays", not any(e["img"] == "ON" and e["playing"] for e in log))
