@@ -518,6 +518,29 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The read word lit as on G4 ([word-hot], 2026-10-28)
+- Asked: on pages 4 T2, 5 T3, 6 T4, 7 G1, 8 G2 and 9 G3, when the words are highlighted one by one with the VO, light them in
+  page 10 G4's orange with G4's exact word-by-word animation instead of the current light-yellow box; everything else unchanged.
+- Built: the lit word on these pages is .dmf-sent .sfig-w.hot (the demos' second reading, word by word with the mark's name,
+  and the pick pages' idle re-read); it was a light-yellow box (#FFF1B6 background + a 6 px ring). G4's lit word is SENT_PICK's
+  .p2-word.on: colour #E86A00 and the p2WordPop animation (.28 s ease-out, once: scale 1 -> 1.1 at 45% -> 1, origin 50% 60%),
+  one word at a time (the previous word returns to the sentence colour as the next lights). The demo/pick rule now says exactly
+  that — color #E86A00, transform-origin 50% 60%, animation p2WordPop .28s ease-out 1 (the same keyframes, already in the
+  stylesheet) — and the box's background-color / box-shadow transitions are gone with the box. One word at a time was already
+  how these pages light (a punctuation-only token still lights with the word before it). Untouched: the words' arrival
+  animation in the first reading, the timing of every highlight, the slot's own highlight (.dmf-blank.hot: the blue ring and
+  the mark's 1.22 lift), the recap / story / stamp pages (their own rules). The dist differs from before in style.css only
+  (that rule and its comment); index.html and app.js are byte-identical.
+- Measured (the scratchpad's hot_probe.py, 1280x720, every frame of a read-out): T2's lit word rgb(232,106,0), animation
+  p2WordPop 0.28 s, origin 50% 60%, transparent background, no shadow, each word's width peaking at 1.10x and back; G4's lit
+  word reports the same colour, animation, duration and the same 1.10 peak (its stage is scaled 0.96 at that viewport).
+- Checked: demo_check.py and pick_check.py now record the lit word's computed colour, animation, duration, background, shadow
+  and width ratio in every frame of the read-out and require G4's values and a 1.07-1.13 peak: demo_check.py T2 39 / 39, T3 38 / 38, T4 40 / 40 (the second reading: every lit word rgb(232,106,0), p2WordPop 0.28 s, no
+  background or shadow, the pop peaking at 1.112 / 1.102 / 1.105 of the word's width and back to 1.0 — every other beat and the
+  frame match as before); pick_check.py G1 45 / 45, G2 45 / 45, G3 45 / 45 (the idle re-read's lit words the same, peaks 1.105 /
+  1.107 / 1.107); smoke.py 47 / 47 on the same build.
+  `../_before_word_hot/` holds build.py, README.md, demo_check.py, pick_check.py and the dist's three files from before.
+
 P1's picture replaced ([p1-pic], 2026-10-28)
 - Asked: at page 11 P1 replace the picture with the user's new one (two girls with the picture book, one pointing at its red
   car: a 1448x1086 PNG, the same size as the earlier source); everything else unchanged.
