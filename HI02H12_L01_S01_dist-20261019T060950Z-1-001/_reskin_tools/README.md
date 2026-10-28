@@ -518,6 +518,32 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The demo and G2 title bars re-worded ([band-title], 2026-10-28)
+- Asked: on pages 4 T2, 5 T3 and 6 T4 the title text becomes "विराम चिह्न का वाक्य में प्रयोग ।", and on page 8 G2 the title
+  text becomes exactly page 9 G3's; everything else unchanged.
+- Built: the title is the blue band's line, data.band_hi (the PUNCT_DEMO / PUNCT_PICK module's .dmf-pill p, 32px Noto SemiBold,
+  left-aligned at 179.5,62 of the page, nowrap in a 1075px box). T2 / T3 / T4 had it from the demo intro lines' SHOWN text
+  (demo*_assets/vo_demo*_intro.words.json: "सुनो यह वाक्य बिना रुके पढ़ा गया ।"); build.py now sets DEMO_BAND = the new line on
+  all three. G2 had T4's text (frame 600:197's bar, [pick-fig]); it now takes G3's, gl["intro"]["shown"] = "वाक्य सुनिए और सही
+  चिह्न लगाइए ।" (G1's instruction line, which is also what the three pick pages speak). Nothing else moves: the band's
+  geometry is unchanged (the new lines are shorter: their ink ends at x 535 / 597 instead of 581), the intro clips still say
+  what they said (the band's text was already independent of them — demo1's clip says "आइए कुछ वाक्यों के उदाहरण से समझते
+  हैं ।"), slide.prompt_hi (the engine's prompt bar, hidden on these pages under the band) is untouched, and the built dist
+  differs from before in those four strings only (app.js and style.css byte-identical; index.html's cardData diffed field
+  by field).
+- The reference renders: Figma frame 656:2 (T2) now carries the new line itself; 521:288 (T3), 523:320 (T4) and 600:197 (G2)
+  still show the old one in Figma (528:424, G3, shows the instruction line). The band is pixel-identical across all these
+  frames except its text ink (checked: 0 px differ outside x 180-595 of the text row), so the checks' renders now carry
+  Figma's own rendering of each page's line: demo1 / demo2 / demo3_figma_render_1280x720.png have 656:2's band (36,26
+  1208x120) pasted over their own, g2_figma_render_1280x720.png has 528:424's; the rest of each render is as before (the
+  old files kept as demo1 / demo2 / g2 *_v2_2026-10-27.png and demo3 *_v1_2026-10-25.png). The band's ink in Chrome is
+  within 1 px of centre and 2 px of size of Figma's (180-535 x 68-102 for the demo line, 180-597 x 68-105 for G2's).
+- Checked: demo_check.py and pick_check.py now also assert the band's text (TITLE): demo_check.py T2 37 / 37, T3 37 / 37, T4 39 / 39 — the band's text is the new line and its ink sits on Figma's (mine 179-537 x
+  68-103, the render's 179-535: centre 1.0 px, size 2 px), the content and whole-frame pixel diffs within their tolerances, every
+  other beat as before; pick_check.py G1 43 / 43, G2 43 / 43 (its band now G3's line, ink 179-598 vs the render's 179-596), G3
+  43 / 43; smoke.py 47 / 47 on the same build.
+  `../_before_band_titles/` holds build.py, README.md, demo_check.py, pick_check.py and the dist's three files from before.
+
 The re-listen page T0B: the two contrast sentences, their meanings, the moral ([relisten-pinki], 2026-10-28)
 - Asked: at page 2 (T0B) replace the white box's text with Figma frame 654:567's; after the intro VO (vo_story_r0) the first and
   second sentences appear at the frame's placement and size with the same word-by-word animation synced to their VOs; then

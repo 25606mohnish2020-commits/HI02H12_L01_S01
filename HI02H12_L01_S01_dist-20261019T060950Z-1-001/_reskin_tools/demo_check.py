@@ -6,7 +6,9 @@
 usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4]     (default T2)
        renders: demo1_figma_render_1280x720.png (T2), demo2_... (T3), demo3_... (T4)
 1. At 1333x750, the page mounted on its own: the title bar appears as the intro line starts to sound and nothing else
-   shows before that line has ended; the picture, the sentence bar and the tiles come in 0.5 s after it; the sentence's
+   shows before that line has ended; the picture, the sentence bar and the tiles come in 0.5 s after it (T3 / T4 since
+   [demo-intro] 2026-10-28: no intro line — the bar on mount, nothing sounding, the rest 1.3 s later: the engine's 0.8 s
+   beat for a missing clip + the same 0.5 s); the sentence's
    clip starts once they have landed and its words arrive one by one (none early, none >150 ms late); the empty slot(s)
    blink for 3.5 s from the moment that clip ends — every slot the same animation, starting and stopping in the same
    frame — nothing sounding meanwhile; then the mark's name sounds with its tile tapped and the other two dim; the mark
@@ -140,13 +142,21 @@ with sync_playwright() as p:
     start_of = lambda k, i0=0: first(lambda s: s["clip"] == k and s["playing"], i0)
     end_of = lambda k, i0: first(lambda s: s["clip"] == k and not s["playing"], i0)
     mine = [s for s in samples if s["slide"] == SLIDE]
-    i_play = first(lambda s: s["clip"] == K_INTRO and (s["t"] or 0) > 0)
-    i_band = first(lambda s: s["band"]); i_end0 = end_of(K_INTRO, i_play)
-    check("the title bar appears as the intro line starts to sound", abs(ms(i_band) - ms(i_play)) <= 150 and not samples[0]["band"],
-          f"bar at {ms(i_band) - ms(i_play):+.0f} ms from the clip's first played moment")
-    check("nothing else shows while the intro line sounds", not any(s["boxes"] or s["shown"] or any(s["on"]) or any(s["off"]) for s in samples[:i_end0]))
-    i_boxes = first(lambda s: s["boxes"])
-    check("the picture, the bar and the tiles come in 0.5 s after the intro", 450 <= ms(i_boxes) - ms(i_end0) <= 800, f"{ms(i_boxes) - ms(i_end0):.0f} ms")
+    i_band = first(lambda s: s["band"]); i_boxes = first(lambda s: s["boxes"])
+    if d.get("intro_audio"):
+        i_play = first(lambda s: s["clip"] == K_INTRO and (s["t"] or 0) > 0); i_end0 = end_of(K_INTRO, i_play)
+        check("the title bar appears as the intro line starts to sound", abs(ms(i_band) - ms(i_play)) <= 150 and not samples[0]["band"],
+              f"bar at {ms(i_band) - ms(i_play):+.0f} ms from the clip's first played moment")
+        check("nothing else shows while the intro line sounds", not any(s["boxes"] or s["shown"] or any(s["on"]) or any(s["off"]) for s in samples[:i_end0]))
+        check("the picture, the bar and the tiles come in 0.5 s after the intro", 450 <= ms(i_boxes) - ms(i_end0) <= 800, f"{ms(i_boxes) - ms(i_end0):.0f} ms")
+    else:   # [demo-intro] no intro line: the bar on mount, nothing sounding, the rest 1.3 s later (the engine's 0.8 s beat for a missing clip + 0.5 s)
+        K_INTRO = None
+        check("no intro line: the title bar appears as the page mounts, nothing sounding before the sentence's clip and no intro clip ever",
+              not samples[0]["band"] and ms(i_band) - ms(0) <= 400 and not any(s["playing"] for s in samples[:i_boxes]) and all(s["clip"] != f"{CONFIG['page']}_intro" for s in samples),
+              f"bar at {ms(i_band) - ms(0):.0f} ms")
+        check("nothing else shows before the bar has stood ~1.3 s; then the picture, the bar and the tiles come in",
+              not any(s["boxes"] or s["shown"] or any(s["on"]) or any(s["off"]) for s in samples[:i_boxes]) and 1100 <= ms(i_boxes) - ms(i_band) <= 1700,
+              f"{ms(i_boxes) - ms(i_band):.0f} ms after the bar")
     i_s1 = start_of(K_SENT); i_e1 = end_of(K_SENT, i_s1)
     check("the sentence's clip starts once they have landed (~0.65 s)", 600 <= ms(i_s1) - ms(i_boxes) <= 1000, f"{ms(i_s1) - ms(i_boxes):.0f} ms")
     check("no word shows before the sentence's clip", all(s["shown"] == 0 for s in samples[:i_s1]))

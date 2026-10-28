@@ -52,6 +52,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          its meaning is told, the moral (4.wav) lighting the commas as it names the marks; then आगे.
          [band-title] (2026-10-28): the title bars of T2 / T3 / T4 read "विराम चिह्न का वाक्य में प्रयोग ।" (frame 656:2's line)
          and G2's reads G3's "वाक्य सुनिए और सही चिह्न लगाइए ।" — data.band_hi only; the spoken lines and all else unchanged.
+         [demo-intro] (2026-10-28): T3 and T4 no longer speak their intro line "सुनो, यह वाक्य बिना रुके पढ़ा गया ।" (vo_demo2 /
+         vo_demo3_intro: data.intro_audio null, the clips off the dist): the title bar comes on mount, the rest 1.3 s later.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -201,19 +203,20 @@ card["_emoji_fallback"]["img_demo1_girl"] = "✏️"
 # 135] frame px (the old box was 204,215 130x128). The render demo2_figma_render_1280x720.png carries the girl in the boy's place
 # (the 521:288 render kept as _v1_2026-10-25). Text, clips, flow untouched.
 DEMO2_KEYS = ["intro", "sent", "prashn", "full"]
+DEMO2_CLIPS = [k for k in DEMO2_KEYS if k != "intro"]   # [demo-intro] (2026-10-28) the intro line "सुनो, यह वाक्य बिना रुके पढ़ा गया ।" is off T3: not played, not in the dist (its source stays in demo2_assets/)
 dl2 = {k: json.loads((SCR / "demo2_assets" / f"vo_demo2_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO2_KEYS}
 i_t3 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T3")
 _t3 = card["slides"][i_t3]
 assert _t3["type"] == "BUILD_PUNCT" and _t3["data"].get("auto") and [m["mark"] for m in _t3["data"]["marks"]] == ["?"], "T3 is not the question-mark auto demo"
 dpart2 = lambda k: {"text_hi": dl2[k]["shown"], "audio": f"vo_demo2_{k}", "word_times": [t[0] for t in dl2[k]["word_times"]]}
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
-    "prompt_hi": dl2["intro"]["shown"], "audio": {"prompt": "vo_demo2_intro"},
-    "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo2_intro", "image_id": "img_demo2_girl",   # [demo2-girl]
+    "prompt_hi": DEMO_BAND, "audio": {},   # [demo-intro] no intro line (was vo_demo2_intro); the engine's prompt text = the bar's line
+    "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo2_girl",   # [demo2-girl]
              "sentence": dpart2("sent"), "mark": "?", "mark_audio": "vo_demo2_prashn", "full": dpart2("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent_x": 120, "img": [223, 214, 90, 135]}},   # [demo2-girl] the picture at its native size, centred in the box
     "signals": {"on_complete": []}}
-for k in DEMO2_KEYS:
+for k in DEMO2_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo2_{k}"] = f"assets/Audio/vo_demo2_{k}.ogg"
     card["assets"]["audio_text"][f"vo_demo2_{k}"] = dl2[k]["text"]
 card["assets"]["image"]["img_demo2_girl"] = "assets/Images/img_demo2_girl.webp"   # [demo2-girl]
@@ -228,6 +231,7 @@ card["_emoji_fallback"]["img_demo2_girl"] = "✏️"
 # data.slots / sentence.gaps / full.targets / layout.{pic_x, bar, sent} carry all of it; T2 / T3 have none of these
 # keys, so their pages are unchanged. Clips + timings from demo3_assets/ (recap_vo.py demo3).
 DEMO3_KEYS = ["intro", "sent", "alp", "full"]
+DEMO3_CLIPS = [k for k in DEMO3_KEYS if k != "intro"]   # [demo-intro] (2026-10-28) the same intro line is off T4 too (vo_demo3_intro: not played, not in the dist)
 dl3 = {k: json.loads((SCR / "demo3_assets" / f"vo_demo3_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO3_KEYS}
 i_t4 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T4")
 _t4 = card["slides"][i_t4]
@@ -247,8 +251,8 @@ assert _sent3["text_hi"].split()[2:4] == ["आम", "केला"], "T4: the sl
 # the slots' dashes, measured on the frame's render: two dashes centred on each side, [margin, dash, gap, dash, margin]
 _slot = lambda x: {"x": x, "y": 76, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}
 card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
-    "prompt_hi": dl3["intro"]["shown"], "audio": {"prompt": "vo_demo3_intro"},
-    "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo3_intro", "image_id": "img_demo3_fruits",
+    "prompt_hi": DEMO_BAND, "audio": {},   # [demo-intro] no intro line (was vo_demo3_intro)
+    "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo3_fruits",
              "sentence": _sent3, "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 50, "mark_stagger_ms": 300,
              "full": _full3, "slots": [_slot(286), _slot(417)],
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
@@ -256,7 +260,7 @@ card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "typ
              "layout": {"pic_x": 144, "img": [144, 229, 144, 96], "bar": [312, 824],
                         "sent": {"x": -34, "y": 33, "w": 893, "size": 50, "lh": 84, "ws": -3}}},
     "signals": {"on_complete": []}}
-for k in DEMO3_KEYS:
+for k in DEMO3_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo3_{k}"] = f"assets/Audio/vo_demo3_{k}.ogg"
     card["assets"]["audio_text"][f"vo_demo3_{k}"] = dl3[k]["text"]
 card["assets"]["image"]["img_demo3_fruits"] = "assets/Images/img_demo3_fruits.webp"
@@ -3076,18 +3080,20 @@ for name, sub in [(f"vo_demo1_{k}.ogg", "Audio") for k in DEMO_KEYS] + [("demo1_
 # ---------- 7e. [demo-fig] T3's clips and picture (demo2_assets/: recap_vo.py demo2; the frame's "image 229"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------
 DEMO2_SRC = SCR / "demo2_assets"
-for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_KEYS] + [("img_demo2_girl.webp", "Images")]:   # [demo2-girl]
+for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_CLIPS] + [("img_demo2_girl.webp", "Images")]:   # [demo2-girl]
     f, dst = DEMO2_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing demo asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+(DIST / "assets" / "Audio" / "vo_demo2_intro.ogg").unlink(missing_ok=True)   # [demo-intro] the intro line is off the page
 
 # ---------- 7f. [demo-fig] T4's clips and picture (demo3_assets/: recap_vo.py demo3; the frame's "image 230"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------
 DEMO3_SRC = SCR / "demo3_assets"
-for name, sub in [(f"vo_demo3_{k}.ogg", "Audio") for k in DEMO3_KEYS] + [("img_demo3_fruits.webp", "Images")]:
+for name, sub in [(f"vo_demo3_{k}.ogg", "Audio") for k in DEMO3_CLIPS] + [("img_demo3_fruits.webp", "Images")]:
     f, dst = DEMO3_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing demo asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+(DIST / "assets" / "Audio" / "vo_demo3_intro.ogg").unlink(missing_ok=True)   # [demo-intro] the intro line is off the page
 
 # ---------- 7g. [pick-fig] G1's clips and picture (g1_assets/: recap_vo.py g1; the frame's "image 231"; its head is
 #               byte-for-byte T2's demo1_head.webp; the name on the right tap is T2's vo_demo1_purn) ----------
