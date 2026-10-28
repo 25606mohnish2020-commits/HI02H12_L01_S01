@@ -29,7 +29,7 @@ AS_T0B = {   # stage px: the frame's card box; the story page's Swiftie and chip
   ".tut-card.sfig-card": (96 * FS, 106 * FS, 1088 * FS, 508 * FS),
   ".sfig-swiftie":       (76, 472, 190, 190),
   ".tut-audio":          (202, 606, 58, 58),
-  "#navBtn":             (567.5, 650, 198, 90),
+  "#navBtn":             (581.5, 678, 170, 62),   # [dun-chrome] the reference's text pill, under the card
 }
 KEYS = [f"{m}_{p}" for m in ("purn", "alp", "prashn") for p in ("name", "when", "eg")]
 GAP, GAP_MARK = 300, 700
@@ -63,9 +63,9 @@ GOTO = """(id) => { const sg = document.getElementById('startGate'); if (sg) sg.
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); mountSlide(CARD.slides.findIndex(s => s.id === id)); }"""
 NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('navBtn'); let last = ''; const t0 = performance.now();
-  const step = () => { const cs = getComputedStyle(btn), off = btn.querySelector('.btn-off'), on = btn.querySelector('.btn-on');
-    const shown = cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.01;
-    const img = !shown ? 'none' : getComputedStyle(on).display !== 'none' ? 'ON' : getComputedStyle(off).display !== 'none' ? 'DISABLED' : '?';
+  const step = () => { const cs = getComputedStyle(btn);   // [dun-chrome] a bare text button: live = .active (the disabled art otherwise), its ::after breathes (navBreathe)
+    const shown = cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.01 && cs.display !== 'none';
+    const img = !shown ? 'none' : btn.classList.contains('active') ? 'ON' : 'DISABLED';
     const slide = CARD.slides[state.idx] ? CARD.slides[state.idx].id : null, key = [img, slide, isPlaying].join('|');
     if (key !== last) { last = key; window._navLog.push({ ms: performance.now() - t0, img, slide, playing: isPlaying,
       clip: currentAudio ? currentAudio.src.split('/').pop() : null }); }
@@ -154,7 +154,7 @@ with sync_playwright() as p:
     i_last_end = prev_end
     check("आगे stays hidden until the last example has been read", not any(s["navVisible"] for s in samples[:i_last_end]))
     check("आगे opens (pulsing) once the last example has been read", samples[-1]["nav"] and all(s == len(t) for s, t in zip(samples[-1]["shown"], times))
-          and pg.evaluate("getComputedStyle(document.getElementById('navBtn')).animationName") == "nextBtnPulse",
+          and pg.evaluate("getComputedStyle(document.getElementById('navBtn'), '::after').animationName") == "navBreathe",
           f"{ms(len(samples) - 1) - ms(i_last_end):.0f} ms after the clip ended")
     pg.evaluate("document.getElementById('navBtn').style.animation = 'none'")   # measure आगे at rest, not mid-pulse
     boxes = pg.evaluate(BOXES, list(AS_T0B)); worst = 0

@@ -45,7 +45,7 @@ CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's 
          "bar": (312, 824), "slot": (312+278, 211+70, 33, 38), "sent_c": (312-28+893/2, 211+33), "size": 50, "word": "बाग", "wrong": [1, 3, 1],
          "tiles": T3_TILES, "ink": {"sent: बाग में गुलाब": (330, 236, 590, 336), "sent: गेंदा … हैं ।": (623, 236, 1130, 336)}, "own": [(36, 26, 153, 146)]},
 }[SLIDE]
-NEXT, PICK, SENT, NAME, WRONG = CONFIG["next"], CONFIG["pick"], CONFIG["sent_clip"], CONFIG["name_clip"], CONFIG["wrong"]
+NEXT, PICK, SENT, NAME, WRONG = CONFIG["next"], CONFIG["pick"], CONFIG["sent_clip"], "ok", CONFIG["wrong"]   # [vo-rec] the right tap is praised ("शाबाश!", vo_ok), the mark's name is not said
 fails = []
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
@@ -71,7 +71,7 @@ BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.
 GOTO = """(id) => { const sg = document.getElementById('startGate'); if (sg) sg.classList.add('hidden');
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); mountSlide(CARD.slides.findIndex(s => s.id === id)); }"""
-SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_(g\d_\w+|demo\d_\w+)\.ogg/);
+SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_(\w+)\.ogg/);   // [vo-rec] any clip, keyed by its Audio ID without the vo_ prefix
   const q = (s) => document.querySelector(s), has = (s, c) => { const e = q(s); return !!e && e.classList.contains(c); };
   const tiles = [...document.querySelectorAll('.dmf-tile')], blanks = [...document.querySelectorAll('.dmf-blank')], nav = q('#navBtn');
   const anim = (e) => { const cs = getComputedStyle(e); return cs.animationName + '|' + cs.animationDuration + '|' + cs.animationIterationCount; };
@@ -82,7 +82,7 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     on: tiles.map(t => t.classList.contains('on')), off: tiles.map(t => t.classList.contains('off')),
     wiggle: tiles.map(t => t.classList.contains('wiggle')), marksIn: [...document.querySelectorAll('.dmf-mark')].map(m => m.classList.contains('in')),
     hot: [...document.querySelectorAll('.dmf-sent .sfig-w')].findIndex(w => w.classList.contains('hot')),
-    attempts: state.attempts, gate: document.getElementById('phaseGate').classList.contains('show'),
+    attempts: state.attempts, gate: document.getElementById('phaseGate').classList.contains('show'), hand: !!document.querySelector('.reveal-hand.dmf-hand'),
     navShown: nav.classList.contains('visible') && getComputedStyle(nav).display !== 'none', ms: performance.now() }; }"""
 TIMELINE = "(sample) => { window._tl = []; const S = eval(sample); const step = () => { const s = S(); window._tl.push(s);" \
     " if (s.slide !== 'NEXT') requestAnimationFrame(step); }; requestAnimationFrame(step); }".replace("NEXT", NEXT)
@@ -137,8 +137,10 @@ with sync_playwright() as p:
     check("a wrong tap shakes that tile with the engine's own wrong-answer wiggle (wgNo, 0.4 s)", wig == "wgNo|0.4s", wig)
     pg.wait_for_timeout(600); faces1 = pg.evaluate(FACES)
     check("...its colours unchanged (face border, shadow, fill as before)", faces1 == faces0, (faces0, faces1))
-    pg.click(f".dmf-tile.t{WRONG[1]}"); pg.wait_for_timeout(700)
-    pg.click(f".dmf-tile.t{WRONG[2]}"); pg.wait_for_timeout(700)   # the same wrong tile again: it stays tappable
+    quiet = lambda: (pg.wait_for_function("!isPlaying", timeout=15000, polling=20), pg.wait_for_timeout(300))   # [vo-rec] the tap's hint line said
+    quiet(); pg.click(f".dmf-tile.t{WRONG[1]}"); pg.wait_for_timeout(700)
+    quiet(); pg.click(f".dmf-tile.t{WRONG[2]}"); pg.wait_for_timeout(700)   # the same wrong tile again: it stays tappable
+    quiet(); pg.screenshot(path=str(out / "c2_hand_1333.png"))
     pg.click(f".dmf-tile.t{PICK + 1}"); pg.wait_for_timeout(700); pg.screenshot(path=str(out / "d_right_1333.png"))
     pg.click(f".dmf-tile.t{WRONG[1]}", force=True); pg.wait_for_timeout(100)
     check("after the right tap the tiles are done: a further tap does nothing", pg.evaluate("state.attempts === 3 && !document.querySelector('.dmf-tile.wiggle')"))
@@ -187,15 +189,26 @@ with sync_playwright() as p:
     check("the blink stops at the right tap if it is still running, else after its 3.5 s",
           (i_bl_end <= i_ok and abs(ms(i_bl_end) - ms(i_bl) - 3500) <= 150) or abs(ms(i_bl_end) - ms(i_ok)) <= 50, f"{ms(i_bl_end) - ms(i_bl):.0f} ms")
     i_s2 = start_of(NAME, i_ok); i_e2 = end_of(NAME, i_s2)
-    check(f"its name (\"{d['options'][PICK]['name_hi']}\", the {d['mark']}) sounds as the tile is tapped", 0 <= ms(i_s2) - ms(i_ok) <= 200, f"{ms(i_s2) - ms(i_ok):.0f} ms after")
-    check(f"one beat (~1 s) after the name the page moves on to {NEXT} by itself, with no round gate",
+    check("the praise (“शाबाश!”, vo_ok) sounds as the tile is tapped — the mark's name is not said", 0 <= ms(i_s2) - ms(i_ok) <= 200, f"{ms(i_s2) - ms(i_ok):.0f} ms after")
+    check(f"one beat (~1 s) after the praise the page moves on to {NEXT} by itself, with no round gate",
           samples[-1]["slide"] == NEXT and 900 <= ms(len(samples) - 1) - ms(i_e2) <= 1400 and not any(s["gate"] for s in samples),
-          f"{ms(len(samples) - 1) - ms(i_e2):.0f} ms after the name")
+          f"{ms(len(samples) - 1) - ms(i_e2):.0f} ms after the praise")
+    # [vo-rec] the deck's hint ladder on the wrong taps: hint 1, hint 2, then hint 3 (hint 2 again where the page has none) with
+    # the pointing hand under the right tile, gone at the right tap; each line 0.5 s after its tap
+    H1, H2 = (d.get("hint1_audio") or "")[3:], (d.get("hint2_audio") or "")[3:]; H3 = (d.get("hint3_audio") or d.get("hint2_audio") or "")[3:]
+    i_h1 = start_of(H1, i_w1); i_h2 = start_of(H2, i_w2); i_h3 = start_of(H3, i_w3)
+    check(f"wrong tap 1: hint 1 ({H1}) 0.5 s after the wiggle; wrong tap 2: hint 2 ({H2}); wrong tap 3: hint 3 ({H3}" + (", hint 2 again)" if H3 == H2 else ")"),
+          all(450 <= ms(i) - ms(w) <= 800 for i, w in ((i_h1, i_w1), (i_h2, i_w2), (i_h3, i_w3))) and i_h1 < i_w2 and i_h2 < i_w3,
+          [round(ms(i) - ms(w)) for i, w in ((i_h1, i_w1), (i_h2, i_w2), (i_h3, i_w3))])
+    check("the pointing hand (.reveal-hand.dmf-hand) comes with the third wrong tap, under the right tile, and goes at the right tap",
+          not any(s["hand"] for s in samples[:i_w3]) and samples[i_h3]["hand"] and all(not s["hand"] for s in samples[i_ok + 2:]),
+          (any(s["hand"] for s in samples[:i_w3]), samples[i_h3]["hand"], any(s["hand"] for s in samples[i_ok + 2:])))
     check("आगे never shows on this page", not any(s["navShown"] for s in mine))
     # counted on this page's samples only: the next page may open with the same clip (G2 replays G1's instruction)
     starts = lambda k: sum(1 for i, s in enumerate(mine) if s["clip"] == k and s["playing"] and (i == 0 or not (mine[i-1]["clip"] == k and mine[i-1]["playing"])))
-    check("each clip plays once on this page (no idle reminder yet: the taps came within 7 s)", all(starts(k) == 1 for k in ("g1_intro", SENT, NAME)),
-          [starts(k) for k in ("g1_intro", SENT, NAME)])
+    check("each clip plays once on this page (the hint lines as the ladder says; no idle reminder: the taps came within 7 s)",
+          all(starts(k) == 1 for k in ("g1_intro", SENT, NAME, H1)) and starts(H2) == (2 if H3 == H2 else 1) and (H3 == H2 or starts(H3) == 1),
+          [starts(k) for k in ("g1_intro", SENT, NAME, H1, H2, H3)])
     check("punct_build_done is reported once, with the two wrong tiles counted (3 wrong taps)",
           len(sig) == 1 and sig[0]["first_try"] is False and sig[0]["wrong"] == 3 and wrong_sig == 3, (sig, wrong_sig))
     pg.close()
@@ -232,9 +245,12 @@ with sync_playwright() as p:
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(GOTO, SLIDE)
     pg.wait_for_function("document.querySelectorAll('.dmf-sent .sfig-w.hot').length > 0", timeout=30000, polling=20); pg.wait_for_timeout(300)
-    pg.click(f".dmf-tile.t{WRONG[0]}"); pg.wait_for_timeout(500)
+    pg.click(f".dmf-tile.t{WRONG[0]}"); pg.wait_for_timeout(350)
     cut = pg.evaluate("[isPlaying, document.querySelectorAll('.dmf-sent .sfig-w.hot').length, state.attempts]")
     check("a tap during the reminder cuts it short and clears the highlight (the tap still counts)", cut == [False, 0, 1], cut)
+    pg.wait_for_function("isPlaying", timeout=3000, polling=20)   # [vo-rec] hint 1 follows, 0.5 s after the tap
+    h = pg.evaluate("currentAudio ? currentAudio.src.split('/').pop() : null")
+    check("...and hint 1 follows it half a second later", h == f"vo_{(d.get('hint1_audio') or '')[3:]}.ogg", h)
     pg.close()
 
     # ---- 2b. [band-chip] the 🔊 chip: live (colour, tappable) once the tiles are the child's and nothing speaks; a tap reads the

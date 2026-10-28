@@ -77,7 +77,7 @@ BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.
 GOTO = """(id) => { const sg = document.getElementById('startGate'); if (sg) sg.classList.add('hidden');
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); mountSlide(CARD.slides.findIndex(s => s.id === id)); }"""
-SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_PAGE_(\w+)\.ogg/);
+SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_(\w+)\.ogg/);   // [vo-rec] any clip, keyed by its Audio ID without the vo_ prefix
   const q = (s) => document.querySelector(s), has = (s, c) => { const e = q(s); return !!e && e.classList.contains(c); };
   const tiles = [...document.querySelectorAll('.dmf-tile')], blanks = [...document.querySelectorAll('.dmf-blank')], nav = q('#navBtn');
   const anim = (e) => { const cs = getComputedStyle(e); return cs.animationName + '|' + cs.animationDuration + '|' + cs.animationIterationCount; };
@@ -112,6 +112,11 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
     pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, SLIDE)
     d = pg.evaluate("CARD.slides[state.idx].data"); tS, tF = d["sentence"]["word_times"], d["full"]["word_times"]; nW = len(tS)
+    # [vo-rec] the clips by their Audio IDs: the page's own intro / sentence / full reading, the mark's name (the recap's clip now),
+    # and the deck's lines between the beats where the page has them: the explanation after the sentence, "अब दोबारा देखिए" before
+    # the second reading, the conclusion after it
+    K_INTRO, K_SENT, K_FULL = f"{CONFIG['page']}_intro", f"{CONFIG['page']}_sent", f"{CONFIG['page']}_full"
+    MK = d["mark_audio"][3:]; K_EXPL, K_AGAIN, K_CONC = [(d.get(k) or "")[3:] or None for k in ("explain_audio", "again_audio", "conclude_audio")]
     targets = d["full"].get("targets") or [f"w{i}" if i < nW else "s0" for i in range(len(tF))]
     pg.wait_for_function("!!document.querySelector('.dmf-band.in')", timeout=10000, polling=20); pg.wait_for_timeout(700)
     pg.screenshot(path=str(out / "a_band_1333.png"))
@@ -132,17 +137,17 @@ with sync_playwright() as p:
     start_of = lambda k, i0=0: first(lambda s: s["clip"] == k and s["playing"], i0)
     end_of = lambda k, i0: first(lambda s: s["clip"] == k and not s["playing"], i0)
     mine = [s for s in samples if s["slide"] == SLIDE]
-    i_play = first(lambda s: s["clip"] == "intro" and (s["t"] or 0) > 0)
-    i_band = first(lambda s: s["band"]); i_end0 = end_of("intro", i_play)
+    i_play = first(lambda s: s["clip"] == K_INTRO and (s["t"] or 0) > 0)
+    i_band = first(lambda s: s["band"]); i_end0 = end_of(K_INTRO, i_play)
     check("the title bar appears as the intro line starts to sound", abs(ms(i_band) - ms(i_play)) <= 150 and not samples[0]["band"],
           f"bar at {ms(i_band) - ms(i_play):+.0f} ms from the clip's first played moment")
     check("nothing else shows while the intro line sounds", not any(s["boxes"] or s["shown"] or any(s["on"]) or any(s["off"]) for s in samples[:i_end0]))
     i_boxes = first(lambda s: s["boxes"])
     check("the picture, the bar and the tiles come in 0.5 s after the intro", 450 <= ms(i_boxes) - ms(i_end0) <= 800, f"{ms(i_boxes) - ms(i_end0):.0f} ms")
-    i_s1 = start_of("sent"); i_e1 = end_of("sent", i_s1)
+    i_s1 = start_of(K_SENT); i_e1 = end_of(K_SENT, i_s1)
     check("the sentence's clip starts once they have landed (~0.65 s)", 600 <= ms(i_s1) - ms(i_boxes) <= 1000, f"{ms(i_s1) - ms(i_boxes):.0f} ms")
     check("no word shows before the sentence's clip", all(s["shown"] == 0 for s in samples[:i_s1]))
-    timed = [s for s in samples[i_s1:i_e1] if s["clip"] == "sent" and s["playing"] and s["t"] is not None]
+    timed = [s for s in samples[i_s1:i_e1] if s["clip"] == K_SENT and s["playing"] and s["t"] is not None]
     early = [s for s in timed if s["shown"] > sum(1 for t in tS if s["t"] + 0.04 >= t)]
     late = [s for s in timed if s["shown"] < sum(1 for t in tS if s["t"] - 0.15 >= t)]
     distinct_times = len(set(tS))   # a punctuation-only word ("।") arrives with the word before it
@@ -151,7 +156,13 @@ with sync_playwright() as p:
           f"{len(timed)} samples, {len({s['shown'] for s in timed})} distinct counts / {nW} words, early {len(early)}, late {len(late)}")
     check(f"{NS} slot(s) on the page", samples[i_e1]["nSlots"] == NS, samples[i_e1]["nSlots"])
     i_bl = first(lambda s: s["blinkN"] > 0); i_bl_end = first(lambda s: s["blinkN"] == 0, i_bl)
-    check("the slot(s) blink from the moment the sentence's clip ends", 0 <= ms(i_bl) - ms(i_e1) <= 150, f"{ms(i_bl) - ms(i_e1):.0f} ms after")
+    if K_EXPL:   # [vo-rec] the explanation line between the sentence and the blink: a 0.35 s breath, the line, a 0.3 s breath
+        i_x1 = start_of(K_EXPL, i_e1); i_x2 = end_of(K_EXPL, i_x1)
+        check(f"the explanation ({K_EXPL}) 0.35 s after the sentence's clip, no word lit meanwhile; the slot(s) blink 0.3 s after it ends",
+              250 <= ms(i_x1) - ms(i_e1) <= 600 and 200 <= ms(i_bl) - ms(i_x2) <= 500 and not any(s["hot"] >= 0 for s in samples[i_x1:i_x2]),
+              f"line {ms(i_x1) - ms(i_e1):.0f} ms after the sentence, blink {ms(i_bl) - ms(i_x2):.0f} ms after the line")
+    else:
+        check("the slot(s) blink from the moment the sentence's clip ends", 0 <= ms(i_bl) - ms(i_e1) <= 150, f"{ms(i_bl) - ms(i_e1):.0f} ms after")
     check("every slot blinks with the exact same animation, starting and stopping in the same frame",
           all(s["blinkN"] in (0, NS) for s in samples) and len({a for s in samples for a in s["blinkAnims"]}) == 1,
           f"blinking counts seen {sorted({s['blinkN'] for s in samples})}, animations {sorted({a for s in samples for a in s['blinkAnims']})}")
@@ -176,10 +187,16 @@ with sync_playwright() as p:
     check("the mark lands in " + ("the slot ~0.4 s" if NS == 1 else f"each slot, left to right, ~0.4 s + 0.3 s apart") + " after that line",
           all(350 + 300 * k <= g <= 700 + 300 * k for k, g in enumerate(gaps)) and not any(any(s["marksIn"]) for s in samples[:i_e2]), [round(g) for g in gaps])
     i_mark = lands[-1]
-    i_s3 = start_of("full", i_mark); i_e3 = end_of("full", i_s3)
-    check("the second reading starts ~0.7 s after the (last) mark, every tile dim", 650 <= ms(i_s3) - ms(i_mark) <= 1000 and all(samples[i_s3]["off"]) and not any(samples[i_s3]["on"]),
-          f"{ms(i_s3) - ms(i_mark):.0f} ms; dim {samples[i_s3]['off']}")
-    timed = [s for s in samples[i_s3:i_e3] if s["clip"] == "full" and s["playing"] and s["t"] is not None]
+    i_s3 = start_of(K_FULL, i_mark); i_e3 = end_of(K_FULL, i_s3)
+    if K_AGAIN:   # [vo-rec] "अब दोबारा देखिए ।" between the mark and the second reading
+        i_a1 = start_of(K_AGAIN, i_mark); i_a2 = end_of(K_AGAIN, i_a1)
+        check(f"“अब दोबारा देखिए” ({K_AGAIN}) ~1.05 s after the (last) mark (0.7 s + the breath); the second reading 0.3 s after it ends, every tile dim",
+              950 <= ms(i_a1) - ms(i_mark) <= 1400 and 200 <= ms(i_s3) - ms(i_a2) <= 500 and all(samples[i_s3]["off"]) and not any(samples[i_s3]["on"]),
+              f"line {ms(i_a1) - ms(i_mark):.0f} ms after the mark, reading {ms(i_s3) - ms(i_a2):.0f} ms after the line; dim {samples[i_s3]['off']}")
+    else:
+        check("the second reading starts ~0.7 s after the (last) mark, every tile dim", 650 <= ms(i_s3) - ms(i_mark) <= 1000 and all(samples[i_s3]["off"]) and not any(samples[i_s3]["on"]),
+              f"{ms(i_s3) - ms(i_mark):.0f} ms; dim {samples[i_s3]['off']}")
+    timed = [s for s in samples[i_s3:i_e3] if s["clip"] == K_FULL and s["playing"] and s["t"] is not None]
     def state_of(n):
         t = targets[n - 1] if n > 0 else ""
         return (int(t[1:]) if t[:1] == "w" else -1, int(t[1:]) if t[:1] == "s" else -1)
@@ -189,7 +206,12 @@ with sync_playwright() as p:
     check("each word, and each slot, is highlighted as the second reading reaches it (within -150/+40 ms)",
           len(timed) > 20 and not off_time and want_seen <= seen, f"{len(timed)} samples, states seen {sorted(seen)}, off-time {len(off_time)}")
     i_gone = first(lambda s: s["gone"])
-    check("1.5 s after the second reading the slots' boxes go", 1400 <= ms(i_gone) - ms(i_e3) <= 1800, f"{ms(i_gone) - ms(i_e3):.0f} ms")
+    if K_CONC:   # [vo-rec] the conclusion after the second reading, before the boxes go
+        i_c1 = start_of(K_CONC, i_e3); i_c2 = end_of(K_CONC, i_c1)
+        check(f"the conclusion ({K_CONC}) 0.35 s after the second reading; the slots' boxes go 1.5 s (+ the 0.3 s breath) after it ends",
+              250 <= ms(i_c1) - ms(i_e3) <= 600 and 1700 <= ms(i_gone) - ms(i_c2) <= 2100, f"line {ms(i_c1) - ms(i_e3):.0f} ms after the reading, boxes {ms(i_gone) - ms(i_c2):.0f} ms after the line")
+    else:
+        check("1.5 s after the second reading the slots' boxes go", 1400 <= ms(i_gone) - ms(i_e3) <= 1800, f"{ms(i_gone) - ms(i_e3):.0f} ms")
     if CONFIG["gate"]:
         i_gate = first(lambda s: s["gate"], i_gone)
         check(f"the page moves on by itself: the engine's peek gate into the guided round opens ~0.6 s later, then {NEXT}",
@@ -198,7 +220,8 @@ with sync_playwright() as p:
         check(f"the page advances to {NEXT} by itself ~0.6 s later", samples[-1]["slide"] == NEXT and 500 <= ms(len(samples) - 1) - ms(i_gone) <= 1000, f"{ms(len(samples) - 1) - ms(i_gone):.0f} ms")
     check("आगे never shows on this page", not any(s["navShown"] for s in mine))
     starts = lambda k: sum(1 for i, s in enumerate(samples) if s["clip"] == k and s["playing"] and (i == 0 or not (samples[i-1]["clip"] == k and samples[i-1]["playing"])))
-    check("each clip plays once", all(starts(k) == 1 for k in ("intro", "sent", MK, "full")), [starts(k) for k in ("intro", "sent", MK, "full")])
+    KEYS = [K_INTRO, K_SENT, K_EXPL, MK, K_AGAIN, K_FULL, K_CONC]; KEYS = [k for k in KEYS if k]
+    check("each clip plays once (" + ", ".join(KEYS) + ")", all(starts(k) == 1 for k in KEYS), [starts(k) for k in KEYS])
     check(f"{NEXT} is {CONFIG['next_what']}", pg.evaluate(CONFIG["next_ok"]))
     pg.evaluate(GOTO, SLIDE); pg.wait_for_function("!!document.querySelector('.dmf-band.in')", timeout=10000); pg.wait_for_timeout(300)
     boxes = pg.evaluate(BOXES, list(AS_T0)); worst = 0

@@ -44,9 +44,11 @@ LEAVE = """() => { const sg = document.getElementById('startGate'); if (sg) sg.c
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); }"""
 SAMPLE = r"""() => { window._tl = []; let last = ''; const step = () => {
-  const a = currentAudio, m = a ? decodeURIComponent(a.src.split('/').pop()).match(/vo_(?:g4|p1|p2)_(\w+)\.ogg/) : null;
+  const a = currentAudio, f = a ? decodeURIComponent(a.src.split('/').pop()) : '', m = f.match(/vo_(?:g4|p1|p2)_(\w+)\.ogg/);
+  // [vo-rec] the shared clips: the praise vo_ok_pick -> 'ok', the try-again line (vo_g4_hint1 on G4, vo_pick_hint1 on P1/P2) -> 'try', hint 3 vo_pick_hint3 -> 'hint3'
+  const clipOf = !a ? null : m ? (m[1] === 'hint1' ? 'try' : m[1]) : /vo_ok_pick/.test(f) ? 'ok' : /vo_pick_hint1/.test(f) ? 'try' : /vo_pick_hint3/.test(f) ? 'hint3' : 'other';
   const cells = [...document.querySelectorAll('#slideHost .opt-cell')], th = document.querySelector('#slideHost .story-q-thumb'), mi = document.getElementById('swBuddyImg');
-  const r = { slide: CARD.slides[state.idx].id, clip: m ? m[1] : (a ? 'other' : null), t: a ? +a.currentTime.toFixed(3) : null, playing: isPlaying,
+  const r = { slide: CARD.slides[state.idx].id, clip: clipOf, t: a ? +a.currentTime.toFixed(3) : null, playing: isPlaying,
     cls: cells.map(c => c.className.replace('sent-opt opt-cell', '').trim()), say: cells.map(c => !!c.querySelector('.so-pill.p6-say')),
     lit: cells.map(c => [...c.querySelectorAll('.p2-word')].findIndex(w => w.classList.contains('on'))),
     pop: th ? (th.classList.contains('p2-pop') ? 'p2' : th.classList.contains('p6-pop') ? 'p6' : '') : '', mood: mi ? mi.getAttribute('src').split('/').pop().split('.')[0] : '',
@@ -61,7 +63,7 @@ def run(pg):
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
     pg.evaluate(f"window._stopAt = '{NEXT}'"); pg.evaluate(SAMPLE); pg.evaluate(f"mountSlide(CARD.slides.findIndex(s => s.id === '{PAGE}'))")
     d = pg.evaluate(f"CARD.slides.find(s => s.id === '{PAGE}')")
-    pg.wait_for_function("!isPlaying && currentAudio && currentAudio.src.includes('vo_g4_prompt')", timeout=15000, polling=20); pg.wait_for_timeout(400)
+    pg.wait_for_function(f"!isPlaying && currentAudio && currentAudio.src.includes('{d['audio']['prompt']}')", timeout=15000, polling=20); pg.wait_for_timeout(400)   # [vo-rec] the page's own instruction clip
     labels = pg.evaluate(LABELS)
     opt = {o["label_hi"]: o for o in d["data"]["options"]}
     right = next(i for i, l in enumerate(labels) if opt[l].get("correct"))
@@ -124,13 +126,15 @@ with sync_playwright() as p:
     i_tap = first(lambda s: s["cls"][right].startswith("correct"))
     i_ck = first(lambda s: "ck-correct" in s["cls"][right], i_tap)
     rc = clip_of(opt[labels[right]])   # the right pill's own clip (o1 on G4 / P1, o3 on P2)
-    i_line = first(lambda s: s["clip"] == rc and s["playing"], i_tap)
+    i_ok = first(lambda s: s["clip"] == "ok" and s["playing"], i_tap); i_ok_e = first(lambda s: s["clip"] == "ok" and not s["playing"], i_ok)   # [vo-rec] the praise first
+    i_line = first(lambda s: s["clip"] == rc and s["playing"], i_ok)
     i_end = first(lambda s: s["clip"] == rc and not s["playing"], i_line)
     i_gate = first(gone, i_end)
     check("the tap: the green mark and the picture's pop at once, Swiftie unchanged, nothing sounding for the 1 s hold",
-          tl[i_tap]["pop"] == "p2" and not any(s["playing"] for s in tl[i_tap:i_line]) and 950 <= ms(i_line) - ms(i_tap) <= 1250, f"line {ms(i_line) - ms(i_tap):.0f} ms after the mark")
-    check("after the hold: the kit's correct-select, the confetti and the happy Swiftie with the pill's own line",
-          abs(ms(i_ck) - ms(i_line)) <= 120 and any(s["conf"] for s in tl[i_line:i_line + 30]) and "celebrate" in tl[i_line + 5]["mood"], (ms(i_ck) - ms(i_line), tl[i_line + 5]["mood"]))
+          tl[i_tap]["pop"] == "p2" and not any(s["playing"] for s in tl[i_tap:i_ok]) and 950 <= ms(i_ok) - ms(i_tap) <= 1250, f"the praise {ms(i_ok) - ms(i_tap):.0f} ms after the mark")
+    check("after the hold: the kit's correct-select, the confetti and the happy Swiftie with the praise (vo_ok_pick, “शाबाश! यह सही वाक्य है ।”), then the pill's own line as it ends",
+          abs(ms(i_ck) - ms(i_ok)) <= 120 and any(s["conf"] for s in tl[i_ok:i_ok + 30]) and "celebrate" in tl[i_ok + 5]["mood"] and -60 <= ms(i_line) - ms(i_ok_e) <= 250,
+          (ms(i_ck) - ms(i_ok), tl[i_ok + 5]["mood"], ms(i_line) - ms(i_ok_e)))
     bad, seen = sync_ok(tl, right, opt[labels[right]]["word_times"], rc)
     check("its words light one at a time in sync with the clip (each within its window ±120 ms), the closing danda too",
           not bad and seen == set(range(len(opt[labels[right]]["word_times"]) - 1)), f"seen {sorted(seen)}, off {bad[:4]}")
@@ -147,7 +151,7 @@ with sync_playwright() as p:
     d, labels, opt, right = run(pg)
     wr = [i for i in range(3) if i != right]
     pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "d_wrong1.png"))
-    pg.wait_for_function("currentAudio && currentAudio.src.includes('vo_g4_try') && isPlaying", timeout=10000, polling=20)   # P1 plays G4's line too
+    pg.wait_for_function(f"currentAudio && currentAudio.src.includes('{d['audio']['try_again']}') && isPlaying", timeout=10000, polling=20)   # [vo-rec] the page's try-again line (vo_g4_hint1 / vo_pick_hint1)
     pg.wait_for_function("!document.querySelector('#slideHost .opt-cell.crossed')", timeout=15000, polling=20); pg.wait_for_timeout(300)
     pg.click(f"#slideHost .opt-cell >> nth={wr[1]}")
     pg.wait_for_function("!!document.querySelector('#slideHost .so-pill.p6-say')", timeout=10000, polling=20); pg.wait_for_timeout(500)
@@ -191,6 +195,9 @@ with sync_playwright() as p:
           [(sorted(seen), bad[:2]) for bad, seen in sync])
     check("...taps ignored meanwhile (the right pill tapped during the read-out did nothing)", held == [2, False], held)
     i_w3 = first(lambda s: s["attempts"] == 3)
+    i_h3 = next((i for i in range(i_w3, len(tl)) if tl[i]["clip"] == "hint3" and tl[i]["playing"]), None)
+    check("...the reveal's line (vo_pick_hint3, “यह सही वाक्य है, इस पर टैप कीजिए”) is said as the right pill is ringed", i_h3 is not None and ms(i_h3) - ms(i_w3) < 2000,
+          round(ms(i_h3) - ms(i_w3)) if i_h3 is not None else None)   # [vo-rec]
     check("wrong tap 3: 1 s later the reveal — two pills greyed and dead, the right one ringed green, the 96px hand centred under it",
           [x[0] for k, x in enumerate(rev["dim"]) if k != right] == ["opt-dim", "opt-dim"] and all(x[1] == "none" and x[2] == "0.5" and "grayscale(1)" in x[3] for k, x in enumerate(rev["dim"]) if k != right)
           and rev["dim"][right][0] == "opt-guided" and "rgb(0, 177, 50)" in rev["ring"] and "6px" in rev["ring"]
@@ -217,7 +224,7 @@ with sync_playwright() as p:
     pops = [tl[i]["pop"] for i in ps]
     check("the instruction repeats ~5 s after each time it ends, with the picture's pop-and-hold (not on entry)",
           len(ps) >= 3 and all(4900 <= g <= 5500 for g in gaps) and pops[0] == "" and all(p == "p6" for p in pops[1:]), f"{len(ps)} plays, gaps {[round(g) for g in gaps]}, pops {pops}")
-    pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_g4_prompt')", timeout=10000, polling=20); pg.wait_for_timeout(400)
+    pg.wait_for_function(f"isPlaying && currentAudio && currentAudio.src.includes('{d['audio']['prompt']}')", timeout=10000, polling=20); pg.wait_for_timeout(400)
     wr = [i for i in range(3) if i != right]
     pg.click(f"#slideHost .opt-cell >> nth={wr[0]}"); pg.wait_for_timeout(120)
     cut = pg.evaluate("[isPlaying, state.attempts]")

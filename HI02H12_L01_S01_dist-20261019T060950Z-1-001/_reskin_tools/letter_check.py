@@ -1,5 +1,6 @@
 """The letter page L1 ([letter-fig]): mounted straight (as the dev nav would), the whole scene plays by itself and its sounds
-start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens and hands over to the end screen.
+start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens and hands over to the end screen. [vo-rec] the narration
+(vo_letter_intro) sounds first; the scene's clock starts when it ends.
 usage: python -I -X utf8 letter_check.py <index.html> <outdir> [<dir with render_538-39.png render_558-2.png render_610-6.png>]
 Screenshots: l1_a.png (538:2), l1_b.png (538:35), l1_grandpa.png (538:39), l1_hum.png (the chime's "ummm": the pensive girl, no cloud),
 l1_grow.png (0.5 s after its "aahaha": the white cloud and the letter growing in together), l1_letter.png (558:2), l1_zoom.png (610:6), l1_open.png, l1_end.png; with the renders, *_diff.png and the pixel numbers. Samples are taken at set moments of the PAGE's clock
@@ -77,6 +78,13 @@ with sync_playwright() as p:
     shot(pg, "l1_a.png")
     check("the envelope is the drawing's own layers: the body (the pocket), ONE flap, the inside, the heart — no re-cut side flaps",
           pg.evaluate("!!document.querySelector('.ltr-body') && document.querySelectorAll('.ltr-flap').length === 1 && !document.querySelector('.ltr-fl, .ltr-fr, .ltr-fb')"))
+    # [vo-rec] the page's narration first (vo_letter_intro, "पिंकी अपने दादाजी को पत्र में ..."), over the girl writing; the scene's
+    # beats start the moment it ends — from here the page's clock (t0) is the scene's
+    pg.wait_for_function("currentAudio && currentAudio.src.includes('vo_letter_intro') && isPlaying", timeout=8000, polling=10); t_nar = pg.evaluate("performance.now()")
+    pg.wait_for_function("!isPlaying", timeout=40000, polling=10); t_scene = pg.evaluate("performance.now()"); s = pg.evaluate(STATE)
+    check("the narration (vo_letter_intro) sounds first, over the girl writing — the first scene standing still, no cloud, until it ends (then the beats start)",
+          t_nar - t0 < 1500 and t_scene - t_nar > 5000 and s["bOp"] == 0 and s["cloudOp"] == 0, (round(t_nar - t0), round(t_scene - t_nar), s["bOp"], s["cloudOp"]))
+    t0 = t_scene
     # 2. after 2 s the thinking girl (538:35) fades in
     until(t0, 1850); s = pg.evaluate(STATE); check("at 1.85 s the first scene still stands alone", s["bOp"] == 0, s["bOp"])
     until(t0, 2900); s = pg.evaluate(STATE); check("by 2.9 s the thinking girl (538:35) has faded in", s["bOp"] > 0.97, s["bOp"]); shot(pg, "l1_b.png")
@@ -121,7 +129,8 @@ with sync_playwright() as p:
     check("by 4.1 s into the chime the white cloud stands with the letter in it (its growth done), pulsing and tappable",
           s["cloudOp"] > 0.99 and s["cgOp"] == 0 and s["cwOp"] == 1 and s["growOp"] == 1 and settled and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"],
           (s["cloudOp"], s["growOp"], s["growTf"], s["cls"]))
-    check("the chime is the page's only voice-like sound and plays once", sum(1 for x in pl if x["src"].startswith("sfx_letter_idea")) == 1, [x["src"] for x in pl if "letter" in x["src"]])
+    check("the chime plays once (the narration vo_letter_intro is the page's other voice, before the scene)", sum(1 for x in pl if x["src"].startswith("sfx_letter_idea")) == 1 and sum(1 for x in pl if x["src"].startswith("vo_letter_intro")) == 1,
+          [x["src"] for x in pl if "letter" in x["src"]])
     tr_in = pg.evaluate("window.__tin"); ts = [f["t"] - t_idea for f in tr_in]; gaps = [y - x for x, y in zip(ts, ts[1:])]
     after = [f["cloud"] for f in tr_in if f["t"] - t_idea >= 2400]
     check("the chime's beats run smoothly on the page's own frames (from the chime to the letter's readiness: no gap over 100 ms) and the cloud's return never falters (its opacity never falls after the \"aahaha\")",

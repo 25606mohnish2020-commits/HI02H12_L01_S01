@@ -1,17 +1,15 @@
-"""Verify the story page (STORY_LISTEN, slide T0) against its two Figma frames and check the word reveal vs the VO.
-usage: python -I -X utf8 story_check.py <index.html> <figma_render_beat1.png> <figma_render_beat2.png> <outdir>
-       (the renders: story_figma_render_1280x720.png = frame 435:5, story2_figma_render_1280x720.png = frame 476:198)
-1. Real flow at 1333x750: landing -> शुरू करें -> peek gate -> the story page is the screen the gate opens onto.
-2. Each beat's word reveal vs its own clip: sampled every ~30 ms, a word may not show before its start time and
-   must show within 150 ms of it.
-3. The turn between beats: one second after line 1's VO ends its text leaves and picture 2 appears; line 2's VO
-   starts once the picture has landed; a 🔊 tap during the turn is ignored; आगे stays hidden until line 2's VO
-   has ended, then opens; the chip afterwards replays line 2; आगे leads to T0B ("आइए वाक्य सुनें।", see relisten_check.py).
-4. The card's box, Swiftie and the 🔊 chip vs the reference game's T1/T2 (https://hi-02-h04-l01-s01-dun.vercel.app/,
-   measured on its 1333x750 stage on 2026-10-21): card 100,96 1133x562, Swiftie 76,472 190x190, chip 202,606 58x58.
-5. 1280x720 viewport (stage scale x fig scale = 1, so stage px == frame px): at the end of each beat, the
-   picture and text box vs that frame, the text's line breaks, and a per-pixel diff vs that frame's Figma render
-   over the picture + text box (the card outline, Swiftie and the chip follow the reference game, not the frame).
+"""The story page T0 ([story-fig] layout, [story-pinki] beats): FOUR beats on one layout — the Figma frames 652:3, 652:192,
+660:127 and 653:381 (Pinki, her mother and the cat) — each a new picture in the grey-bordered frame and a new text that
+arrives word by word with its recorded clip (vo_story_b1..b4). The page opens on the recorded line "आइए इन वाक्यों को सुनते
+हैं।" (vo_story_s0, [vo-rec]); between beats the finished text leaves one second after its clip, the next picture appears over
+the last one and its clip starts once it has landed. आगे only ever shows LIVE, once the LAST clip has ended (pulsing); the 🔊 chip
+replays the beat on screen from its first word, hiding आगे until that replay ends.
+Checks: the real flow from the start gate (the opening line, each beat's word sync, the three turns, a 🔊 tap in the first turn
+ignored, आगे's states frame by frame, the replay, आगे -> T0B); a stalled last clip (the watchdog opens आगे live); geometry and
+pixel diffs against the four Figma renders at 1280x720.
+usage: python -I -X utf8 story_check.py <index.html> <render_652-3.png> <render_652-192.png> <render_660-127.png> <render_653-381.png> <outdir>
+       (the renders: story_b1..b4_figma_render_1280x720.png next to this script)
+Screenshots in <outdir>: 1_gate.png, 3*_1333.png (the flow), 2_beat<k>_1280.png (+ _diff_mask.png), 3f_replay_1333.png, 4_T0B_after_story.png
 """
 import sys, json, pathlib
 import numpy as np
@@ -19,46 +17,45 @@ from playwright.sync_api import sync_playwright
 from PIL import Image
 
 html = pathlib.Path(sys.argv[1]).resolve()
-targets = [Image.open(sys.argv[2]).convert("RGB"), Image.open(sys.argv[3]).convert("RGB")]
-out = pathlib.Path(sys.argv[4]).resolve(); out.mkdir(parents=True, exist_ok=True)
+targets = [Image.open(sys.argv[k]).convert("RGB") for k in (2, 3, 4, 5)]
+out = pathlib.Path(sys.argv[6]).resolve(); out.mkdir(parents=True, exist_ok=True)
 fails = []
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
     if not ok: fails.append(name)
 
-COMMON = {   # frame px, from the Figma metadata / design context; identical in both frames
+COMMON = {   # frame px, from the Figma metadata / design context; identical in all four frames
   ".sfig-pic":           (108+317-4, 118+13-4, 438, 232),   # 430x224 frame + its 4px OUTSIDE stroke
   ".sfig-textbox":       (108+314, 118+250, 436, 119),
 }
-REFERENCE = {   # stage px on the reference game's T1/T2 (same on both)
+REFERENCE = {   # stage px on the reference game's T1/T2 (same on every beat)
   ".tut-card.sfig-card": (100, 96, 1133, 562),
   ".sfig-swiftie":       (76, 472, 190, 190),
   ".tut-audio":          (202, 606, 58, 58),
 }
 CONTENT = (416, 122, 864, 492)   # frame px region holding the picture + text box, for the Figma pixel diff
-BEAT = [
-  {"img": (".sfig-img.b1", (108+317-3, 118+13-11, 436, 245)),          # node 470:477
-   "lines": ["चिंटू दौड़कर आया और बोला दादी बिल्ली दूध", "पी रही है दादी बोली उसे भगाओ मत पीने दो"]},
-  {"img": (".sfig-img.b2", (108+317-9, 118+13-14, 448, 252)),          # node 476:197
-   "lines": ["चिंटू हैरान होकर बोला क्या उसे सारा दूध", "पीने दूँ दादी हँसकर बोली अरे नहीं उसे", "भगाओ दूध मत पीने दो"]},
+BEAT = [   # each beat's picture node (its offset and size inside the 430x224 box) and the frame's text lines
+  {"img": (".sfig-img.b1", (108+317-14, 118+13-3, 458, 229)), "lines": ["पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”"]},   # node 668:314
+  {"img": (".sfig-img.b2", (108+317-16, 118+13-4, 462, 231)), "lines": ["माँ ने कहा, “उसे रोको मत जाने दो।”"]},             # node 669:317
+  {"img": (".sfig-img.b3", (108+317-14, 118+13-2, 458, 229)), "lines": ["पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”"]},           # node 671:320
+  {"img": (".sfig-img.b4", (108+317+0, 118+13-9, 430, 242)),  "lines": ["माँ ने कहा, “उसे रोको, मत जाने दो।”"]},            # node 653:563
 ]
 BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
   if (!e) { o[s] = null; continue; } const r = e.getBoundingClientRect(); o[s] = [r.left, r.top, r.width, r.height]; } return o; }"""
 LEAVE_TO = """(i) => { const sg = document.getElementById('startGate'); if (sg) sg.classList.add('hidden');
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); mountSlide(i); }"""
-SAMPLE = """() => { const a = currentAudio, src = a ? a.src : '', nav = document.getElementById('navBtn');
-  const q = (s) => document.querySelector(s);
-  return { clip: src.includes('vo_story_s1') ? 's1' : src.includes('vo_story_s2') ? 's2' : null,
-    t: a ? a.currentTime : null, playing: isPlaying,
-    s1: document.querySelectorAll('.sfig-text.b1 .sfig-w.on').length, s2: document.querySelectorAll('.sfig-text.b2 .sfig-w.on').length,
-    gone1: q('.sfig-text.b1').classList.contains('gone'), pic2: q('.sfig-img.b2').classList.contains('on'),
+# one frame: the clip (s0 = the opening line, b1..b4 = the beats), its clock, each beat's shown words / gone text / picture, आगे
+SAMPLE = """() => { const a = currentAudio, src = a ? a.src : '', nav = document.getElementById('navBtn'), m = src.match(/vo_story_(\\w+)\\.ogg/);
+  const texts = [...document.querySelectorAll('.sfig-text')], pics = [...document.querySelectorAll('.sfig-img')];
+  return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying,
+    shown: texts.map(x => x.querySelectorAll('.sfig-w.on').length), gone: texts.map(x => x.classList.contains('gone')), pic: pics.map(p => p.classList.contains('on')),
     navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now() }; }"""
 # every animation frame: which आगे art is on screen (none / ON = the live pill / DISABLED = the greyed-out one)
 NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('navBtn'); let last = ''; const t0 = performance.now();
-  const step = () => { const cs = getComputedStyle(btn), off = btn.querySelector('.btn-off'), on = btn.querySelector('.btn-on');
-    const shown = cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.01;
-    const img = !shown ? 'none' : getComputedStyle(on).display !== 'none' ? 'ON' : getComputedStyle(off).display !== 'none' ? 'DISABLED' : '?';
+  const step = () => { const cs = getComputedStyle(btn);   // [dun-chrome] a bare text button: live = .active (the disabled art otherwise), its ::after breathes (navBreathe)
+    const shown = cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.01 && cs.display !== 'none';
+    const img = !shown ? 'none' : btn.classList.contains('active') ? 'ON' : 'DISABLED';
     const a = currentAudio, slide = CARD.slides[state.idx] ? CARD.slides[state.idx].id : null;
     const key = [img, slide, isPlaying].join('|');
     if (key !== last) { last = key; window._navLog.push({ ms: performance.now() - t0, img, slide, playing: isPlaying,
@@ -68,14 +65,18 @@ NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('na
 LINES_OF = """(k) => { const ws = [...document.querySelectorAll('.sfig-text.b' + k + ' .sfig-w')];
   const tops = [...new Set(ws.map(w => Math.round(w.getBoundingClientRect().top)))];
   return tops.map(t => ws.filter(w => Math.round(w.getBoundingClientRect().top) === t).map(w => w.textContent).join(' ')); }"""
+PULSING = "getComputedStyle(document.getElementById('navBtn'), '::after').animationName"
 
-def sync_checks(tag, samples, key, times):
-    timed = [s for s in samples if s["clip"] == f"s{key}" and s["playing"] and s["t"] is not None]
-    shown = lambda s: s[f"s{key}"]
+def sync_checks(tag, samples, k, times):
+    """beat k (0-based): its words arrive one by one as its clip reaches them (on the clip's own clock), none early, none late"""
+    clip = f"b{k + 1}"
+    timed = [s for s in samples if s["clip"] == clip and s["playing"] and s["t"] is not None]
+    shown = lambda s: s["shown"][k]
     early = [s for s in timed if shown(s) > sum(1 for t in times if s["t"] + 0.04 >= t)]
     late  = [s for s in timed if shown(s) < sum(1 for t in times if s["t"] - 0.15 >= t)]
-    check(f"{tag}: words appear one by one with the clip", len(timed) > 50 and len({shown(s) for s in timed}) >= len(times) - 2,
-          f"{len(timed)} samples while the clip played, {len({shown(s) for s in timed})} distinct word counts")
+    distinct = len(set(times))   # a mark-only word ("?”") arrives with the word before it
+    check(f"{tag}: words appear one by one with the clip", len(timed) > 40 and len({shown(s) for s in timed}) >= distinct - 2,
+          f"{len(timed)} samples while the clip played, {len({shown(s) for s in timed})} distinct word counts / {len(times)} words")
     check(f"{tag}: no word shows before the narration reaches it", not early, early[:2])
     check(f"{tag}: no word lags its start time by >150 ms", not late, late[:2])
     first_t = next((s["t"] for s in timed if shown(s) >= 1), None)
@@ -97,20 +98,23 @@ with sync_playwright() as p:
     pg.screenshot(path=str(out / "1_gate.png"))
     pg.wait_for_function("!!document.querySelector('.sfig-card') && !document.getElementById('phaseGate').classList.contains('show')", timeout=20000)
     check("the gate opens onto the story page (slide T0)", pg.evaluate("CARD.slides[state.idx].id") == "T0")
-    beats = pg.evaluate("CARD.slides[state.idx].data.beats")
-    t1, t2 = beats[0]["word_times"], beats[1]["word_times"]
+    beats = pg.evaluate("CARD.slides[state.idx].data.beats"); N = len(beats); T = [bt["word_times"] for bt in beats]
+    check("four beats, the frames' texts (with their punctuation), each on its own recorded clip (vo_story_b1..b4)",
+          N == 4 and [bt["text_hi"] for bt in beats] == [bt["lines"][0] for bt in BEAT] and [bt["audio"] for bt in beats] == [f"vo_story_b{k}" for k in (1, 2, 3, 4)]
+          and all(len(t) == len(bt["text_hi"].split()) for t, bt in zip(T, beats)), [bt["text_hi"] for bt in beats])
     samples, shots, tapped = [], set(), False
-    for _ in range(2000):
+    for _ in range(3200):
         s = pg.evaluate(SAMPLE); samples.append(s)
         if s["nav"]: break
-        for name, cond in (("3a_beat1_mid", s["s1"] >= 9), ("3b_beat1_end", s["clip"] == "s1" and s["s1"] == len(t1) and not s["playing"]),
-                           ("3c_turn", s["pic2"]), ("3d_beat2_mid", s["s2"] >= 10)):
+        done1 = s["clip"] == "b1" and s["shown"][0] == len(T[0]) and not s["playing"]
+        for name, cond in (("3a_beat1_mid", s["shown"][0] >= 4), ("3b_beat1_end", done1), ("3c_turn", s["pic"][1]), ("3d_beat2_mid", s["shown"][1] >= 4),
+                           ("3e_beat3_mid", s["shown"][2] >= 4), ("3f_beat4_mid", s["shown"][3] >= 4)):
             if cond and name not in shots:
                 shots.add(name); pg.screenshot(path=str(out / f"{name}_1333.png"))
-        if not tapped and s["clip"] == "s1" and s["s1"] == len(t1) and not s["playing"]:
+        if not tapped and done1:
             tapped = True; pg.click(".tut-audio", force=True)   # a 🔊 tap in the pause before the turn must be ignored
         pg.wait_for_timeout(25)
-    pg.screenshot(path=str(out / "3e_beat2_end_1333.png"))
+    pg.screenshot(path=str(out / "3g_beat4_end_1333.png"))
     boxes = pg.evaluate(BOXES, list(REFERENCE)); worst = 0
     print("== card / Swiftie / chip vs the reference game (stage px) ==")
     for sel, exp in REFERENCE.items():
@@ -118,62 +122,64 @@ with sync_playwright() as p:
         print(f"  {sel:22s} got {[round(v,2) for v in got]}  reference {list(exp)}  max|d|={d:.2f}")
     check("card size, Swiftie and the 🔊 chip match the reference game's T1/T2 (within 0.5 px)", worst <= 0.5, f"worst {worst:.2f}px")
     with open(out / "sync_log.json", "w", encoding="utf-8") as f: json.dump({"beats": beats, "samples": samples}, f, indent=0)
-
-    sync_checks("line 1", samples, 1, t1)
-    sync_checks("line 2", samples, 2, t2)
-    i_end1 = next(i for i, s in enumerate(samples) if s["clip"] == "s1" and s["s1"] == len(t1) and not s["playing"])
-    i_gone = next(i for i, s in enumerate(samples) if s["gone1"])
-    i_vo2 = next(i for i, s in enumerate(samples) if s["clip"] == "s2" and s["playing"])
-    i_end2 = next(i for i, s in enumerate(samples) if s["clip"] == "s2" and s["s2"] == len(t2) and not s["playing"])
-    pause = samples[i_gone]["ms"] - samples[i_end1]["ms"]; land = samples[i_vo2]["ms"] - samples[i_gone]["ms"]
-    check("line 1's text leaves one second after its VO ends", 900 <= pause <= 1300, f"{pause:.0f} ms")
-    check("picture 2 appears in the same beat as line 1's text leaves", samples[i_gone]["pic2"] and not samples[i_gone - 1]["pic2"])
-    check("line 2's VO starts once picture 2 has landed (~0.65 s)", 600 <= land <= 1000, f"{land:.0f} ms after the turn")
-    check("the 🔊 tap during the turn was ignored (line 1 never restarts)",
-          tapped and not any(s["clip"] == "s1" and s["playing"] for s in samples[i_end1:]))
-    check("no line-2 word shows before the turn", all(s["s2"] == 0 for s in samples[:i_vo2]))
-    check("आगे stays hidden through line 1, the turn and line 2", not any(s["navVisible"] for s in samples[:i_end2]))
-    check("आगे opens (pulsing) once line 2's VO has ended", samples[-1]["nav"] and samples[-1]["s2"] == len(t2)
-          and pg.evaluate("getComputedStyle(document.getElementById('navBtn')).animationName") == "nextBtnPulse",
-          f"{samples[-1]['ms'] - samples[i_end2]['ms']:.0f} ms after the clip ended")
+    ms = lambda i: samples[i]["ms"]
+    first = lambda cond, start=0: next(i for i in range(start, len(samples)) if cond(samples[i]))
+    # the opening line, then beat 1
+    i_s0 = first(lambda s: s["clip"] == "s0" and s["playing"]); i_s0e = first(lambda s: s["clip"] != "s0" or not s["playing"], i_s0 + 1)   # beat 1 follows at once: the ended frame may be missed
+    i_b1 = first(lambda s: s["clip"] == "b1" and s["playing"])
+    check("the opening line (vo_story_s0, “आइए इन वाक्यों को सुनते हैं।”) sounds first, beat 1's picture up and its text empty; beat 1's clip starts once it has ended",
+          i_s0 < i_s0e <= i_b1 and all(s["shown"][0] == 0 and s["pic"][0] for s in samples[:i_b1]) and ms(i_b1) - ms(i_s0e) <= 800, f"beat 1 {ms(i_b1) - ms(i_s0e):.0f} ms after the line")
+    for k in range(N): sync_checks(f"beat {k + 1}", samples, k, T[k])
+    # the turns between the beats
+    i_end = [first(lambda s, k=k: s["clip"] == f"b{k + 1}" and s["shown"][k] == len(T[k]) and not s["playing"]) for k in range(N)]
+    for k in range(N - 1):
+        i_gone = first(lambda s, k=k: s["gone"][k]); i_vo = first(lambda s, k=k: s["clip"] == f"b{k + 2}" and s["playing"])
+        pause = ms(i_gone) - ms(i_end[k]); land = ms(i_vo) - ms(i_gone)
+        check(f"beat {k + 1}'s text leaves one second after its clip ends", 900 <= pause <= 1300, f"{pause:.0f} ms")
+        check(f"picture {k + 2} appears in the same beat as text {k + 1} leaves (over the last picture)", samples[i_gone]["pic"][k + 1] and not samples[i_gone - 1]["pic"][k + 1] and samples[i_gone]["pic"][k])
+        check(f"beat {k + 2}'s clip starts once picture {k + 2} has landed (~0.65 s)", 600 <= land <= 1000, f"{land:.0f} ms after the turn")
+        check(f"no beat-{k + 2} word shows before the turn", all(s["shown"][k + 1] == 0 for s in samples[:i_vo]))
+    check("the 🔊 tap during the first turn was ignored (beat 1 never restarts)", tapped and not any(s["clip"] == "b1" and s["playing"] for s in samples[i_end[0]:]))
+    check("आगे stays hidden through every beat and turn", not any(s["navVisible"] for s in samples[:i_end[-1]]))
+    check("आगे opens (pulsing) once the last clip has ended", samples[-1]["nav"] and samples[-1]["shown"][-1] == len(T[-1]) and pg.evaluate(PULSING) == "navBreathe",
+          f"{ms(len(samples) - 1) - ms(i_end[-1]):.0f} ms after the clip ended")
     pg.wait_for_timeout(1200)
     pg.click(".tut-audio", force=True); pg.wait_for_timeout(400)
     r = pg.evaluate(SAMPLE)
-    check("🔊 afterwards replays line 2 on picture 2 from its first word", r["clip"] == "s2" and r["playing"] and r["s2"] < len(t2) and r["pic2"] and r["gone1"])
+    check("🔊 afterwards replays the last beat on its picture from its first word", r["clip"] == f"b{N}" and r["playing"] and r["shown"][-1] < len(T[-1]) and r["pic"][-1] and all(r["gone"][:-1]))
     check("आगे is hidden while the replay sounds", not r["navVisible"])
-    pg.screenshot(path=str(out / "3f_replay_1333.png"))
+    pg.screenshot(path=str(out / "3h_replay_1333.png"))
     pg.wait_for_function("!isPlaying", timeout=20000)
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=2000)
-    check("आगे comes back live and pulsing when the replay ends",
-          pg.evaluate("getComputedStyle(document.getElementById('navBtn')).animationName") == "nextBtnPulse")
+    check("आगे comes back live and pulsing when the replay ends", pg.evaluate(PULSING) == "navBreathe")
     pg.wait_for_timeout(300)
-    pg.click("#navBtn", force=True)   # force: the active pill pulses forever, so it is never "stable"
+    pg.click("#navBtn", force=True)   # force: the active pill breathes forever, so it is never "stable"
     pg.wait_for_function("CARD.slides[state.idx].id === 'T0B' && !!document.querySelector('.sfig-card .sfig-title')", timeout=10000)
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T0"]
     with open(out / "nav_log.json", "w", encoding="utf-8") as f: json.dump(log, f, indent=0)
     print("  आगे on the story page:", [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
     check("the greyed-out आगे never shows on the story page (frame by frame, incl. a replay)", not any(e["img"] == "DISABLED" for e in log))
     first_on = next((e for e in log if e["img"] == "ON"), None)
-    check("आगे first shows only once line 2's VO has ended", first_on is not None and first_on["clip"] == "vo_story_s2.ogg" and not first_on["playing"])
-    check("आगे never shows while a story VO plays", not any(e["img"] != "none" and e["playing"] for e in log))
+    check("आगे first shows only once the last clip has ended", first_on is not None and first_on["clip"] == f"vo_story_b{N}.ogg" and not first_on["playing"])
+    check("आगे never shows while a story clip plays", not any(e["img"] != "none" and e["playing"] for e in log))
     check("आगे leads to T0B (\"आइए वाक्य सुनें।\"), no extra gate", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
     pg.wait_for_timeout(1500); pg.screenshot(path=str(out / "4_T0B_after_story.png"))
     pg.close()
 
-    # ---- 3b. line 2's clip never starts or ends (a stalled media load): the watchdog must still finish the page
+    # ---- 3b. the last clip never starts or ends (a stalled media load): the watchdog must still finish the page
     #          and open आगे live — never leave the greyed-out pill under a "playing" clip
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
-    pg.evaluate("""() => { const orig = HTMLMediaElement.prototype.play;
-      HTMLMediaElement.prototype.play = function(){ return String(this.src).includes('vo_story_s2') ? Promise.resolve() : orig.call(this); }; }""")
+    pg.evaluate(f"""() => {{ const orig = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function(){{ return String(this.src).includes('vo_story_b{N}') ? Promise.resolve() : orig.call(this); }}; }}""")
     pg.evaluate(NAVLOG); pg.evaluate(LEAVE_TO, 0)
-    pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=45000)
+    pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=60000)
     pg.wait_for_timeout(400)   # let the logger see the pill fade in
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T0"]
-    check("stalled line-2 clip: the watchdog finishes the page and opens आगे live, never greyed out",
+    check("stalled last clip: the watchdog finishes the page and opens आगे live, never greyed out",
           not any(e["img"] == "DISABLED" for e in log) and log[-1]["img"] == "ON" and not pg.evaluate("isPlaying")
-          and pg.evaluate("document.querySelectorAll('.sfig-text.b2 .sfig-w.on').length") == len(t2),
+          and pg.evaluate(f"document.querySelectorAll('.sfig-text.b{N} .sfig-w.on').length") == len(T[-1]),
           [(round(e["ms"]), e["img"], e["clip"], e["playing"]) for e in log])
     pg.close()
 
@@ -184,14 +190,14 @@ with sync_playwright() as p:
     pg.evaluate(LEAVE_TO, 0)
     pg.evaluate("document.fonts.ready")
     check("Noto Sans Devanagari SemiBold is loaded for the story text",
-          pg.evaluate("document.fonts.check(\"600 24px 'Story Noto Sans Devanagari'\", 'चिंटू')"))
+          pg.evaluate("document.fonts.check(\"600 26px 'Story Noto Sans Devanagari'\", 'पिंकी')"))
     for k, (beat, target) in enumerate(zip(BEAT, targets), 1):
-        n = len(beats[k - 1]["word_times"])
-        if k == 1:   # line 1 complete, in the one-second pause before the turn
-            pg.wait_for_function(f"!isPlaying && document.querySelectorAll('.sfig-text.b1 .sfig-w.on').length === {n}", timeout=20000, polling=20)
+        n = len(T[k - 1])
+        if k < N:   # beat k complete, in the one-second pause before the turn
+            pg.wait_for_function(f"!isPlaying && document.querySelectorAll('.sfig-text.b{k} .sfig-w.on').length === {n} && !document.querySelector('.sfig-text.b{k}').classList.contains('gone')", timeout=40000, polling=20)
             pg.wait_for_timeout(260)   # the last word's 0.26 s entrance
         else:
-            pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=30000)
+            pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=40000)
             pg.wait_for_timeout(300)
         shot = out / f"2_beat{k}_1280.png"; pg.screenshot(path=str(shot))
         expect = dict(COMMON); expect[beat["img"][0]] = beat["img"][1]
@@ -203,7 +209,7 @@ with sync_playwright() as p:
             print(f"  {s:22s} got {[round(v,2) for v in got]}  frame {list(exp)}  max|d|={d:.2f}")
         check(f"beat {k}: every frame element within 1 px of the frame", worst <= 1.0, f"worst {worst:.2f}px")
         lines = pg.evaluate(LINES_OF, k); print("  text lines:", lines)
-        check(f"beat {k}: text breaks into the frame's {len(beat['lines'])} lines", lines == beat["lines"])
+        check(f"beat {k}: text breaks into the frame's {len(beat['lines'])} line(s)", lines == beat["lines"])
         img = Image.open(shot).convert("RGB")
         A = np.asarray(img, np.int16); B = np.asarray(target, np.int16); M = np.zeros(A.shape[:2], bool)
         x0, y0, x1, y1 = CONTENT; M[y0:y1, x0:x1] = True

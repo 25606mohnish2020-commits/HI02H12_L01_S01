@@ -44,6 +44,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          in their places — vo_rec.py (run before this) re-containers them, re-syncs every word-timed line from the clip's own
          words and reads the gate cue; here the card gets the new IDs and the deck's extra beats (explain / again / conclude
          lines, hint ladders, the letter narration, per-round stamp instructions, the praise lines) get their JS hooks.
+         [story-pinki] (2026-10-28): the story page T0 is four beats from the frames 652:3, 652:192, 660:127, 653:381 (Pinki,
+         her mother, the cat: new pictures, texts with their punctuation, the recorded takes 1 / vo_story_s1 / 2 / 3.wav as
+         vo_story_b1..b4 via vo_rec.py, word-synced); same layout, module and beat animation; then आगे.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -97,13 +100,18 @@ ported_mods = "".join(mods).replace("SwiftPAL.emit(", "GameBus.emit(")
 # ---------- 3. card: the reference flow uses the engine's peek-gate between rounds, not journey-map slides ----------
 card["slides"] = [s for s in card["slides"] if s["type"] != "PHASE_TRANSITION"]
 # [story-fig] the Figma story page opens the tutorial: start gate -> peek transition -> this -> T1. It tells the
-# story in two beats on one layout: frame 435:5, then frame 476:198 (new picture, new text, new narration).
-# Texts, clips and per-word start times come from story_assets/ (made by story_vo.py, checked by align_story_vo.py).
-lines = {k: json.loads((SCR / "story_assets" / f"vo_story_{k}.words.json").read_text(encoding="utf-8")) for k in ("s1", "s2")}
+# story in beats on one layout (new picture, new text, new narration each). [story-pinki] (2026-10-28): FOUR beats from
+# the frames 652:3, 652:192, 660:127 and 653:381 — Pinki, her mother and the cat; the texts carry their punctuation, and
+# beats 2 and 4 differ by one comma ("उसे रोको मत जाने दो" / "उसे रोको, मत जाने दो"). The clips are the recorded takes
+# (vo_rec.py: 1.wav, vo_story_s1.wav, 2.wav, 3.wav -> vo_story_b1..b4), the per-word start times whisper's, re-synced to
+# the frames' words. (Before: two beats, frames 435:5 / 476:198, the Chintu story in TTS: story_assets/vo_story_s1, s2.)
+lines = {k: json.loads((SCR / "story_assets" / f"vo_story_{k}.words.json").read_text(encoding="utf-8")) for k in ("b1", "b2", "b3", "b4")}
 beats = [{"image_id": img, "text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]],
-          "audio": f"vo_story_{k}"} for k, img in (("s1", "img_story_chintu"), ("s2", "img_story_chintu_2"))]
+          "audio": f"vo_story_{k}"} for k, img in (("b1", "img_story_pinki_cat"), ("b2", "img_story_pinki_listen"),
+                                                     ("b3", "img_story_pinki_ask"), ("b4", "img_story_pinki_maa"))]
 card["slides"].insert(0, {"id": "T0", "phase": "tutorial", "eis": "iconic", "type": "STORY_LISTEN",
-    "prompt_hi": lines["s1"]["text"], "audio": {"narration": "vo_story_s1", "narration_2": "vo_story_s2"},
+    "prompt_hi": lines["b1"]["text"],
+    "audio": {"narration": "vo_story_b1", "narration_2": "vo_story_b2", "narration_3": "vo_story_b3", "narration_4": "vo_story_b4"},
     "data": {"beats": beats}})
 for b in beats:
     card["assets"]["audio"][b["audio"]] = f"assets/Audio/{b['audio']}.ogg"
@@ -649,7 +657,7 @@ function sfigNarrate(L, live, onEnd){
   const last = L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000;
   setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
   const tick = ()=>{
-    if(!live()) return;
+    if(done || !live()) return;   // [vo-rec] once the clip has ended every word is shown: a late frame must not hide the last one again
     const a = currentAudio;
     const own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === L.file;
     const t = own ? a.currentTime : (Date.now() - began) / 1000;
@@ -1950,8 +1958,11 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-pic{position:absolute;left:313px;top:9px;width:438px;height:232px;border:4px solid #DADADA;border-radius:24px;
   overflow:hidden;background:#000;}
 .sfig-pic img{position:absolute;object-fit:cover;}
-.sfig-img.b1{left:-3px;top:-11px;width:436px;height:245px;}    /* node 470:477 (frame 435:5) */
-.sfig-img.b2{left:-9px;top:-14px;width:448px;height:252px;}    /* node 476:197 (frame 476:198) */
+/* [story-pinki] each beat's picture as its frame crops it into the 430x224 box (the image node's offset and size) */
+.sfig-img.b1{left:-14px;top:-3px;width:458px;height:229px;}    /* node 668:314 (frame 652:3) */
+.sfig-img.b2{left:-16px;top:-4px;width:462px;height:231px;}    /* node 669:317 (frame 652:192) */
+.sfig-img.b3{left:-14px;top:-2px;width:458px;height:229px;}    /* node 671:320 (frame 660:127) */
+.sfig-img.b4{left:0;top:-9px;width:430px;height:242px;}        /* node 653:563 (frame 653:381) */
 .sfig-img:not(.on){visibility:hidden;}
 /* the next beat's picture appears over the last one: fades up from a slight zoom and settles into its crop */
 .sfig-img.enter{animation:sfigPicIn .65s cubic-bezier(.2,.8,.3,1) both;}
@@ -1961,9 +1972,14 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-text{position:absolute;transform:translateY(-50%);overflow-wrap:break-word;
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:24px;line-height:normal;
   color:#002F76;text-align:center;}
-.sfig-text.b1{left:328px;top:310px;width:408px;}    /* node 475:195: centred on 532,310 */
-.sfig-text.b2{left:340px;top:309.5px;width:384px;}  /* node 476:384: centred on 532,309.5 */
-.sfig-text.b1 p::before{content:"\\a0";}        /* frame 435:5's text starts with a space, which sets line 1 half a space right */
+/* [story-pinki] the text boxes: each frame's node (centre, width, size); the frames' texts END with spaces (two on the
+   first), which Figma lays out as part of the centred line — so the ink sits a little left of centre, as drawn */
+.sfig-text.b1{left:319px;top:310px;width:427px;font-size:26px;}    /* node 652:187: centred on 532.5,310 */
+.sfig-text.b2{left:340px;top:309.5px;width:384px;font-size:28px;}  /* node 652:376: centred on 532,309.5 */
+.sfig-text.b3{left:340px;top:309.5px;width:384px;font-size:28px;}  /* node 660:311: centred on 532,309.5 */
+.sfig-text.b4{left:334px;top:309.5px;width:395px;font-size:28px;}  /* node 653:565: centred on 531.5,309.5 */
+.sfig-text.b1 p::after{content:"\\a0\\a0";}
+.sfig-text.b2 p::after,.sfig-text.b3 p::after,.sfig-text.b4 p::after{content:"\\a0";}
 .sfig-text.gone{opacity:0;visibility:hidden;transition:opacity .3s ease-out,visibility 0s .3s;}   /* a finished beat's text leaves */
 /* Swiftie at the reference's 76,472 190x190 on the stage (in .sfig-in's frame px) */
 .sfig-swiftie{position:absolute;left:calc(64px / var(--fig-s) - 96px);top:calc(460px / var(--fig-s) - 106px);
@@ -2965,12 +2981,14 @@ for f in title_files:
 # ---------- 7b. [story-fig] the story page's assets (kept next to this script, in story_assets/) ----------
 STORY_SRC = SCR / "story_assets"
 for name, sub in (("story_grid.svg", "UI"), ("story_font_nsd600_deva.woff2", "UI"), ("story_font_nsd600_latin.woff2", "UI"),
-                  ("img_story_chintu.webp", "Images"), ("vo_story_s1.ogg", "Audio"),
-                  ("img_story_chintu_2.webp", "Images"), ("vo_story_s2.ogg", "Audio"),
+                  ("img_story_pinki_cat.webp", "Images"), ("img_story_pinki_listen.webp", "Images"),   # [story-pinki] the frames' pictures
+                  ("img_story_pinki_ask.webp", "Images"), ("img_story_pinki_maa.webp", "Images"),       # (their clips: vo_rec.py)
                   ("vo_story_r0.ogg", "Audio"), ("vo_story_r1.ogg", "Audio")):
     f, dst = STORY_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing story asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+for name, sub in (("img_story_chintu.webp", "Images"), ("img_story_chintu_2.webp", "Images"), ("vo_story_s1.ogg", "Audio"), ("vo_story_s2.ogg", "Audio")):
+    (DIST / "assets" / sub / name).unlink(missing_ok=True)   # [story-pinki] the Chintu beats' files: no page uses them now
 
 # ---------- 7c. [recap-fig] the recap's clips (kept next to this script, in recap_assets/, made by recap_vo.py) ----------
 RECAP_SRC = SCR / "recap_assets"

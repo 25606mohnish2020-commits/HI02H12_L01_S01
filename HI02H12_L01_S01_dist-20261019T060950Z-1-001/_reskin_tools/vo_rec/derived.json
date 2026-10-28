@@ -1,27 +1,96 @@
 {
  "applied": {
+  "vo_story_b1": {
+   "file": "1.wav",
+   "dur": 4.6,
+   "heard_to": 4.16,
+   "heard": "पिंकी बोली मा भिल्ली रसोई में चारही है",
+   "sync": {
+    "file": "story_assets\\vo_story_b1.words.json",
+    "n": 9,
+    "matched": "8/9",
+    "starts": [
+     0.0,
+     0.7,
+     1.14,
+     1.96,
+     2.82,
+     3.28,
+     3.39,
+     3.5,
+     3.92
+    ]
+   }
+  },
+  "vo_story_b3": {
+   "file": "2.wav",
+   "dur": 3.12,
+   "heard_to": 2.76,
+   "heard": "पिंकी ने पुचा, क्या उसे जाने दु?",
+   "sync": {
+    "file": "story_assets\\vo_story_b3.words.json",
+    "n": 8,
+    "matched": "5/7",
+    "starts": [
+     0.0,
+     0.6,
+     0.8,
+     1.64,
+     2.02,
+     2.24,
+     2.6,
+     2.68
+    ]
+   }
+  },
+  "vo_story_b4": {
+   "file": "3.wav",
+   "dur": 3.84,
+   "heard_to": 3.46,
+   "heard": "मानी कहा, उसे रुको मच्चानी दो.",
+   "sync": {
+    "file": "story_assets\\vo_story_b4.words.json",
+    "n": 8,
+    "matched": "5/8",
+    "starts": [
+     0.0,
+     0.38,
+     0.76,
+     1.5,
+     1.84,
+     2.36,
+     2.8,
+     3.24
+    ]
+   }
+  },
   "vo_build_hint1": {
    "file": "vo_build_hint1.wav",
-   "dur": 3.82,
+   "dur": 3.84,
+   "heard_to": 3.82,
    "heard": "फिर से कोशिश कीजिए । सही विराम चिह्न लगाइए ।"
   },
   "vo_build_hint2": {
    "file": "vo_build_hint2.wav",
-   "dur": 8.1,
+   "dur": 8.2,
+   "heard_to": 8.1,
    "heard": "वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर अल्प विराम, और प्रश्न पूछने पर प्रश्न वाचक चिह्न लगाते हैं ।"
   },
   "vo_demo1_conclude": {
    "file": "vo_demo1_conclude.wav",
-   "dur": 5.58,
+   "dur": 5.76,
+   "heard_to": 5.58,
    "heard": "अब हमें पता चल रहा है कि पडते हुए बात पूरी होने पर हमें कहाँ रुकना है ।"
   },
   "vo_demo1_full": {
    "file": "vo_demo1_full.wav",
-   "dur": 3.22,
+   "dur": 3.36,
+   "heard_to": 3.22,
    "heard": "पिंकी स्कूल जा रही है, पूर्णविराम।",
    "sync": {
     "file": "demo1_assets\\vo_demo1_full.words.json",
     "n": 6,
+    "matched": "6/6",
     "starts": [
      0.0,
      0.68,
@@ -34,11 +103,13 @@
   },
   "vo_demo1_sent": {
    "file": "vo_demo1_sent.wav",
-   "dur": 2.1,
+   "dur": 2.48,
+   "heard_to": 2.1,
    "heard": "पिंकी स्कूल जा रही है",
    "sync": {
     "file": "demo1_assets\\vo_demo1_sent.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.76,
@@ -50,38 +121,44 @@
   },
   "vo_demo2_conclude": {
    "file": "vo_demo2_conclude.wav",
-   "dur": 6.58,
+   "dur": 6.76,
+   "heard_to": 6.58,
    "heard": "सवाल पुछते समय क्या, कौन, कब जैसे शब्दों पर ज़ोर देकर पढ़ा जाता है ।"
   },
   "vo_demo2_explain": {
    "file": "vo_demo2_explain.wav",
-   "dur": 5.62,
+   "dur": 5.8,
+   "heard_to": 5.62,
    "heard": "यह एक सवाल है, सवाल के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।"
   },
   "vo_demo2_full": {
    "file": "vo_demo2_full.wav",
-   "dur": 1.58,
+   "dur": 1.92,
+   "heard_to": 1.58,
    "heard": "तुम्हारा नाम क्या है?",
    "sync": {
     "file": "demo2_assets\\vo_demo2_full.words.json",
     "n": 6,
+    "matched": "4/6",
     "starts": [
      0.0,
      0.74,
      1.12,
      1.46,
-     1.58,
-     1.58
+     1.5,
+     1.53
     ]
    }
   },
   "vo_demo2_sent": {
    "file": "vo_demo2_sent.wav",
-   "dur": 1.66,
+   "dur": 2.08,
+   "heard_to": 1.66,
    "heard": "तुम्हारा नाम क्या है?",
    "sync": {
     "file": "demo2_assets\\vo_demo2_sent.words.json",
     "n": 4,
+    "matched": "4/4",
     "starts": [
      0.0,
      0.76,
@@ -92,23 +169,26 @@
   },
   "vo_demo3_explain": {
    "file": "vo_demo3_explain.wav",
-   "dur": 8.38,
+   "dur": 8.56,
+   "heard_to": 8.38,
    "heard": "इस वाक्य में कई सारे नाम एक साथ लिखे गए हैं जब हमें इस तरह कई नाम लिखने हों तो उनके बीच अल्पविराम आता है ।"
   },
   "vo_demo3_full": {
    "file": "vo_demo3_full.wav",
-   "dur": 4.36,
+   "dur": 4.56,
+   "heard_to": 4.36,
    "heard": "मेरे पास आम, केला, सेब और संतरा है ।",
    "sync": {
     "file": "demo3_assets\\vo_demo3_full.words.json",
     "n": 10,
+    "matched": "8/10",
     "starts": [
      0.0,
      0.66,
      0.98,
-     1.66,
+     1.22,
      1.86,
-     2.44,
+     2.06,
      2.62,
      3.1,
      3.54,
@@ -118,11 +198,13 @@
   },
   "vo_demo3_sent": {
    "file": "vo_demo3_sent.wav",
-   "dur": 4.96,
+   "dur": 5.04,
+   "heard_to": 4.96,
    "heard": "मेरी पास आम, केला, सेब और संतरा है ।",
    "sync": {
     "file": "demo3_assets\\vo_demo3_sent.words.json",
     "n": 9,
+    "matched": "8/8",
     "starts": [
      0.0,
      0.68,
@@ -138,26 +220,31 @@
   },
   "vo_demo_again": {
    "file": "vo_demo_again.wav",
-   "dur": 1.66,
+   "dur": 1.84,
+   "heard_to": 1.66,
    "heard": "अब दोबारा देखिए ।"
   },
   "vo_g1_intro": {
    "file": "vo_g1_intro.wav",
-   "dur": 5.56,
+   "dur": 5.76,
+   "heard_to": 5.56,
    "heard": "यह वाक्य सुनकर देखिए और वाक्य में सही जगय पर विराम चिह्न लगाइए ।"
   },
   "vo_g2_hint3": {
    "file": "vo_g2_hint3.wav",
-   "dur": 7.56,
+   "dur": 7.72,
+   "heard_to": 7.56,
    "heard": "तुम कहाँ जारहे हो? यह एक प्रश्न है प्रश्न पूछने पर प्रश्न वाचक चिह्न लगाया जाता है ।"
   },
   "vo_g2_sent": {
    "file": "vo_g2_sent.wav",
-   "dur": 1.54,
+   "dur": 2.0,
+   "heard_to": 1.54,
    "heard": "तुम कहाँ जा रहे हो",
    "sync": {
     "file": "g2_assets\\vo_g2_sent.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.48,
@@ -169,16 +256,19 @@
   },
   "vo_g3_hint3": {
    "file": "vo_g3_hint3.wav",
-   "dur": 8.42,
+   "dur": 8.52,
+   "heard_to": 8.42,
    "heard": "बाग में गुलाब, गेंदा और चमेली के फूल हैं । वाक्य में थोडा रुकने पर अल्प विराम लगाया जाता है ।"
   },
   "vo_g3_sent": {
    "file": "vo_g3_sent.wav",
-   "dur": 3.96,
+   "dur": 4.2,
+   "heard_to": 3.96,
    "heard": "बाग में गुलाब गेंदा और चमेली के फूल हैं",
    "sync": {
     "file": "g3_assets\\vo_g3_sent.words.json",
     "n": 10,
+    "matched": "9/9",
     "starts": [
      0.0,
      0.7,
@@ -189,22 +279,25 @@
      3.24,
      3.38,
      3.7,
-     3.96
+     3.7
     ]
    }
   },
   "vo_g4_hint1": {
    "file": "vo_g4_hint1.wav",
-   "dur": 4.04,
+   "dur": 4.4,
+   "heard_to": 4.04,
    "heard": "देखिए किस वाक्य में पूर्ण विराम सही जगह लगा है?"
   },
   "vo_g4_o1": {
    "file": "vo_g4_o1.wav",
-   "dur": 3.34,
+   "dur": 3.64,
+   "heard_to": 3.34,
    "heard": "लड़की पतंग उडा रही है पूर्णविराम",
    "sync": {
     "file": "g4_assets\\vo_g4_o1.words.json",
     "n": 6,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.84,
@@ -217,16 +310,18 @@
   },
   "vo_g4_o2": {
    "file": "vo_g4_o2.wav",
-   "dur": 3.3,
+   "dur": 3.68,
+   "heard_to": 3.3,
    "heard": "लड़की पूर्णविराम पतंग। रही है",
    "sync": {
     "file": "g4_assets\\vo_g4_o2.words.json",
     "n": 6,
+    "matched": "4/5",
     "starts": [
      0.0,
      0.9,
      1.86,
-     2.68,
+     2.27,
      2.68,
      3.1
     ]
@@ -234,11 +329,13 @@
   },
   "vo_g4_o3": {
    "file": "vo_g4_o3.wav",
-   "dur": 4.7,
+   "dur": 5.08,
+   "heard_to": 4.7,
    "heard": "लड़की पतंग उड़ा पूर्णविराम रही है",
    "sync": {
     "file": "g4_assets\\vo_g4_o3.words.json",
     "n": 6,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.9,
@@ -251,36 +348,43 @@
   },
   "vo_g4_prompt": {
    "file": "vo_g4_prompt.wav",
-   "dur": 4.56,
+   "dur": 4.72,
+   "heard_to": 4.56,
    "heard": "जिस वाक्य में पूर्ण विराम सही जगह लगा है वह वाक्य चुनिए।"
   },
   "vo_landing": {
    "file": "vo_landing.wav",
-   "dur": 6.64,
+   "dur": 6.72,
+   "heard_to": 6.64,
    "heard": "नमस्ते दोस्त मैं हूँ swiftee, आज हम वाक्य में लगने वाले कुछ विराम चिह्न जानेंगे ।"
   },
   "vo_letter_intro": {
    "file": "vo_letter_intro.wav",
-   "dur": 11.3,
+   "dur": 11.36,
+   "heard_to": 11.3,
    "heard": "पिंकी अपने दादाजी को पत्र में कुछ बाते लिखकर बताना चाहती है । लेकिन उन वाक्यों में विराम चिह्न लगाना भूल गई है, आएए सही विराम चिह्न लगाने में उसकी मदद करें ।"
   },
   "vo_ok": {
    "file": "vo_ok.wav",
-   "dur": 1.3,
+   "dur": 1.88,
+   "heard_to": 1.3,
    "heard": "शाबाश!"
   },
   "vo_ok_pick": {
    "file": "vo_ok_pick.wav",
-   "dur": 2.82,
+   "dur": 2.88,
+   "heard_to": 2.82,
    "heard": "शाबाश! यह सही वाक्य है ।"
   },
   "vo_p1_o1": {
    "file": "vo_p1_o1.wav",
-   "dur": 1.96,
+   "dur": 2.32,
+   "heard_to": 1.96,
    "heard": "क्या यह आपकी किताब है?",
    "sync": {
     "file": "p1_assets\\vo_p1_o1.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.54,
@@ -292,11 +396,13 @@
   },
   "vo_p1_o2": {
    "file": "vo_p1_o2.wav",
-   "dur": 2.48,
+   "dur": 2.84,
+   "heard_to": 2.48,
    "heard": "क्या? यह आपकी किताब है",
    "sync": {
     "file": "p1_assets\\vo_p1_o2.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      1.04,
@@ -308,11 +414,13 @@
   },
   "vo_p1_o3": {
    "file": "vo_p1_o3.wav",
-   "dur": 2.88,
+   "dur": 3.28,
+   "heard_to": 2.88,
    "heard": "क्या यह आपकी किताब है?",
    "sync": {
     "file": "p1_assets\\vo_p1_o3.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.62,
@@ -324,23 +432,26 @@
   },
   "vo_p1_prompt": {
    "file": "vo_p1_prompt.wav",
-   "dur": 4.82,
+   "dur": 4.96,
+   "heard_to": 4.82,
    "heard": "जिस वाक्य में प्रश्न वाचक चिन सही जगह लगा है वह वाक्य चुनिए।"
   },
   "vo_p2_o1": {
    "file": "vo_p2_o1.wav",
-   "dur": 5.3,
+   "dur": 5.32,
+   "heard_to": 5.3,
    "heard": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।",
    "sync": {
     "file": "p2_assets\\vo_p2_o1.words.json",
     "n": 12,
+    "matched": "9/9",
     "starts": [
      0.0,
      0.72,
      1.12,
-     1.9,
+     1.12,
      2.06,
-     2.9,
+     2.06,
      3.1,
      3.54,
      3.98,
@@ -352,11 +463,13 @@
   },
   "vo_p2_o2": {
    "file": "vo_p2_o2.wav",
-   "dur": 4.54,
+   "dur": 4.72,
+   "heard_to": 4.54,
    "heard": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।",
    "sync": {
     "file": "p2_assets\\vo_p2_o2.words.json",
     "n": 10,
+    "matched": "9/9",
     "starts": [
      0.0,
      0.64,
@@ -373,11 +486,13 @@
   },
   "vo_p2_o3": {
    "file": "vo_p2_o3.wav",
-   "dur": 5.22,
+   "dur": 5.24,
+   "heard_to": 5.22,
    "heard": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।",
    "sync": {
     "file": "p2_assets\\vo_p2_o3.words.json",
     "n": 10,
+    "matched": "9/9",
     "starts": [
      0.0,
      0.66,
@@ -394,31 +509,37 @@
   },
   "vo_p2_prompt": {
    "file": "vo_p2_prompt.wav",
-   "dur": 4.84,
+   "dur": 5.0,
+   "heard_to": 4.84,
    "heard": "जिस वाक्य में अल्प विराम सही जगह लगा है वह वाक्य चुनिए।"
   },
   "vo_pick_hint1": {
    "file": "vo_pick_hint1.wav",
-   "dur": 3.52,
+   "dur": 3.92,
+   "heard_to": 3.52,
    "heard": "देखिए सही विराम चिह्न वाला वाक्य कौन -सा है?"
   },
   "vo_pick_hint3": {
    "file": "vo_pick_hint3.wav",
-   "dur": 2.84,
+   "dur": 3.12,
+   "heard_to": 2.84,
    "heard": "यह सही वाक्य है, इसपर टैप कीजिए"
   },
   "vo_pt_tutorial": {
    "file": "vo_pt_tutorial.wav",
-   "dur": 4.78,
+   "dur": 4.88,
+   "heard_to": 4.78,
    "heard": "द्यान से देखिए और मेरे साथ जानिए चलिए शुरू करें ।"
   },
   "vo_recap_alp_eg": {
    "file": "vo_recap_alp_eg.wav",
-   "dur": 5.62,
+   "dur": 5.96,
+   "heard_to": 5.62,
    "heard": "उदाहरण - आम, केला, संतरा और सेब",
    "sync": {
     "file": "recap_assets\\vo_recap_alp_eg.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      1.42,
      2.54,
@@ -430,11 +551,13 @@
   },
   "vo_recap_alp_name": {
    "file": "vo_recap_alp_name.wav",
-   "dur": 1.12,
+   "dur": 1.52,
+   "heard_to": 1.12,
    "heard": "अल्प विराम",
    "sync": {
     "file": "recap_assets\\vo_recap_alp_name.words.json",
     "n": 2,
+    "matched": "2/2",
     "starts": [
      0.0,
      0.66
@@ -443,53 +566,61 @@
   },
   "vo_recap_alp_when": {
    "file": "vo_recap_alp_when.wav",
-   "dur": 4.92,
+   "dur": 5.28,
+   "heard_to": 4.92,
    "heard": "तोडा रुकने के लिए या अलग -अलग नाम या संख्या लिखते समय",
    "sync": {
     "file": "recap_assets\\vo_recap_alp_when.words.json",
     "n": 5,
+    "matched": "2/5",
     "starts": [
      0.0,
-     0.0,
-     0.0,
-     0.66,
-     1.18
+     0.984,
+     1.968,
+     2.952,
+     3.936
     ]
    }
   },
   "vo_recap_intro": {
    "file": "vo_recap_intro.wav",
-   "dur": 3.98,
+   "dur": 4.28,
+   "heard_to": 3.98,
    "heard": "आइए समझते हैं कि कौन सी चिह्न हो का प्रयोग कब किया जाता है"
   },
   "vo_recap_lead": {
    "file": "vo_recap_lead.wav",
-   "dur": 6.64,
+   "dur": 6.76,
+   "heard_to": 6.64,
    "heard": "आपने देखा, वाक्य में विराम चिह्न कहीं गलत हो तो कैसे वाक्य का अर्थ गड़बड हो जाता है ।"
   },
   "vo_recap_prashn_eg": {
    "file": "vo_recap_prashn_eg.wav",
-   "dur": 2.82,
+   "dur": 3.24,
+   "heard_to": 2.82,
    "heard": "उदाहरण - तुमहारा गर कहाँ है?",
    "sync": {
     "file": "recap_assets\\vo_recap_prashn_eg.words.json",
     "n": 5,
+    "matched": "3/4",
     "starts": [
      1.28,
      1.96,
      2.22,
      2.66,
-     2.82
+     2.66
     ]
    }
   },
   "vo_recap_prashn_name": {
    "file": "vo_recap_prashn_name.wav",
-   "dur": 1.3,
+   "dur": 1.68,
+   "heard_to": 1.3,
    "heard": "प्रश्नवाचक चिह्न",
    "sync": {
     "file": "recap_assets\\vo_recap_prashn_name.words.json",
     "n": 2,
+    "matched": "2/2",
     "starts": [
      0.0,
      1.02
@@ -498,11 +629,13 @@
   },
   "vo_recap_prashn_when": {
    "file": "vo_recap_prashn_when.wav",
-   "dur": 1.5,
+   "dur": 1.92,
+   "heard_to": 1.5,
    "heard": "सवाल पूछने पर",
    "sync": {
     "file": "recap_assets\\vo_recap_prashn_when.words.json",
     "n": 3,
+    "matched": "3/3",
     "starts": [
      0.0,
      0.76,
@@ -512,26 +645,30 @@
   },
   "vo_recap_purn_eg": {
    "file": "vo_recap_purn_eg.wav",
-   "dur": 2.44,
+   "dur": 2.76,
+   "heard_to": 2.44,
    "heard": "उदाहरण पिंकी स्कूल गई",
    "sync": {
     "file": "recap_assets\\vo_recap_purn_eg.words.json",
     "n": 4,
+    "matched": "3/3",
     "starts": [
      0.86,
      1.74,
      2.16,
-     2.44
+     2.16
     ]
    }
   },
   "vo_recap_purn_name": {
    "file": "vo_recap_purn_name.wav",
-   "dur": 1.18,
+   "dur": 1.72,
+   "heard_to": 1.18,
    "heard": "पूर्ण विराम",
    "sync": {
     "file": "recap_assets\\vo_recap_purn_name.words.json",
     "n": 2,
+    "matched": "2/2",
     "starts": [
      0.0,
      0.62
@@ -540,11 +677,13 @@
   },
   "vo_recap_purn_when": {
    "file": "vo_recap_purn_when.wav",
-   "dur": 1.74,
+   "dur": 2.16,
+   "heard_to": 1.74,
    "heard": "बात पूरी होने पर",
    "sync": {
     "file": "recap_assets\\vo_recap_purn_when.words.json",
     "n": 4,
+    "matched": "4/4",
     "starts": [
      0.0,
      0.74,
@@ -555,71 +694,85 @@
   },
   "vo_stamp1_hint2": {
    "file": "vo_stamp1_hint2.wav",
-   "dur": 7.14,
+   "dur": 7.28,
+   "heard_to": 7.14,
    "heard": "इस वाक्य में प्रश्न पूछा जा रहा है, सही विराम चिह्न वाला ठप्पा चुनिए और वाक्य के अंत में लगाइए ।"
   },
   "vo_stamp1_hint3": {
    "file": "vo_stamp1_hint3.wav",
-   "dur": 8.36,
+   "dur": 8.44,
+   "heard_to": 8.36,
    "heard": "नमस्ते दादाजी, आप कैसे हैं? यह एक प्रश्न है । प्रश्न पूछने पर प्रश्न वाचक चिह्न लगाया जाता है ।"
   },
   "vo_stamp2_hint2": {
    "file": "vo_stamp2_hint2.wav",
-   "dur": 9.24,
+   "dur": 9.48,
+   "heard_to": 9.24,
    "heard": "इस वाक्य में कई सारी चीजों के नाम बताए जा रहे हैं । सही विराम चिह्न वाला ठप्पा चुनिए और वाक्य के बीच और अंत में लगाइए।"
   },
   "vo_stamp2_hint3": {
    "file": "vo_stamp2_hint3.wav",
-   "dur": 12.22,
+   "dur": 12.36,
+   "heard_to": 12.22,
    "heard": "मा ने मुझे मेरे जन्मदिन पर कई सारे खिलौने, पेन और किताबे दिलाई है । वाक्य में थोडा रुकने पर अल्प विराम और वाक्य पूरा होने पर पूर्ण विराम लगाया जाता है ।"
   },
   "vo_stamp3_hint2": {
    "file": "vo_stamp3_hint2.wav",
-   "dur": 6.48,
+   "dur": 6.64,
+   "heard_to": 6.48,
    "heard": "यह एक सरल वाक्य है, सही विराम वाला ठप्पा चुनिए और वाक्य के अंत में लगाइए ।"
   },
   "vo_stamp3_hint3": {
    "file": "vo_stamp3_hint3.wav",
-   "dur": 5.9,
+   "dur": 6.04,
+   "heard_to": 5.9,
    "heard": "मुझे उपहार बहुत पसंद है वाक्य पूरा होने पर पूर्णविराम लगाया जाता है ।"
   },
   "vo_stamp4_hint2": {
    "file": "vo_stamp4_hint2.wav",
-   "dur": 3.6,
+   "dur": 3.68,
+   "heard_to": 3.6,
    "heard": "इस वाक्य को देखिए, सही विराम चिह्न चुनिए ।"
   },
   "vo_stamp4_hint3_alp": {
    "file": "vo_stamp4_hint3_alp.wav",
-   "dur": 4.54,
+   "dur": 4.64,
+   "heard_to": 4.54,
    "heard": "इस वाक्य में हम थोडा रुक रहे हैं, यहाँ अल्प विराम आएगा ।"
   },
   "vo_stamp4_hint3_prashn": {
    "file": "vo_stamp4_hint3_prashn.wav",
-   "dur": 5.26,
+   "dur": 5.44,
+   "heard_to": 5.26,
    "heard": "यहाँ प्रश्न पूछा जा रहा है, इसके अंत में प्रश्न वाचक चिह्न आएगा ।"
   },
   "vo_stamp4_hint3_purn": {
    "file": "vo_stamp4_hint3_purn.wav",
-   "dur": 3.8,
+   "dur": 4.16,
+   "heard_to": 3.8,
    "heard": "यह सरल वाक्य है इसके अंत में पूर्ण विराम आएगा"
   },
   "vo_stamp4_intro": {
    "file": "vo_stamp4_intro.wav",
-   "dur": 5.44,
+   "dur": 5.68,
+   "heard_to": 5.44,
    "heard": "इन वाक्यों को सुनकर दीखिए और वाक्य में सही जगह पर विराम चिह्न लगाइए ।"
   },
   "vo_stamp_intro": {
    "file": "vo_stamp_intro.wav",
-   "dur": 6.2,
+   "dur": 6.4,
+   "heard_to": 6.2,
    "heard": "यह वाक्य पढ़िए और वाक्य में सही जगह पर सही ठप्पा लगाइए ।"
   },
   "vo_stamp_sent": {
    "file": "vo_stamp_sent.wav",
-   "dur": 2.3,
+   "dur": 2.6,
+   "heard_to": 2.3,
    "heard": "नमस्ते दादाजी, आप कैसे हैं",
    "sync": {
     "file": "stamp_assets\\vo_stamp_sent.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.74,
@@ -631,14 +784,16 @@
   },
   "vo_stamp_sent2": {
    "file": "vo_stamp_sent2.wav",
-   "dur": 5.48,
+   "dur": 5.84,
+   "heard_to": 5.48,
    "heard": "मानी मुझे मेरे जन्मदिन पर कई सारे खिलौनी पेन और किताबे दिलाई है",
    "sync": {
     "file": "stamp_assets\\vo_stamp_sent2.words.json",
     "n": 15,
+    "matched": "13/14",
     "starts": [
      0.0,
-     0.7,
+     0.35,
      0.7,
      1.06,
      1.36,
@@ -651,17 +806,19 @@
      4.52,
      4.96,
      5.3,
-     5.48
+     5.3
     ]
    }
   },
   "vo_stamp_sent3": {
    "file": "vo_stamp_sent3.wav",
-   "dur": 2.58,
+   "dur": 3.0,
+   "heard_to": 2.58,
    "heard": "मुझी उपहार बहुत पसंद है",
    "sync": {
     "file": "stamp_assets\\vo_stamp_sent3.words.json",
     "n": 5,
+    "matched": "5/5",
     "starts": [
      0.0,
      0.74,
@@ -674,10 +831,12 @@
   "vo_stamp_sent4": {
    "file": "vo_stamp_sent4.wav",
    "dur": 4.34,
+   "heard_to": 4.34,
    "heard": "क्या आपको भी उपहार अच्छे लगते हैं दादी जी कैसी हैं",
    "sync": {
     "file": "stamp_assets\\vo_stamp_sent4.words.json",
     "n": 11,
+    "matched": "11/11",
     "starts": [
      0.0,
      0.5,
@@ -695,11 +854,13 @@
   },
   "vo_stamp_sent5": {
    "file": "vo_stamp_sent4.wav",
-   "dur": 10.74,
+   "dur": 11.1,
+   "heard_to": 10.74,
    "heard": "उनके आम केले और आमरूद के पौधे बड़े हुए या नहीं आप मुझे पत्र लिखकर बताना मैं आपके पत्र का इंतुचार करूँगी आपकी प्यारी पिंकी",
    "sync": {
     "file": "stamp_assets\\vo_stamp_sent5.words.json",
     "n": 22,
+    "matched": "22/22",
     "starts": [
      0.0,
      0.4,
@@ -728,16 +889,42 @@
   },
   "vo_story_r0": {
    "file": "vo_story_r0.wav",
-   "dur": 2.46,
+   "dur": 2.56,
+   "heard_to": 2.46,
    "heard": "अब इन्हीं वाक्यों को फिर से सुनते हैं ।"
   },
   "vo_story_s0": {
    "file": "vo_story_s0.wav",
-   "dur": 2.54,
+   "dur": 2.68,
+   "heard_to": 2.54,
    "heard": "आइए इन वाक्यों को सुनते हैं।"
+  },
+  "vo_story_b2": {
+   "file": "vo_story_s1.wav",
+   "dur": 3.92,
+   "heard_to": 3.54,
+   "heard": "मानी कहा उसे रोको मत जानी दो",
+   "sync": {
+    "file": "story_assets\\vo_story_b2.words.json",
+    "n": 8,
+    "matched": "7/8",
+    "starts": [
+     0.0,
+     0.38,
+     0.76,
+     1.18,
+     1.84,
+     2.28,
+     2.54,
+     3.34
+    ]
+   }
   }
  },
  "texts": {
+  "vo_story_b1": "पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”",
+  "vo_story_b3": "पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”",
+  "vo_story_b4": "माँ ने कहा, “उसे रोको, मत जाने दो।”",
   "vo_build_hint1": "फिर से कोशिश कीजिए । सही विराम चिह्न लगाइए ।",
   "vo_build_hint2": "वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर अल्प विराम और प्रश्न पूछने पर प्रश्नवाचक चिह्न लगाते हैं ।",
   "vo_demo1_conclude": "अब हमें पता चल रहा है कि पढ़ते हुए बात पूरी होने पर हमें कहाँ रुकना है ।",
@@ -805,17 +992,14 @@
   "vo_stamp_sent4": "क्या आपको भी उपहार अच्छे लगते हैं दादी जी कैसी हैं उनके आम केले और अमरूद के पौधे बड़े हुए या नहीं आप मुझे पत्र लिखकर बताना मैं आपके पत्र का इंतज़ार करूँगी आपकी प्यारी पिंकी",
   "vo_stamp_sent5": "क्या आपको भी उपहार अच्छे लगते हैं दादी जी कैसी हैं उनके आम केले और अमरूद के पौधे बड़े हुए या नहीं आप मुझे पत्र लिखकर बताना मैं आपके पत्र का इंतज़ार करूँगी आपकी प्यारी पिंकी",
   "vo_story_r0": "अब इन्हीं वाक्यों को फिर से सुनते हैं ।",
-  "vo_story_s0": "आइए इन वाक्यों को सुनते हैं।"
+  "vo_story_s0": "आइए इन वाक्यों को सुनते हैं।",
+  "vo_story_b2": "माँ ने कहा, “उसे रोको मत जाने दो।”"
  },
  "skipped": {
-  "1.wav": "a different story (heard: पिंकी बोली माँ बिल्ली रसोई में जा रही है) — no page carries it",
-  "2.wav": "a different story (heard: पिंकी ने पूछा, क्या उसे जाने दूँ?) — no page carries it",
-  "3.wav": "a different story (heard: माँ ने कहा, उसे रोको मत जाने दो) — no page carries it",
-  "4.wav": "a different story's moral (heard: दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह ...) — no page carries it",
+  "4.wav": "the new story's moral (heard: दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह ...) — no page carries it yet",
   "vo_g1_hint3.wav": "says राजू ... (the sentence as recorded) — not played on G1 (hint 2's line is said again there)",
   "vo_g1_sent.wav": "says राजू गेंद से खेल रहा था; the frame (656:66) shows पिंकी गेंद से खेल रही थी — the TTS line stays",
-  "vo_story_r1.wav": "not the re-read (heard: यहाँ पहले वाक्य का अर्थ है ... दूसरे वाक्य का अर्थ है ...) — the TTS line stays",
-  "vo_story_s1.wav": "not the story page's run-on (heard: माँ ने कहा उसे रोको मत जाने दो, 3.9 s) — the TTS line stays"
+  "vo_story_r1.wav": "the new story's two meanings (heard: यहाँ पहले वाक्य का अर्थ है ... दूसरे वाक्य का अर्थ है ...) — T0B still re-reads the Chintu story; its TTS line stays"
  },
  "gate_cue_ms": {
   "tutorial": 2940

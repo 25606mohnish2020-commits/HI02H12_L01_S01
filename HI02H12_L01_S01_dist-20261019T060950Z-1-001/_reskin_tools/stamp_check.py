@@ -296,9 +296,17 @@ with sync_playwright() as p:
               fr and fu and abs(fr["t"] - fu[0]["t"] - P["next_at"]) < 120 and fr["nwords"] == len(WTr) and fr["words"] == 0 and len(fr["slots"]) == nsl and not any(has(s_["cl"], "in") for s_ in fr["slots"]) and not fr["mark"] and shown_n(fr) == n
               and all(imgsrc(fr, k) == R["stamps"][k] + ".webp" for k in range(n)) and boxes_ok(fr),
               (round(fr["t"] - fu[0]["t"]) if fr and fu else None, fr["nwords"] if fr else None, [imgsrc(fr, k) for k in range(len(fr["imgs"]))] if fr else None, [[round(v, 1) for v in s_["box"]] for s_ in fr["slots"]] if fr else None))
-        fpr = [first(tr, lambda f, k=k: popping(f, k), since=fr["t"]) for k in range(n)] if fr else [None] * n; popsr = [x for x in pops if fr and fr["t"] - 50 < x["t"] < fr["t"] + n * P["pop_gap"] + 500]
-        check(f"round {ri + 1}: its {n} stamps pop into the tray as the round is set, 350 ms apart, each as its pop sounds", all(fpr) and len(popsr) == n and fpr[0]["t"] - fr["t"] < 200 and all(abs(fpr[k]["t"] - fpr[k - 1]["t"] - P["pop_gap"]) < 110 for k in range(1, n))
-              and all(abs(popsr[k]["t"] - fpr[k]["t"]) < 60 for k in range(n)), ([round(f["t"] - fr["t"]) for f in fpr] if all(fpr) and fr else None, [round(x["t"] - fr["t"]) for x in popsr] if fr else None))
+        # [vo-rec] the round's own instruction (its intro_audio, else the page's) is said as the round is set; the pops follow it
+        clipI = R.get("intro_audio") or "vo_stamp_intro"; introR = snd(clipI); voiR = lambda f, c=clipI: f["vo"] and f["vo"][0] == c + ".ogg"
+        f_isr = first(tr, lambda f: voiR(f) and f["vo"][1] > 0, since=fr["t"] - 100) if fr else None
+        f_ier = first(tr, lambda f: voiR(f) and f["vo"][2], since=f_isr["t"]) if f_isr else None
+        check(f"round {ri + 1}: its own line ({clipI}) sounds as the round is set (within 0.5 s), nothing popping while it speaks",
+              f_isr and f_ier and -100 < f_isr["t"] - fr["t"] < 500 and not any(popping(f, k) for f in tr if fr["t"] < f["t"] < f_ier["t"] for k in range(n)),
+              (round(f_isr["t"] - fr["t"]) if f_isr and fr else None, round(f_ier["t"] - fr["t"]) if f_ier and fr else None))
+        t_pop0 = f_ier["t"] if f_ier else (fr["t"] if fr else 0)
+        fpr = [first(tr, lambda f, k=k: popping(f, k), since=fr["t"]) for k in range(n)] if fr else [None] * n; popsr = [x for x in pops if fr and t_pop0 - 50 < x["t"] < t_pop0 + P["after_intro"] + n * P["pop_gap"] + 500]
+        check(f"round {ri + 1}: its {n} stamps pop into the tray 0.5 s after its line, 350 ms apart, each as its pop sounds", all(fpr) and len(popsr) == n and abs(fpr[0]["t"] - t_pop0 - P["after_intro"]) < 250 and all(abs(fpr[k]["t"] - fpr[k - 1]["t"] - P["pop_gap"]) < 110 for k in range(1, n))
+              and all(abs(popsr[k]["t"] - fpr[k]["t"]) < 60 for k in range(n)), ([round(f["t"] - t_pop0) for f in fpr] if all(fpr) and fr else None, [round(x["t"] - t_pop0) for x in popsr] if fr else None))
         clip = R["sentence"]["audio"]; sentr = snd(clip); fwr = [first(tr, lambda f, m=m: f["words"] >= m, since=fr["t"]) for m in range(1, len(WTr) + 1)] if fr else []
         offsr = [round(fwr[i]["vo"][1] * 1000 - WTr[i] * 1000) for i in range(len(WTr))] if sentr and fwr and all(fwr) and all(f["vo"] and f["vo"][0] == clip + ".ogg" for f in fwr) else None
         check(f"round {ri + 1}'s clip starts 0.7 s after the last pop and each of its {len(WTr)} words appears as the clip reaches it (the clip's clock at the reveal frame within -60..+40 ms of the word's start)",
@@ -315,10 +323,10 @@ with sync_playwright() as p:
               (round(fslr["t"] - s_endr) if fslr and s_endr else None, round(fber["t"] - fslr["t"]) if fber and fslr else None, round(dimr, 2), [[round(v, 1) for v in s_["box"]] for s_ in fslr["slots"]] if fslr else None))
         # no guidance; the title's line again after 7 s; the wrong drop (on the first slot); then the right stamp on each slot in turn
         fgw = first(tr, lambda f: has(f["cl"][wk], "drag"), since=fslr["t"]) if fslr else None; fdw = first(tr, lambda f: not has(f["cl"][wk], "drag"), since=fgw["t"] + 100) if fgw else None
-        rem = [x for x in intro if fslr and fgw and fslr["t"] < x["t"] < fgw["t"]]
-        f_rs = first(tr, lambda f: voi(f) and f["vo"][1] > 0, since=fslr["t"]) if fslr else None
+        rem = [x for x in introR if fslr and fgw and fslr["t"] < x["t"] < fgw["t"]]   # [vo-rec] the round's own line again
+        f_rs = first(tr, lambda f: voiR(f) and f["vo"][1] > 0, since=fslr["t"]) if fslr else None
         nolift = fr and fgw and not [f for f in tr if fr["t"] < f["t"] < fgw["t"] and any(has(c_, "lift") for c_ in f["cl"])]
-        check(f"round {ri + 1}: NO guidance — neither after the blink nor after idling: no stamp lifts before the child's own drop; instead, 7 s after the slot appeared without a touch (7.0..7.6 s) the title's line is said again, once",
+        check(f"round {ri + 1}: NO guidance — neither after the blink nor after idling: no stamp lifts before the child's own drop; instead, 7 s after the slot appeared without a touch (7.0..7.6 s) the round's own line ({clipI}) is said again, once",
               nolift and len(rem) == 1 and 6900 < rem[0]["t"] - fslr["t"] < 7600 and f_rs and f_rs["t"] < fgw["t"], (round(rem[0]["t"] - fslr["t"]) if rem and fslr else None, len(rem), T(f_rs), "" if nolift else "a stamp lifted before the drop"))
         wr = [x for x in wrongs if fdw and abs(x["t"] - fdw["t"]) < 150]
         fbackw = first(tr, lambda f: home(f, wk, g["bx"][wk]) and not has(f["cl"][wk], "lift"), since=fdw["t"]) if fdw else None

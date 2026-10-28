@@ -30,7 +30,7 @@ AS_T0 = {   # stage px: the frame's card box; the story page's (= the reference 
   ".tut-card.sfig-card": (96 * FS, 106 * FS, 1088 * FS, 508 * FS),
   ".sfig-swiftie":       (76, 472, 190, 190),
   ".tut-audio":          (202, 606, 58, 58),
-  "#navBtn":             (567.5, 522, 198, 90),
+  "#navBtn":             (581.5, 550, 170, 62),   # [dun-chrome] the reference's text pill (T0's आगे)
 }
 FRAME = {   # frame px at 1280x720, from the Figma metadata / design context of node 488:190 (2026-10-21 evening, 5th version)
   ".sfig-sbox":  (96+12+191-4, 106+12+144-4, 691, 227),   # 683x219 box (centred on 532.5) + its 4px OUTSIDE stroke
@@ -49,9 +49,9 @@ GOTO = """(id) => { const sg = document.getElementById('startGate'); if (sg) sg.
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); mountSlide(CARD.slides.findIndex(s => s.id === id)); }"""
 NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('navBtn'); let last = ''; const t0 = performance.now();
-  const step = () => { const cs = getComputedStyle(btn), off = btn.querySelector('.btn-off'), on = btn.querySelector('.btn-on');
-    const shown = cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.01;
-    const img = !shown ? 'none' : getComputedStyle(on).display !== 'none' ? 'ON' : getComputedStyle(off).display !== 'none' ? 'DISABLED' : '?';
+  const step = () => { const cs = getComputedStyle(btn);   // [dun-chrome] a bare text button: live = .active (the disabled art otherwise), its ::after breathes (navBreathe)
+    const shown = cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.01 && cs.display !== 'none';
+    const img = !shown ? 'none' : btn.classList.contains('active') ? 'ON' : 'DISABLED';
     const slide = CARD.slides[state.idx] ? CARD.slides[state.idx].id : null, key = [img, slide, isPlaying].join('|');
     if (key !== last) { last = key; window._navLog.push({ ms: performance.now() - t0, img, slide, playing: isPlaying,
       clip: currentAudio ? currentAudio.src.split('/').pop() : null }); }
@@ -118,7 +118,7 @@ with sync_playwright() as p:
     check("sentences: no word lags its start time by >150 ms", not late, late[:2])
     check("आगे stays hidden until the sentences' VO has ended", not any(s["navVisible"] for s in samples[:i_end1]))
     check("आगे opens (pulsing) once the sentences' VO has ended", samples[-1]["nav"] and samples[-1]["shown"] == len(times)
-          and pg.evaluate("getComputedStyle(document.getElementById('navBtn')).animationName") == "nextBtnPulse",
+          and pg.evaluate("getComputedStyle(document.getElementById('navBtn'), '::after').animationName") == "navBreathe",
           f"{ms(len(samples) - 1) - ms(i_end1):.0f} ms after the clip ended")
     pg.evaluate("document.getElementById('navBtn').style.animation = 'none'")   # measure आगे at rest, not mid-pulse
     boxes = pg.evaluate(BOXES, list(AS_T0)); worst = 0

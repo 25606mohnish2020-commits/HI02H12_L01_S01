@@ -2171,7 +2171,7 @@ function sfigNarrate(L, live, onEnd){
   const last = L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000;
   setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
   const tick = ()=>{
-    if(!live()) return;
+    if(done || !live()) return;   // [vo-rec] once the clip has ended every word is shown: a late frame must not hide the last one again
     const a = currentAudio;
     const own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === L.file;
     const t = own ? a.currentTime : (Date.now() - began) / 1000;

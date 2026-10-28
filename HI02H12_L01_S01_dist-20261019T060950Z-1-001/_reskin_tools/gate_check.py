@@ -29,9 +29,9 @@ GATE_LOG = """() => { window._gate = []; let last = ''; const step = () => {
 def gate_after(log, frm, to, title, clip, opens_expected):
     """[dun-chrome] the gate as the child sees it (GATE-REF-ANIM): it opens on frm's end (the openings so far are exactly
     opens_expected, in order); the bird is up and the clip sounds AT ONCE; the headline is written in when the clip says its
-    words (GATE_CAPTION_AT_MS, read off this lesson's clips: 2850 / 3540 / 210 ms into tutorial / guided / practice); `to` only
+    words (GATE_CAPTION_AT_MS, read off this lesson's clips: 2940 / 3540 / 210 ms into tutorial / guided / practice); `to` only
     once the clip has ended and the 4 s hold has run (the gate gone)"""
-    CAPTION = { "vo_pt_tutorial.ogg": 2850, "vo_pt_guided.ogg": 3540, "vo_pt_practice.ogg": 210 }
+    CAPTION = { "vo_pt_tutorial.ogg": 2940, "vo_pt_guided.ogg": 3540, "vo_pt_practice.ogg": 210 }   # [vo-rec] tutorial: the recording's "चलिए" (vo_rec.py, derived.json gate_cue_ms)
     opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
     if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
     o = opens[-1]
@@ -53,7 +53,8 @@ def openings(log):
 
 def right_tap(pg, pid, label):
     pg.evaluate(f"mountSlide(CARD.slides.findIndex(s => s.id === '{pid}'))")
-    pg.wait_for_function("!isPlaying && currentAudio && currentAudio.src.includes('vo_g4_prompt')", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    prompt = pg.evaluate(f"CARD.slides.find(s => s.id === '{pid}').audio.prompt")   # [vo-rec] each page's own instruction clip (vo_p2_prompt on P2)
+    pg.wait_for_function(f"!isPlaying && currentAudio && currentAudio.src.includes('{prompt}')", timeout=15000, polling=20); pg.wait_for_timeout(300)
     i = pg.evaluate(f"[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === {json.dumps(label)})")
     pg.click(f"#slideHost .opt-cell >> nth={i}")
 
