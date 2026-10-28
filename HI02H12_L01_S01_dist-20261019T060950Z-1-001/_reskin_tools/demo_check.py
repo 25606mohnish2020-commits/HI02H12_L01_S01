@@ -229,6 +229,10 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.dmf-blank.blink')", timeout=30000, polling=20)
     pg.evaluate("document.querySelectorAll('.dmf-blank').forEach(b => b.classList.remove('blink'))"); pg.wait_for_timeout(350)
     shot = out / "g_frame_1280.png"; pg.screenshot(path=str(shot))
+    # [band-chip] the 🔊 chip is the engine's, not the frame's (like the bar's live bird head): its box, plus its shadow, is left out
+    # of the pixel diff — measured, not assumed, so a chip off its place still fails the box check above
+    cb = pg.evaluate(BOXES, [".tut-audio"])[".tut-audio"]
+    OWN = list(OWN) + [(int(cb[0]) - 8, int(cb[1]) - 6, int(cb[0] + cb[2]) + 9, int(cb[1] + cb[3]) + 12)]
     boxes = pg.evaluate(BOXES, list(FRAME) + list(CENTRES)); worst = 0
     print("== boxes vs the frame (px) ==")
     for sel, exp in FRAME.items():
