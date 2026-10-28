@@ -14,7 +14,9 @@ usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdi
    mark and name — since [tile-tap] 2026-10-28), the others untouched ([tap-lock] 2026-10-28; they dimmed before), its mark lands
    in the slot at once as its name sounds, later taps do nothing, and one beat after the name the page moves on to the
    next slide by itself — no round gate, आगे never shows. The page is the frame's whole stage: no engine header, no
-   standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts.
+   standing Swiftie, no 🔊 chip; its phase stays "guided"; punct_build_done is reported with the attempts. A tap on any visible
+   part of a tile — its mark and its name included — is that tile's ([tile-hit] 2026-10-28: their text boxes, far wider than the
+   tile, used to overflow onto the next tiles and take their taps, so G2 / G3 judged taps by the wrong tile).
 2. The engine's idle reminder (once, after ~7 s of quiet with the tiles live) reads the sentence again, each word
    highlighted as the clip reaches it (as on G4 since [word-hot] 2026-10-28: orange #E86A00 with G4's p2WordPop, no yellow
    box); a tap during it cuts it short and clears the highlight (the tap counts). [tap-lock] 2026-10-28: while a FEEDBACK sound
@@ -282,6 +284,36 @@ with sync_playwright() as p:
     pg.evaluate(GOTO, "T1"); pg.wait_for_timeout(600); gone1 = pg.evaluate("[document.querySelectorAll('.reveal-hand').length, CARD.slides[state.idx].id]")
     pg.wait_for_timeout(2500); gone2 = pg.evaluate("document.querySelectorAll('.reveal-hand').length")
     check("the pointing hand does not survive a jump to another page (T1): none there at once, none 2.5 s later ([tap-lock])", gone1 == [0, "T1"] and gone2 == 0, (gone1, gone2))
+    pg.close()
+    # ---- [tile-hit] a tap on a tile's visible parts — its mark, its name, its face, its edges, the base's corners — reaches THAT
+    #      tile: the mark's and the name's text boxes (483 / 1075 px wide, centred on the tile) overflowed onto the next tiles and,
+    #      later in the DOM, took their taps (a tap on tile 1's name reached tile 2; on G3 the right tile's name was judged wrong)
+    pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(GOTO, SLIDE)
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=20000, polling=20)
+    pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    GLYPH = "(el) => { const r = document.createRange(); r.selectNodeContents(el); const b = r.getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; }"
+    hits = pg.evaluate("""() => [...document.querySelectorAll('.dmf-tile')].map((t, k) => {
+        const glyph = GLYPH;
+        const tb = t.getBoundingClientRect(), s = glyph(t.querySelector('.dmf-sym')), n = glyph(t.querySelector('.dmf-name'));
+        const pts = { mark: s, name: n, faceC: [tb.left + tb.width / 2, tb.top + tb.height / 2], rightEdge: [tb.right - 8, s[1]], leftEdge: [tb.left + 8, n[1]],
+                      baseTL: [tb.left + 5, tb.top + 5], baseBR: [tb.right - 5, tb.bottom - 5] };
+        const r = {}; for (const [k2, [x, y]] of Object.entries(pts)) { const e = document.elementFromPoint(x, y), tt = e && e.closest('.dmf-tile');
+          r[k2] = tt ? [...tt.classList].find(c => /^t[0-9]$/.test(c)) : (e ? e.className.toString().slice(0, 20) : null); }
+        return r; })""".replace("GLYPH", GLYPH))
+    check("a tap on a tile's mark, name, face, edges or base corners reaches that tile and no other ([tile-hit])",
+          all(all(v == f"t{k + 1}" for v in h.values()) for k, h in enumerate(hits)), hits)
+    names = pg.evaluate("() => [...document.querySelectorAll('.dmf-tile .dmf-name')].map(" + GLYPH + ")")
+    w0 = WRONG[0] - 1
+    pg.mouse.click(*names[w0]); pg.wait_for_timeout(150)
+    jw = pg.evaluate("[state.attempts, [...document.querySelectorAll('.dmf-tile')].map(t => t.classList.contains('wiggle')), !!document.querySelector('.dmf-tile.on')]")
+    check(f"a mouse tap on the WRONG tile t{WRONG[0]}'s name: judged wrong — that tile alone wiggles, one attempt, no press ([tile-hit])",
+          jw == [1, [k == w0 for k in range(3)], False], jw)
+    pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=15000, polling=20); pg.wait_for_timeout(300)
+    pg.mouse.click(*names[PICK]); pg.wait_for_timeout(250)
+    jr = pg.evaluate("[state.attempts, [...document.querySelectorAll('.dmf-tile')].map(t => t.classList.contains('on')), !!document.querySelector('.dmf-mark.in')]")
+    check(f"a mouse tap on the RIGHT tile t{PICK + 1}'s name: judged right — that tile alone pressed, its mark in the slot ([tile-hit])",
+          jr == [1, [k == PICK for k in range(3)], True], jr)
     pg.close()
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e)))

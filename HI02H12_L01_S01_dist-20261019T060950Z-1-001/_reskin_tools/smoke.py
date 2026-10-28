@@ -7,6 +7,8 @@ LEAVE = """() => { const sg=document.getElementById('startGate'); if(sg) sg.clas
   const bl=document.getElementById('bootLoader'); if(bl) bl.remove(); }"""
 GOTO = "(id) => mountSlide(CARD.slides.findIndex(s => s.id === id))"   # by id: slide numbers moved when T0 was added
 results = []
+def quiet(pg):   # [tap-lock] the feedback after a wrong tap (the buzz, then the hint / try-again line) holds the options: the next tap waits for quiet
+    pg.wait_for_function("!isPlaying && !sfxBusy() && !state.hintActive && !document.querySelector('#slideHost .opt-cell.crossed')", timeout=20000, polling=20); pg.wait_for_timeout(300)
 def check(name, ok, detail=""):
     results.append((name, ok)); print(("PASS " if ok else "FAIL ") + name + (" — " + str(detail) if detail else ""))
 
@@ -88,9 +90,9 @@ with sync_playwright() as p:
     pg.click(".dmf-tile.t2"); pg.wait_for_timeout(150)
     check("G1: a wrong tile wiggles, counts an attempt, no mark in the slot",
           pg.evaluate("document.querySelector('.dmf-tile.t2').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
-    pg.wait_for_timeout(500); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(150)
+    quiet(pg); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(150)
     check("G1: the other wrong tile too, and the page waits", pg.evaluate("state.attempts===2 && CARD.slides[state.idx].id==='G1' && !document.querySelector('.dmf-mark.in')"))
-    pg.wait_for_timeout(500); pg.click(".dmf-tile.t1"); pg.wait_for_timeout(600)
+    quiet(pg); pg.click(".dmf-tile.t1"); pg.wait_for_timeout(600)
     check("G1: the right tile (पूर्ण विराम) puts its mark in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent==='।'"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G2'", timeout=15000)
     check("G1 then moves on to G2 by itself, the second Figma tap page",
@@ -99,7 +101,7 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
     pg.click(".dmf-tile.t1"); pg.wait_for_timeout(150)
     check("G2: a wrong tile wiggles, no mark", pg.evaluate("document.querySelector('.dmf-tile.t1').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
-    pg.wait_for_timeout(500); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(600)
+    quiet(pg); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(600)
     check("G2: the right tile puts its \"?\" in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent==='?'"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G3'", timeout=15000)
     check("G2 then moves on to G3 by itself, the third Figma tap page (one small slot)",
@@ -108,7 +110,7 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
     pg.click(".dmf-tile.t3"); pg.wait_for_timeout(150)
     check("G3: a wrong tile wiggles, no mark", pg.evaluate("document.querySelector('.dmf-tile.t3').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
-    pg.wait_for_timeout(500); pg.click(".dmf-tile.t2"); pg.wait_for_timeout(600)
+    quiet(pg); pg.click(".dmf-tile.t2"); pg.wait_for_timeout(600)
     check("G3: the right tile puts its \",\" in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent===','"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G4'", timeout=15000)
     check("G3 then moves on to G4 by itself: the reference game's P4 page (picture + three sentence pills)",
@@ -119,7 +121,7 @@ with sync_playwright() as p:
     right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'लड़की पतंग उड़ा रही है ।')")
     pg.click(f"#slideHost .opt-cell >> nth={(right + 1) % 3}"); pg.wait_for_timeout(150)
     check("G4: a wrong pill wiggles and counts an attempt", pg.evaluate("state.attempts===1 && !!document.querySelector('#slideHost .opt-cell.wg-wrong')"))
-    pg.wait_for_timeout(1200); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
+    quiet(pg); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
     check("G4: the right pill (लड़की पतंग उड़ा रही है ।) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='P1'", timeout=60000)
     check("G4 then moves straight on to P1 (no gate here): the same P4 page with its own picture and sentences",
@@ -129,7 +131,7 @@ with sync_playwright() as p:
     right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'क्या यह आपकी किताब है?')")
     pg.click(f"#slideHost .opt-cell >> nth={(right + 1) % 3}"); pg.wait_for_timeout(150)
     check("P1: a wrong pill wiggles and counts an attempt", pg.evaluate("state.attempts===1 && !!document.querySelector('#slideHost .opt-cell.wg-wrong')"))
-    pg.wait_for_timeout(1200); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
+    quiet(pg); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
     check("P1: the right pill (क्या यह आपकी किताब है?) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='P2'", timeout=60000)
     check("P1 then moves on to P2: the same P4 page again, its long sentences on two lines",
@@ -139,7 +141,7 @@ with sync_playwright() as p:
     right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।')")
     pg.click(f"#slideHost .opt-cell >> nth={(right + 1) % 3}"); pg.wait_for_timeout(150)
     check("P2: a wrong pill wiggles and counts an attempt", pg.evaluate("state.attempts===1 && !!document.querySelector('#slideHost .opt-cell.wg-wrong')"))
-    pg.wait_for_timeout(1200); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
+    quiet(pg); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
     check("P2: the right pill (मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
     # P2's end opens the round-3 gate ([gate-p2] + [gate-cel]): the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds,
     # then L1, the letter page ([letter-fig], letter_check.py has it beat by beat): it plays itself to the pulsing envelope, the

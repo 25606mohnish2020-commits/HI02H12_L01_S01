@@ -67,6 +67,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          option, the hand or the chip answers (sfxBusy() + the feedback line's own Audio); a tap during the instruction or the
          idle re-read still cuts it and answers at once (this change's first build held those too: a tester's taps seemed to do
          nothing, since the instruction repeats after every 5 s of quiet); a page's pointing hand is swept at every mount.
+         [tile-hit] (2026-10-28): on the pick pages a tap on a tile's mark or name lands on THAT tile — the text boxes, far wider
+         than the tile, overflowed onto the next tiles and took their taps (G2 / G3 judged a tap by the wrong tile); .dmf-sym and
+         .dmf-name take no pointer events (CSS only; nothing drawn changes).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2235,10 +2238,14 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dmf-base{position:absolute;left:0;top:0;width:227px;height:169px;background:#D9D9D9;border-radius:13.31px;}
 .dmf-face{position:absolute;left:2px;top:2px;width:223px;height:161px;background:#FFFFFF;border:2.386px solid #D5D8DF;border-radius:14.316px;
   transition:border-color .2s,box-shadow .2s;}
-.dmf-sym{position:absolute;width:483px;transform:translate(-50%,-50%);text-align:center;white-space:pre;
+/* [tile-hit] (2026-10-28) the mark's and the name's text boxes are far wider than the tile (483 / 1075 px: the glyphs centre on the
+   tile whatever their width) and overflow onto the next tiles, where the later tile's box sat on top and took the tap — a tap on
+   tile 1's name reached tile 2 (on G3 the right tile's name was judged wrong). The texts take no pointer events now; the tile's
+   own box (base + face) answers every tap on it. */
+.dmf-sym{position:absolute;width:483px;transform:translate(-50%,-50%);text-align:center;white-space:pre;pointer-events:none;
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;color:#002F76;}
 .t1 .dmf-sym{left:111.5px;top:58.5px;} .t2 .dmf-sym{left:113.5px;top:49.5px;} .t3 .dmf-sym{left:113.5px;top:59.5px;}
-.dmf-name{position:absolute;left:113.5px;width:1075px;height:48px;transform:translateX(-50%);text-align:center;
+.dmf-name{position:absolute;left:113.5px;width:1075px;height:48px;transform:translateX(-50%);text-align:center;pointer-events:none;
   font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:28px;line-height:48px;word-spacing:-2px;color:#012F76;}
 .t1 .dmf-name{top:100px;} .t2 .dmf-name{top:101px;} .t3 .dmf-name{top:101px;}
 /* tapped for the child: the tile presses down and comes back, its colours unchanged (no blue selection ring,
