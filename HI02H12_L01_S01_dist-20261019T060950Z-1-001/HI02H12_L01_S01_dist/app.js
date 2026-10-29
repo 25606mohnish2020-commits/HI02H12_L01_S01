@@ -9078,7 +9078,7 @@ SlideModules.CELEBRATION.mount = function(host, slide){
   if(typeof phaseBlurTransition !== "function") return;
   var GATE_MS = 4000;                                                          // the reference's minimum hold (this engine had no such constant: 2.8 s)
   var GATE_REF_SRC = "assets/UI/peeking_talk_up.webp";
-  var GATE_CAPTION_AT_MS = { tutorial: 2940, guided: 3540, practice: 210 };   // this lesson's own vo_pt_* clips: the headline's words begin here (read off them, see README)   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
+  var GATE_CAPTION_AT_MS = { tutorial: 3660, guided: 3940, practice: 1120 };   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
   var SINK_MS = 340;
   var gateRefBlob = null;
   if(location.protocol !== "file:") (window.__afterTitle || function(f){ f(); })(function(){ try{ return fetch(GATE_REF_SRC).then(function(r){ return r.ok ? r.blob() : null; }).then(function(b){ if(b) gateRefBlob = b; }).catch(function(){}); }catch(e){} });   // [ASSET-WARM] once the title art is in

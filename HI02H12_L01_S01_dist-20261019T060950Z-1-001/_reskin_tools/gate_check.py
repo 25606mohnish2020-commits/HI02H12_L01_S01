@@ -29,9 +29,9 @@ GATE_LOG = """() => { window._gate = []; let last = ''; const step = () => {
 def gate_after(log, frm, to, title, clip, opens_expected):
     """[dun-chrome] the gate as the child sees it (GATE-REF-ANIM): it opens on frm's end (the openings so far are exactly
     opens_expected, in order); the bird is up and the clip sounds AT ONCE; the headline is written in when the clip says its
-    words (GATE_CAPTION_AT_MS, read off this lesson's clips: 2940 / 3540 / 210 ms into tutorial / guided / practice); `to` only
+    words (GATE_CAPTION_AT_MS, the reference's own: 3660 / 3940 / 1120 ms into its clips, [gate-ref-vo]); `to` only
     once the clip has ended and the 4 s hold has run (the gate gone)"""
-    CAPTION = { "vo_pt_tutorial.ogg": 2940, "vo_pt_guided.ogg": 3540, "vo_pt_practice.ogg": 210 }   # [vo-rec] tutorial: the recording's "चलिए" (vo_rec.py, derived.json gate_cue_ms)
+    CAPTION = { "vo_pt_tutorial.ogg": 3660, "vo_pt_guided.ogg": 3940, "vo_pt_practice.ogg": 1120 }   # [gate-ref-vo] the reference's clips and cues (before: 2940 / 3540 / 210, this lesson's clips)
     opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
     if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
     o = opens[-1]
@@ -78,7 +78,13 @@ with sync_playwright() as p:
     for run, opens_expected in ((1, ["P2"]), (2, ["P2", "P2"])):
         right_tap(pg, "P2", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।")
         pg.wait_for_function("document.getElementById('phaseGate').classList.contains('pg-say')", timeout=20000)   # [dun-chrome] the headline is in (GATE-REF-ANIM)
-        if run == 1: pg.wait_for_timeout(400); pg.screenshot(path=str(out / "gate_after_p2.png"))
+        if run == 1:
+            pg.wait_for_timeout(400); pg.screenshot(path=str(out / "gate_after_p2.png"))
+            # [gate-ref-vo] the reference's look and line: the scrim rgba(57,55,55,.6) + 10px backdrop blur, its vo_pt_practice (2.32 s)
+            look = pg.evaluate("(() => { const c = getComputedStyle(document.getElementById('phaseGate')); const a = currentAudio;"
+                               " return [c.backgroundColor, c.backdropFilter, a ? +a.duration.toFixed(2) : null, a ? a.src.split('/').pop() : null]; })()")
+            check("the gate wears the reference's scrim (rgba(57,55,55,.6), backdrop blur 10px) and plays the reference's vo_pt_practice (2.32 s)",
+                  look[0] == "rgba(57, 55, 55, 0.6)" and look[1] == "blur(10px)" and look[2] is not None and abs(look[2] - 2.32) < 0.03 and look[3] == "vo_pt_practice.ogg", look)
         pg.wait_for_function("CARD.slides[state.idx].id === 'L1' && !!document.querySelector('.ltr')", timeout=40000); pg.wait_for_timeout(300)
         check(f'P2 run {run} in the same load -> the gate (the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds) -> L1, the letter page',
               *gate_after(pg.evaluate("window._gate"), "P2", "L1", "अब आपकी बारी!", "vo_pt_practice.ogg", opens_expected))

@@ -3523,10 +3523,11 @@ html.no-anim #navBtn.active::after{animation:none !important;scale:1;}
 .sp-vo:not(.playing) .wv{animation:none !important;opacity:1 !important;}
 
 body.vo-playing #audioChip,body.vo-playing .mascot-wrap .audio-chip{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;transition:none !important;}
-/* ---- the gates: GATE-REF-ANIM (the bird, its lift, the headline's wipe, the first gate's sink), on the reference's scrim (.35 over a
-   plain field), the bird fixed at the bottom centre (its PHASEGATE-ADD placement, which the lift keyframes assume) ---- */
-.phase-gate.show{background:rgba(57,55,55,.35) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
-body.is-start .phase-gate.show{background:rgba(57,55,55,.35) !important;}
+/* ---- the gates: GATE-REF-ANIM (the bird, its lift, the headline's wipe, the first gate's sink), on the reference's scrim (.6: its
+   TOTA-CONSIST-S05 rule over its PHASEGATE-ADD .35 — [gate-ref-vo]) with a 10px backdrop blur on every gate (the engine's [28b] gave
+   the first one 15.8px), the bird fixed at the bottom centre (its PHASEGATE-ADD placement, which the lift keyframes assume) ---- */
+.phase-gate.show{background:rgba(57,55,55,.6) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
+body.is-start .phase-gate.show{background:rgba(57,55,55,.6) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
 .phase-gate #phaseGateImg,.phase-gate img{position:fixed;left:50%;bottom:0;transform:translateX(-50%);height:clamp(120px,26vh,250px);width:auto;display:block;animation:none;}
 /* [GATE-REF-ANIM] (2026-10-08, user request) the three transition screens (the phase gates: start -> page 1, page 3 -> page 4 "चलिए, साथ
    में करें!", page 11 -> page 12 "अब आपकी बारी!") carry the text and bird animation of the reference lesson
@@ -3558,7 +3559,7 @@ html.no-anim .phase-gate.pg-ref #phaseGateImg,html.no-anim .phase-gate.pg-ref .p
 .phase-gate.pg-ref .pg-title{opacity:1 !important;transition:none !important;}                /* this engine's title fades in on .text-speaking; here .pg-say shows it and pgWipe writes it */
 .phase-gate.pg-ref:not(.pg-say) .pg-title{visibility:hidden !important;}
 .phase-gate.pg-ref.pg-say .pg-title{visibility:visible !important;}
-body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:none !important;filter:none !important;}
+body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:none !important;filter:blur(10px) !important;}   /* [gate-ref-vo] the reference blurs the landing itself under the first gate (TOTA-CONSIST-S05: body.gating .start-gate{filter:blur(10px)}) */
 /* ---- confetti (CONFETTI-REF): over the whole window under the gate, pieces 1.5x, sized with the stage ---- */
 .fx-confetti{z-index:5000 !important;--fx-size:1.5;}
 .fx-confetti .f{width:calc(var(--w) * var(--z) * var(--scale, 1) * var(--fx-size, 1));height:calc(var(--h) * var(--z) * var(--scale, 1) * var(--fx-size, 1));}

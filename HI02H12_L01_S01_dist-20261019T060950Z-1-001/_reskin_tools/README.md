@@ -518,6 +518,36 @@ P2 "सही विराम चिह्न वाला वाक्य च�
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
   ported pick).
 
+The transition screens: the reference's lines, caption moments and scrim ([gate-ref-vo], 2026-10-29)
+- Asked: "take the reference https://hi-02-h04-l01-s01-dun.vercel.app/ and apply the exact same transition animation screens with
+  pink hindi texts along with the exact same VOs of the transition screens ... where ever used; rest keep everything exactly the
+  same". Here the gates are: start -> T0 ("चलिए, शुरू करें!"), T4 -> G1 ("चलिए, साथ में करें!"), P2 -> L1 ("अब आपकी बारी!").
+- Probed both pages side by side (the scratchpad's gate_probe.py: each gate opened directly, every 40 ms the gate's classes, the
+  bird's box / animation / transform, the headline's box / text / computed look, the scrim, the clip and its time, every play();
+  gate1_probe.py: the real first gate from the play button). The live reference = the local copy under Suresh's File byte for
+  byte. Already the same: the texts, the bird (peeking_talk_up.webp, md5-identical), its size, lift and first-gate sink, the
+  headline's font / colour / stroke / place / wipe, the 4 s hold, the gate script itself.
+- Changed (build.py [gate-ref-vo] + the [dun-chrome] gate lines):
+  1. the LINES: the reference's own vo_pt_tutorial / _guided / _practice (its .wav files, re-encoded to this engine's Opus-48k
+     .ogg like vo_well_done; same decoded length, 0 lag, correlation .999, same loudness; dun_assets/Audio/vo_pt_*.ogg + .wav),
+     with the reference card's texts. Before: the user's recording of vo_pt_tutorial (4.94 s) and TTS for the other two —
+     `../_before_gate_ref_vo/Audio/` keeps them, and voiceovers/vo_pt_tutorial.wav is untouched. build.py copies the reference's
+     clips on every build, so re-running vo_rec.py cannot bring the old line back;
+  2. the CAPTION moments: the reference's 3660 / 3940 / 1120 ms into those clips (the gate script's line is now the reference's
+     verbatim; [vo-rec]'s tutorial cue patch is gone);
+  3. the SCRIM: rgba(57,55,55,.6) on every gate (the reference's TOTA-CONSIST-S05 rule; [dun-chrome] had copied its earlier
+     PHASEGATE-ADD .35, which the reference itself overrides);
+  4. the FIRST gate's blur: the reference's 10px backdrop blur plus the landing itself blurred 10px (was the engine's [28b] 15.8px
+     backdrop with no filter).
+  The dist differs from before in app.js (the caption line), style.css (the scrim + the start-gate blur), index.html (the
+  tutorial clip's text) and the three clips. Not copied: the reference headline's max-width:86vw, which only matters below
+  ~734 px of screen width, where it pushes the reference's own headline off-centre.
+- Checked: the probe again — same clips, captions at 3725 / 3985 / 1148 ms (the reference: 3692 / 3971 / 1179 ms; both are
+  timers from the gate's opening), the scrim / blur / bird / headline computed the same at every sample; the three headlines
+  written out over a flat field are 0 px different from the reference's (title_pix.py); the first gate's field colour is the
+  reference's to the pixel (85,113,131). gate_check.py (now also asserts the scrim, the 10px blur and the 2.32 s clip) ALL PASS;
+  smoke.py 47/47 (run alone; run beside three other browser checks it once timed out at G4 -> P1, a page change with no gate). `../_before_gate_ref_vo/` holds build.py, gate_check.py, smoke.py, the dist's three files and the old clips.
+
 No music bed on the letter page; it returns with the stamp page ([l1-quiet], 2026-10-29)
 - Asked (page 13 L1): the background music should not play on this page; once the user taps the envelope and the transition is
   over, it should start again as it does now; everything else unchanged.

@@ -2656,12 +2656,13 @@ _cel_click = must(r'      eb\.onclick = \(\)=>\{\n        if\(eb\.dataset\.compl
 _cel_click = _cel_click.replace('        clearTimeout(endVoTimer);\n        clearTimeout(endFreezeTimer);\n        sfxNextButton();\n', '        stdSfx("next");   // [STD-SFX] the end screen\'s आगे बढ़ें is a next button too\n')
 assert 'stdSfx("next")' in _cel_click and "endVoTimer" not in _cel_click, "dun: CEL onclick adaptation"
 _cel_dev = must(r'      // dev-only: a small "download results" button \(teacher/QA\), never in child flow\n      if\(new URLSearchParams\(location\.search\)\.has\("dev"\) && !\$\("dlResults"\)\)\{.*?\n      \}\n', js, re.S, "dun: CEL dev button").group(0)
-# the reference's gate script, on this engine: GameBus for SwiftPAL, this engine's clip path rule, its own caption moments, GATE_MS
+# the reference's gate script, on this engine: GameBus for SwiftPAL, this engine's clip path rule, GATE_MS; the caption moments are the
+# reference's own (3660 / 3940 / 1120 ms) since [gate-ref-vo] plays the reference's own vo_pt_* clips (before: 2850 / 3540 / 210, this
+# lesson's clips)
 _gate_js = dun_block("gate_js.js").replace("SwiftPAL.emit", "GameBus.emit")
 _gate_js = _gate_js.replace('var voSrc = (voId && CARD.assets && CARD.assets.audio && CARD.assets.audio[voId]) || null;', 'var voSrc = voId ? ("assets/Audio/" + voId + "." + AUDIO_EXT) : null;   // this engine\'s clip path rule')
-_gate_js = _gate_js.replace('var GATE_CAPTION_AT_MS = { tutorial: 3660, guided: 3940, practice: 1120 };', 'var GATE_CAPTION_AT_MS = { tutorial: 2850, guided: 3540, practice: 210 };   // this lesson\'s own vo_pt_* clips: the headline\'s words begin here (read off them, see README)')
 _gate_js = _gate_js.replace('  if(typeof phaseBlurTransition !== "function") return;\n', '  if(typeof phaseBlurTransition !== "function") return;\n  var GATE_MS = 4000;                                                          // the reference\'s minimum hold (this engine had no such constant: 2.8 s)\n')
-assert "GATE_CAPTION_AT_MS = { tutorial: 2850" in _gate_js and "var GATE_MS = 4000" in _gate_js and "SwiftPAL" not in _gate_js, "dun: gate adaptation"
+assert "GATE_CAPTION_AT_MS = { tutorial: 3660, guided: 3940, practice: 1120 };" in _gate_js and "var GATE_MS = 4000" in _gate_js and "SwiftPAL" not in _gate_js, "dun: gate adaptation"
 _bgm_js = dun_block("bgm_duck_js.js")
 _bgm_js = _bgm_js.replace('  var FIRST = 0, LAST = 12;                                                   // T1 .. P6\n', '  var FIRST = 0, LAST = CARD.slides.length - 2;                               // page 1 .. the last page before the celebration\n')
 _bgm_js = _bgm_js.replace('var SRC = "assets/Audio/bgm_standard_2.wav", BASE = 0.13', 'var SRC = "assets/Audio/standard_background_music_2.mp3", BASE = 0.13')
@@ -3014,9 +3015,33 @@ js = rep1(js, "        state.attempts = (state.attempts || 0) + 1; sfxWrongSoft(
 """, "stamp wrong ladder")
 js = rep1(js, "at(P.gone_at, ()=>{ o.el.classList.add(\"gone\"); sfxCorrect();",
               "at(P.gone_at, ()=>{ o.el.classList.add(\"gone\"); sfxCorrect(); if(last && d.ok_audio) play(A(d.ok_audio), ()=>{}); /* [vo-rec] \"शाबाश!\" with the round's chime */", "stamp ok")   # a block comment: the line goes on
-# the gate: the tutorial caption's cue at the recorded "चलिए"
-_cue = int(VR["gate_cue_ms"]["tutorial"])
-js = rep1(js, "tutorial: 2850", f"tutorial: {_cue}", "gate cue")
+# the gate: [vo-rec] set the tutorial caption's cue at the recorded "चलिए" (2940 ms, VR["gate_cue_ms"]); since [gate-ref-vo] the three
+# gates play the reference's own clips with the reference's own cues (the gate script keeps them verbatim), so no cue is patched here
+# ---------- [gate-ref-vo] (asked 2026-10-29: "take the reference https://hi-02-h04-l01-s01-dun.vercel.app/ and apply the exact same
+#            transition animation screens with pink hindi texts along with the exact same VOs of the transition screens ... where ever
+#            used; rest keep everything exactly the same"). The three gates here (start -> T0 "चलिए, शुरू करें!", T4 -> G1 "चलिए, साथ
+#            में करें!", P2 -> L1 "अब आपकी बारी!") already ran the reference's bird, lift, headline wipe, sink, hold and texts
+#            ([dun-chrome] 5); probed side by side (scratchpad gate_probe.py / gate1_probe.py: every 40 ms, computed styles, play()
+#            log) they differed in —
+#   1. the LINES: this lesson's vo_pt_tutorial (the user's recording, 4.94 s), vo_pt_guided / vo_pt_practice (TTS) -> the reference's
+#      own recordings (its vo_pt_*.wav, byte-identical on the live site and in the local copy, re-encoded to this engine's
+#      Opus-48k .ogg like vo_well_done: dun_assets/Audio/vo_pt_*.ogg, same length, 0 lag, corr .999) with its card's texts;
+#   2. the CAPTION moments: the reference's 3660 / 3940 / 1120 ms into those clips (above, the gate script verbatim);
+#   3. the SCRIM: the reference's later TOTA-CONSIST-S05 rule darkens every gate to rgba(57,55,55,.6) (its PHASEGATE-ADD .35, which
+#      [dun-chrome] had copied, is overridden there) -> .6 here too;
+#   4. the FIRST gate's blur: the reference blurs the landing itself (filter blur(10px) on .start-gate) under a 10px backdrop blur;
+#      here the engine's [28b] 15.8px backdrop and no filter -> the reference's pair.
+#   The texts, the bird file (peeking_talk_up.webp, md5-identical), its size / lift / sink, the headline's look and wipe, the 4 s hold
+#   were already identical and are untouched. vo_rec.py still writes the user's vo_pt_tutorial recording into assets/Audio when
+#   re-run; this step copies the reference's clips over it on every build, so a re-run cannot bring the old line back. ----------
+for _k, _txt in (("tutorial", "ध्यान से देखिए और मेरे साथ जानिए। चलिए, शुरू करें!"),
+                 ("guided", "बहुत बढ़िया! अब हम साथ मिलकर शुरू करते हैं। चलिए, साथ में करें!"),
+                 ("practice", "वाह! अब आपकी बारी।")):
+    _src, _dst = DUN / "Audio" / f"vo_pt_{_k}.ogg", DIST / "assets" / "Audio" / f"vo_pt_{_k}.ogg"
+    assert _src.exists(), f"[gate-ref-vo] missing {_src}"
+    if not _dst.exists() or _dst.read_bytes() != _src.read_bytes(): shutil.copy2(_src, _dst)
+    card["assets"]["audio"][f"vo_pt_{_k}"] = f"assets/Audio/vo_pt_{_k}.ogg"
+    card["assets"]["audio_text"][f"vo_pt_{_k}"] = _txt   # the reference card's audio_text, as written there
 vo_css = """
 /* ===== [vo-rec] the pointing hand of the picks' hint 3 (G1-G3: the sentence picks' reveal hand, on the stage) ===== */
 .stage .slide-stage .reveal-hand.dmf-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;pointer-events:none;
@@ -3087,16 +3112,17 @@ body.is-start.landing-play-ready .sg-card :not(.sg-btn):not(.sg-btn *){animation
    only while a line speaks, solid at rest (TOTA-WAVES-IDLE) ---- */
 """ + dun_block("waves_idle_css.css") + r"""
 body.vo-playing #audioChip,body.vo-playing .mascot-wrap .audio-chip{pointer-events:none !important;opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;transition:none !important;}
-/* ---- the gates: GATE-REF-ANIM (the bird, its lift, the headline's wipe, the first gate's sink), on the reference's scrim (.35 over a
-   plain field), the bird fixed at the bottom centre (its PHASEGATE-ADD placement, which the lift keyframes assume) ---- */
-.phase-gate.show{background:rgba(57,55,55,.35) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
-body.is-start .phase-gate.show{background:rgba(57,55,55,.35) !important;}
+/* ---- the gates: GATE-REF-ANIM (the bird, its lift, the headline's wipe, the first gate's sink), on the reference's scrim (.6: its
+   TOTA-CONSIST-S05 rule over its PHASEGATE-ADD .35 — [gate-ref-vo]) with a 10px backdrop blur on every gate (the engine's [28b] gave
+   the first one 15.8px), the bird fixed at the bottom centre (its PHASEGATE-ADD placement, which the lift keyframes assume) ---- */
+.phase-gate.show{background:rgba(57,55,55,.6) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
+body.is-start .phase-gate.show{background:rgba(57,55,55,.6) !important;backdrop-filter:blur(10px) !important;-webkit-backdrop-filter:blur(10px) !important;}
 .phase-gate #phaseGateImg,.phase-gate img{position:fixed;left:50%;bottom:0;transform:translateX(-50%);height:clamp(120px,26vh,250px);width:auto;display:block;animation:none;}
 """ + dun_block("gate_css.css") + r"""
 .phase-gate.pg-ref .pg-title{opacity:1 !important;transition:none !important;}                /* this engine's title fades in on .text-speaking; here .pg-say shows it and pgWipe writes it */
 .phase-gate.pg-ref:not(.pg-say) .pg-title{visibility:hidden !important;}
 .phase-gate.pg-ref.pg-say .pg-title{visibility:visible !important;}
-body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:none !important;filter:none !important;}
+body.is-start.gating .start-gate{display:flex !important;visibility:visible !important;opacity:1 !important;pointer-events:none !important;filter:blur(10px) !important;}   /* [gate-ref-vo] the reference blurs the landing itself under the first gate (TOTA-CONSIST-S05: body.gating .start-gate{filter:blur(10px)}) */
 /* ---- confetti (CONFETTI-REF): over the whole window under the gate, pieces 1.5x, sized with the stage ---- */
 .fx-confetti{z-index:5000 !important;--fx-size:1.5;}
 .fx-confetti .f{width:calc(var(--w) * var(--z) * var(--scale, 1) * var(--fx-size, 1));height:calc(var(--h) * var(--z) * var(--scale, 1) * var(--fx-size, 1));}

@@ -23,9 +23,9 @@ GATE_LOG = """() => { window._gate = []; let last = ''; const step = () => {
 def gate_after(log, frm, to, title, clip, opens_expected):
     """[dun-chrome] the gate as the child sees it (GATE-REF-ANIM): it opens on frm's end (the openings so far are exactly
     opens_expected, in order); the bird is up and the clip sounds AT ONCE; the headline is written in when the clip says its
-    words (GATE_CAPTION_AT_MS, read off this lesson's clips: 2850 / 3540 / 210 ms into tutorial / guided / practice); `to` only
+    words (GATE_CAPTION_AT_MS, the reference's own: 3660 / 3940 / 1120 ms into its clips, [gate-ref-vo]); `to` only
     once the clip has ended and the 4 s hold has run (the gate gone)"""
-    CAPTION = { "vo_pt_tutorial.ogg": 2850, "vo_pt_guided.ogg": 3540, "vo_pt_practice.ogg": 210 }
+    CAPTION = { "vo_pt_tutorial.ogg": 3660, "vo_pt_guided.ogg": 3940, "vo_pt_practice.ogg": 1120 }   # [gate-ref-vo] the reference's clips and cues
     opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
     if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
     o = opens[-1]
