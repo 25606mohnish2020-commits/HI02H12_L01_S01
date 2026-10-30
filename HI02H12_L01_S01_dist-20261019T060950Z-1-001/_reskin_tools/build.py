@@ -93,6 +93,10 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          [pencil eyes] rig on three upright faces: title_assets/cover_eyes_js.js, the geometry measured by title_eyes_measure.py
          into cover_eyes_data.json, the brows cut into title_char_*_rig.png) and the card's scene gets that game's lens flare and
          sunlit dust (cover_fx.css, cover_dust_js.js: the .sg-fx layer after the scene, the same 1096x438 box and light).
+         [baloo-font] (2026-10-30): every text of the lesson's pages in Baloo 2 ExtraBold, the reference game's Page 1 T1 face —
+         T0-G3 and L2 through 'Story Baloo 2' (the engine's own Baloo 2 800 file with Noto's line metrics, so no line box
+         moves), G4 / P1 / P2 back on P4's own Baloo 2 (undoing [sent-font]); no word spacing (Baloo's spaces are the frames');
+         the slots that sit after or between words moved with Baloo's wider ink (same gaps as before), G3's sentence 48 px.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -214,7 +218,7 @@ for k in RECAP_KEYS:
 # two sentence clips (sent, full) were re-made by recap_vo.py demo1 with the new name, the intro and "पूर्ण विराम" kept.
 DEMO_KEYS = ["intro", "sent", "purn", "full"]
 DEMO_BAND = "विराम चिह्न का वाक्य में प्रयोग ।"   # [band-title] (2026-10-28) the title bar's line on T2 / T3 / T4 (frame 656:2's), in place of the intro line's shown text; the intro clip sounds as before
-SENT50 = {"x": 0, "y": 18, "w": 719 - 63, "size": 50, "lh": 110, "ws": -3}   # [sent-50] (2026-10-28) T2 / T3 / G1 / G2: the sentence at 50px (the 50px pages' -3px word spacing) in the same line box (y 18, 110px) as the 64px one; its text box is the 719px bar LESS the slot's column (a 4px gap + the 59px slot), so the centred sentence and the slot 4px after it are centred on the bar TOGETHER (asked twice: first "the sentence centred", then "both together"); each page's slot x = its ink's right edge + 4 (frame px, measured in Chrome)
+SENT50 = {"x": 0, "y": 18, "w": 719 - 63, "size": 50, "lh": 110, "ws": 0}   # [sent-50] (2026-10-28) T2 / T3 / G1 / G2: the sentence at 50px (the 50px pages' -3px word spacing) in the same line box (y 18, 110px) as the 64px one; its text box is the 719px bar LESS the slot's column (a 4px gap + the 59px slot), so the centred sentence and the slot 4px after it are centred on the bar TOGETHER (asked twice: first "the sentence centred", then "both together"); each page's slot x = its ink's right edge + 4 (frame px, measured in Chrome)
 dl = {k: json.loads((SCR / "demo1_assets" / f"vo_demo1_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO_KEYS}
 i_t2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T2")
 assert card["slides"][i_t2]["type"] == "BUILD_PUNCT" and card["slides"][i_t2]["data"].get("auto"), "T2 is not the first auto demo"
@@ -224,7 +228,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
     "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
              "sentence": dpart("sent"), "mark": "।", "mark_audio": "vo_demo1_purn", "full": dpart("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132], "sent": SENT50, "slot": [521, 20]}},   # [demo1-pinki] 656:2's picture box; [sent-50] the sentence at 50px centred in the bar (was 656:2's 64px box at 96.5), the slot 4px after its ink (was 583)
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"img": [228, 214, 82, 132], "sent": SENT50, "slot": [528.3, 20]}},   # [baloo-font] slot 521 -> 528.3: "है" ends 7.3 px further right in Baloo 2;   # [demo1-pinki] 656:2's picture box; [sent-50] the sentence at 50px centred in the bar (was 656:2's 64px box at 96.5), the slot 4px after its ink (was 583)
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
@@ -254,7 +258,7 @@ card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "typ
     "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo2_girl",   # [demo2-girl]
              "sentence": dpart2("sent"), "mark": "?", "mark_audio": "vo_demo2_prashn", "full": dpart2("full"),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent": SENT50, "slot": [497, 20], "img": [223, 214, 90, 135]}},   # [demo2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 583)
+             "blink_ms": 3500, "hold_ms": 1500, "layout": {"sent": SENT50, "slot": [502.6, 20], "img": [223, 214, 90, 135]}},   # [baloo-font] slot 497 -> 502.6 ("है" +5.6 px);   # [demo2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 583)
     "signals": {"on_complete": []}}
 for k in DEMO2_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo2_{k}"] = f"assets/Audio/vo_demo2_{k}.ogg"
@@ -286,7 +290,7 @@ assert len(_full3["targets"]) == len(_full3["word_times"]), "T4: the second read
 # (layout.sent.ws), its line box puts the glyphs where an 84px one does here, and the space before the closing danda
 # ("है ।") is 4.5px narrower still in the render — sentence.nudge pulls the danda (span 8) in by that much; with it
 # every word's ink is within 1px of the render
-_sent3 = dict(dpart3("sent"), gaps=[2, 3], gap_spaces=4, nudge={"8": -4.5})
+_sent3 = dict(dpart3("sent"), gaps=[2, 3], gap_spaces=4, nudge={"3": 3.4, "4": 2.1})   # [baloo-font] the gaps' old ink widths in Baloo 2; no danda nudge (was {"8": -4.5})
 assert _sent3["text_hi"].split()[2:4] == ["आम", "केला"], "T4: the slots no longer follow आम / केला"
 # the slots' dashes, measured on the frame's render: two dashes centred on each side, [margin, dash, gap, dash, margin]
 _slot = lambda x: {"x": x, "y": 76, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}
@@ -294,11 +298,11 @@ card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "typ
     "prompt_hi": DEMO_BAND, "audio": {},   # [demo-intro] no intro line (was vo_demo3_intro)
     "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo3_fruits",
              "sentence": _sent3, "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 50, "mark_stagger_ms": 300,
-             "full": _full3, "slots": [_slot(286), _slot(417)],
+             "full": _full3, "slots": [_slot(280.7), _slot(420.1)],   # [baloo-font] 286 / 417 -> on the Baloo gaps
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500, "hold_ms": 1500,
              "layout": {"pic_x": 144, "img": [144, 229, 144, 96], "bar": [312, 824],
-                        "sent": {"x": -34, "y": 33, "w": 893, "size": 50, "lh": 84, "ws": -3}}},
+                        "sent": {"x": -31.7, "y": 33, "w": 893, "size": 50, "lh": 84, "ws": 0}}},   # [baloo-font] x -34 -> -31.7: the sentence's old centre
     "signals": {"on_complete": []}}
 for k in DEMO3_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo3_{k}"] = f"assets/Audio/vo_demo3_{k}.ogg"
@@ -335,7 +339,7 @@ card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type"
              "mark": "।", "mark_audio": "vo_demo1_purn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
-             "layout": {"img": [207, 214, 125, 131], "sent": SENT50, "slot": [548, 20],   # [g1-pinki] 656:66's places; [sent-50] the sentence at 50px centred in the bar (was 656:66's 64px box 560 wide at 47.5, ws -4), the slot 4px after its ink (was 612)
+             "layout": {"img": [207, 214, 125, 131], "sent": SENT50, "slot": [553.6, 20],   # [baloo-font] slot 548 -> 553.6 ("थी" +5.6 px);   # [g1-pinki] 656:66's places; [sent-50] the sentence at 50px centred in the bar (was 656:66's 64px box 560 wide at 47.5, ws -4), the slot 4px after its ink (was 612)
                         "tiles": [{"base": [197, 442, 227, 170], "face": [199, 444, 223, 162]},
                                   {"base": [525, 443, 231, 169], "face": [527, 445, 227, 161]}, None]}},
     "signals": {"on_complete": ["punct_build_done"]}}
@@ -368,7 +372,7 @@ card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type"
              "mark": "?", "mark_audio": "vo_demo2_prashn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
-             "layout": {"sent": SENT50, "img": [223, 216, 88, 132], "slot": [496, 20]}},   # [g2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 573)
+             "layout": {"sent": SENT50, "img": [223, 216, 88, 132], "slot": [498, 20]}},   # [baloo-font] slot 496 -> 498 ("हो" +2 px);   # [g2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 573)
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g2_sent"] = "assets/Audio/vo_g2_sent.ogg"
 card["assets"]["audio_text"]["vo_g2_sent"] = gl2["text"]
@@ -392,13 +396,13 @@ card["slides"][i_g3] = {"id": "G3", "phase": "guided", "eis": "enactive", "type"
              # the space before the closing danda ("हैं ।") is 4.5px narrower in the render, as on T4: measured word by word,
              # every word 2-3px left of the render and the danda 4.5px right of the rest without the nudge
              "sentence": {"text_hi": gl3["shown"], "audio": "vo_g3_sent", "word_times": [t[0] for t in gl3["word_times"]],
-                          "gaps": [2], "gap_spaces": 4, "nudge": {"9": -4.5}},
-             "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 50,
-             "slots": [{"x": 278, "y": 70, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}],
+                          "gaps": [2], "gap_spaces": 4, "nudge": {"3": 4.1}},   # [baloo-font] the gap's old ink width (37.1 px) in Baloo 2 at 48 px: गेंदा out 4.1 px; no danda nudge (was {"9": -4.5})   # [baloo-font] the gap's old ink width in Baloo 2; no danda nudge (was {"9": -4.5})
+             "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 48,
+             "slots": [{"x": 279.3, "y": 70, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}],
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
              "layout": {"pic_x": 144, "img": [146, 211, 140, 140], "bar": [312, 824],
-                        "sent": {"x": -28, "y": 33, "w": 893, "size": 50, "lh": 84, "ws": -3}}},
+                        "sent": {"x": -26.2, "y": 33, "w": 893, "size": 48, "lh": 84, "ws": 0}}},   # [baloo-font] 50 -> 48 px (and the stamped comma, mark_size): at 50 Baloo 2 ExtraBold's sentence ran to 16 px from the bar's end, at 48 it is as wide as the Noto one was (754 px); x -28 -> -26.2 keeps its old centre; the slot 278 -> 279.3, 1 px after गुलाब as before
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g3_sent"] = "assets/Audio/vo_g3_sent.ogg"
 card["assets"]["audio_text"]["vo_g3_sent"] = gl3["text"]
@@ -583,18 +587,21 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
              # 593:151); a slot may carry its own mark and pick when the round's slots want different stamps (593:151). sign = small
              # text lines (the letter's sign-off) shown with the sentence's last word, cleared with the sentence
              "rounds": [
+               # [baloo-font] (2026-10-30) every slot x below sits the same distance after its word's ink as it did in Noto (Baloo 2
+               # ExtraBold's words end up to 5 px further right): 751 -> 755, 525 -> 522.4, 751 -> 753.7, 822 -> 825.9, 707 -> 711.3,
+               # 633 -> 630.8, 804 -> 805.9, 798 -> 802.9, 679 -> 679.7
                # guide: the right stamp's guidance glide 0.5 s after the blink and after every 7 s idle (round 1 only); a round
                # without it says the title's line again after every 7 s without a touch instead [stamp-remind]
                {"frame": "565:28", "guide": True, "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
                 "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question"],
                 "boxes": [[532, 541, 74, 116], [677, 540, 72, 115]], "tips": [[36, 113], [35, 114]],
                 "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},
-                "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
+                "slot": {"x": 755, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
                {"frame": "579:47", "guide": False, "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]]},
                 "mark": ",", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_comma"],
                 "boxes": [[532, 541, 74, 116], [677, 541, 72, 115]], "tips": [[36, 113], [36, 114]],
-                "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 37}},   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
-                "slot": {"x": 525, "y": 355, "w": 29, "h": 30, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 9, 4, 9, 4]}},
+                "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 38.4}},   # [baloo-font] w 37 -> 38.4: the old ink gap in Baloo 2;   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
+                "slot": {"x": 522.4, "y": 355, "w": 29, "h": 30, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 9, 4, 9, 4]}},
                # the third round (frame 592:89): a statement, the danda's slot after it (round 1's box and dashes: the same group), THREE
                # stamps in the tray — । 462,541 (the right one), ? 607,540, the comma 750,540; the sentence's 1075-wide box at 78,336 (its
                # ink 483..747 x 342..378 on the render), set 2 px lower like the others
@@ -602,7 +609,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                 "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
                 "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
                 "sent": {"x": 78, "y": 338, "w": 1075, "h": 48, "size": 30},
-                "slot": {"x": 751, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
+                "slot": {"x": 753.7, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
                # the fourth round (frame 593:130): two questions on two rows (the frame's 402-wide box at 415,310, set 1 px lower: its
                # rows' ink then lies on the render's, 316..346 and 365..395), each row ending in its own slot for the "?": TWO slots
                # (36x58, round 1's box and dashes — the same group) at 822,305 and 707,354; the same three stamps as round 3, the ? right
@@ -610,8 +617,8 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                 "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
                 "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
                 "sent": {"x": 415, "y": 311, "w": 402, "h": 98, "size": 30, "lh": 49},
-                "slots": [{"x": 822, "y": 305, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]},
-                          {"x": 707, "y": 354, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}]},
+                "slots": [{"x": 825.9, "y": 305, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]},
+                          {"x": 711.3, "y": 354, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}]},
                # the fifth round (frame 593:151): the letter's closing lines on FIVE rows (the frame's 339-wide box at 468,180, set 1 px
                # lower; its rows' ink 186..212, 235..271, 284..318, 333..364, 382..408 on the render), FOUR slots with their own marks and
                # stamps — the comma's (29x30 at 633,198, between आम and केले: a gap span before केले), the ?'s (30x45 at 804,228 after
@@ -621,12 +628,12 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                {"frame": "593:151", "guide": False, "sentence": {"text_hi": sl_["sent5"]["shown"], "audio": "vo_stamp_sent5", "word_times": [t[0] for t in sl_["sent5"]["word_times"]]},
                 "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
                 "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
-                "sent": {"x": 468, "y": 181, "w": 339, "h": 245, "size": 30, "lh": 49, "gap": {"before": 2, "w": 30}},   # the 30 px gap span: आम ends at 629 and केले starts at 665, as the render
+                "sent": {"x": 468, "y": 181, "w": 339, "h": 245, "size": 30, "lh": 49, "gap": {"before": 2, "w": 31.4}},   # [baloo-font] w 30 -> 31.4: the old ink gap in Baloo 2;   # the 30 px gap span: आम ends at 629 and केले starts at 665, as the render
                 "sign": [{"text": "आपकी प्यारी", "x": 427, "y": 451, "w": 81, "h": 26, "size": 16}, {"text": "पिंकी 🩷", "x": 427, "y": 483, "w": 81, "h": 26, "size": 16}],   # 2 px lower than the frame: Noto's ink on the render's rows
-                "slots": [{"x": 633, "y": 198, "w": 29, "h": 30, "mark": ",", "pick": 2, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 10, 2, 10, 4]},
-                          {"x": 804, "y": 228, "w": 30, "h": 45, "mark": "?", "pick": 1, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]},
-                          {"x": 798, "y": 280, "w": 30, "h": 45, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]},
-                          {"x": 679, "y": 376, "w": 30, "h": 45, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]}]}],
+                "slots": [{"x": 630.8, "y": 198, "w": 29, "h": 30, "mark": ",", "pick": 2, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 10, 2, 10, 4]},
+                          {"x": 805.9, "y": 228, "w": 30, "h": 45, "mark": "?", "pick": 1, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]},
+                          {"x": 802.9, "y": 280, "w": 30, "h": 45, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]},
+                          {"x": 679.7, "y": 376, "w": 30, "h": 45, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]}]}],
              "pace": {"intro_at": 400, "after_intro": 500, "sheet_in": 0, "tray_in": 150, "stamps_at": 700, "pop_gap": 350, "sent_at": 700,
                       "blink_ms": 3500,
                       # [stamp-drag] the guidance: hint_at after the blink, the glide out, the hover, the glide home; again after idle_ms
@@ -2046,12 +2053,15 @@ story_css = """
    Swiftie 76,472 190x190 (its start_mascot.webp is this same Hello art), chip 202,606 58x58. The picture, the
    text box and the grid keep their places on screen: .sfig-in stays where the frame's card put it, and only
    the clip grows to the bigger card. */
-@font-face{font-family:'Story Noto Sans Devanagari';font-style:normal;font-weight:600;font-display:block;
-  src:url("assets/UI/story_font_nsd600_deva.woff2") format("woff2");
-  unicode-range:U+0900-097F,U+1CD0-1CF4,U+1CF7-1CF9,U+200C-200D,U+20A8,U+20B9,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF,U+11B00-11B0A;}
-@font-face{font-family:'Story Noto Sans Devanagari';font-style:normal;font-weight:600;font-display:block;
-  src:url("assets/UI/story_font_nsd600_latin.woff2") format("woff2");
-  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+/* [baloo-font] (2026-10-30) every text of the lesson's own pages (T0-G3, L2) is Baloo 2 ExtraBold (800), the face of the reference
+   game's Page 1 T1 (hi-02-h04-l01-s01-dun.vercel.app: its sentence is "Baloo 2" 800). It is the very font file the engine embeds
+   as 'Baloo 2' 800, shipped as story_font_baloo2_800.woff2 under its own family name with Noto Sans Devanagari's line metrics
+   (ascent 896 / descent 408 per 1000; Baloo's own are 1078 / 524): every line box and baseline stays where the Figma-matched
+   layout put the Noto text, while the glyphs, weight and widths are Baloo's (its advances are within 2 % of Noto SemiBold's at
+   the same px, so the sizes stay). Its space (0.2 em) is the frames' Baloo Bhai 2 space, so the -2 / -3 / -4 px word spacing
+   that made Noto's spaces match it is gone. Was 'Story Noto Sans Devanagari' SemiBold (600), two subsets. */
+@font-face{font-family:'Story Baloo 2';font-style:normal;font-weight:800;font-display:block;
+  src:url("assets/UI/story_font_baloo2_800.woff2") format("woff2");ascent-override:89.6%;descent-override:40.8%;line-gap-override:0%;}
 body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .stage.tut .slide-stage:has(.sfig-card){padding:96px 100px 92px;}     /* card border box 100,96 1133x562 (the reference's) */
 /* border: the frame's 12px x 1333/1280 = 12.5px, which Chrome draws as 12px anyway (borders snap to whole pixels);
@@ -2093,7 +2103,7 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-textbox{position:absolute;left:314px;top:250px;width:436px;height:119px;background:#FFFFFF;border-radius:20px;
   box-shadow:0 4px 19.7px rgba(177,177,177,.25);}   /* node 436:412 */
 .sfig-text{position:absolute;transform:translateY(-50%);overflow-wrap:break-word;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:24px;line-height:normal;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:24px;line-height:normal;
   color:#002F76;text-align:center;}
 /* [story-pinki] the text boxes: each frame's node (centre, width, size). The frames' texts end with spaces (two on the
    first); Figma's renders show the ink centred all the same (measured: within 1.5 px of the box's centre on all four), so
@@ -2125,7 +2135,7 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-round .sfig-grid.g2{left:calc(531.968px - 112px / var(--fig-s) + 108px);top:calc(-34px - 12px / var(--fig-s) + 12px);}
 .sfig-round .sfig-swiftie{left:calc(76px / var(--fig-s) - 108px);top:calc(472px / var(--fig-s) - 118px);}   /* 76,472, as on T0 */
 .sfig-title{position:absolute;left:322px;top:65.5px;width:420px;overflow-wrap:break-word;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:64px;line-height:normal;
   color:#002F76;text-align:center;opacity:0;transform:translateY(calc(-50% + 18px)) scale(.92);
   transition:opacity .4s ease-out,transform .6s cubic-bezier(.2,.9,.3,1.25);}   /* node 488:376: centred on 532,59.5 */
 .sfig-title.in{opacity:1;transform:translateY(-50%);}
@@ -2139,8 +2149,8 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
    ending with the frame's empty paragraph. Line height: the font's "normal" is 1.304em; Figma rounds 28 x 1.304 to
    37px, Chrome to 25+11 = 36px, so it is 37px */
 .sfig-stext{position:absolute;left:217px;top:89px;width:631px;height:280px;display:flex;flex-direction:column;
-  justify-content:flex-end;overflow-wrap:break-word;font-family:'Story Noto Sans Devanagari',var(--font-hi);
-  font-weight:600;font-size:28px;line-height:37px;color:#002F76;text-align:center;}
+  justify-content:flex-end;overflow-wrap:break-word;font-family:'Story Baloo 2',var(--font-hi);
+  font-weight:800;font-size:28px;line-height:37px;color:#002F76;text-align:center;}
 /* [relisten-pinki] frame 654:567: the two sentences are their own nodes in the box — 30px, 401 / 390 wide, centred on
    540.5,204.5 and 540,302.5 (the card's padding box; 8 px right of the box's centre, as the frame has them). The
    explanation lifts a sentence on its yellow (the demos' hot-word yellow); the moral lifts the commas in the picks' orange */
@@ -2171,8 +2181,8 @@ recap_css = """
 /* the marks: text nodes 512:3 / 512:4 / 515:21 — 483-wide centred boxes, centred on 209.5,174.5 / 212.5,304.5 /
    212.5,438.5 (card px), 64px — placed from their box's padding box. 512:3 is "। " with a trailing space, which
    Figma does NOT count when centring (the render's danda sits on the node's centre), so it is dropped here */
-.rcf-mark{position:absolute;width:483px;transform:translate(-50%,-50%);font-family:'Story Noto Sans Devanagari',var(--font-hi);
-  font-weight:600;font-size:64px;line-height:normal;color:#002F76;text-align:center;white-space:pre;}
+.rcf-mark{position:absolute;width:483px;transform:translate(-50%,-50%);font-family:'Story Baloo 2',var(--font-hi);
+  font-weight:800;font-size:64px;line-height:normal;color:#002F76;text-align:center;white-space:pre;}
 .r1 .rcf-mark{left:43.5px;top:47.5px;} .r2 .rcf-mark{left:46.5px;top:48.5px;} .r3 .rcf-mark{left:46.5px;top:53.5px;}
 /* names and uses: nodes 520:260-262 and 514:8 / 517:24 / 517:25 — 1075-wide centred boxes, 48 tall, 28px, #012F76:
    centred on x 372.5 / 372.5 / 380.5 and 633.5, tops 148 / 275 / 414 and 148 / 278 / 414 (card px). The line box is
@@ -2180,7 +2190,7 @@ recap_css = """
    are Baloo Bhai 2's too, 2px narrower than Noto's at this size (the render's words sit that much closer; measured by
    pixel-matching the render over SemiBold/-0.5..-4px, see the README) */
 .rcf-name, .rcf-when{position:absolute;width:1075px;height:48px;transform:translateX(-50%);
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:28px;line-height:48px;word-spacing:-2px;color:#012F76;text-align:center;}
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:28px;line-height:48px;color:#012F76;text-align:center;}
 .r1 .rcf-name{left:360.5px;top:136px;} .r2 .rcf-name{left:360.5px;top:263px;} .r3 .rcf-name{left:368.5px;top:402px;}
 .r1 .rcf-when{left:621.5px;top:136px;} .r2 .rcf-when{left:621.5px;top:266px;} .r3 .rcf-when{left:621.5px;top:402px;}
 /* the examples' yellow boxes: nodes 514:12 / 518:26 / 519:28 at 790,143 163x49 / 790,274 262x49 / 790,405 191x49
@@ -2191,7 +2201,7 @@ recap_css = """
 .rcf-eg{position:absolute;left:778px;height:49px;background:#FFF1B6;border-radius:8px;overflow:hidden;opacity:0;transform:scale(.9);}
 .r1 .rcf-eg{top:131px;width:163px;} .r2 .rcf-eg{top:262px;width:262px;} .r3 .rcf-eg{top:393px;width:191px;}
 .rcf-eg p{position:absolute;left:50%;width:1075px;height:48px;transform:translateX(-50%);
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:22px;line-height:38px;word-spacing:-2px;color:#012F76;text-align:center;}
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:22px;line-height:38px;color:#012F76;text-align:center;}
 .r1 .rcf-eg p{top:8px;} .r2 .rcf-eg p{top:9px;} .r3 .rcf-eg p{top:10px;}
 .r1 .rcf-eg p::before{content:"\\a0";}
 /* आगे is not in the frame and the frame's rows fill the card down to its third example, so T0's place for the pill
@@ -2222,7 +2232,7 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dmf-band.in{opacity:1;transform:none;}
 .dmf-pill{position:absolute;left:3.897px;top:18px;width:1214.103px;height:84px;background:#CBE8FF;border:4px solid #FFFFFF;border-radius:999px;overflow:hidden;}
 .dmf-pill p{position:absolute;left:135.551px;top:14px;width:1075px;height:48px;white-space:nowrap;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:32px;line-height:55px;word-spacing:-2px;color:#012F76;}
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:32px;line-height:55px;color:#012F76;}
 .dmf-head{position:absolute;left:0;top:0;width:116.513px;height:120px;background:#61D0FE;border:5px solid #FDF9E9;border-radius:9999px;overflow:hidden;}
 .dmf-head img{position:absolute;left:-21px;top:0;width:165px;height:165px;object-fit:cover;}
 /* the picture box 521:285 (197,211 144x139, 2.386px #D5D8DF border inside, 14.316px corners) with "image 228" 521:283
@@ -2235,7 +2245,7 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 /* the sentence 519:223: 64px, a 479-wide centred box at 100,18 in the bar (centred on 339.5), in Baloo Bhai 2's line
    box (1.714 x 64 = 110px) with its spaces (-4px at this size) */
 .dmf-sent{position:absolute;left:97.614px;top:15.614px;width:479px;height:104px;white-space:nowrap;text-align:center;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:110px;word-spacing:-4px;color:#012F76;}
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:64px;line-height:110px;color:#012F76;}
 .dmf-sent .sfig-w{border-radius:10px;transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 /* the word being read: [word-hot] (2026-10-28) G4's own look and motion in place of the light-yellow box — the word turns the
    picks' orange and pops once (SENT_PICK's .p2-word.on: #E86A00, p2WordPop .28s ease-out, origin 50% 60%); one word at a
@@ -2252,7 +2262,7 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
    by the module from the font (the fallbacks are the bundled Noto SemiBold 64px danda's: 2.89px right, 4.49px up) */
 .dmf-blank .dmf-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:2.89px;--iy:-4.49px;white-space:pre;
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(.4);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;color:#012F76;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:64px;line-height:normal;color:#012F76;
   transition:opacity .35s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.3);}
 .dmf-blank .dmf-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
 .dmf-blank.hot{box-shadow:0 0 0 6px rgba(232,106,0,.22);}                              /* the mark being named — [demo-hand] (2026-10-28) the words' orange, not blue (was rgba(56,106,246,.22)) */
@@ -2280,10 +2290,10 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
    tile 1's name reached tile 2 (on G3 the right tile's name was judged wrong). The texts take no pointer events now; the tile's
    own box (base + face) answers every tap on it. */
 .dmf-sym{position:absolute;width:483px;transform:translate(-50%,-50%);text-align:center;white-space:pre;pointer-events:none;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;color:#002F76;}
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:64px;line-height:normal;color:#002F76;}
 .t1 .dmf-sym{left:111.5px;top:58.5px;} .t2 .dmf-sym{left:113.5px;top:49.5px;} .t3 .dmf-sym{left:113.5px;top:59.5px;}
 .dmf-name{position:absolute;left:113.5px;width:1075px;height:48px;transform:translateX(-50%);text-align:center;pointer-events:none;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;font-size:28px;line-height:48px;word-spacing:-2px;color:#012F76;}
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:28px;line-height:48px;color:#012F76;}
 .t1 .dmf-name{top:100px;} .t2 .dmf-name{top:101px;} .t3 .dmf-name{top:101px;}
 /* tapped for the child: the tile presses down and comes back, its colours unchanged (no blue selection ring,
    2026-10-25); the other tiles dim = the engine's faded option. [tile-tap] (2026-10-28): the press is the WHOLE
@@ -2401,12 +2411,12 @@ stamp_css = """
 @keyframes stpPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
 .stp-stamp.lift{z-index:5;filter:drop-shadow(0 16px 8px rgba(0,0,0,.28));}                 /* lifted off the table, over the sheet */
 /* the sentence: Noto Sans Devanagari SemiBold in Baloo Bhai 2's line box, black, centred; each word arrives as it is read */
-.stp-sent{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;word-spacing:-2px;color:#000;margin:0;}
+.stp-sent{white-space:nowrap;text-align:center;font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;margin:0;}
 .stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sent .sfig-w.on{opacity:1;transform:none;}
 .stp-sent .stp-gap{display:inline-block;height:1px;vertical-align:baseline;}            /* [stamp-rounds] the room the slot sits in, between two words */
 /* [stamp-rounds] the letter's sign-off (frame 593:151, data.sign): small centred lines under the sentence, arriving as a word does */
-.stp-sign{white-space:nowrap;text-align:center;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;color:#000;margin:0;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
+.stp-sign{white-space:nowrap;text-align:center;font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;margin:0;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sign.on{opacity:1;transform:none;}
 /* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms — asked to be just like the pages
    before); .gone = the box goes, the mark stays */
@@ -2420,7 +2430,7 @@ stamp_css = """
 /* the printed mark: the sentence's own letter (its font, size and black), its INK on the slot's centre (--ix / --iy measured by the
    module), pressed in: it lands from a little large and tilted, as a stamp's print */
 .stp-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;line-height:normal;
-  font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;color:#000;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
   transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
 .stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
@@ -2458,7 +2468,7 @@ sent_css = """
 .stage.sent-page #audioChip svg{overflow:visible;}
 .stage.sent-page #audioChip svg > g[filter]{filter:none !important;}   /* P4's chip: no SVG shadow under its white ring */
 .stage.sent-page #audioChip.vo-disabled{opacity:.5 !important;filter:grayscale(1) brightness(1.2) !important;}   /* and greyed while a line speaks */
-.stage.sent-page #promptText{font-family:'Story Noto Sans Devanagari',var(--font-hi);font-weight:600;line-height:1.15;color:#0B3D8C;}   /* [sent-font] the previous pages' face: Noto Sans Devanagari SemiBold (was P4's Baloo 2 ExtraBold) */
+.stage.sent-page #promptText{font-weight:800;line-height:1.15;color:#0B3D8C;}   /* [baloo-font] P4's own Baloo 2 ExtraBold again (the reference T1's face; [sent-font] had made it Noto SemiBold) */
 /* Swiftie's animated faces (try again, hint, happy) stay inside P4's round frame — the engine's own rule drops the frame for them */
 .stage.sent-page .mascot-wrap.anim .mascot-circle{overflow:hidden !important;background:#9DDBF5 !important;border:4px solid #FFFFFF !important;
   box-shadow:0 6px 14px rgba(0,47,118,.2) !important;}
@@ -2475,7 +2485,7 @@ sent_css = """
   padding:0 !important;background:transparent !important;box-shadow:none !important;border:0 !important;border-radius:0 !important;
   display:flex !important;flex-direction:row !important;align-items:center !important;gap:8px !important;justify-self:center;}
 .stage.sent-page .sent-opt .so-pill{display:flex;flex-direction:row;flex-shrink:1;gap:normal;align-items:center;justify-content:center;width:344px;min-height:78px;max-width:900px;
-  box-sizing:border-box;padding:10px 12px;font-family:'Story Noto Sans Devanagari',var(--font-hi);font-size:28px;font-weight:600;line-height:1.2;color:var(--navy);   /* [sent-font] the previous pages' face, P4's size and line */
+  box-sizing:border-box;padding:10px 12px;font-family:var(--font-hi);font-size:28px;font-weight:800;line-height:1.2;color:var(--navy);   /* [baloo-font] P4's own face, size and line again */
   text-align:center;white-space:nowrap;background:#FFFFFF;border:3px solid #DADADA;border-radius:18px;box-shadow:0 4px 14px rgba(11,42,90,.1);
   transition:transform .28s;}
 .stage.sent-page .sent-opt .so-pill .p2-words{display:inline;}
@@ -3204,7 +3214,7 @@ for f in title_files:
 
 # ---------- 7b. [story-fig] the story page's assets (kept next to this script, in story_assets/) ----------
 STORY_SRC = SCR / "story_assets"
-for name, sub in (("story_grid.svg", "UI"), ("story_font_nsd600_deva.woff2", "UI"), ("story_font_nsd600_latin.woff2", "UI"),
+for name, sub in (("story_grid.svg", "UI"), ("story_font_baloo2_800.woff2", "UI"),   # [baloo-font] (was the two Noto SemiBold subsets)
                   ("img_story_pinki_cat.webp", "Images"), ("img_story_pinki_listen.webp", "Images"),   # [story-pinki] the frames' pictures
                   ("img_story_pinki_ask.webp", "Images"), ("img_story_pinki_maa.webp", "Images"),       # (their clips: vo_rec.py)
                   ("vo_story_r0.ogg", "Audio"), ("vo_story_r1.ogg", "Audio"),
@@ -3212,6 +3222,8 @@ for name, sub in (("story_grid.svg", "UI"), ("story_font_nsd600_deva.woff2", "UI
     f, dst = STORY_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing story asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+for name in ("story_font_nsd600_deva.woff2", "story_font_nsd600_latin.woff2"):   # [baloo-font] the old face, unused now (its source stays in story_assets/)
+    (DIST / "assets" / "UI" / name).unlink(missing_ok=True)
 for name, sub in (("img_story_chintu.webp", "Images"), ("img_story_chintu_2.webp", "Images"), ("vo_story_s1.ogg", "Audio"), ("vo_story_s2.ogg", "Audio")):
     (DIST / "assets" / sub / name).unlink(missing_ok=True)   # [story-pinki] the Chintu beats' files: no page uses them now
 

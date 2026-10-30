@@ -44,16 +44,16 @@ BIG = lambda x: (365 + x, 211 + 20, 59, 100)   # 519:32's slot, at x in its bar
 CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's boxes (frame px), the wrong taps to try,
              # the text regions for the ink comparison and what the pixel diff leaves out (the big slot's dashes: their phase)
   "G1": {"next": "G2", "pick": 0, "sent_clip": "g1_sent", "name_clip": "demo1_purn", "pic_x": 197, "img": (207, 214, 125, 131),   # [g1-pinki] 656:66's places
-         "bar": (365, 719), "slot": BIG(548), "sent_c": (365+656/2, 211+18), "size": 50, "word": "पिंकी", "wrong": [2, 3, 2], "sent50": True,   # [sent-50] the 50px sentence in the bar less the slot's column, the slot 4 px after its ink (the pair centred)
+         "bar": (365, 719), "slot": BIG(553.6), "sent_c": (365+656/2, 211+18), "size": 50, "word": "पिंकी", "wrong": [2, 3, 2], "sent50": True,   # [sent-50] the 50px sentence in the bar less the slot's column, the slot 4 px after its ink (the pair centred)
          "tiles": {".t1 .dmf-base": (197, 442, 227, 170), ".t2 .dmf-base": (525, 443, 231, 169), ".t3 .dmf-base": (857, 443, 227, 169),
                    ".t1 .dmf-face": (199, 444, 223, 162), ".t2 .dmf-face": (527, 445, 227, 161), ".t3 .dmf-face": (859, 445, 223, 161)},   # [g1-pinki] the first face 1 px taller
          "ink": {}, "own": [(36, 26, 153, 146), (367, 213, 1082, 348)]},   # [sent-50] the bar's interior measured directly, not against the 64px render
   "G2": {"next": "G3", "pick": 2, "sent_clip": "g2_sent", "name_clip": "demo2_prashn", "pic_x": 197, "img": (223, 216, 88, 132),   # [g2-girl] the user's picture at its native size
-         "bar": (365, 719), "slot": BIG(496), "sent_c": (365+656/2, 211+18), "size": 50, "word": "तुम", "wrong": [1, 2, 1], "sent50": True,   # [sent-50] as G1
+         "bar": (365, 719), "slot": BIG(498), "sent_c": (365+656/2, 211+18), "size": 50, "word": "तुम", "wrong": [1, 2, 1], "sent50": True,   # [sent-50] as G1
          "tiles": T3_TILES, "ink": {}, "own": [(36, 26, 153, 146), (367, 213, 1082, 348)]},
   # T4's layout: the wide bar, a 50px sentence and one small slot whose dashes are drawn per side — in the pixel diff
   "G3": {"next": "G4", "pick": 1, "sent_clip": "g3_sent", "name_clip": "demo3_alp", "pic_x": 144, "img": (146, 211, 140, 140),
-         "bar": (312, 824), "slot": (312+278, 211+70, 33, 38), "sent_c": (312-28+893/2, 211+33), "size": 50, "word": "बाग", "wrong": [1, 3, 1],
+         "bar": (312, 824), "slot": (312+279.3, 211+70, 33, 38), "sent_c": (312-26.2+893/2, 211+33), "size": 48, "word": "बाग", "wrong": [1, 3, 1],
          "tiles": T3_TILES, "ink": {"sent: बाग में गुलाब": (330, 236, 590, 336), "sent: गेंदा … हैं ।": (623, 236, 1130, 336)}, "own": [(36, 26, 153, 146)]},
 }[SLIDE]
 TITLE = "वाक्य सुनिए और सही चिह्न लगाइए ।"   # the title bar's line on G1 / G2 / G3 (G1's instruction line; on G2 since [band-title])
@@ -388,8 +388,8 @@ with sync_playwright() as p:
     check("every box and text box within 1 px of the frame", worst <= 1.0, f"worst {worst:.2f}px")
     fonts = pg.evaluate("""[getComputedStyle(document.querySelector('.dmf-pill p')).fontSize, getComputedStyle(document.querySelector('.dmf-sent')).fontSize,
       getComputedStyle(document.querySelector('.dmf-sym')).fontSize, getComputedStyle(document.querySelector('.dmf-name')).fontSize,
-      document.fonts.check("600 32px 'Story Noto Sans Devanagari'", 'वाक्य'), document.fonts.check("600 SIZEpx 'Story Noto Sans Devanagari'", 'WORD')]""".replace("WORD", CONFIG["word"]).replace("SIZE", str(CONFIG["size"])))
-    check(f"fonts: Noto Sans Devanagari SemiBold — 32px bar, {CONFIG['size']}px sentence, 64px marks, 28px names", fonts == ["32px", f"{CONFIG['size']}px", "64px", "28px", True, True], fonts)
+      document.fonts.check("800 32px 'Story Baloo 2'", 'वाक्य'), document.fonts.check("800 SIZEpx 'Story Baloo 2'", 'WORD')]""".replace("WORD", CONFIG["word"]).replace("SIZE", str(CONFIG["size"])))
+    check(f"fonts: Baloo 2 ExtraBold ([baloo-font]) — 32px bar, {CONFIG['size']}px sentence, 64px marks, 28px names", fonts == ["32px", f"{CONFIG['size']}px", "64px", "28px", True, True], fonts)
     band_text = pg.evaluate("document.querySelector('.dmf-pill p').textContent")
     check("the title bar's line is G1's instruction line, " + TITLE, band_text == TITLE, band_text)
     mine_img = Image.open(shot).convert("RGB")
@@ -406,8 +406,8 @@ with sync_playwright() as p:
     if CONFIG.get("sent50"):   # [sent-50] the 50px sentence + the slot 4 px after it, centred on the bar as a pair, 50px glyphs on the old line box
         sl = boxes[".dmf-bar > .dmf-blank"]; a = ink_bbox(mine_img, (367, 213, int(sl[0]) - 1, 348))
         gap = sl[0] - a[2] if a else None; px = (a[0] + sl[0] + sl[2]) / 2 if a else None; cy = (a[1] + a[3]) / 2 if a else None
-        check("the 50px sentence and the slot are centred on the bar as a pair (ink left .. slot right, within 1 px of 724.5), the slot 4 px after the ink (2.5-5 px), the glyphs 45-62 px tall centred at y 276-283",
-              a is not None and abs(px - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 62 and 276 <= cy <= 283, f"ink {a}, pair centre x {px}, gap {gap}")
+        check("the 50px sentence and the slot are centred on the bar as a pair (ink left .. slot right, within 1 px of 724.5), the slot 4 px after the ink (2.5-5 px), the glyphs 45-66 px tall centred at y 274-283",
+              a is not None and abs(px - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 66 and 274 <= cy <= 283, f"ink {a}, pair centre x {px}, gap {gap}")   # [baloo-font] Baloo 2's ु reaches 2-4 px deeper and its ि / ी loops 2 px higher than Noto's (was 45-62 tall, centre 276-283)
     A = np.asarray(mine_img, np.int16); B = np.asarray(target, np.int16)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)

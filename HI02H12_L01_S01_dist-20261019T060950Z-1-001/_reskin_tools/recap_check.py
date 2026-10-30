@@ -218,8 +218,8 @@ with sync_playwright() as p:
     check("every text stays on one line", one_line)
     fonts = pg.evaluate("""[getComputedStyle(document.querySelector('.sfig-title')).fontSize, getComputedStyle(document.querySelector('.rcf-mark')).fontSize,
       getComputedStyle(document.querySelector('.rcf-name')).fontSize, getComputedStyle(document.querySelector('.rcf-eg p')).fontSize,
-      document.fonts.check("600 28px 'Story Noto Sans Devanagari'", 'बात'), document.fonts.check("600 22px 'Story Noto Sans Devanagari'", 'रीना')]""")
-    check("fonts: Noto Sans Devanagari SemiBold — 64px title and marks, 28px names/uses, 22px examples", fonts == ["64px", "64px", "28px", "22px", True, True], fonts)
+      document.fonts.check("800 28px 'Story Baloo 2'", 'बात'), document.fonts.check("800 22px 'Story Baloo 2'", 'रीना')]""")
+    check("fonts: Baloo 2 ExtraBold ([baloo-font]) — 64px title and marks, 28px names/uses, 22px examples", fonts == ["64px", "64px", "28px", "22px", True, True], fonts)
     mine = Image.open(shot).convert("RGB")
     print("== text ink vs the Figma render (page px): centre and size ==")
     worst_c = worst_s = 0

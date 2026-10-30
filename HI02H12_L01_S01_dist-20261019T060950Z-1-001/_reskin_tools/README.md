@@ -1621,6 +1621,62 @@ and the box disappears but not the symbol")
   slot's own stamp. The committed state before rounds 4 and 5 is commit 13c5c87 (three rounds); `_before_stamp_rounds/` still
   holds the one-round files.
 
+Every page's text in the reference T1's face: Baloo 2 ExtraBold ([baloo-font], 2026-10-30)
+- Asked: "take the reference of Page 1 T1 of https://hi-02-h04-l01-s01-dun.vercel.app/ and apply the exact same font everywhere in
+  this file, the title or wherever the font is used, and adjust the sizes so the whole layout looks perfectly fine; rest exactly the
+  same". The reference's T1 (its dev nav's page 1, STORY_SCENE) sets its one text, the sentence "लड़का पेड़ के नीचे बैठा है।", in
+  "Baloo 2" ExtraBold (800), 32px — probed live in Chrome (scratchpad font_probe.py: computed font + CDP
+  CSS.getPlatformFontsForNode, which reports the face actually drawn). The live page is byte-identical to the local copy under
+  "Suresh's File/HI02H04_L01_S01-…/HI02H04_L01_S01.html"; its embedded Baloo 2 700 / 800 woff2 are byte-identical to the ones this
+  engine already carries as 'Baloo 2' (--font-hi).
+- Before: the engine's own chrome (the gates' pink titles, आगे, the end screen's button) was already Baloo 2 800 (the gates' "Lilita
+  One" is not on the page, so every glyph is Baloo 2's — probed); the lesson's pages were not: T0-G3 and L2 in 'Story Noto Sans
+  Devanagari' SemiBold (600), and G4 / P1 / P2 likewise since [sent-font]. The title page has no live text (its title is the Figma
+  art, an image) and L1 / CEL show none either; the dev nav (?dev=1) keeps its own system / monospace face.
+- How: build.py [baloo-font].
+  1. One face for the lesson pages, 'Story Baloo 2' = the engine's Baloo 2 800 file (story_assets/story_font_baloo2_800.woff2,
+     decoded from the embedded data URI, so the very font the reference draws) with Noto Sans Devanagari's line metrics
+     (ascent-override 89.6 %, descent-override 40.8 %, line-gap 0 — Noto's hhea 896 / 408 per 1000; Baloo's own 1078 / 524). The
+     glyphs, weight and advances are Baloo's; the line boxes and baselines are where the Figma-matched Noto layout had them, so
+     nothing moves up or down (ink centres within ~2 px of before on every page, line breaks identical). Every rule that named the
+     Noto face names it (font-weight 800); the two Noto subsets left the dist (their source stays in story_assets/).
+  2. No word spacing: the -2 / -3 / -4 px (CSS, and data.layout.sent.ws) made Noto's 0.26 em spaces into the frames' Baloo Bhai 2
+     spaces; Baloo 2's own space is that 0.2 em.
+  3. G4 / P1 / P2 (the reference P4's port): back on P4's own rules — #promptText and .so-pill in the engine's 'Baloo 2' 800 with P4's
+     line heights (1.15 / 1.2): [sent-font] undone. g4_check's pixel comparison with P4 passes again on all three.
+  4. Sizes: Baloo 2 ExtraBold's advances at the same px are within 2 % of Noto SemiBold's, so every size stays — except G3's sentence,
+     the longest (बाग में गुलाब, गेंदा और चमेली के फूल हैं ।): at 50px its bolder ink ran to 16 px from the bar's end (31 before);
+     at 48px (data.layout.sent.size, and the stamped comma's mark_size) it is as wide as the Noto one was (ink 350..1106 vs
+     350..1105 frame px).
+  5. The slots that sit after or between words were placed against Noto's ink, and Baloo's bolder words are 2-10 % wider, so the
+     last words ran 1-5 px into them. Each slot now sits the same distance from its word's ink as before (measured on the built
+     pages with the scratchpad's slot_measure.py / stamp_measure.py, ink from canvas metrics of the computed font):
+     T2 / T3 / G1 / G2 layout.slot 521 / 497 / 548 / 496 -> 528.3 / 502.6 / 553.6 / 498 (the sentence + slot pair still centred on
+     the bar); T4: the two four-space gaps opened to their old ink widths (sentence.nudge {"3": 3.4, "4": 2.1}, the danda's -4.5
+     nudge dropped — Baloo's own space before "।" already gives the old gap), the sentence box x -34 -> -31.7 (its old centre),
+     the slots 286 / 417 -> 280.7 / 420.1; G3: nudge {"3": 4.1} (no danda nudge), x -28 -> -26.2, slot 278 -> 279.3; L2: the
+     comma gap spans 37 -> 38.4 (round 2) and 30 -> 31.4 (round 5), the slots 751 -> 755, 525 -> 522.4, 751 -> 753.7,
+     822 -> 825.9, 707 -> 711.3, 633 -> 630.8, 804 -> 805.9, 798 -> 802.9, 679 -> 679.7. Every gap reads back within 0.1 px of
+     its old value.
+  app.js is byte-identical (the marks' ink centring, the pills' two-line fitting and the canvas measuring all read the computed
+  font); style.css changes only in those rules, index.html only in those numbers.
+- Checks: smoke 47/47, title 25/25, story 61/61, gate 14/14, letter 43/43, stamp 36/36 (all five rounds, every drag,
+  every slot fill), g4_check G4 / P1 / P2 28/28 each (incl. the pixel comparison with the reference's P4 — passing again now that
+  [sent-font] is undone). The Figma pages keep their timing / flow / box checks; what fails is, by design, the comparison of the
+  TEXT INK with the Figma renders, which Figma drew in its Noto fallback (the frames' "Baloo Bhai 2" has no Devanagari): demo T2
+  40/43, T3 40/42, T4 41/43, pick G1 / G2 53/55, G3 52/55, recap 44/46, relisten 34/36 (relisten's two render comparisons
+  failed on the build before this too) — "each text's ink sits where the render's does" (Baloo's words are 2-10 % wider, its "?"
+  12 % shorter, its "," taller) and "the whole frame pixel-matches the Figma render". One more on T2: the stamped "।" while it
+  is highlighted and grown (scale 1.22) reads 1.33 px left of the slot's centre (limit 1; landed 0.83) — an intensity-weighted
+  centroid (scratchpad mark_centroid.py) puts it at 1.10 grown / 0.47 landed vs 0.43 / 0.14 in Noto; the module's run-time
+  centring is MORE exact for Baloo's danda (canvas vs raster within 0.45 px, Noto's 0.9-1.7), the grown offset is Chrome's raster
+  of the scaled glyph; T3's ? and T4's two commas sit within 0.5 px landed and grown. demo_check / pick_check's [sent-50] pair
+  check now allows Baloo's glyph box (45-66 px tall, centre y 274-283: its ु reaches deeper, its ि / ी loops higher); the pairs
+  sit within 1 px of the bar's centre with 3.1-4.1 px slot gaps. The checks' CONFIG slot / sentence numbers and font assertions
+  follow the new values. Run the timing-sensitive checks one at a time: three lanes in parallel made relisten, T3's bar timing
+  and story's music request fail on load alone (each passes run alone).
+  `../_before_baloo_font/` holds the dist's three files, build.py and the check scripts from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

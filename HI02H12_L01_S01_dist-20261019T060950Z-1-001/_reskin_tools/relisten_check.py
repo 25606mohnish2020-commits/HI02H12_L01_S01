@@ -219,8 +219,8 @@ with sync_playwright() as p:
       return tops.map(t => ws.filter(w => Math.round(w.getBoundingClientRect().top) === t).map(w => w.textContent).join(' ')); })""")
     print("  text lines:", lines)
     check("each sentence is the frame's, on one line", lines == [[l] for l in LINES])
-    fonts = pg.evaluate("[getComputedStyle(document.querySelector('.sfig-title')).fontSize, getComputedStyle(document.querySelector('.sfig-stext p.l1')).fontSize, document.fonts.check(\"600 64px 'Story Noto Sans Devanagari'\", 'आइए')]")
-    check("fonts: Noto Sans Devanagari SemiBold, 64px title / 30px sentences (frame px)", fonts[0] == "64px" and fonts[1] == "30px" and fonts[2], fonts)
+    fonts = pg.evaluate("[getComputedStyle(document.querySelector('.sfig-title')).fontSize, getComputedStyle(document.querySelector('.sfig-stext p.l1')).fontSize, document.fonts.check(\"800 64px 'Story Baloo 2'\", 'आइए')]")
+    check("fonts: Baloo 2 ExtraBold ([baloo-font]), 64px title / 30px sentences (frame px)", fonts[0] == "64px" and fonts[1] == "30px" and fonts[2], fonts)
     A = np.asarray(Image.open(shot).convert("RGB"), np.int16); B = np.asarray(target, np.int16)
     x0, y0, x1, y1 = CONTENT
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")

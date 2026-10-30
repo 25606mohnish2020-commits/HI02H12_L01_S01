@@ -36,17 +36,17 @@ SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T2"
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box
-         "sent": (0, 18, 656, 50), "slots": [(521, 20, 59, 100)], "word": "पिंकी", "own": [(36, 26, 153, 146), (367, 213, 1082, 348)], "sent50": True,   # [sent-50] the 50px sentence in the bar less the slot's column, the slot 4 px after its ink (the pair centred): the bar's interior is measured directly, not against the 64px render
+         "sent": (0, 18, 656, 50), "slots": [(528.3, 20, 59, 100)], "word": "पिंकी", "own": [(36, 26, 153, 146), (367, 213, 1082, 348)], "sent50": True,   # [sent-50] the 50px sentence in the bar less the slot's column, the slot 4 px after its ink (the pair centred): the bar's interior is measured directly, not against the 64px render
          "ink": {}, "content": (170, 20, 1280, 620),
          "next": "T3", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the second demo (PUNCT_DEMO)"},
   "T3": {"page": "demo2", "mark_clip": "prashn", "pick": 2, "pic_x": 197, "img": (223, 214, 90, 135), "bar": (365, 719),   # [demo2-girl] the user's picture at its native size
-         "sent": (0, 18, 656, 50), "slots": [(497, 20, 59, 100)], "word": "तुम्हारा", "own": [(36, 26, 153, 146), (367, 213, 1082, 348)], "sent50": True,   # [sent-50] as T2
+         "sent": (0, 18, 656, 50), "slots": [(502.6, 20, 59, 100)], "word": "तुम्हारा", "own": [(36, 26, 153, 146), (367, 213, 1082, 348)], "sent50": True,   # [sent-50] as T2
          "ink": {}, "content": (170, 20, 1280, 620),
          "next": "T4", "gate": False, "next_ok": "CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')",
          "next_what": "the third demo (PUNCT_DEMO)"},
   "T4": {"page": "demo3", "mark_clip": "alp", "pick": 1, "pic_x": 144, "img": (144, 229, 144, 96), "bar": (312, 824),
-         "sent": (-34, 33, 893, 50), "slots": [(286, 76, 33, 38), (417, 76, 33, 38)], "word": "मेरे", "own": [(36, 26, 153, 146)],
+         "sent": (-31.7, 33, 893, 50), "slots": [(280.7, 76, 33, 38), (420.1, 76, 33, 38)], "word": "मेरे", "own": [(36, 26, 153, 146)],
          # the sentence's ink in three parts — before, between and after the slots — so each word run is placed
          "ink": {"sent: मेरे पास आम": (330, 232, 614, 330), "sent: केला": (614, 232, 745, 330), "sent: सेब … है ।": (745, 232, 1125, 330)},
          "content": (130, 20, 1280, 620),
@@ -319,9 +319,9 @@ with sync_playwright() as p:
     check("every box and text box within 1 px of the frame", worst <= 1.0, f"worst {worst:.2f}px")
     fonts = pg.evaluate("""[getComputedStyle(document.querySelector('.dmf-pill p')).fontSize, getComputedStyle(document.querySelector('.dmf-sent')).fontSize,
       getComputedStyle(document.querySelector('.dmf-sym')).fontSize, getComputedStyle(document.querySelector('.dmf-name')).fontSize,
-      document.fonts.check("600 32px 'Story Noto Sans Devanagari'", 'विराम'), document.fonts.check("600 SIZEpx 'Story Noto Sans Devanagari'", 'WORD')]"""
+      document.fonts.check("800 32px 'Story Baloo 2'", 'विराम'), document.fonts.check("800 SIZEpx 'Story Baloo 2'", 'WORD')]"""
       .replace("WORD", CONFIG["word"]).replace("SIZE", str(SZ)))
-    check(f"fonts: Noto Sans Devanagari SemiBold — 32px bar, {SZ}px sentence, 64px marks, 28px names", fonts == ["32px", f"{SZ}px", "64px", "28px", True, True], fonts)
+    check(f"fonts: Baloo 2 ExtraBold ([baloo-font]) — 32px bar, {SZ}px sentence, 64px marks, 28px names", fonts == ["32px", f"{SZ}px", "64px", "28px", True, True], fonts)
     band_text = pg.evaluate("document.querySelector('.dmf-pill p').textContent")
     check("the title bar's line is the [band-title] one, " + TITLE, band_text == TITLE, band_text)
     mine_img = Image.open(shot).convert("RGB")
@@ -338,8 +338,8 @@ with sync_playwright() as p:
     if CONFIG.get("sent50"):   # [sent-50] the 50px sentence + the slot 4 px after it, centred on the bar as a pair, 50px glyphs on the old line box
         sl = boxes[".dmf-bar > .dmf-blank:nth-of-type(1)"]; a = ink_bbox(mine_img, (367, 213, int(sl[0]) - 1, 348))
         gap = sl[0] - a[2] if a else None; px = (a[0] + sl[0] + sl[2]) / 2 if a else None; cy = (a[1] + a[3]) / 2 if a else None
-        check("the 50px sentence and the slot are centred on the bar as a pair (ink left .. slot right, within 1 px of 724.5), the slot 4 px after the ink (2.5-5 px), the glyphs 45-62 px tall centred at y 276-283",
-              a is not None and abs(px - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 62 and 276 <= cy <= 283, f"ink {a}, pair centre x {px}, gap {gap}")
+        check("the 50px sentence and the slot are centred on the bar as a pair (ink left .. slot right, within 1 px of 724.5), the slot 4 px after the ink (2.5-5 px), the glyphs 45-66 px tall centred at y 274-283",
+              a is not None and abs(px - 724.5) <= 1 and 2.5 <= gap <= 5 and 45 <= a[3] - a[1] <= 66 and 274 <= cy <= 283, f"ink {a}, pair centre x {px}, gap {gap}")   # [baloo-font] Baloo 2's ु reaches 2-4 px deeper and its ि / ी loops 2 px higher than Noto's (was 45-62 tall, centre 276-283)
     A = np.asarray(mine_img, np.int16); B = np.asarray(target, np.int16)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)

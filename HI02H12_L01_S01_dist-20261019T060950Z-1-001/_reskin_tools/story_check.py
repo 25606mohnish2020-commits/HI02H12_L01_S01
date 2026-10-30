@@ -203,8 +203,8 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
     pg.evaluate(LEAVE_TO, 0)
     pg.evaluate("document.fonts.ready")
-    check("Noto Sans Devanagari SemiBold is loaded for the story text",
-          pg.evaluate("document.fonts.check(\"600 26px 'Story Noto Sans Devanagari'\", 'पिंकी')"))
+    check("Baloo 2 ExtraBold ([baloo-font]) is loaded for the story text",
+          pg.evaluate("document.fonts.check(\"800 26px 'Story Baloo 2'\", 'पिंकी')"))
     for k, (beat, target) in enumerate(zip(BEAT, targets), 1):
         n = len(T[k - 1])
         if k < N:   # beat k complete, in the one-second pause before the turn
