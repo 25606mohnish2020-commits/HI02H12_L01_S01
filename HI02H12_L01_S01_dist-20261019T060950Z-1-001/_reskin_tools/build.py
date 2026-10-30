@@ -97,6 +97,8 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          T0-G3 and L2 through 'Story Baloo 2' (the engine's own Baloo 2 800 file with Noto's line metrics, so no line box
          moves), G4 / P1 / P2 back on P4's own Baloo 2 (undoing [sent-font]); no word spacing (Baloo's spaces are the frames');
          the slots that sit after or between words moved with Baloo's wider ink (same gaps as before), G3's sentence 48 px.
+         [textbox-shadow] (2026-10-30): T0's white text box casts the shadow of the reference story's Page 1 S01 sentence box
+         (hind-dear-story.vercel.app): a 5 px navy lip + a 10 / 26 px navy glow, the same on-screen px; one CSS rule.
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -2101,7 +2103,11 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-img.sfig-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}   /* [story-cat] beat 1's picture pops as G4's picture does (p2BirdPop1s, 1 s) as its line ends, with its sound */
 @keyframes sfigPicIn{from{opacity:0;transform:scale(1.08);}to{opacity:1;transform:none;}}
 .sfig-textbox{position:absolute;left:314px;top:250px;width:436px;height:119px;background:#FFFFFF;border-radius:20px;
-  box-shadow:0 4px 19.7px rgba(177,177,177,.25);}   /* node 436:412 */
+  box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);}   /* node 436:412 */
+/* [textbox-shadow] (2026-10-30) the shadow is the reference story's (hind-dear-story.vercel.app, Page 1 S01): its white sentence box
+   (.stage.tut.l02-story .mr-read .mr-caption) casts a crisp 5 px navy lip and a soft 10 / 26 px navy glow under it, the same on every
+   frame of the page; its stage px, divided by --fig-s so that .sfig-in's scale puts them on screen at exactly 5 / 10 / 26 px
+   (was Figma's 0 4px 19.7px rgba(177,177,177,.25)) */
 .sfig-text{position:absolute;transform:translateY(-50%);overflow-wrap:break-word;
   font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:24px;line-height:normal;
   color:#002F76;text-align:center;}

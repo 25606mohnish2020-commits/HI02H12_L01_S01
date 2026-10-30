@@ -1677,6 +1677,22 @@ Every page's text in the reference T1's face: Baloo 2 ExtraBold ([baloo-font], 2
   and story's music request fail on load alone (each passes run alone).
   `../_before_baloo_font/` holds the dist's three files, build.py and the check scripts from before.
 
+Page 1 T0's text box: the reference story's shadow ([textbox-shadow], 2026-10-30)
+- Asked: "take the reference of Page 1 S01 of https://hind-dear-story.vercel.app/ and apply the exact same shadow effect used at the white
+  dialogue box for the hindi text on the white dialogue box of Page 1 T0; rest exactly the same". The reference's S01 (STORY_MIC_READ)
+  sentence box is .mr-caption under `.stage.tut.l02-story .mr-read .mr-caption{… box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px
+  rgba(11,42,90,.12) !important}` (its style.css, read live): a crisp 5 px navy lip plus a soft navy glow — the same computed value on
+  every 300 ms sample of the page's first 18 s; its stage is 1:1 at 1333x750.
+- Here: .sfig-textbox (T0's white box, Figma node 436:412) had Figma's `0 4px 19.7px rgba(177,177,177,.25)`; it now has the reference's
+  two shadows, each length divided by --fig-s because the box lives in .sfig-in (transform: scale(--fig-s)): on screen 5 / 10 / 26 px,
+  as the reference's. Nothing else: no border, colour, size or place changed (the reference box's 4 px white rim is not a shadow and
+  this box has none). style.css only: that one rule; index.html and app.js byte-identical.
+- Checked (scratchpad shadow_cmp.py: each box shot with and without its shadow, the shadow's opacity recovered per pixel toward
+  rgb(11,42,90)): below the box and beside it the profile matches the reference's within one 8-bit level everywhere but the lip's
+  anti-aliased bottom row (0.099 vs 0.074 — the two boxes' bottoms fall at different sub-pixel places, 506.6 vs 571.3), where the old
+  Figma shadow differed by up to 0.139. story_check.py 61/61 (its picture + text box diff vs the Figma render 2.0-2.35 %, under 5 %).
+  `../_before_textbox_shadow/` holds the dist's three files, build.py, story_check.py and this README from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
