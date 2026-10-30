@@ -99,6 +99,9 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          the slots that sit after or between words moved with Baloo's wider ink (same gaps as before), G3's sentence 48 px.
          [textbox-shadow] (2026-10-30): T0's white text box casts the shadow of the reference story's Page 1 S01 sentence box
          (hind-dear-story.vercel.app): a 5 px navy lip + a 10 / 26 px navy glow, the same on-screen px; one CSS rule.
+         [word-sync] (2026-10-30): every text read with a clip (T0's beats, T0B's sentences, T1's names / uses / examples, the first
+         reading on T2-T4 / G1-G3 and the picks' re-read, L2's sentences) shows WHOLE, rising in as the reference T1's sentence does,
+         and is read 0.45 s later with the reference's word light (one word at a time, dark orange + a small pop, on the clip's clock).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
 import re, json, shutil, pathlib, sys
@@ -158,7 +161,7 @@ card["slides"] = [s for s in card["slides"] if s["type"] != "PHASE_TRANSITION"]
 # (vo_rec.py: 1.wav, vo_story_s1.wav, 2.wav, 3.wav -> vo_story_b1..b4), the per-word start times whisper's, re-synced to
 # the frames' words. (Before: two beats, frames 435:5 / 476:198, the Chintu story in TTS: story_assets/vo_story_s1, s2.)
 lines = {k: json.loads((SCR / "story_assets" / f"vo_story_{k}.words.json").read_text(encoding="utf-8")) for k in ("b1", "b2", "b3", "b4")}
-beats = [{"image_id": img, "text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]],
+beats = [{"image_id": img, "text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]], "word_end": lines[k]["word_times"][-1][1],
           "audio": f"vo_story_{k}"} for k, img in (("b1", "img_story_pinki_cat"), ("b2", "img_story_pinki_listen"),
                                                      ("b3", "img_story_pinki_ask"), ("b4", "img_story_pinki_maa"))]
 card["slides"].insert(0, {"id": "T0", "phase": "tutorial", "eis": "iconic", "type": "STORY_LISTEN",
@@ -182,7 +185,7 @@ card["slides"].insert(1, {"id": "T0B", "phase": "tutorial", "eis": "iconic", "ty
     "prompt_hi": "आइए वाक्य सुनें।",
     "audio": {"intro": "vo_story_r0", "narration": "vo_story_c1", "narration_2": "vo_story_c2", "explain": "vo_story_r1", "moral": "vo_story_moral"},
     "data": {"title_hi": "आइए वाक्य सुनें।", "intro_audio": "vo_story_r0",
-             "lines": [{"text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]], "audio": f"vo_story_{k}"} for k in ("c1", "c2")],
+             "lines": [{"text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]], "word_end": lines[k]["word_times"][-1][1], "audio": f"vo_story_{k}"} for k in ("c1", "c2")],
              "explain_audio": "vo_story_r1", "explain_cues": _vr0["explain_s"], "moral_audio": "vo_story_moral", "moral_cue": _vr0["moral_s"],
              "text_hi": lines["c1"]["text"] + "\n" + lines["c2"]["text"]}})
 for k in ("r0", "r1"):
@@ -196,7 +199,7 @@ RECAP_KEYS = ["intro"] + [f"{m}_{p}" for m in ("purn", "alp", "prashn") for p in
 rl = {k: json.loads((SCR / "recap_assets" / f"vo_recap_{k}.words.json").read_text(encoding="utf-8")) for k in RECAP_KEYS}
 i_t1 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T1")
 assert card["slides"][i_t1]["type"] == "QTYPE_RECAP", "T1 is not the three-marks recap"
-part = lambda k: {"text_hi": rl[k]["shown"], "audio": f"vo_recap_{k}", "word_times": [t[0] for t in rl[k]["word_times"]]}
+part = lambda k: {"text_hi": rl[k]["shown"], "audio": f"vo_recap_{k}", "word_times": [t[0] for t in rl[k]["word_times"]], "word_end": rl[k]["word_times"][-1][1]}
 card["slides"][i_t1] = {"id": "T1", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
     "prompt_hi": rl["intro"]["shown"], "audio": {"prompt": "vo_recap_intro"},
     "data": {"title_hi": rl["intro"]["shown"], "intro_audio": "vo_recap_intro",
@@ -224,7 +227,7 @@ SENT50 = {"x": 0, "y": 18, "w": 719 - 63, "size": 50, "lh": 110, "ws": 0}   # [s
 dl = {k: json.loads((SCR / "demo1_assets" / f"vo_demo1_{k}.words.json").read_text(encoding="utf-8")) for k in DEMO_KEYS}
 i_t2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T2")
 assert card["slides"][i_t2]["type"] == "BUILD_PUNCT" and card["slides"][i_t2]["data"].get("auto"), "T2 is not the first auto demo"
-dpart = lambda k: {"text_hi": dl[k]["shown"], "audio": f"vo_demo1_{k}", "word_times": [t[0] for t in dl[k]["word_times"]]}
+dpart = lambda k: {"text_hi": dl[k]["shown"], "audio": f"vo_demo1_{k}", "word_times": [t[0] for t in dl[k]["word_times"]], "word_end": dl[k]["word_times"][-1][1]}
 card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
     "prompt_hi": dl["intro"]["shown"], "audio": {"prompt": "vo_demo1_intro"},
     "data": {"band_hi": DEMO_BAND, "intro_audio": "vo_demo1_intro", "image_id": "img_demo1_girl",
@@ -254,7 +257,7 @@ dl2 = {k: json.loads((SCR / "demo2_assets" / f"vo_demo2_{k}.words.json").read_te
 i_t3 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T3")
 _t3 = card["slides"][i_t3]
 assert _t3["type"] == "BUILD_PUNCT" and _t3["data"].get("auto") and [m["mark"] for m in _t3["data"]["marks"]] == ["?"], "T3 is not the question-mark auto demo"
-dpart2 = lambda k: {"text_hi": dl2[k]["shown"], "audio": f"vo_demo2_{k}", "word_times": [t[0] for t in dl2[k]["word_times"]]}
+dpart2 = lambda k: {"text_hi": dl2[k]["shown"], "audio": f"vo_demo2_{k}", "word_times": [t[0] for t in dl2[k]["word_times"]], "word_end": dl2[k]["word_times"][-1][1]}
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
     "prompt_hi": DEMO_BAND, "audio": {},   # [demo-intro] no intro line (was vo_demo2_intro); the engine's prompt text = the bar's line
     "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo2_girl",   # [demo2-girl]
@@ -282,7 +285,7 @@ dl3 = {k: json.loads((SCR / "demo3_assets" / f"vo_demo3_{k}.words.json").read_te
 i_t4 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T4")
 _t4 = card["slides"][i_t4]
 assert _t4["type"] == "BUILD_PUNCT" and _t4["data"].get("auto") and "," in [m["mark"] for m in _t4["data"]["marks"]], "T4 is not the comma auto demo"
-dpart3 = lambda k: {"text_hi": dl3[k]["shown"], "audio": f"vo_demo3_{k}", "word_times": [t[0] for t in dl3[k]["word_times"]]}
+dpart3 = lambda k: {"text_hi": dl3[k]["shown"], "audio": f"vo_demo3_{k}", "word_times": [t[0] for t in dl3[k]["word_times"]], "word_end": dl3[k]["word_times"][-1][1]}
 _full3 = dpart3("full")
 # the second reading's tokens: मेरे पास आम, अल्पविराम, केला, अल्पविराम, सेब और संतरा है। -> sentence words 0-2, slot 0, word 3,
 # slot 1, words 4-7 (the sentence's spans: मेरे पास आम केला सेब और संतरा है ।)
@@ -337,7 +340,7 @@ assert _g1["type"] == "BUILD_PUNCT" and _g1["phase"] == "guided" and not _g1["da
 card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
     "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g1_girl_ball",   # [g1-pinki]
-             "sentence": {"text_hi": gl["sent"]["shown"], "audio": "vo_g1_sent", "word_times": [t[0] for t in gl["sent"]["word_times"]]},
+             "sentence": {"text_hi": gl["sent"]["shown"], "audio": "vo_g1_sent", "word_times": [t[0] for t in gl["sent"]["word_times"]], "word_end": gl["sent"]["word_times"][-1][1]},
              "mark": "।", "mark_audio": "vo_demo1_purn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
@@ -370,7 +373,7 @@ assert " ".join(_g2["data"]["words"]) == gl2["shown"], "G2's sentence is not the
 card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
     "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g2_girl_bag",   # [g2-girl]; [band-title] the bar's text is G3's (the instruction line)
-             "sentence": {"text_hi": gl2["shown"], "audio": "vo_g2_sent", "word_times": [t[0] for t in gl2["word_times"]]},
+             "sentence": {"text_hi": gl2["shown"], "audio": "vo_g2_sent", "word_times": [t[0] for t in gl2["word_times"]], "word_end": gl2["word_times"][-1][1]},
              "mark": "?", "mark_audio": "vo_demo2_prashn",
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "blink_ms": 3500,
@@ -397,7 +400,7 @@ card["slides"][i_g3] = {"id": "G3", "phase": "guided", "eis": "enactive", "type"
     "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g3_flowers",
              # the space before the closing danda ("हैं ।") is 4.5px narrower in the render, as on T4: measured word by word,
              # every word 2-3px left of the render and the danda 4.5px right of the rest without the nudge
-             "sentence": {"text_hi": gl3["shown"], "audio": "vo_g3_sent", "word_times": [t[0] for t in gl3["word_times"]],
+             "sentence": {"text_hi": gl3["shown"], "audio": "vo_g3_sent", "word_times": [t[0] for t in gl3["word_times"]], "word_end": gl3["word_times"][-1][1],
                           "gaps": [2], "gap_spaces": 4, "nudge": {"3": 4.1}},   # [baloo-font] the gap's old ink width (37.1 px) in Baloo 2 at 48 px: गेंदा out 4.1 px; no danda nudge (was {"9": -4.5})   # [baloo-font] the gap's old ink width in Baloo 2; no danda nudge (was {"9": -4.5})
              "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 48,
              "slots": [{"x": 279.3, "y": 70, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}],
@@ -594,12 +597,12 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                # 633 -> 630.8, 804 -> 805.9, 798 -> 802.9, 679 -> 679.7
                # guide: the right stamp's guidance glide 0.5 s after the blink and after every 7 s idle (round 1 only); a round
                # without it says the title's line again after every 7 s without a touch instead [stamp-remind]
-               {"frame": "565:28", "guide": True, "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]]},
+               {"frame": "565:28", "guide": True, "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]], "word_end": sl_["sent"]["word_times"][-1][1]},
                 "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question"],
                 "boxes": [[532, 541, 74, 116], [677, 540, 72, 115]], "tips": [[36, 113], [35, 114]],
                 "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},
                 "slot": {"x": 755, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
-               {"frame": "579:47", "guide": False, "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]]},
+               {"frame": "579:47", "guide": False, "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]], "word_end": sl_["sent2"]["word_times"][-1][1]},
                 "mark": ",", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_comma"],
                 "boxes": [[532, 541, 74, 116], [677, 541, 72, 115]], "tips": [[36, 113], [36, 114]],
                 "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 38.4}},   # [baloo-font] w 37 -> 38.4: the old ink gap in Baloo 2;   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
@@ -607,7 +610,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                # the third round (frame 592:89): a statement, the danda's slot after it (round 1's box and dashes: the same group), THREE
                # stamps in the tray — । 462,541 (the right one), ? 607,540, the comma 750,540; the sentence's 1075-wide box at 78,336 (its
                # ink 483..747 x 342..378 on the render), set 2 px lower like the others
-               {"frame": "592:89", "guide": False, "sentence": {"text_hi": sl_["sent3"]["shown"], "audio": "vo_stamp_sent3", "word_times": [t[0] for t in sl_["sent3"]["word_times"]]},
+               {"frame": "592:89", "guide": False, "sentence": {"text_hi": sl_["sent3"]["shown"], "audio": "vo_stamp_sent3", "word_times": [t[0] for t in sl_["sent3"]["word_times"]], "word_end": sl_["sent3"]["word_times"][-1][1]},
                 "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
                 "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
                 "sent": {"x": 78, "y": 338, "w": 1075, "h": 48, "size": 30},
@@ -615,7 +618,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                # the fourth round (frame 593:130): two questions on two rows (the frame's 402-wide box at 415,310, set 1 px lower: its
                # rows' ink then lies on the render's, 316..346 and 365..395), each row ending in its own slot for the "?": TWO slots
                # (36x58, round 1's box and dashes — the same group) at 822,305 and 707,354; the same three stamps as round 3, the ? right
-               {"frame": "593:130", "guide": False, "sentence": {"text_hi": sl_["sent4"]["shown"], "audio": "vo_stamp_sent4", "word_times": [t[0] for t in sl_["sent4"]["word_times"]]},
+               {"frame": "593:130", "guide": False, "sentence": {"text_hi": sl_["sent4"]["shown"], "audio": "vo_stamp_sent4", "word_times": [t[0] for t in sl_["sent4"]["word_times"]], "word_end": sl_["sent4"]["word_times"][-1][1]},
                 "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
                 "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
                 "sent": {"x": 415, "y": 311, "w": 402, "h": 98, "size": 30, "lh": 49},
@@ -627,7 +630,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                # नहीं), the dandas' (30x45 at 798,280 after बताना and 679,376 after करूँगी) — and the sign-off "आपकी प्यारी / पिंकी 🩷"
                # (16 px, 81-wide boxes at 427,449 and 427,481) shown with the last word, not read; the same three stamps. (The frame
                # draws the sheet 6 px higher than the others, 925,58: the sheet stays where every round has it.)
-               {"frame": "593:151", "guide": False, "sentence": {"text_hi": sl_["sent5"]["shown"], "audio": "vo_stamp_sent5", "word_times": [t[0] for t in sl_["sent5"]["word_times"]]},
+               {"frame": "593:151", "guide": False, "sentence": {"text_hi": sl_["sent5"]["shown"], "audio": "vo_stamp_sent5", "word_times": [t[0] for t in sl_["sent5"]["word_times"]], "word_end": sl_["sent5"]["word_times"][-1][1]},
                 "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
                 "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
                 "sent": {"x": 468, "y": 181, "w": 339, "h": 245, "size": 30, "lh": 49, "gap": {"before": 2, "w": 31.4}},   # [baloo-font] w 30 -> 31.4: the old ink gap in Baloo 2;   # the 30 px gap span: आम ends at 629 and केले starts at 665, as the render
@@ -677,11 +680,10 @@ story_js = r"""/* ---------- [story-fig] THE STORY PAGES' FRAME + NARRATED TEXT 
    Shared by STORY_LISTEN (T0) and STORY_RELISTEN (T0B), both built on the Figma "html_Guided_instructions"
    frames (FLN-by-MJ). sfigMount() turns the tutorial card into the frames' card: the grid, the page's own
    elements (`inner`, laid out in the frame's 1280x720 px — style.css [story-fig]) and the Hello Swiftie.
-   sfigLine() makes a narrated text: one span per word ("\n" = a line break) plus its clip and word times.
-   sfigNarrate() plays that clip and reveals each word as the narration reaches it: word_times are each word's
-   start (s) in the clip (the synthesiser's word boundaries, cross-checked with whisper — see
-   _reskin_tools/story_vo.py), read against the clip's own currentTime, so a late or slow start stays in sync;
-   a missing clip runs the same times on the wall clock, and without times the clip is shared out by word length. */
+   sfigLine() makes a narrated text: one span per word ("\n" = a line break) plus its clip, word times and the last word's end.
+   sfigNarrate() shows the text WHOLE and reads it, each word lit as it is read ([word-sync], below): word_times are each
+   word's start (s) in the clip (whisper's word times, vo_rec.py), word_end the last word's end, read against the clip's
+   own currentTime, so a late or slow start stays in sync; without times the clip is shared out by word length. */
 function sfigMount(host, inner){
   const card = host.closest(".tut-card"); if(card) card.classList.add("no-prompt", "sfig-card");
   const fig = document.createElement("div"); fig.className = "sfig-in";
@@ -691,7 +693,7 @@ function sfigMount(host, inner){
   host.appendChild(fig);
   return fig;
 }
-function sfigLine(p, text, wordTimes, audio){
+function sfigLine(p, text, wordTimes, audio, wordEnd){
   text = String(text || "").trim();
   p.setAttribute("aria-label", text.replace(/\s+/g, " "));
   const words = [];
@@ -707,44 +709,78 @@ function sfigLine(p, text, wordTimes, audio){
   const share = lens.map((_, i)=> lens.slice(0, i).reduce((a, c)=> a + c, 0) / total);
   const times = Array.isArray(wordTimes) && wordTimes.length === words.length ? wordTimes : null;
   const src = audio ? ("assets/Audio/" + audio + "." + AUDIO_EXT) : null;
-  return { words, share, times, src, file: src ? src.split("/").pop() : "" };
+  return { p, words, share, times, end: wordEnd != null && isFinite(wordEnd) ? +wordEnd : null, src, file: src ? src.split("/").pop() : "", shown: false };
 }
 function sfigShow(L, n){ L.words.forEach((w, i)=> w.classList.toggle("on", i < n)); }
-/* live() = "still this run, on a mounted page"; onEnd runs once, with every word shown. Watchdog: a clip that
-   never reports its end must not strand the page. It stops the clip first, so आगे still opens live, never
-   greyed out under a "playing" clip. */
+/* [word-sync] (2026-10-30) the reference game's sentence (hi-02-h04-l01-s01-dun, Page 1 T1; its STORY-INTRO-JS): the WHOLE
+   sentence rises in at once (siSentIn: 0.45 s, opacity 0 -> 1 from 14 px lower at .96; style.css [word-sync]) and its clip starts
+   as the rise ends (SENT_IN_MS); while the clip plays each word lights for exactly its stretch of the recording — dark orange
+   with a small pop (the reference's .p2-word.on: #E86A00, p2WordPop .28 s), one at a time — and the light goes off at the last
+   word's end, or as soon as the clip is cut (the reference's wordSync). sfigRise(L, extra) shows the line (and `extra`
+   elements that come with it) that way; sfigSync(L) lights its words on the clip that has just started (currentAudio). */
+const SENT_IN_MS = 450;
+function sfigRise(L, extra){
+  const more = extra || [];
+  L.p.classList.add("sfig-whole");   // the words' own arrival transitions are off: they are all there at once
+  sfigShow(L, L.words.length); more.forEach(el=> el.classList.add("on")); L.shown = true;
+  [L.p].concat(more).forEach(el=>{
+    el.classList.remove("sfig-rise"); void el.offsetWidth; el.classList.add("sfig-rise");
+    let fin = false;
+    const done = ()=>{ if(fin) return; fin = true; el.classList.remove("sfig-rise"); if(el === L.p) el.classList.remove("sfig-whole"); };
+    el.addEventListener("animationend", function h(e){ if(e.target === el && e.animationName === "siSentIn"){ el.removeEventListener("animationend", h); done(); } });
+    setTimeout(done, SENT_IN_MS + 250);
+  });
+}
+function sfigSync(L){
+  if(L.unsync) L.unsync();
+  const a = currentAudio;
+  if(!a || !L.file || decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) !== L.file) return;
+  const ws = L.words;
+  let raf = 0, lit, off = false;
+  const stop = ()=>{ if(off) return; off = true; if(raf) cancelAnimationFrame(raf); ws.forEach(w=> w.classList.remove("hot")); if(L.unsync === stop) L.unsync = null; };
+  L.unsync = stop;
+  const tick = ()=>{
+    raf = 0;
+    if(!ws.length || !ws[0].isConnected || a.ended || currentAudio !== a || (a.paused && a.currentTime > 0)){ stop(); return; }
+    const dur = isFinite(a.duration) && a.duration > 0 ? a.duration : 0;
+    const starts = L.times || (dur ? L.share.map(s=> s * dur) : null);
+    if(starts){
+      const tt = a.currentTime, end = L.end != null ? L.end : (dur || Infinity);
+      if(tt >= end){ stop(); return; }
+      let s = null; starts.forEach(x=>{ if(tt >= x) s = x; });   // the word(s) whose stretch this is: words sharing a start ("है ।") light together
+      if(s !== lit){ lit = s; ws.forEach((w, i)=> w.classList.toggle("hot", s !== null && starts[i] === s)); }
+    }
+    raf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+/* live() = "still this run, on a mounted page"; onEnd runs once, with every word shown. A line not yet on screen rises in first
+   and is read SENT_IN_MS later; a line already shown (a replay) is read at once. Watchdog: a clip that never reports its end
+   must not strand the page. It stops the clip first, so आगे still opens live, never greyed out under a "playing" clip. */
 function sfigNarrate(L, live, onEnd){
-  const began = Date.now();
   let done = false;
-  sfigShow(L, 0);
   const end = ()=>{
     if(done || !live()) return;
     done = true;
+    if(L.unsync) L.unsync();
     sfigShow(L, L.words.length);
     onEnd();
   };
-  play(L.src, end);
-  const last = L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000;
-  setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
-  const tick = ()=>{
-    if(done || !live()) return;   // [vo-rec] once the clip has ended every word is shown: a late frame must not hide the last one again
-    const a = currentAudio;
-    const own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === L.file;
-    const t = own ? a.currentTime : (Date.now() - began) / 1000;
-    const span = own && isFinite(a.duration) && a.duration > 0 ? a.duration : authoredVoHoldMs(L.src) / 1000;
-    let n = 0;
-    while(n < L.words.length && t + 0.04 >= (L.times ? L.times[n] : span * L.share[n])) n++;
-    sfigShow(L, n);
-    if(n < L.words.length) nextFrame(tick);
+  const read = ()=>{
+    if(!live()) return;
+    play(L.src, end);
+    sfigSync(L);
+    const last = L.end != null ? L.end : (L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000);
+    setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
   };
-  tick();
+  if(L.shown) read(); else { sfigRise(L); setTimeout(read, SENT_IN_MS); }
 }
 
 """
 story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, the first screen after the start gate's peek
      transition. It tells the story in BEATS on one layout (FLN-by-MJ frames 435:5, then 476:198): the picture
-     sits in its grey-bordered frame and the beat's text arrives WORD BY WORD in the white box under it
-     (sfigNarrate). When a beat's narration ends, after the engine's one-second beat (PACE.tail), its text
+     sits in its grey-bordered frame and the beat's text rises in WHOLE in the white box under it and is read, each
+     word lit as it is read (sfigNarrate, [word-sync]). When a beat's narration ends, after the engine's one-second beat (PACE.tail), its text
      leaves, the next picture appears over the last one, and the next narration starts once that picture has
      landed. आगे only ever shows LIVE: it stays hidden (never the greyed-out pill the engine shows during a VO)
      while any narration sounds, and appears pulsing when the LAST narration ends; the 🔊 chip replays the beat
@@ -759,7 +795,7 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
           imgSrc(b.image_id) + '" alt="" draggable="false">').join("") + '</div>' +
         '<div class="sfig-textbox"></div>' + beats.map((_, k)=> '<div class="sfig-text b' + (k + 1) + '"><p></p></div>').join(""));
       const pics = fig.querySelectorAll(".sfig-img"), texts = fig.querySelectorAll(".sfig-text");
-      const lines = beats.map((b, k)=> sfigLine(texts[k].querySelector("p"), b.text_hi, b.word_times, b.audio));
+      const lines = beats.map((b, k)=> sfigLine(texts[k].querySelector("p"), b.text_hi, b.word_times, b.audio, b.word_end));
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -794,8 +830,8 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
   /* ===== [story-fig] STORY_RELISTEN — "आइए वाक्य सुनें।" (FLN-by-MJ frame 488:190), right after the story
      page: the same story again, now WITH its punctuation. The title appears as the intro line
      (data.intro_audio: "अब इन्हीं वाक्यों को फिर से सुनते हैं।") starts to sound; when that line ends the sentence
-     box comes in, and once it has landed the sentences are read with the story page's word-by-word reveal
-     (sfigNarrate). Swiftie, the 🔊 chip, the card's box and आगे are the story page's. आगे only ever shows
+     box comes in, and once it has landed each sentence rises in whole and is read, each word lit as it is read
+     (sfigNarrate, [word-sync]). Swiftie, the 🔊 chip, the card's box and आगे are the story page's. आगे only ever shows
      LIVE, when the sentences' narration ends; the 🔊 chip replays the sentences from their first word, hiding
      आगे again until that replay ends. ===== */
   STORY_RELISTEN: {
@@ -811,7 +847,7 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round");
       const title = fig.querySelector(".sfig-title"), box = fig.querySelector(".sfig-sbox");
       title.querySelector("p").textContent = d.title_hi || "";
-      const Ls = lines.map((ln, k)=> sfigLine(multi ? fig.querySelector(".sfig-stext p.l" + (k + 1) + " .sfig-sent") : fig.querySelector(".sfig-stext p"), ln.text_hi, ln.word_times, ln.audio));
+      const Ls = lines.map((ln, k)=> sfigLine(multi ? fig.querySelector(".sfig-stext p.l" + (k + 1) + " .sfig-sent") : fig.querySelector(".sfig-stext p"), ln.text_hi, ln.word_times, ln.audio, ln.word_end));
       // [relisten-pinki] a comma ending a word gets its own span, so the moral can light the marks alone
       const sents = multi ? [...fig.querySelectorAll(".sfig-sent")] : [], marks = [];
       if(multi) fig.querySelectorAll(".sfig-stext .sfig-w").forEach(w=>{ const m = w.textContent.match(/^(.+?)(,)$/);
@@ -845,7 +881,7 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
       const readAll = ()=>{
         const mine = ++run; const live = ()=> mine === run && alive();
         setNavActive(false);   // a replay hides आगे until its narration has ended
-        reset(); Ls.forEach(L=> sfigShow(L, 0));
+        reset();   // [word-sync] a replay keeps the sentences on screen
         // [relisten-pinki] the explanation: each sentence lit (lifted, on its yellow) as its meaning is told; then the moral:
         // the commas lit orange, lifted, as it names the marks — they stay lit; then आगे
         const moral = ()=>{
@@ -897,7 +933,7 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — "ये हैं ती�
      title and three rows: the mark in its white box, its name, when it is used, and an example in a yellow box.
      Everything arrives WITH its narration: the title as the intro line starts to sound (as on T0B); then, mark by
      mark, the box + mark pop in as the name's clip starts, the use follows with its clip, and the yellow box pops in
-     as the example's clip starts — every text WORD BY WORD on its clip's own clock (sfigNarrate), with a short
+     as the example's clip starts — every text rising in whole, then read with each word lit (sfigNarrate), with a short
      breath between the beats and a longer one before the next mark. आगे only ever shows LIVE, when the last example
      has been read; the 🔊 chip is ignored while the marks are being read (the sequence drives itself) and afterwards
      reads the three marks again from the first, hiding आगे until that replay ends. ===== */
@@ -918,7 +954,7 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — "ये हैं ती�
         row.querySelector(".rcf-mark p").textContent = r.mark || "";
         [["name", ".rcf-name", ".rcf-sign"], ["when", ".rcf-when", null], ["example", ".rcf-eg", ".rcf-eg"]].forEach(([key, sel, pop])=>{
           const p = r[key] || {};
-          beats.push({ L: sfigLine(row.querySelector(sel + " p"), p.text_hi, p.word_times, p.audio),
+          beats.push({ L: sfigLine(row.querySelector(sel + " p"), p.text_hi, p.word_times, p.audio, p.word_end),
                        pop: pop ? row.querySelector(pop) : null, mark: key === "name" });
         });
       });
@@ -944,8 +980,7 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — "ये हैं ती�
         const mine = ++run;
         state.demoRunning = true;   // the chip is ignored until the marks have been read; a replay hides आगे meanwhile
         setNavActive(false);
-        beats.forEach(b=> sfigShow(b.L, 0));
-        read(0, mine);
+        read(0, mine);   // [word-sync] a replay keeps the texts on screen
       };
       // 1. the intro line, with the title appearing the moment it starts to sound (as on T0B)
       state.demoRunning = true;
@@ -1045,7 +1080,7 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
         Object.assign(t.querySelector(".dmf-base").style, { width: bw + "px", height: bh + "px" });
         Object.assign(t.querySelector(".dmf-face").style, { left: (fx - bx) + "px", top: (fy - by) + "px", width: fw + "px", height: fh + "px" });
         t.querySelectorAll(".dmf-sym, .dmf-name").forEach(e=>{ e.style.marginLeft = dx + "px"; e.style.marginTop = dy + "px"; }); });
-      const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
+      const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
       // the frame's own runs of spaces where a slot sits (T4: four after "आम" and after "केला"): sentence.gaps = the word
       // indices followed by such a run
       if(S.gaps && S.gaps.length){ sentEl.style.whiteSpace = "pre";
@@ -1094,8 +1129,8 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
       if(a0 && introSrc && decodeURIComponent(String(a0.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showBand();
       setTimeout(showBand, 1500);   // a clip that is slow to start never keeps the bar away
       setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
-      // 2. the picture, the sentence bar (with its empty slot) and the tiles come in; once landed, the sentence is read
-      //    without a pause, its words arriving one by one with the clip
+      // 2. the picture, the sentence bar (with its empty slot) and the tiles come in; once landed, the whole sentence rises in
+      //    and is read SENT_IN_MS later, each word lit as it is read ([word-sync])
       function stage2(){
         pic.classList.add("in"); bar.classList.add("in"); tiles.forEach(t=> t.classList.add("in"));
         after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), stage3));
@@ -1115,11 +1150,10 @@ demo_mod = r"""  /* ===== [demo-fig] PUNCT_DEMO — the run-on sentence demos (F
         live = true; state.demoRunning = false; fig.classList.add("dmf-live");
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
           t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); }; });
-        // a punctuation-only word shares the start of the word before it ("हैं ।"): the two light together
-        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too; [hand-quiet] silent while the hand shows
-          const hot = (n)=>{ if(mine !== reread) return; const t = n > 0 && L.times ? L.times[n - 1] : null;
-            L.words.forEach((w, i)=> w.classList.toggle("hot", n > 0 && (L.times ? L.times[i] === t : i === n - 1))); };
-          narrate(L.src, L.times || [], hot, ()=> hot(0)); };
+        // [word-sync] each word lit as it is read (sfigSync: a punctuation-only word shares the start of the word before it, "हैं ।",
+        // and the two light together); a tap cuts the clip and the light goes with it
+        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand) return; ++reread;   // [tap-lock] the chip waits for silence too; [hand-quiet] silent while the hand shows
+          narrate(L.src, [], ()=>{}, ()=>{}); sfigSync(L); };
       }
       function tap(k){
         if(!live || !alive()) return;
@@ -1687,7 +1721,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         const signs = (Array.isArray(D.sign) ? D.sign : []).map(sg=>{ const el = document.createElement("p"); el.className = "stp-sign";
           el.style.cssText = 'left:' + sg.x + 'px;top:' + sg.y + 'px;width:' + sg.w + 'px;height:' + sg.h + 'px;font-size:' + sg.size + 'px;line-height:' + sg.h + 'px'; el.textContent = sg.text || ""; return el; });
         root.insertBefore(sentEl, veil); slots.forEach(o=> root.insertBefore(o.el, veil)); signs.forEach(el=> root.insertBefore(el, veil));
-        const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
+        const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
         const gapEl = (wpx)=>{ const g = document.createElement("span"); g.className = "stp-gap"; g.style.width = wpx + "px"; return g; };
         if(se.gap && L.words[se.gap.before]) L.words[se.gap.before].before(gapEl(se.gap.w));   // the room the slot sits in
         if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
@@ -1722,8 +1756,8 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((n - 1) * P.pop_gap + P.sent_at, stage4);
       }
-      // 4. the sentence, read without a pause, its words arriving one by one with the clip
-      function stage4(){ const C = R, L = C.L, times = L.times || []; narrate(L.src, times, n=>{ sfigShow(L, n); if(n >= times.length) C.signs.forEach(el=> el.classList.add("on")); }, stage5); }
+      // 4. the sentence rises in whole — the sign-off (593:151) with it — and is read SENT_IN_MS later, each word lit as it is read ([word-sync])
+      function stage4(){ const C = R, L = C.L; sfigRise(L, C.signs); at(SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, stage5); sfigSync(L); }); }
       // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
       //    to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
@@ -2126,6 +2160,14 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-w{display:inline-block;opacity:0;transform:translateY(8px) scale(.92);
   transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .sfig-w.on{opacity:1;transform:none;}
+/* [word-sync] (2026-10-30) the reference T1's sentence (hi-02-h04-l01-s01-dun, #STORY-INTRO-CSS siSentIn and #P2-BIRD-POP-CSS
+   .p2-word.on): the whole text rises in at once — 0.45 s, cubic-bezier(.2,.8,.3,1), from 14 px lower at .96 and transparent — on
+   the individual translate / scale properties, so a text box's own centring transform is kept; its words skip their arrival
+   transition meanwhile (.sfig-whole). The word being read: dark orange with a small pop (1 -> 1.1 -> 1, .28 s), one at a time. */
+@keyframes siSentIn{0%{opacity:0;translate:0 14px;scale:.96;}100%{opacity:1;translate:0 0;scale:1;}}
+.sfig-rise{animation:siSentIn .45s cubic-bezier(.2,.8,.3,1) 1 both;transform-origin:50% 50%;}
+.sfig-whole .sfig-w, .stp-sign.sfig-rise{transition:none !important;}
+.sfig-w.hot{color:#E86A00;transform-origin:50% 60%;animation:p2WordPop .28s ease-out 1;}
 /* ===== [story-fig] T0B "आइए वाक्य सुनें।" (frame 488:190, STORY_RELISTEN): the frame's own card (node 488:367:
    border box 96,106 1088x508 x 1333/1280 = 100,110.39 1133x529 on the stage, 64px corners), grid, title and sentence
    box, in .sfig-in's frame px; Swiftie, the 🔊 chip and आगे stay where they are on the story page (T0) ===== */
@@ -2206,7 +2248,7 @@ recap_css = """
    counts (as on T0's first line) */
 .rcf-eg{position:absolute;left:778px;height:49px;background:#FFF1B6;border-radius:8px;overflow:hidden;opacity:0;transform:scale(.9);}
 .r1 .rcf-eg{top:131px;width:163px;} .r2 .rcf-eg{top:262px;width:262px;} .r3 .rcf-eg{top:393px;width:191px;}
-.rcf-eg p{position:absolute;left:50%;width:1075px;height:48px;transform:translateX(-50%);
+.rcf-eg p{position:absolute;left:calc(50% - 537.5px);width:1075px;height:48px;   /* [word-sync] = left:50% + translateX(-50%), without the transform the rise would scale */
   font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:22px;line-height:38px;color:#012F76;text-align:center;}
 .r1 .rcf-eg p{top:8px;} .r2 .rcf-eg p{top:9px;} .r3 .rcf-eg p{top:10px;}
 .r1 .rcf-eg p::before{content:"\\a0";}
@@ -2950,7 +2992,7 @@ js = rep1(js, "        if(times.length) tick();\n      };\n      // 1. the title
       };
       // 1. the title bar, appearing the moment the intro line starts to sound""", "demo helpers")
 js = rep1(js, "after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), stage3));",
-              "after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), ()=> speakThen(d.explain_audio, stage3)));   // [vo-rec] the explanation after the sentence", "demo explain")
+              "after(650, ()=>{ sfigRise(L); after(SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, ()=> speakThen(d.explain_audio, stage3)); sfigSync(L); }); });   // [vo-rec] the explanation after the sentence; [word-sync] the whole sentence, then its clip with the word light", "demo explain")
 js = rep1(js, "after(400 + (marks.length - 1) * gap + 700, stage5);",
               "after(400 + (marks.length - 1) * gap + 700, ()=> speakThen(d.again_audio, stage5));   // [vo-rec] \"अब दोबारा देखिए ।\" before the full reading", "demo again")
 js = rep1(js, "        narrate(A(F.audio), F.word_times || [], hot, ()=>{\n          // 6. the slots' boxes go (the marks stay) and the page moves on by itself\n",

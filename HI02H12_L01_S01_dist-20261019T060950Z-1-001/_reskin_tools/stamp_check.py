@@ -21,6 +21,20 @@ html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).reso
 refs = [pathlib.Path(a).resolve() for a in sys.argv[3:8]]
 final_img = pathlib.Path(__file__).resolve().parent / "stamp_assets" / "img_stamp_final.webp"   # [stamp-final] the finale's picture, as built
 fails = []
+def lit_first(times, wend, t):
+    """[word-sync] the first word lit at clip time t: the stretch [start, next start) holding t (words sharing a start light together),
+    the last up to the last word's end; -1 before the first word and after the end"""
+    if t is None or (wend is not None and t >= wend): return -1
+    st = None
+    for x in times:
+        if t >= x: st = x
+    return times.index(st) if st is not None else -1
+
+def sent_sync(tr, clip, wt, wend, since):
+    """[word-sync] the frames while `clip` plays (after `since`): (frames, the ones whose lit word is not the stretch's, one frame's lag allowed)"""
+    fr_ = [f for f in tr if f["t"] >= since and f["vo"] and f["vo"][0] == clip + ".ogg" and not f["vo"][2] and f["vo"][1] > 0]
+    return fr_, [f for f in fr_ if f["hot"] not in (lit_first(wt, wend, f["vo"][1]), lit_first(wt, wend, f["vo"][1] - 0.05))]
+
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
     if not ok: fails.append(name)
@@ -39,6 +53,7 @@ TRACE = """() => { window.__tr = []; const st = document.getElementById('stage')
     window.__tr.push({ t: performance.now(), round: r.dataset.round, lit: r.classList.contains('lit'), live: r.classList.contains('live'), band: !!document.querySelector('.dmf-band.in'), sheet: !!document.querySelector('.stp-sheet.in'),
       tray: !!document.querySelector('.stp-tray.in'), imgs: ss.map(s => s.querySelector('img').className + '|' + s.querySelector('img').src.split('/').pop() + '|' + getComputedStyle(s).display),
       words: document.querySelectorAll('.stp-sent .sfig-w.on').length, nwords: document.querySelectorAll('.stp-sent .sfig-w').length,
+      hot: [...document.querySelectorAll('.stp-sent .sfig-w')].findIndex(w => w.classList.contains('hot')),   // [word-sync] the first lit word
       slot: slot ? slot.className : null, slotOp: slot ? +getComputedStyle(slot).opacity : null, slotAnim: slot ? getComputedStyle(slot).animationName : null, slotBox: q(slot),
       slots: [...document.querySelectorAll('.stp-slot')].map(s => ({ cl: s.className, op: +getComputedStyle(s).opacity, anim: getComputedStyle(s).animationName, box: q(s), mark: !!s.querySelector('.stp-mark.in') })), signs: [...document.querySelectorAll('.stp-sign')].map(s => s.className),   // every slot (two in 593:130's round, four in 593:151's); the sign-off lines (593:151)
       fin: (() => { const f = document.querySelector('.stp-final'); if(!f) return null; const i = f.querySelector('img'), w = document.querySelector('.stp-glit.on .stp-glow'); return { op: +getComputedStyle(f).opacity, inn: f.classList.contains('in'), src: i ? i.src.split('/').pop() : '', sparks: document.querySelectorAll('.stp-glit.on .stp-spark').length, glow: w ? getComputedStyle(w).animationName : '', gbox: q(f.querySelector('.stp-glit')) }; })(),   // [stamp-final] the finale's layer
@@ -52,10 +67,12 @@ def first(tr, cond, since=0):
         if f["t"] >= since and cond(f): return f
     return None
 def ink_box_centre(path, x0, y0, x1, y1):
+    x0, y0, x1, y1 = int(round(x0)), int(round(y0)), int(round(x1)), int(round(y1))   # [baloo-font] slots at fractional x (753.7, 522.4, ...)
     A = np.asarray(Image.open(path).convert("RGB").resize((1280, 720), Image.LANCZOS)).astype(int)
     sub = A[y0:y1, x0:x1]; blk = (sub[..., 0] < 90) & (sub[..., 1] < 90) & (sub[..., 2] < 90); ys, xs = np.where(blk)   # the ink's BOX centre (a "?"'s centroid sits high)
     return (round((xs.min() + xs.max()) / 2 + x0, 1), round((ys.min() + ys.max()) / 2 + y0, 1), int(len(xs))) if len(xs) else None
 def ink_runs(img1280, y0, y1, x0, x1, gap=12):
+    y0, y1, x0, x1 = int(round(y0)), int(round(y1)), int(round(x0)), int(round(x1))   # [baloo-font] fractional slot places
     a = np.asarray(img1280).astype(int); blk = (a[..., 0] < 90) & (a[..., 1] < 90) & (a[..., 2] < 90); sub = blk[y0:y1, x0:x1]
     rows = np.where(sub.any(axis=1))[0]; cols = np.where(sub.any(axis=0))[0]
     if not len(cols): return None
@@ -181,12 +198,18 @@ with sync_playwright() as p:
     check("round 1: the two stamps pop into the tray 0.7 s after the sheet, 350 ms apart, each as its pop sounds (the pops at .48)", all(fp_) and len(pops1) == 2 and abs(fp_[0]["t"] - fs_["t"] - P["stamps_at"]) < 120
           and abs(fp_[1]["t"] - fp_[0]["t"] - P["pop_gap"]) < 70 and all(abs(pops1[k]["t"] - fp_[k]["t"]) < 60 for k in (0, 1)) and all(abs(x["vol"] - 0.48) < 0.01 for x in pops),
           ([T(f) for f in fp_], [round(x["t"] - t0) for x in pops1], [round(x["vol"], 2) for x in pops]))
-    # ==== 4. round 1's sentence, word by word on the clip's clock
-    sent = snd("vo_stamp_sent"); fw = [first(tr, lambda f, n=n: f["words"] >= n) for n in range(1, len(WT) + 1)]
-    check("the sentence's clip starts 0.7 s after the second pop", len(sent) == 1 and abs(sent[0]["t"] - fp_[1]["t"] - P["sent_at"]) < 150, round(sent[0]["t"] - fp_[1]["t"]) if sent else None)
-    offs = [round(fw[i]["vo"][1] * 1000 - WT[i] * 1000) for i in range(len(WT))] if sent and all(fw) and all(f["vo"] and f["vo"][0] == "vo_stamp_sent.ogg" for f in fw) else None
-    check("each of its 5 words appears as the clip reaches it (the clip's clock at the reveal frame within -60..+40 ms of the word's start)", offs is not None and all(-60 <= o <= 40 for o in offs), offs)
-    check("the 5 words are all shown, in order, and none before the clip", all(fw) and all(fw[i]["t"] < fw[i + 1]["t"] for i in range(len(fw) - 1)) and fw[0]["t"] >= sent[0]["t"], [T(f) for f in fw])
+    # ==== 4. [word-sync] round 1's sentence: WHOLE (all its words in the same frame, rising in) 0.7 s after the second pop, its clip
+    #      ~0.45 s later, each word lit as the clip reaches it (the reference T1's wordSync)
+    sent = snd("vo_stamp_sent"); fw0 = first(tr, lambda f: f["words"] > 0); WE = RS[0]["sentence"].get("word_end")
+    check("the sentence rises in whole 0.7 s after the second pop, and its clip starts ~0.45 s after that ([word-sync])",
+          len(sent) == 1 and fw0 and abs(fw0["t"] - fp_[1]["t"] - P["sent_at"]) < 150 and 400 <= sent[0]["t"] - fw0["t"] <= 800,
+          (round(fw0["t"] - fp_[1]["t"]) if fw0 else None, round(sent[0]["t"] - fw0["t"]) if sent and fw0 else None))
+    f_e1 = first(tr, lambda f: f["vo"] and f["vo"][0] == "vo_stamp_sent.ogg" and f["vo"][2])
+    r0w = sorted({f["words"] for f in tr if f["round"] == "0" and (not f_e1 or f["t"] <= f_e1["t"])})   # up to the clip's end: the clearing takes the words out one by one
+    check(f"its {len(WT)} words are all shown in the same frame, never part of them", set(r0w) <= {0, len(WT)}, r0w)
+    syn, offw = sent_sync(tr, "vo_stamp_sent", WT, WE, 0)
+    check("each word lit as the clip reaches it, one at a time, none after the last word's end ([word-sync])", len(syn) > 20 and not offw and len({f["hot"] for f in syn if f["hot"] >= 0}) >= len(set(WT)) - 1,
+          (len(syn), len(offw), sorted({f["hot"] for f in syn})))
     # ==== 5. the slot appears as the clip ends and blinks 3.5 s; the stamps are the child's from that moment
     fsl = first(tr, lambda f: has(f["slot"], "in"))
     f_se = first(tr, lambda f: f["vo"] and f["vo"][0] == "vo_stamp_sent.ogg" and f["vo"][2]); s_end = f_se["t"] if f_se else None   # the clip's first ended frame
@@ -307,10 +330,16 @@ with sync_playwright() as p:
         fpr = [first(tr, lambda f, k=k: popping(f, k), since=fr["t"]) for k in range(n)] if fr else [None] * n; popsr = [x for x in pops if fr and t_pop0 - 50 < x["t"] < t_pop0 + P["after_intro"] + n * P["pop_gap"] + 500]
         check(f"round {ri + 1}: its {n} stamps pop into the tray 0.5 s after its line, 350 ms apart, each as its pop sounds", all(fpr) and len(popsr) == n and abs(fpr[0]["t"] - t_pop0 - P["after_intro"]) < 250 and all(abs(fpr[k]["t"] - fpr[k - 1]["t"] - P["pop_gap"]) < 110 for k in range(1, n))
               and all(abs(popsr[k]["t"] - fpr[k]["t"]) < 60 for k in range(n)), ([round(f["t"] - t_pop0) for f in fpr] if all(fpr) and fr else None, [round(x["t"] - t_pop0) for x in popsr] if fr else None))
-        clip = R["sentence"]["audio"]; sentr = snd(clip); fwr = [first(tr, lambda f, m=m: f["words"] >= m, since=fr["t"]) for m in range(1, len(WTr) + 1)] if fr else []
-        offsr = [round(fwr[i]["vo"][1] * 1000 - WTr[i] * 1000) for i in range(len(WTr))] if sentr and fwr and all(fwr) and all(f["vo"] and f["vo"][0] == clip + ".ogg" for f in fwr) else None
-        check(f"round {ri + 1}'s clip starts 0.7 s after the last pop and each of its {len(WTr)} words appears as the clip reaches it (the clip's clock at the reveal frame within -60..+40 ms of the word's start)",
-              len(sentr) == 1 and all(fpr) and abs(sentr[0]["t"] - fpr[-1]["t"] - P["sent_at"]) < 150 and offsr is not None and all(-60 <= o <= 40 for o in offsr), (round(sentr[0]["t"] - fpr[-1]["t"]) if sentr and all(fpr) else None, offsr))
+        clip = R["sentence"]["audio"]; sentr = snd(clip); WEr = R["sentence"].get("word_end")
+        fwr0 = first(tr, lambda f: f["words"] > 0 and f["round"] == str(ri), since=fr["t"]) if fr else None   # [word-sync] the whole sentence's rise
+        fwr = [fwr0] if fwr0 else []
+        f_er = first(tr, lambda f: f["vo"] and f["vo"][0] == clip + ".ogg" and f["vo"][2], since=fr["t"] if fr else 0)
+        rw = sorted({f["words"] for f in tr if f["round"] == str(ri) and (not fr or f["t"] >= fr["t"]) and (not f_er or f["t"] <= f_er["t"])})   # up to the clip's end
+        synr, offr = sent_sync(tr, clip, WTr, WEr, fr["t"] if fr else 0)
+        check(f"round {ri + 1}'s sentence rises in whole ({len(WTr)} words in the same frame) 0.7 s after the last pop, its clip ~0.45 s after that, each word lit as the clip reaches it ([word-sync])",
+              len(sentr) == 1 and all(fpr) and fwr0 and abs(fwr0["t"] - fpr[-1]["t"] - P["sent_at"]) < 150 and 400 <= sentr[0]["t"] - fwr0["t"] <= 800
+              and set(rw) <= {0, len(WTr)} and len(synr) > 20 and not offr,
+              (round(fwr0["t"] - fpr[-1]["t"]) if fwr0 and all(fpr) else None, round(sentr[0]["t"] - fwr0["t"]) if sentr and fwr0 else None, rw, len(synr), len(offr)))
         fslr = first(tr, lambda f: len(f["slots"]) == nsl and all(has(s_["cl"], "in") for s_ in f["slots"]), since=fr["t"]) if fr else None
         f_ser = first(tr, lambda f: f["vo"] and f["vo"][0] == clip + ".ogg" and f["vo"][2]); s_endr = f_ser["t"] if f_ser else None
         fber = first(tr, lambda f: len(f["slots"]) == nsl and all(has(s_["cl"], "in") and not has(s_["cl"], "blink") for s_ in f["slots"]), since=fslr["t"] + 500) if fslr else None
@@ -367,7 +396,7 @@ with sync_playwright() as p:
         if R.get("sign"):
             fsg = first(tr, lambda f: f["signs"] and all("on" in c_.split() for c_ in f["signs"]), since=fr["t"]) if fr else None; fwl = fwr[-1] if fwr and all(fwr) else None
             nxt_ = first(tr, lambda f: f["round"] == str(ri + 1)); fsgo = first(tr, lambda f: f["signs"] and not any("on" in c_.split() for c_ in f["signs"]), since=fdr["t"] + P["done_at"] - 200) if fdr else None
-            check(f"round {ri + 1}: the sign-off's {len(R['sign'])} lines ({' / '.join(sg['text'] for sg in R['sign'])}) are built with the round (unshown), arrive with the sentence's last word (within 60 ms) and — when a round follows — go first in the clearing, before the words",
+            check(f"round {ri + 1}: the sign-off's {len(R['sign'])} lines ({' / '.join(sg['text'] for sg in R['sign'])}) are built with the round (unshown), arrive with the sentence, rising in with it (within 60 ms) ([word-sync]) and — when a round follows — go first in the clearing, before the words",
                   fr and len(fr["signs"]) == len(R["sign"]) and not any("on" in c_.split() for c_ in fr["signs"]) and fsg and fwl and abs(fsg["t"] - fwl["t"]) < 60 and (not nxt_ or (fsgo and fdr and abs(fsgo["t"] - fdr["t"] - P["done_at"]) < 120 and fsgo["t"] < nxt_["t"])),
                   (round(fsg["t"] - fwl["t"]) if fsg and fwl else None, round(fsgo["t"] - fdr["t"]) if fsgo and fdr else None))
         fcfr = first(tr, lambda f: f["conf"], since=fdr["t"]) if fdr else None; celr = [x for x in snd("sfx_celebrate") if fdr and fdr["t"] < x["t"] < fdr["t"] + P["done_at"] - 300]

@@ -56,6 +56,15 @@ CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame'
 TITLE = "विराम चिह्न का वाक्य में प्रयोग ।"   # [band-title] the title bar's line on T2 / T3 / T4 (656:2's), in place of the intro line's text
 NEXT, PICK, MK, NS = CONFIG["next"], CONFIG["pick"], CONFIG["mark_clip"], len(CONFIG["slots"])
 fails = []
+def lit_first(times, wend, t):
+    """[word-sync] the first word lit at clip time t (the sampler's findIndex): the stretch [start, next start) holding t — words
+    sharing a start light together, the first of them is found — the last up to the last word's end; -1 before the first and after the end"""
+    if t is None or (wend is not None and t >= wend): return -1
+    st = None
+    for x in times:
+        if t >= x: st = x
+    return times.index(st) if st is not None else -1
+
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
     if not ok: fails.append(name)
@@ -170,15 +179,17 @@ with sync_playwright() as p:
               not any(s["boxes"] or s["shown"] or any(s["on"]) or any(s["off"]) for s in samples[:i_boxes]) and 1100 <= ms(i_boxes) - ms(i_band) <= 1700,
               f"{ms(i_boxes) - ms(i_band):.0f} ms after the bar")
     i_s1 = start_of(K_SENT); i_e1 = end_of(K_SENT, i_s1)
-    check("the sentence's clip starts once they have landed (~0.65 s)", 600 <= ms(i_s1) - ms(i_boxes) <= 1000, f"{ms(i_s1) - ms(i_boxes):.0f} ms")
-    check("no word shows before the sentence's clip", all(s["shown"] == 0 for s in samples[:i_s1]))
+    # [word-sync] once they have landed the whole sentence rises in (every word in the same frame), its clip ~0.45 s later; while
+    # the clip plays the word lit is the one whose stretch holds the clip's time (the reference T1's wordSync)
+    i_w = first(lambda s: s["shown"] > 0); wE = d["sentence"].get("word_end")
+    check("once they have landed (~0.65 s) the whole sentence rises in, and its clip starts ~0.45 s after that ([word-sync])",
+          600 <= ms(i_w) - ms(i_boxes) <= 1000 and 400 <= ms(i_s1) - ms(i_w) <= 800, f"sentence {ms(i_w) - ms(i_boxes):.0f} ms, clip {ms(i_s1) - ms(i_boxes):.0f} ms after the boxes")
+    check("the whole sentence appears at once, never part of it", {s["shown"] for s in samples} <= {0, nW}, sorted({s["shown"] for s in samples}))
     timed = [s for s in samples[i_s1:i_e1] if s["clip"] == K_SENT and s["playing"] and s["t"] is not None]
-    early = [s for s in timed if s["shown"] > sum(1 for t in tS if s["t"] + 0.04 >= t)]
-    late = [s for s in timed if s["shown"] < sum(1 for t in tS if s["t"] - 0.15 >= t)]
-    distinct_times = len(set(tS))   # a punctuation-only word ("।") arrives with the word before it
-    check("the words arrive one by one with the clip, none early, none >150 ms late",
-          len(timed) > 20 and len({s["shown"] for s in timed}) >= distinct_times - 1 and not early and not late,
-          f"{len(timed)} samples, {len({s['shown'] for s in timed})} distinct counts / {nW} words, early {len(early)}, late {len(late)}")
+    off = [s for s in timed if s["hot"] not in (lit_first(tS, wE, s["t"]), lit_first(tS, wE, s["t"] - 0.05))]
+    check("each word lit as the clip reaches it, one at a time, none after the last word's end ([word-sync])",
+          len(timed) > 20 and not off and len({s["hot"] for s in timed if s["hot"] >= 0}) >= len(set(tS)) - 1,
+          f"{len(timed)} samples, {len(off)} off, words lit {sorted({s['hot'] for s in timed})}")
     check(f"{NS} slot(s) on the page", samples[i_e1]["nSlots"] == NS, samples[i_e1]["nSlots"])
     i_bl = first(lambda s: s["blinkN"] > 0); i_bl_end = first(lambda s: s["blinkN"] == 0, i_bl)
     if K_EXPL:   # [vo-rec] the explanation line between the sentence and the blink: a 0.35 s breath, the line, a 0.3 s breath

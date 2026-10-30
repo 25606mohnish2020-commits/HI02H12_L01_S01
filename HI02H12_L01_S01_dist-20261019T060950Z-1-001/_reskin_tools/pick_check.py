@@ -59,6 +59,15 @@ CONFIG = {   # per page: the next slide, the right tile, its clips, the frame's 
 TITLE = "वाक्य सुनिए और सही चिह्न लगाइए ।"   # the title bar's line on G1 / G2 / G3 (G1's instruction line; on G2 since [band-title])
 NEXT, PICK, SENT, NAME, WRONG = CONFIG["next"], CONFIG["pick"], CONFIG["sent_clip"], "ok", CONFIG["wrong"]   # [vo-rec] the right tap is praised ("शाबाश!", vo_ok), the mark's name is not said
 fails = []
+def lit_first(times, wend, t):
+    """[word-sync] the first word lit at clip time t (the sampler's findIndex): the stretch [start, next start) holding t — words
+    sharing a start light together, the first of them is found — the last up to the last word's end; -1 before the first and after the end"""
+    if t is None or (wend is not None and t >= wend): return -1
+    st = None
+    for x in times:
+        if t >= x: st = x
+    return times.index(st) if st is not None else -1
+
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
     if not ok: fails.append(name)
@@ -193,13 +202,17 @@ with sync_playwright() as p:
     i_boxes = first(lambda s: s["boxes"])
     check("the picture, the bar and the tiles come in 0.5 s after the intro", 450 <= ms(i_boxes) - ms(i_end0) <= 800, f"{ms(i_boxes) - ms(i_end0):.0f} ms")
     i_s1 = start_of(SENT); i_e1 = end_of(SENT, i_s1)
-    check("the sentence's clip starts once they have landed (~0.65 s)", 600 <= ms(i_s1) - ms(i_boxes) <= 1000, f"{ms(i_s1) - ms(i_boxes):.0f} ms")
+    # [word-sync] once they have landed the whole sentence rises in (every word in the same frame), its clip ~0.45 s later; while
+    # the clip plays the word lit is the one whose stretch holds the clip's time (the reference T1's wordSync)
+    i_w = first(lambda s: s["shown"] > 0); wE = d["sentence"].get("word_end")
+    check("once they have landed (~0.65 s) the whole sentence rises in, and its clip starts ~0.45 s after that ([word-sync])",
+          600 <= ms(i_w) - ms(i_boxes) <= 1000 and 400 <= ms(i_s1) - ms(i_w) <= 800, f"sentence {ms(i_w) - ms(i_boxes):.0f} ms, clip {ms(i_s1) - ms(i_boxes):.0f} ms after the boxes")
+    check("the whole sentence appears at once, never part of it", {s["shown"] for s in samples} <= {0, nW}, sorted({s["shown"] for s in samples}))
     timed = [s for s in samples[i_s1:i_e1] if s["clip"] == SENT and s["playing"] and s["t"] is not None]
-    early = [s for s in timed if s["shown"] > sum(1 for t in tS if s["t"] + 0.04 >= t)]
-    late = [s for s in timed if s["shown"] < sum(1 for t in tS if s["t"] - 0.15 >= t)]
-    check("the words arrive one by one with the clip, none early, none >150 ms late",
-          len(timed) > 20 and len({s["shown"] for s in timed}) >= nW - 1 and not early and not late,
-          f"{len(timed)} samples, {len({s['shown'] for s in timed})} distinct counts / {nW} words, early {len(early)}, late {len(late)}")
+    off = [s for s in timed if s["hot"] not in (lit_first(tS, wE, s["t"]), lit_first(tS, wE, s["t"] - 0.05))]
+    check("each word lit as the clip reaches it, one at a time, none after the last word's end ([word-sync])",
+          len(timed) > 20 and not off and len({s["hot"] for s in timed if s["hot"] >= 0}) >= len(set(tS)) - 1,
+          f"{len(timed)} samples, {len(off)} off, words lit {sorted({s['hot'] for s in timed})}")
     i_bl = first(lambda s: s["blink"]); i_live = first(lambda s: s["live"])
     check("the slot blinks and the tiles go live the moment the sentence's clip ends", 0 <= ms(i_bl) - ms(i_e1) <= 150 and abs(ms(i_live) - ms(i_bl)) <= 20,
           f"blink {ms(i_bl) - ms(i_e1):.0f} ms after, live {ms(i_live) - ms(i_bl):+.0f} ms from the blink")
@@ -274,7 +287,8 @@ with sync_playwright() as p:
         # n words reached -> the first word lit: the first one sharing word n-1's start (a punctuation-only word lights
         # with the word before it, "हैं ।")
         lead = lambda n: tS.index(tS[n - 1]) if n > 0 else -1
-        off = [s for s in timed if s["hot"] not in {lead(n) for n in range(sum(1 for t in tS if s["t"] - 0.15 >= t), sum(1 for t in tS if s["t"] + 0.04 >= t) + 1)}]
+        wE = d["sentence"].get("word_end")   # [word-sync] the reference's stretches: nothing lit after the last word's end
+        off = [s for s in timed if s["hot"] not in {lit_first(tS, wE, s["t"]), lit_first(tS, wE, s["t"] - 0.05)}]
         want = {lead(n) for n in range(2, nW + 1)}   # the first word may already be lit when the sampling catches the clip
         check("...each word highlighted as the reminder reaches it, the highlight gone after", len(timed) > 20 and not off and {s["hot"] for s in timed} >= want and samples[min(r1 + 5, len(samples) - 1)]["hot"] == -1,
               f"{len(timed)} samples, words seen {sorted({s['hot'] for s in timed})}, off-time {len(off)}")
@@ -334,7 +348,7 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(GOTO, SLIDE)
-    pg.wait_for_function("document.querySelectorAll('.dmf-sent .sfig-w.hot').length > 0", timeout=30000, polling=20); pg.wait_for_timeout(300)
+    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live') && document.querySelectorAll('.dmf-sent .sfig-w.hot').length > 0", timeout=30000, polling=20); pg.wait_for_timeout(300)   # [word-sync] the reminder's light: the first reading lights its words too
     pg.click(f".dmf-tile.t{WRONG[0]}"); pg.wait_for_timeout(350)
     cut = pg.evaluate("[isPlaying, document.querySelectorAll('.dmf-sent .sfig-w.hot').length, state.attempts]")
     check("a tap during the reminder cuts it short and clears the highlight (the tap still counts)", cut == [False, 0, 1], cut)

@@ -2,7 +2,8 @@
 usage: python -I -X utf8 relisten_check.py <index.html> <relisten2_figma_render_1280x720.png> <outdir>
 1. At 1333x750, the page mounted on its own: the title appears as the intro line ("अब इन्हीं वाक्यों को फिर से सुनते हैं।",
    vo_story_r0) starts to sound; the sentence box comes in only when that line has ended; once the box has landed the two
-   contrast sentences are read one after the other, each word by word with its own recorded clip (vo_story_c1 "उसे रोको,
+   contrast sentences are read one after the other, each rising in whole and read 0.45 s later with each word lit as its own
+   recorded clip reaches it ([word-sync]; vo_story_c1 "उसे रोको,
    मत जाने दो।", vo_story_c2 "उसे रोको मत, जाने दो।"); then the explanation (vo_story_r1) lifts sentence 1 on its yellow from
    its "पहले" and sentence 2 from its "जबकि" (the cues read off the clip by vo_rec.py), both off again when it ends; then the
    moral (vo_story_moral, 4.wav) lights the two commas orange, lifted, from its "विराम" — they stay lit; आगे shows the
@@ -67,6 +68,7 @@ NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('na
 SAMPLE = """() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_story_(\\w+)\\.ogg/), q = (s) => document.querySelector(s), nav = document.getElementById('navBtn');
   return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying, title: !!q('.sfig-title.in'), box: !!q('.sfig-sbox.in'),
     shown: [...document.querySelectorAll('.sfig-stext p')].map(p => p.querySelectorAll('.sfig-w.on').length),
+    hot: [...document.querySelectorAll('.sfig-stext p')].map(p => [...p.querySelectorAll('.sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0)),   // [word-sync]
     hl: [...document.querySelectorAll('.sfig-sent')].findIndex(s => s.classList.contains('hl')), mk: document.querySelectorAll('.sfig-mk.on').length,
     navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now() }; }"""
 # the timeline is sampled IN the page, every frame, so screenshots taken meanwhile cannot skew it; the two 🔊 taps
@@ -78,15 +80,29 @@ TIMELINE = "(sample) => { window._tl = []; window._taps = []; const S = eval(sam
     " if (!s.nav) requestAnimationFrame(step); }; requestAnimationFrame(step); }"
 PULSING = "getComputedStyle(document.getElementById('navBtn'), '::after').animationName"
 
-def sync_checks(tag, samples, k, clip, times):
+def lit_want(times, wend, t):
+    """[word-sync] the word(s) lit at clip time t: the stretch [start, next start) holding t (words sharing a start light together),
+    the last up to the last word's end; nothing after it"""
+    if t is None or (wend is not None and t >= wend): return []
+    st = None
+    for x in times:
+        if t >= x: st = x
+    return [i for i, x in enumerate(times) if st is not None and x == st]
+
+def sync_checks(tag, samples, k, clip, times, wend):
+    """[word-sync] sentence k shows WHOLE (all its words in one frame), its clip starts ~0.45 s after it rises in, and while the clip
+    plays the word lit is the one whose stretch holds the clip's time (the reference T1's wordSync)"""
+    n = len(times); counts = sorted({s["shown"][k] for s in samples})
+    check(f"{tag}: the whole sentence appears at once, never part of it", set(counts) <= {0, n}, counts)
+    i_r = next((i for i, s in enumerate(samples) if s["shown"][k] == n), None)
+    i_c = next((i for i, s in enumerate(samples) if s["clip"] == clip and s["playing"] and s["t"]), None)
+    gap = samples[i_c]["ms"] - samples[i_r]["ms"] if i_r is not None and i_c is not None else None
+    check(f"{tag}: it rises in and its clip ({clip}) starts ~0.45 s later (the reference's SENT_IN_MS)", gap is not None and 400 <= gap <= 800, f"{gap:.0f} ms" if gap is not None else None)
     timed = [s for s in samples if s["clip"] == clip and s["playing"] and s["t"] is not None]
-    shown = lambda s: s["shown"][k]
-    early = [s for s in timed if shown(s) > sum(1 for t in times if s["t"] + 0.04 >= t)]
-    late = [s for s in timed if shown(s) < sum(1 for t in times if s["t"] - 0.15 >= t)]
-    check(f"{tag}: words appear one by one with its clip ({clip})", len(timed) > 40 and len({shown(s) for s in timed}) >= len(set(times)) - 1,
-          f"{len(timed)} samples, {len({shown(s) for s in timed})} distinct word counts, {len(times)} words")
-    check(f"{tag}: no word shows before the narration reaches it", not early, early[:2])
-    check(f"{tag}: no word lags its start time by >150 ms", not late, late[:2])
+    off = [s for s in timed if s["hot"][k] not in (lit_want(times, wend, s["t"]), lit_want(times, wend, s["t"] - 0.05))]
+    seen = {tuple(s["hot"][k]) for s in timed if s["hot"][k]}
+    check(f"{tag}: each word lit as the clip reaches it, one at a time, none after the last word's end", len(timed) > 20 and not off and len(seen) >= len(set(times)) - 1,
+          f"{len(timed)} samples, {len(off)} off, {len(seen)} lit states / {len(set(times))} stretches")
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--autoplay-policy=no-user-gesture-required", "--mute-audio"])
@@ -128,15 +144,20 @@ with sync_playwright() as p:
           f"title at {ms(i_title) - ms(i_play):+.0f} ms from the clip's first played moment")
     check("the sentence box stays away while the intro line sounds", not any(s["box"] for s in samples[:i_end0]))
     check("the box comes in as the intro line ends", 0 <= ms(i_box) - ms(i_end0) <= 150, f"{ms(i_box) - ms(i_end0):.0f} ms after")
-    check("sentence 1's clip starts once the box has landed (~0.65 s)", 600 <= ms(i_c1) - ms(i_box) <= 1000, f"{ms(i_c1) - ms(i_box):.0f} ms")
+    i_s1 = first(lambda s: s["shown"][0] > 0)
+    check("sentence 1 rises in once the box has landed (~0.65 s), its clip ~0.45 s after that ([word-sync])", 600 <= ms(i_s1) - ms(i_box) <= 1000 and 1050 <= ms(i_c1) - ms(i_box) <= 1500,
+          f"sentence {ms(i_s1) - ms(i_box):.0f} ms, clip {ms(i_c1) - ms(i_box):.0f} ms after the box")
     starts = lambda clip: sum(1 for i, s in enumerate(samples) if s["clip"] == clip and s["playing"]
                               and (i == 0 or not (samples[i - 1]["clip"] == clip and samples[i - 1]["playing"])))
     check("🔊 taps during the intro / the box landing were ignored (each clip plays once: intro, the two sentences, the explanation, the moral)",
           tapped_intro and tapped_land and all(starts(c) == 1 for c in ("r0", "c1", "c2", "r1", "moral")), f"taps made: {taps}, starts {[starts(c) for c in ('r0', 'c1', 'c2', 'r1', 'moral')]}")
-    check("no sentence word shows before sentence 1's clip", all(s["shown"] == [0, 0] for s in samples[:i_c1]))
-    sync_checks("sentence 1", samples, 0, "c1", T[0]); sync_checks("sentence 2", samples, 1, "c2", T[1])
-    check("sentence 2's clip starts ~0.6 s after sentence 1's has ended, sentence 1 complete and standing, no sentence-2 word before it",
-          500 <= ms(i_c2) - ms(i_c1e) <= 950 and all(s["shown"][1] == 0 for s in samples[:i_c2]) and samples[i_c2]["shown"][0] == len(T[0]), f"{ms(i_c2) - ms(i_c1e):.0f} ms after")
+    check("no sentence word shows before sentence 1 rises in", all(s["shown"] == [0, 0] for s in samples[:i_s1]))
+    WE = [ln.get("word_end") for ln in d["lines"]]
+    sync_checks("sentence 1", samples, 0, "c1", T[0], WE[0]); sync_checks("sentence 2", samples, 1, "c2", T[1], WE[1])
+    i_s2 = first(lambda s: s["shown"][1] > 0, i_c1e)
+    check("sentence 2 rises in ~0.6 s after sentence 1's clip has ended and its clip follows ~0.45 s later, sentence 1 standing, no sentence-2 word before its rise ([word-sync])",
+          500 <= ms(i_s2) - ms(i_c1e) <= 950 and 950 <= ms(i_c2) - ms(i_c1e) <= 1450 and all(s["shown"][1] == 0 for s in samples[:i_s2]) and samples[i_c2]["shown"][0] == len(T[0]),
+          f"sentence {ms(i_s2) - ms(i_c1e):.0f} ms, clip {ms(i_c2) - ms(i_c1e):.0f} ms after")
     check("the explanation (vo_story_r1) starts ~0.5 s after sentence 2's clip, both sentences complete, nothing lit yet",
           400 <= ms(i_r1) - ms(i_c2e) <= 900 and samples[i_r1]["shown"] == [len(T[0]), len(T[1])] and not any(s["hl"] >= 0 or s["mk"] for s in samples[:i_r1]), f"{ms(i_r1) - ms(i_c2e):.0f} ms after")
     r1 = [s for s in samples[i_r1:i_r1e] if s["clip"] == "r1" and s["t"] is not None]
@@ -167,8 +188,9 @@ with sync_playwright() as p:
     pg.wait_for_timeout(1200)
     pg.click(".tut-audio", force=True); pg.wait_for_timeout(400)
     r = pg.evaluate(SAMPLE)
-    check("🔊 afterwards replays the reading from sentence 1's first word (title and box staying, the highlights cleared)",
-          r["clip"] == "c1" and r["playing"] and r["shown"][0] < len(T[0]) and r["shown"][1] == 0 and r["hl"] == -1 and r["mk"] == 0 and r["title"] and r["box"], r)
+    check("🔊 afterwards replays the reading from sentence 1 (title, box and both sentences staying, sentence 1 lit word by word again, the highlights cleared) ([word-sync])",
+          r["clip"] == "c1" and r["playing"] and r["shown"] == [len(T[0]), len(T[1])] and r["hot"][0] in (lit_want(T[0], WE[0], r["t"]), lit_want(T[0], WE[0], r["t"] - 0.05))
+          and r["hl"] == -1 and r["mk"] == 0 and r["title"] and r["box"], r)
     check("आगे is hidden while the replay sounds", not r["navVisible"])
     pg.wait_for_function("document.querySelectorAll('.sfig-mk.on').length === 2", timeout=40000, polling=20)
     pg.wait_for_function("!isPlaying && document.getElementById('navBtn').classList.contains('active')", timeout=30000)

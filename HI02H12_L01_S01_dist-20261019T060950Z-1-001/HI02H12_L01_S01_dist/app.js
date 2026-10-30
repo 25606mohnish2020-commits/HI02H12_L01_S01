@@ -2130,11 +2130,10 @@ function evQtypeChip(qtype, label, icon){
    Shared by STORY_LISTEN (T0) and STORY_RELISTEN (T0B), both built on the Figma "html_Guided_instructions"
    frames (FLN-by-MJ). sfigMount() turns the tutorial card into the frames' card: the grid, the page's own
    elements (`inner`, laid out in the frame's 1280x720 px — style.css [story-fig]) and the Hello Swiftie.
-   sfigLine() makes a narrated text: one span per word ("\n" = a line break) plus its clip and word times.
-   sfigNarrate() plays that clip and reveals each word as the narration reaches it: word_times are each word's
-   start (s) in the clip (the synthesiser's word boundaries, cross-checked with whisper — see
-   _reskin_tools/story_vo.py), read against the clip's own currentTime, so a late or slow start stays in sync;
-   a missing clip runs the same times on the wall clock, and without times the clip is shared out by word length. */
+   sfigLine() makes a narrated text: one span per word ("\n" = a line break) plus its clip, word times and the last word's end.
+   sfigNarrate() shows the text WHOLE and reads it, each word lit as it is read ([word-sync], below): word_times are each
+   word's start (s) in the clip (whisper's word times, vo_rec.py), word_end the last word's end, read against the clip's
+   own currentTime, so a late or slow start stays in sync; without times the clip is shared out by word length. */
 function sfigMount(host, inner){
   const card = host.closest(".tut-card"); if(card) card.classList.add("no-prompt", "sfig-card");
   const fig = document.createElement("div"); fig.className = "sfig-in";
@@ -2144,7 +2143,7 @@ function sfigMount(host, inner){
   host.appendChild(fig);
   return fig;
 }
-function sfigLine(p, text, wordTimes, audio){
+function sfigLine(p, text, wordTimes, audio, wordEnd){
   text = String(text || "").trim();
   p.setAttribute("aria-label", text.replace(/\s+/g, " "));
   const words = [];
@@ -2160,37 +2159,71 @@ function sfigLine(p, text, wordTimes, audio){
   const share = lens.map((_, i)=> lens.slice(0, i).reduce((a, c)=> a + c, 0) / total);
   const times = Array.isArray(wordTimes) && wordTimes.length === words.length ? wordTimes : null;
   const src = audio ? ("assets/Audio/" + audio + "." + AUDIO_EXT) : null;
-  return { words, share, times, src, file: src ? src.split("/").pop() : "" };
+  return { p, words, share, times, end: wordEnd != null && isFinite(wordEnd) ? +wordEnd : null, src, file: src ? src.split("/").pop() : "", shown: false };
 }
 function sfigShow(L, n){ L.words.forEach((w, i)=> w.classList.toggle("on", i < n)); }
-/* live() = "still this run, on a mounted page"; onEnd runs once, with every word shown. Watchdog: a clip that
-   never reports its end must not strand the page. It stops the clip first, so आगे still opens live, never
-   greyed out under a "playing" clip. */
+/* [word-sync] (2026-10-30) the reference game's sentence (hi-02-h04-l01-s01-dun, Page 1 T1; its STORY-INTRO-JS): the WHOLE
+   sentence rises in at once (siSentIn: 0.45 s, opacity 0 -> 1 from 14 px lower at .96; style.css [word-sync]) and its clip starts
+   as the rise ends (SENT_IN_MS); while the clip plays each word lights for exactly its stretch of the recording — dark orange
+   with a small pop (the reference's .p2-word.on: #E86A00, p2WordPop .28 s), one at a time — and the light goes off at the last
+   word's end, or as soon as the clip is cut (the reference's wordSync). sfigRise(L, extra) shows the line (and `extra`
+   elements that come with it) that way; sfigSync(L) lights its words on the clip that has just started (currentAudio). */
+const SENT_IN_MS = 450;
+function sfigRise(L, extra){
+  const more = extra || [];
+  L.p.classList.add("sfig-whole");   // the words' own arrival transitions are off: they are all there at once
+  sfigShow(L, L.words.length); more.forEach(el=> el.classList.add("on")); L.shown = true;
+  [L.p].concat(more).forEach(el=>{
+    el.classList.remove("sfig-rise"); void el.offsetWidth; el.classList.add("sfig-rise");
+    let fin = false;
+    const done = ()=>{ if(fin) return; fin = true; el.classList.remove("sfig-rise"); if(el === L.p) el.classList.remove("sfig-whole"); };
+    el.addEventListener("animationend", function h(e){ if(e.target === el && e.animationName === "siSentIn"){ el.removeEventListener("animationend", h); done(); } });
+    setTimeout(done, SENT_IN_MS + 250);
+  });
+}
+function sfigSync(L){
+  if(L.unsync) L.unsync();
+  const a = currentAudio;
+  if(!a || !L.file || decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) !== L.file) return;
+  const ws = L.words;
+  let raf = 0, lit, off = false;
+  const stop = ()=>{ if(off) return; off = true; if(raf) cancelAnimationFrame(raf); ws.forEach(w=> w.classList.remove("hot")); if(L.unsync === stop) L.unsync = null; };
+  L.unsync = stop;
+  const tick = ()=>{
+    raf = 0;
+    if(!ws.length || !ws[0].isConnected || a.ended || currentAudio !== a || (a.paused && a.currentTime > 0)){ stop(); return; }
+    const dur = isFinite(a.duration) && a.duration > 0 ? a.duration : 0;
+    const starts = L.times || (dur ? L.share.map(s=> s * dur) : null);
+    if(starts){
+      const tt = a.currentTime, end = L.end != null ? L.end : (dur || Infinity);
+      if(tt >= end){ stop(); return; }
+      let s = null; starts.forEach(x=>{ if(tt >= x) s = x; });   // the word(s) whose stretch this is: words sharing a start ("है ।") light together
+      if(s !== lit){ lit = s; ws.forEach((w, i)=> w.classList.toggle("hot", s !== null && starts[i] === s)); }
+    }
+    raf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+/* live() = "still this run, on a mounted page"; onEnd runs once, with every word shown. A line not yet on screen rises in first
+   and is read SENT_IN_MS later; a line already shown (a replay) is read at once. Watchdog: a clip that never reports its end
+   must not strand the page. It stops the clip first, so आगे still opens live, never greyed out under a "playing" clip. */
 function sfigNarrate(L, live, onEnd){
-  const began = Date.now();
   let done = false;
-  sfigShow(L, 0);
   const end = ()=>{
     if(done || !live()) return;
     done = true;
+    if(L.unsync) L.unsync();
     sfigShow(L, L.words.length);
     onEnd();
   };
-  play(L.src, end);
-  const last = L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000;
-  setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
-  const tick = ()=>{
-    if(done || !live()) return;   // [vo-rec] once the clip has ended every word is shown: a late frame must not hide the last one again
-    const a = currentAudio;
-    const own = !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === L.file;
-    const t = own ? a.currentTime : (Date.now() - began) / 1000;
-    const span = own && isFinite(a.duration) && a.duration > 0 ? a.duration : authoredVoHoldMs(L.src) / 1000;
-    let n = 0;
-    while(n < L.words.length && t + 0.04 >= (L.times ? L.times[n] : span * L.share[n])) n++;
-    sfigShow(L, n);
-    if(n < L.words.length) nextFrame(tick);
+  const read = ()=>{
+    if(!live()) return;
+    play(L.src, end);
+    sfigSync(L);
+    const last = L.end != null ? L.end : (L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000);
+    setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
   };
-  tick();
+  if(L.shown) read(); else { sfigRise(L); setTimeout(read, SENT_IN_MS); }
 }
 
 /* ---------- 12. SLIDE MODULES ---------- */
@@ -6078,8 +6111,8 @@ const SlideModules = {
 
   /* ===== [story-fig] STORY_LISTEN — the Figma story page, the first screen after the start gate's peek
      transition. It tells the story in BEATS on one layout (FLN-by-MJ frames 435:5, then 476:198): the picture
-     sits in its grey-bordered frame and the beat's text arrives WORD BY WORD in the white box under it
-     (sfigNarrate). When a beat's narration ends, after the engine's one-second beat (PACE.tail), its text
+     sits in its grey-bordered frame and the beat's text rises in WHOLE in the white box under it and is read, each
+     word lit as it is read (sfigNarrate, [word-sync]). When a beat's narration ends, after the engine's one-second beat (PACE.tail), its text
      leaves, the next picture appears over the last one, and the next narration starts once that picture has
      landed. आगे only ever shows LIVE: it stays hidden (never the greyed-out pill the engine shows during a VO)
      while any narration sounds, and appears pulsing when the LAST narration ends; the 🔊 chip replays the beat
@@ -6094,7 +6127,7 @@ const SlideModules = {
           imgSrc(b.image_id) + '" alt="" draggable="false">').join("") + '</div>' +
         '<div class="sfig-textbox"></div>' + beats.map((_, k)=> '<div class="sfig-text b' + (k + 1) + '"><p></p></div>').join(""));
       const pics = fig.querySelectorAll(".sfig-img"), texts = fig.querySelectorAll(".sfig-text");
-      const lines = beats.map((b, k)=> sfigLine(texts[k].querySelector("p"), b.text_hi, b.word_times, b.audio));
+      const lines = beats.map((b, k)=> sfigLine(texts[k].querySelector("p"), b.text_hi, b.word_times, b.audio, b.word_end));
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -6134,8 +6167,8 @@ const SlideModules = {
   /* ===== [story-fig] STORY_RELISTEN — "आइए वाक्य सुनें।" (FLN-by-MJ frame 488:190), right after the story
      page: the same story again, now WITH its punctuation. The title appears as the intro line
      (data.intro_audio: "अब इन्हीं वाक्यों को फिर से सुनते हैं।") starts to sound; when that line ends the sentence
-     box comes in, and once it has landed the sentences are read with the story page's word-by-word reveal
-     (sfigNarrate). Swiftie, the 🔊 chip, the card's box and आगे are the story page's. आगे only ever shows
+     box comes in, and once it has landed each sentence rises in whole and is read, each word lit as it is read
+     (sfigNarrate, [word-sync]). Swiftie, the 🔊 chip, the card's box and आगे are the story page's. आगे only ever shows
      LIVE, when the sentences' narration ends; the 🔊 chip replays the sentences from their first word, hiding
      आगे again until that replay ends. ===== */
   STORY_RELISTEN: {
@@ -6151,7 +6184,7 @@ const SlideModules = {
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round");
       const title = fig.querySelector(".sfig-title"), box = fig.querySelector(".sfig-sbox");
       title.querySelector("p").textContent = d.title_hi || "";
-      const Ls = lines.map((ln, k)=> sfigLine(multi ? fig.querySelector(".sfig-stext p.l" + (k + 1) + " .sfig-sent") : fig.querySelector(".sfig-stext p"), ln.text_hi, ln.word_times, ln.audio));
+      const Ls = lines.map((ln, k)=> sfigLine(multi ? fig.querySelector(".sfig-stext p.l" + (k + 1) + " .sfig-sent") : fig.querySelector(".sfig-stext p"), ln.text_hi, ln.word_times, ln.audio, ln.word_end));
       // [relisten-pinki] a comma ending a word gets its own span, so the moral can light the marks alone
       const sents = multi ? [...fig.querySelectorAll(".sfig-sent")] : [], marks = [];
       if(multi) fig.querySelectorAll(".sfig-stext .sfig-w").forEach(w=>{ const m = w.textContent.match(/^(.+?)(,)$/);
@@ -6185,7 +6218,7 @@ const SlideModules = {
       const readAll = ()=>{
         const mine = ++run; const live = ()=> mine === run && alive();
         setNavActive(false);   // a replay hides आगे until its narration has ended
-        reset(); Ls.forEach(L=> sfigShow(L, 0));
+        reset();   // [word-sync] a replay keeps the sentences on screen
         // [relisten-pinki] the explanation: each sentence lit (lifted, on its yellow) as its meaning is told; then the moral:
         // the commas lit orange, lifted, as it names the marks — they stay lit; then आगे
         const moral = ()=>{
@@ -6234,7 +6267,7 @@ const SlideModules = {
      title and three rows: the mark in its white box, its name, when it is used, and an example in a yellow box.
      Everything arrives WITH its narration: the title as the intro line starts to sound (as on T0B); then, mark by
      mark, the box + mark pop in as the name's clip starts, the use follows with its clip, and the yellow box pops in
-     as the example's clip starts — every text WORD BY WORD on its clip's own clock (sfigNarrate), with a short
+     as the example's clip starts — every text rising in whole, then read with each word lit (sfigNarrate), with a short
      breath between the beats and a longer one before the next mark. आगे only ever shows LIVE, when the last example
      has been read; the 🔊 chip is ignored while the marks are being read (the sequence drives itself) and afterwards
      reads the three marks again from the first, hiding आगे until that replay ends. ===== */
@@ -6255,7 +6288,7 @@ const SlideModules = {
         row.querySelector(".rcf-mark p").textContent = r.mark || "";
         [["name", ".rcf-name", ".rcf-sign"], ["when", ".rcf-when", null], ["example", ".rcf-eg", ".rcf-eg"]].forEach(([key, sel, pop])=>{
           const p = r[key] || {};
-          beats.push({ L: sfigLine(row.querySelector(sel + " p"), p.text_hi, p.word_times, p.audio),
+          beats.push({ L: sfigLine(row.querySelector(sel + " p"), p.text_hi, p.word_times, p.audio, p.word_end),
                        pop: pop ? row.querySelector(pop) : null, mark: key === "name" });
         });
       });
@@ -6281,8 +6314,7 @@ const SlideModules = {
         const mine = ++run;
         state.demoRunning = true;   // the chip is ignored until the marks have been read; a replay hides आगे meanwhile
         setNavActive(false);
-        beats.forEach(b=> sfigShow(b.L, 0));
-        read(0, mine);
+        read(0, mine);   // [word-sync] a replay keeps the texts on screen
       };
       // 1. the intro line, with the title appearing the moment it starts to sound (as on T0B)
       state.demoRunning = true;
@@ -6388,7 +6420,7 @@ const SlideModules = {
         Object.assign(t.querySelector(".dmf-base").style, { width: bw + "px", height: bh + "px" });
         Object.assign(t.querySelector(".dmf-face").style, { left: (fx - bx) + "px", top: (fy - by) + "px", width: fw + "px", height: fh + "px" });
         t.querySelectorAll(".dmf-sym, .dmf-name").forEach(e=>{ e.style.marginLeft = dx + "px"; e.style.marginTop = dy + "px"; }); });
-      const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
+      const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
       // the frame's own runs of spaces where a slot sits (T4: four after "आम" and after "केला"): sentence.gaps = the word
       // indices followed by such a run
       if(S.gaps && S.gaps.length){ sentEl.style.whiteSpace = "pre";
@@ -6459,11 +6491,11 @@ const SlideModules = {
       if(a0 && introSrc && decodeURIComponent(String(a0.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showBand();
       setTimeout(showBand, 1500);   // a clip that is slow to start never keeps the bar away
       setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
-      // 2. the picture, the sentence bar (with its empty slot) and the tiles come in; once landed, the sentence is read
-      //    without a pause, its words arriving one by one with the clip
+      // 2. the picture, the sentence bar (with its empty slot) and the tiles come in; once landed, the whole sentence rises in
+      //    and is read SENT_IN_MS later, each word lit as it is read ([word-sync])
       function stage2(){
         pic.classList.add("in"); bar.classList.add("in"); tiles.forEach(t=> t.classList.add("in"));
-        after(650, ()=> narrate(L.src, L.times || [], n=> sfigShow(L, n), ()=> speakThen(d.explain_audio, stage3)));   // [vo-rec] the explanation after the sentence
+        after(650, ()=>{ sfigRise(L); after(SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, ()=> speakThen(d.explain_audio, stage3)); sfigSync(L); }); });   // [vo-rec] the explanation after the sentence; [word-sync] the whole sentence, then its clip with the word light
       }
       // 3. the empty slot(s) blink (3.5 s) — every slot the same blink, started together
       function stage3(){
@@ -6480,11 +6512,10 @@ const SlideModules = {
         live = true; state.demoRunning = false; fig.classList.add("dmf-live");
         tiles.forEach((t, k)=>{ t.onclick = ()=> tap(k);
           t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); }; });
-        // a punctuation-only word shares the start of the word before it ("हैं ।"): the two light together
-        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand) return; const mine = ++reread;   // [tap-lock] the chip waits for silence too; [hand-quiet] silent while the hand shows
-          const hot = (n)=>{ if(mine !== reread) return; const t = n > 0 && L.times ? L.times[n - 1] : null;
-            L.words.forEach((w, i)=> w.classList.toggle("hot", n > 0 && (L.times ? L.times[i] === t : i === n - 1))); };
-          narrate(L.src, L.times || [], hot, ()=> hot(0)); };
+        // [word-sync] each word lit as it is read (sfigSync: a punctuation-only word shares the start of the word before it, "हैं ।",
+        // and the two light together); a tap cuts the clip and the light goes with it
+        state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand) return; ++reread;   // [tap-lock] the chip waits for silence too; [hand-quiet] silent while the hand shows
+          narrate(L.src, [], ()=>{}, ()=>{}); sfigSync(L); };
       }
       function tap(k){
         if(!live || !alive()) return;
@@ -7056,7 +7087,7 @@ const SlideModules = {
         const signs = (Array.isArray(D.sign) ? D.sign : []).map(sg=>{ const el = document.createElement("p"); el.className = "stp-sign";
           el.style.cssText = 'left:' + sg.x + 'px;top:' + sg.y + 'px;width:' + sg.w + 'px;height:' + sg.h + 'px;font-size:' + sg.size + 'px;line-height:' + sg.h + 'px'; el.textContent = sg.text || ""; return el; });
         root.insertBefore(sentEl, veil); slots.forEach(o=> root.insertBefore(o.el, veil)); signs.forEach(el=> root.insertBefore(el, veil));
-        const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio);
+        const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
         const gapEl = (wpx)=>{ const g = document.createElement("span"); g.className = "stp-gap"; g.style.width = wpx + "px"; return g; };
         if(se.gap && L.words[se.gap.before]) L.words[se.gap.before].before(gapEl(se.gap.w));   // the room the slot sits in
         if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
@@ -7091,8 +7122,8 @@ const SlideModules = {
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((n - 1) * P.pop_gap + P.sent_at, stage4);
       }
-      // 4. the sentence, read without a pause, its words arriving one by one with the clip
-      function stage4(){ const C = R, L = C.L, times = L.times || []; narrate(L.src, times, n=>{ sfigShow(L, n); if(n >= times.length) C.signs.forEach(el=> el.classList.add("on")); }, stage5); }
+      // 4. the sentence rises in whole — the sign-off (593:151) with it — and is read SENT_IN_MS later, each word lit as it is read ([word-sync])
+      function stage4(){ const C = R, L = C.L; sfigRise(L, C.signs); at(SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, stage5); sfigSync(L); }); }
       // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
       //    to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){

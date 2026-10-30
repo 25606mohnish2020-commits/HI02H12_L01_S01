@@ -2,11 +2,11 @@
 usage: python -I -X utf8 recap_check.py <index.html> <recap_figma_render_1280x720.png> <outdir>
 1. At 1333x750, the page mounted on its own: the title appears as the intro line ("आइए समझते हैं कि कौन-से चिह्न का
    प्रयोग कब किया जाता है।") starts to sound and nothing of the rows shows before that line has ended; then the nine beats
-   — for each mark the box + mark with its name, the use, the yellow box with the example — each box pops in as its
-   own clip starts and the words arrive one by one with the clip (none early, none >150 ms late); a 🔊 tap during the
+   — for each mark the box + mark with its name, the use, the yellow box with the example — each text rises in whole (its
+   box popping in with it) and its clip follows 0.45 s later, each word lit as the clip reaches it ([word-sync]); a 🔊 tap during the
    intro or between beats is ignored (every clip plays once); आगे shows the reference's disabled pill ([dun-chrome]) until
    the last example has been read, then goes live, breathing, under the card; a 🔊 tap afterwards reads the marks again from the
-   first (boxes staying, words re-arriving) with आगे hidden meanwhile; आगे leads to T2 (no gate); past the Figma pages
+   first (boxes and texts staying, the words lit again) with आगे hidden meanwhile; आगे leads to T2 (no gate); past the Figma pages
    (G4) no story styling is left.
 2. Card, Swiftie and 🔊 chip exactly as on T0B / T0 (stage px); आगे centred in the gap under the card.
 3. 1280x720 viewport (stage px x 1333/1280 = frame px): every element's box vs the frame, the fonts, each text's ink
@@ -32,6 +32,14 @@ AS_T0B = {   # stage px: the frame's card box; the story page's Swiftie and chip
   "#navBtn":             (581.5, 678, 170, 62),   # [dun-chrome] the reference's text pill, under the card
 }
 KEYS = [f"{m}_{p}" for m in ("purn", "alp", "prashn") for p in ("name", "when", "eg")]
+def lit_want(times, wend, t):
+    """[word-sync] the word(s) lit at clip time t: the stretch [start, next start) holding t (words sharing a start light together),
+    the last up to the last word's end; nothing after it"""
+    if t is None or (wend is not None and t >= wend): return []
+    st = None
+    for x in times:
+        if t >= x: st = x
+    return [i for i, x in enumerate(times) if st is not None and x == st]
 GAP, GAP_MARK = 300, 700
 CX, CY = 96, 106   # the frame's card origin (page px at 1280x720)
 FRAME = {   # frame px, from the Figma metadata of node 508:2 (box = left, top, width, height)
@@ -77,6 +85,7 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     title: !!document.querySelector('.sfig-title.in'),
     pops: rows.flatMap(r => [r.querySelector('.rcf-sign').classList.contains('in'), r.querySelector('.rcf-eg').classList.contains('in')]),
     shown: rows.flatMap(r => ['.rcf-name', '.rcf-when', '.rcf-eg'].map(s => r.querySelectorAll(s + ' .sfig-w.on').length)),
+    hot: rows.flatMap(r => ['.rcf-name', '.rcf-when', '.rcf-eg'].map(s => [...r.querySelectorAll(s + ' .sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0))),   // [word-sync]
     navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now() }; }"""
 # the timeline is sampled IN the page, every frame; the two 🔊 taps (1 s into the intro, and in the breath after the
 # first name has been read) are made in the page too, at those exact moments
@@ -107,6 +116,7 @@ with sync_playwright() as p:
     pg.evaluate(NAVLOG); pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, "T1")
     rows = pg.evaluate("CARD.slides[state.idx].data.rows")
     times = [r[k]["word_times"] for r in rows for k in ("name", "when", "example")]
+    wends = [r[k].get("word_end") for r in rows for k in ("name", "when", "example")]   # [word-sync] each text's last word's end
     pg.wait_for_function("!!document.querySelector('.sfig-title.in')", timeout=10000, polling=20); pg.wait_for_timeout(700)
     pg.screenshot(path=str(out / "a_title_in_1333.png"))
     pg.wait_for_function("!!document.querySelector('.r1 .rcf-eg.in')", timeout=30000, polling=20); pg.wait_for_timeout(900)
@@ -136,20 +146,22 @@ with sync_playwright() as p:
     for j, k in enumerate(KEYS):
         i_s = first(lambda s: s["clip"] == k and s["playing"])
         i_e = first(lambda s: s["clip"] == k and not s["playing"] and s["ms"] > ms(i_s))
-        gap = ms(i_s) - ms(prev_end); want = GAP_MARK if j % 3 == 0 else GAP
+        # [word-sync] the text rises in WHOLE, its clip SENT_IN_MS (0.45 s) after; the breath is counted to the rise
+        n = len(times[j]); i_r = first(lambda s: s["shown"][j] > 0)
+        gap = ms(i_r) - ms(prev_end); want = GAP_MARK if j % 3 == 0 else GAP
         worst_gap.append((k, round(gap), want))
+        check(f"{k}: the whole text appears at once (never part of it), and its clip starts ~0.45 s after it rises in",
+              {s["shown"][j] for s in samples} <= {0, n} and 400 <= ms(i_s) - ms(i_r) <= 800, f"counts {sorted({s['shown'][j] for s in samples})}, clip {ms(i_s) - ms(i_r):.0f} ms after the rise")
         if pops[j] is not None:
             i_p = first(lambda s: s["pops"][pops[j]])
-            check(f"{k}: its box pops in as its clip starts", -250 <= ms(i_p) - ms(i_s) <= 150, f"{ms(i_p) - ms(i_s):+.0f} ms")
-        check(f"{k}: no word shows before its clip", all(s["shown"][j] == 0 for s in samples[:i_s]))
+            check(f"{k}: its box pops in with its text", -60 <= ms(i_p) - ms(i_r) <= 60, f"{ms(i_p) - ms(i_r):+.0f} ms")
         timed = [s for s in samples[i_s:i_e] if s["clip"] == k and s["playing"] and s["t"] is not None]
-        early = [s for s in timed if s["shown"][j] > sum(1 for t in times[j] if s["t"] + 0.04 >= t)]
-        late = [s for s in timed if s["shown"][j] < sum(1 for t in times[j] if s["t"] - 0.15 >= t)]
-        check(f"{k}: words arrive one by one with the clip, none early, none >150 ms late",
-              len(timed) > 20 and len({s["shown"][j] for s in timed}) >= len(times[j]) - 1 and not early and not late,
-              f"{len(timed)} samples, {len({s['shown'][j] for s in timed})} distinct counts / {len(times[j])} words, early {len(early)}, late {len(late)}")
+        off = [s for s in timed if s["hot"][j] not in (lit_want(times[j], wends[j], s["t"]), lit_want(times[j], wends[j], s["t"] - 0.05))]
+        seen = {tuple(s["hot"][j]) for s in timed if s["hot"][j]}
+        check(f"{k}: each word lit as the clip reaches it, one at a time, none after the last word's end",
+              len(timed) > 10 and not off and len(seen) >= len(set(times[j])) - 1, f"{len(timed)} samples, {len(off)} off, {len(seen)} lit states / {len(set(times[j]))} stretches")
         prev_end = i_e
-    check("the breaths between beats are the module's (300 ms; 700 ms before the next mark), within 250 ms",
+    check("the breaths between beats are the module's (300 ms; 700 ms before the next mark) up to the next text's rise, within 250 ms",
           all(w - 20 <= g <= w + 250 for _, g, w in worst_gap), worst_gap)
     i_last_end = prev_end
     check("आगे stays hidden until the last example has been read", not any(s["navVisible"] for s in samples[:i_last_end]))
@@ -170,8 +182,9 @@ with sync_playwright() as p:
     pg.wait_for_timeout(1200)
     pg.click(".tut-audio", force=True); pg.wait_for_timeout(400)
     r = pg.evaluate(SAMPLE)
-    check("🔊 afterwards reads the marks again from the first name, title and boxes staying, words re-arriving",
-          r["clip"] == "purn_name" and r["playing"] and r["shown"][0] < len(times[0]) and r["title"] and all(r["pops"]))
+    check("🔊 afterwards reads the marks again from the first name, title, boxes and texts staying, the name lit word by word again ([word-sync])",
+          r["clip"] == "purn_name" and r["playing"] and all(s_ == len(t_) for s_, t_ in zip(r["shown"], times)) and r["hot"][0] in (lit_want(times[0], wends[0], r["t"]), lit_want(times[0], wends[0], r["t"] - 0.05))
+          and r["title"] and all(r["pops"]), r)
     check("आगे is hidden while the replay sounds", not r["navVisible"])
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=90000)
     pg.wait_for_timeout(300)

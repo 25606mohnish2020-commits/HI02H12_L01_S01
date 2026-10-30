@@ -1,6 +1,6 @@
 """The story page T0 ([story-fig] layout, [story-pinki] beats): FOUR beats on one layout — the Figma frames 652:3, 652:192,
 660:127 and 653:381 (Pinki, her mother and the cat) — each a new picture in the grey-bordered frame and a new text that
-arrives word by word with its recorded clip (vo_story_b1..b4). The page opens on the recorded line "आइए इन वाक्यों को सुनते
+rises in whole and is read 0.45 s later, each word lit as its recorded clip reaches it ([word-sync]; vo_story_b1..b4). The page opens on the recorded line "आइए इन वाक्यों को सुनते
 हैं।" (vo_story_s0, [vo-rec]); between beats the finished text leaves one second after its clip, the next picture appears over
 the last one and its clip starts once it has landed. आगे is the reference's pill ([dun-chrome]): disabled through the beats, live
 and breathing once the LAST clip has ended; the 🔊 chip
@@ -51,6 +51,7 @@ SAMPLE = """() => { const a = currentAudio, src = a ? a.src : '', nav = document
   const texts = [...document.querySelectorAll('.sfig-text')], pics = [...document.querySelectorAll('.sfig-img')];
   return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying,
     shown: texts.map(x => x.querySelectorAll('.sfig-w.on').length), gone: texts.map(x => x.classList.contains('gone')), pic: pics.map(p => p.classList.contains('on')),
+    hot: texts.map(x => [...x.querySelectorAll('.sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0)),   // [word-sync] the lit word(s)
     navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now(),
     cat: (typeof _kitSfx !== 'undefined' && _kitSfx.storyBeat1) ? (_kitSfx.storyBeat1.paused ? 'paused' : 'playing') : null,   // [story-cat] beat 1's sound
     pop: pics[0] ? getComputedStyle(pics[0]).animationName : null }; }"""
@@ -70,21 +71,30 @@ LINES_OF = """(k) => { const ws = [...document.querySelectorAll('.sfig-text.b' +
   return tops.map(t => ws.filter(w => Math.round(w.getBoundingClientRect().top) === t).map(w => w.textContent).join(' ')); }"""
 PULSING = "getComputedStyle(document.getElementById('navBtn'), '::after').animationName"
 
-def sync_checks(tag, samples, k, times):
-    """beat k (0-based): its words arrive one by one as its clip reaches them (on the clip's own clock), none early, none late"""
-    clip = f"b{k + 1}"
+def lit_want(times, wend, t):
+    """[word-sync] the word(s) lit at clip time t: the stretch [start, next start) holding t, the last up to the last word's end
+    (words sharing a start — a mark-only "?”" — light together); nothing after the end"""
+    if t is None or (wend is not None and t >= wend): return []
+    st = None
+    for x in times:
+        if t >= x: st = x
+    return [i for i, x in enumerate(times) if st is not None and x == st]
+
+def sync_checks(tag, samples, k, times, wend):
+    """[word-sync] beat k (0-based): its text shows WHOLE (every word in the same frame, rising in), its clip starts ~0.45 s later,
+    and while the clip plays the word lit is the one whose stretch holds the clip's time (the reference T1's wordSync)"""
+    clip = f"b{k + 1}"; n = len(times)
+    counts = sorted({s["shown"][k] for s in samples})
+    check(f"{tag}: the whole text appears at once, never part of it", set(counts) <= {0, n}, counts)
+    i_r = next((i for i, s in enumerate(samples) if s["shown"][k] == n), None)
+    i_c = next((i for i, s in enumerate(samples) if s["clip"] == clip and s["playing"] and s["t"]), None)
+    gap = samples[i_c]["ms"] - samples[i_r]["ms"] if i_r is not None and i_c is not None else None
+    check(f"{tag}: it rises in and its clip starts ~0.45 s later (the reference's SENT_IN_MS)", gap is not None and 400 <= gap <= 800, f"{gap:.0f} ms" if gap is not None else None)
     timed = [s for s in samples if s["clip"] == clip and s["playing"] and s["t"] is not None]
-    shown = lambda s: s["shown"][k]
-    early = [s for s in timed if shown(s) > sum(1 for t in times if s["t"] + 0.04 >= t)]
-    late  = [s for s in timed if shown(s) < sum(1 for t in times if s["t"] - 0.15 >= t)]
-    distinct = len(set(times))   # a mark-only word ("?”") arrives with the word before it
-    check(f"{tag}: words appear one by one with the clip", len(timed) > 40 and len({shown(s) for s in timed}) >= distinct - 2,
-          f"{len(timed)} samples while the clip played, {len({shown(s) for s in timed})} distinct word counts / {len(times)} words")
-    check(f"{tag}: no word shows before the narration reaches it", not early, early[:2])
-    check(f"{tag}: no word lags its start time by >150 ms", not late, late[:2])
-    first_t = next((s["t"] for s in timed if shown(s) >= 1), None)
-    check(f"{tag}: first word appears as the clip starts speaking", first_t is not None and first_t < times[0] + 0.15,
-          f"at {first_t:.3f}s, word starts {times[0]}s" if first_t is not None else "")
+    off = [s for s in timed if s["hot"][k] not in (lit_want(times, wend, s["t"]), lit_want(times, wend, s["t"] - 0.05))]   # one frame's lag allowed
+    seen = {tuple(s["hot"][k]) for s in timed if s["hot"][k]}
+    check(f"{tag}: each word lit as the clip reaches it, one at a time, none after the last word's end", len(timed) > 20 and not off and len(seen) >= len(set(times)) - 1,
+          f"{len(timed)} samples, {len(off)} off, {len(seen)} lit states / {len(set(times))} stretches")
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--autoplay-policy=no-user-gesture-required", "--mute-audio"])
@@ -130,9 +140,11 @@ with sync_playwright() as p:
     # the opening line, then beat 1
     i_s0 = first(lambda s: s["clip"] == "s0" and s["playing"]); i_s0e = first(lambda s: s["clip"] != "s0" or not s["playing"], i_s0 + 1)   # beat 1 follows at once: the ended frame may be missed
     i_b1 = first(lambda s: s["clip"] == "b1" and s["playing"])
-    check("the opening line (vo_story_s0, “आइए इन वाक्यों को सुनते हैं।”) sounds first, beat 1's picture up and its text empty; beat 1's clip starts once it has ended",
-          i_s0 < i_s0e <= i_b1 and all(s["shown"][0] == 0 and s["pic"][0] for s in samples[:i_b1]) and ms(i_b1) - ms(i_s0e) <= 800, f"beat 1 {ms(i_b1) - ms(i_s0e):.0f} ms after the line")
-    for k in range(N): sync_checks(f"beat {k + 1}", samples, k, T[k])
+    i_r1 = first(lambda s: s["shown"][0] > 0)
+    check("the opening line (vo_story_s0, “आइए इन वाक्यों को सुनते हैं।”) sounds first, beat 1's picture up and its text empty; once it has ended beat 1's text rises in and its clip follows ([word-sync])",
+          i_s0 < i_s0e <= i_r1 <= i_b1 and all(s["pic"][0] for s in samples[:i_b1]) and ms(i_b1) - ms(i_s0e) <= 1250, f"beat 1 {ms(i_b1) - ms(i_s0e):.0f} ms after the line")
+    WE = [bt.get("word_end") for bt in beats]
+    for k in range(N): sync_checks(f"beat {k + 1}", samples, k, T[k], WE[k])
     # the turns between the beats
     i_end = [first(lambda s, k=k: s["clip"] == f"b{k + 1}" and s["shown"][k] == len(T[k]) and not s["playing"]) for k in range(N)]
     # [story-cat] as beat 1's line ends: its sound (sfx_story_cat.mp3, the kit element storyBeat1) once, with the picture's G4 pop
@@ -149,8 +161,9 @@ with sync_playwright() as p:
         pause = ms(i_gone) - ms(i_end[k]); land = ms(i_vo) - ms(i_gone)
         check(f"beat {k + 1}'s text leaves one second after its clip ends", 900 <= pause <= 1300, f"{pause:.0f} ms")
         check(f"picture {k + 2} appears in the same beat as text {k + 1} leaves (over the last picture)", samples[i_gone]["pic"][k + 1] and not samples[i_gone - 1]["pic"][k + 1] and samples[i_gone]["pic"][k])
-        check(f"beat {k + 2}'s clip starts once picture {k + 2} has landed (~0.65 s)", 600 <= land <= 1000, f"{land:.0f} ms after the turn")
-        check(f"no beat-{k + 2} word shows before the turn", all(s["shown"][k + 1] == 0 for s in samples[:i_vo]))
+        i_rk = first(lambda s, k=k: s["shown"][k + 1] > 0); rise = ms(i_rk) - ms(i_gone)
+        check(f"beat {k + 2}'s text rises in once picture {k + 2} has landed (~0.65 s), its clip ~0.45 s after that ([word-sync])", 600 <= rise <= 1000 and 1050 <= land <= 1500,
+              f"text {rise:.0f} ms, clip {land:.0f} ms after the turn")
     check("the 🔊 tap during the first turn was ignored (beat 1 never restarts)", tapped and not any(s["clip"] == "b1" and s["playing"] for s in samples[i_end[0]:]))
     check("आगे stays hidden through every beat and turn", not any(s["navVisible"] for s in samples[:i_end[-1]]))
     check("आगे opens (pulsing) once the last clip has ended", samples[-1]["nav"] and samples[-1]["shown"][-1] == len(T[-1]) and pg.evaluate(PULSING) == "navBreathe",
@@ -158,7 +171,8 @@ with sync_playwright() as p:
     pg.wait_for_timeout(1200)
     pg.click(".tut-audio", force=True); pg.wait_for_timeout(400)
     r = pg.evaluate(SAMPLE)
-    check("🔊 afterwards replays the last beat on its picture from its first word", r["clip"] == f"b{N}" and r["playing"] and r["shown"][-1] < len(T[-1]) and r["pic"][-1] and all(r["gone"][:-1]))
+    check("🔊 afterwards replays the last beat on its picture, its text staying on screen and lit word by word again ([word-sync])",
+          r["clip"] == f"b{N}" and r["playing"] and r["shown"][-1] == len(T[-1]) and r["hot"][-1] in (lit_want(T[-1], beats[-1].get("word_end"), r["t"]), lit_want(T[-1], beats[-1].get("word_end"), r["t"] - 0.05)) and r["pic"][-1] and all(r["gone"][:-1]), r)
     check("आगे is hidden while the replay sounds", not r["navVisible"])
     pg.screenshot(path=str(out / "3h_replay_1333.png"))
     pg.wait_for_function("!isPlaying", timeout=20000)
@@ -208,7 +222,7 @@ with sync_playwright() as p:
     for k, (beat, target) in enumerate(zip(BEAT, targets), 1):
         n = len(T[k - 1])
         if k < N:   # beat k complete, in the one-second pause before the turn
-            pg.wait_for_function(f"!isPlaying && document.querySelectorAll('.sfig-text.b{k} .sfig-w.on').length === {n} && !document.querySelector('.sfig-text.b{k}').classList.contains('gone')", timeout=40000, polling=20)
+            pg.wait_for_function(f"!isPlaying && currentAudio && currentAudio.ended && currentAudio.src.includes('vo_story_b{k}.') && document.querySelectorAll('.sfig-text.b{k} .sfig-w.on').length === {n} && !document.querySelector('.sfig-text.b{k}').classList.contains('gone')", timeout=40000, polling=20)   # [word-sync] the clip has ENDED: the text is shown before it starts
             if k == 1:   # [story-cat] beat 1's line end brings the picture's 1 s pop: its peak is measured, then the pop is held off for the rest-state shot
                 peak = pg.evaluate("""() => new Promise(res => { const el = document.querySelector('.sfig-img.b1'); let mx = 1; const t0 = performance.now();
                   const step = () => { const tr = getComputedStyle(el).transform; if (tr && tr !== 'none') mx = Math.max(mx, parseFloat(tr.split('(')[1]));

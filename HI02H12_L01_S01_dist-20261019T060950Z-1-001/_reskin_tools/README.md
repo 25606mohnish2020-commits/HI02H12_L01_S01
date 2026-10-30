@@ -1660,8 +1660,8 @@ Every page's text in the reference T1's face: Baloo 2 ExtraBold ([baloo-font], 2
      its old value.
   app.js is byte-identical (the marks' ink centring, the pills' two-line fitting and the canvas measuring all read the computed
   font); style.css changes only in those rules, index.html only in those numbers.
-- Checks: smoke 47/47, title 25/25, story 61/61, gate 14/14, letter 43/43, stamp 36/36 (all five rounds, every drag,
-  every slot fill), g4_check G4 / P1 / P2 28/28 each (incl. the pixel comparison with the reference's P4 — passing again now that
+- Checks: smoke 47/47, title 25/25, story 61/61, gate 14/14, letter 43/43, stamp 36/36 (CORRECTION, later the same day: that run had crashed after round 1 on the
+  fractional slot x's — see [word-sync]; the full run is 110/110), g4_check G4 / P1 / P2 28/28 each (incl. the pixel comparison with the reference's P4 — passing again now that
   [sent-font] is undone). The Figma pages keep their timing / flow / box checks; what fails is, by design, the comparison of the
   TEXT INK with the Figma renders, which Figma drew in its Noto fallback (the frames' "Baloo Bhai 2" has no Devanagari): demo T2
   40/43, T3 40/42, T4 41/43, pick G1 / G2 53/55, G3 52/55, recap 44/46, relisten 34/36 (relisten's two render comparisons
@@ -1692,6 +1692,50 @@ Page 1 T0's text box: the reference story's shadow ([textbox-shadow], 2026-10-30
   anti-aliased bottom row (0.099 vs 0.074 — the two boxes' bottoms fall at different sub-pixel places, 506.6 vs 571.3), where the old
   Figma shadow differed by up to 0.139. story_check.py 61/61 (its picture + text box diff vs the Figma render 2.0-2.35 %, under 5 %).
   `../_before_textbox_shadow/` holds the dist's three files, build.py, story_check.py and this README from before.
+
+Every VO-synced text: whole at once, then the reference's word light ([word-sync], 2026-10-30)
+- Asked: "take the reference of page 1 T1 of https://hi-02-h04-l01-s01-dun.vercel.app/ and apply the exact same effect of the
+  appearance of the whole hindi sentence at once instead of word by word animation of the sentence appearance, and when the VO of
+  the sentence is played the exact same word by word orange highlight as in this reference file, at all the places of this file
+  wherever the sentence is synced with the VO; rest exactly the same".
+- The reference (its local byte-identical copy, Suresh's File/HI02H04_L01_S01-…/HI02H04_L01_S01.html; <script id="STORY-INTRO-JS">
+  and #STORY-INTRO-CSS / #P2-BIRD-POP-CSS): T1's sentence pill rises in whole — siSentIn, 0.45 s, cubic-bezier(.2,.8,.3,1), from
+  opacity 0, 14 px lower, scale .96 — and SENT_IN_MS (450 ms) later the sentence's clip plays; its wordSync puts .p2-word.on
+  (color #E86A00, p2WordPop .28 s: 1 -> 1.10 -> 1, origin 50% 60%) on word k while start[k] <= currentTime < start[k+1], the last
+  word until the end of the last word in the recording, one word at a time, and clears it at that end or as soon as the line is
+  cut. Traced live (scratchpad ref_t1_trace.py): rise 27 frames, opacity 0 / .672 / .903 / .977 / .998 and lift 14 / 4.59 /
+  1.35 / .33 / .03 px at +0 / 100 / 200 / 300 / 400 ms; the clip 500 ms after the rise; one word lit at a time, none after 2.292 s.
+- Before: every narrated text here ARRIVED word by word (.sfig-w fading up as the clip reached it): T0's four beats, T0B's two
+  sentences, T1's nine texts (names, uses, examples), the first reading of the sentence on T2-T4 and G1-G3, L2's five round
+  sentences; the demos' second reading and the picks' idle re-read already lit words orange ([word-hot]); G4 / P1 / P2 are the
+  reference P4's own pills (shown whole, words lit as read) and stay as they were.
+- How (build.py [word-sync]): story_js gets SENT_IN_MS = 450, sfigRise(L, extra) — every word of the line on at once (their own
+  arrival transition off meanwhile, .sfig-whole) and the line's element rising in with siSentIn (keyed on the individual
+  translate / scale properties so a text box's own centring transform is kept; T1's example text box lost its translateX(-50%)
+  for the same left in calc() so the rise scales about it) — and sfigSync(L) — the reference's wordSync on the clip that has just
+  started: words sharing a start ("है ।") light together, nothing after the line's last word's end, cut lines clear at once.
+  sfigNarrate (T0 / T0B / T1) is now: a line not yet shown rises in and is read SENT_IN_MS later; a line already shown (a 🔊 replay)
+  is read at once — replays keep every text on screen (T0B / T1 no longer hide them first). T2-T4 / G1-G3: the sentence rises in
+  once the bar has landed (the old 650 ms), its clip 450 ms later with the light; the picks' idle re-read uses sfigSync. L2: each
+  round's sentence rises in at the old moment (0.7 s after the last pop) with its sign-off (593:151), its clip 450 ms later with the
+  light. Every line's card data carries word_end (the last word's end from its *.words.json). Unchanged: the demos' second reading
+  (words + slots lit on the full clip, held through the slots' 1.5 s), T0B's sentence / comma lights, every box, picture, sound.
+- Timing: each FIRST reading starts 0.45 s later than before (the reference's order: the sentence is seen, then heard); the
+  pages' other beats follow from there.
+- Checks: scratchpad sync_trace.py + sync_check.py traced all 22 synced texts (T0 4, T0B 2, T1 9, T2-T4, G1-G3, L2 rounds 1-5)
+  frame by frame: every one appears whole in a single frame with the rise, its clip ~0.45 s (466-515 ms) after, the lit word the
+  recording's on every frame (single-frame lags only), nothing lit after the last word's end, look #E86A00 + p2WordPop .28 s.
+  The project checks' word-by-word assertions were rewritten to the new behaviour (story / relisten / recap / demo / pick / stamp:
+  "the whole text appears at once", "it rises in and its clip starts ~0.45 s later", "each word lit as the clip reaches it, none
+  after the last word's end", the beat / box / round timings + 0.45 s, replays keep the text): run one at a time — smoke 47/47, story 54/54, relisten 34/36,
+  recap 44/46, demo T2 40/43, T3 40/42, T4 41/43, pick G1 / G2 54/56, G3 53/55, stamp 110/110 ("ALL PASS"), gate, letter, title,
+  g4 G4 / P1 / P2 all pass; every remaining failure is one that failed before this change too (the text-ink and whole-frame
+  comparisons with the Figma renders, drawn in Noto, since [baloo-font]; relisten's two render comparisons, older still; T2's
+  grown danda at 1.33 px). New: word_sync_check.py (the trace + judge above as a project check; all 26 lines OK, exit 0; it
+  allows the light to lag the clip's clock by up to two frames). stamp_check.py's pixel helpers now round their windows to whole
+  pixels: since [baloo-font] the stamp slots sit at fractional x (753.7, 522.4, ...) and the script had crashed (exit 1) after round
+  1 — so the "stamp 36/36" under [baloo-font] below covered round 1 only; the full run is the 110/110 here.
+  `../_before_word_sync/` holds the dist's three files, build.py, the README and the check scripts from before.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
