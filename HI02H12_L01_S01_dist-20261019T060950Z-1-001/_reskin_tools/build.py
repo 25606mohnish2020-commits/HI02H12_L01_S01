@@ -2126,10 +2126,13 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-pic{position:absolute;left:313px;top:9px;width:438px;height:232px;border:4px solid #DADADA;border-radius:24px;
   overflow:hidden;background:#000;}
 .sfig-pic img{position:absolute;object-fit:cover;}
-/* [story-pinki] each beat's picture as its frame crops it into the 430x224 box (the image node's offset and size) */
-.sfig-img.b1{left:-14px;top:-3px;width:458px;height:229px;}    /* node 668:314 (frame 652:3) */
-.sfig-img.b2{left:-16px;top:-4px;width:462px;height:231px;}    /* node 669:317 (frame 652:192) */
-.sfig-img.b3{left:-14px;top:-2px;width:458px;height:229px;}    /* node 671:320 (frame 660:127) */
+/* [story-pinki] each beat's picture as its frame crops it into the 430x224 box (the image node's offset and size).
+   [story-pics] (2026-10-31) the user's redrawn pictures replace all four (same files): 1 and 4 are 16:9 (1672x941 / 1672x940),
+   2 and 3 the box's own 1.92 (1738x905), so each fills the box full width, centred — the frames' 2:1 nodes for the old bitmaps
+   (b1 -14,-3 458x229; b2 -16,-4 462x231; b3 -14,-2 458x229) had cut the new pictures' cat off at the right edge */
+.sfig-img.b1{left:0;top:-9px;width:430px;height:242px;}        /* 1672x941: as b4 (was node 668:314, frame 652:3) */
+.sfig-img.b2{left:0;top:0;width:430px;height:224px;}           /* 1738x905: the box exactly (was node 669:317, frame 652:192) */
+.sfig-img.b3{left:0;top:0;width:430px;height:224px;}           /* 1738x905: the box exactly (was node 671:320, frame 660:127) */
 .sfig-img.b4{left:0;top:-9px;width:430px;height:242px;}        /* node 653:563 (frame 653:381) */
 .sfig-img:not(.on){visibility:hidden;}
 /* the next beat's picture appears over the last one: fades up from a slight zoom and settles into its crop */
@@ -3263,7 +3266,7 @@ for f in title_files:
 # ---------- 7b. [story-fig] the story page's assets (kept next to this script, in story_assets/) ----------
 STORY_SRC = SCR / "story_assets"
 for name, sub in (("story_grid.svg", "UI"), ("story_font_baloo2_800.woff2", "UI"),   # [baloo-font] (was the two Noto SemiBold subsets)
-                  ("img_story_pinki_cat.webp", "Images"), ("img_story_pinki_listen.webp", "Images"),   # [story-pinki] the frames' pictures
+                  ("img_story_pinki_cat.webp", "Images"), ("img_story_pinki_listen.webp", "Images"),   # [story-pinki] the frames' pictures ([story-pics]: the user's redrawn ones)
                   ("img_story_pinki_ask.webp", "Images"), ("img_story_pinki_maa.webp", "Images"),       # (their clips: vo_rec.py)
                   ("vo_story_r0.ogg", "Audio"), ("vo_story_r1.ogg", "Audio"),
                   ("sfx_story_cat.mp3", "Audio")):   # [story-cat] beat 1's sound (the user's file, bytes as given)

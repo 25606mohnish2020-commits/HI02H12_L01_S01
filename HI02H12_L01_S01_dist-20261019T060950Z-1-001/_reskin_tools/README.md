@@ -1737,6 +1737,25 @@ Every VO-synced text: whole at once, then the reference's word light ([word-sync
   1 — so the "stamp 36/36" under [baloo-font] below covered round 1 only; the full run is the 110/110 here.
   `../_before_word_sync/` holds the dist's three files, build.py, the README and the check scripts from before.
 
+Page 1 T0's four pictures: the user's redrawn art ([story-pics], 2026-10-31)
+- Asked: "At Page 1 T0 replace the images with these images at their respective places but rest keep everything exactly the
+  same" — four attached pictures, the same scenes redrawn (Pinki now in braids, a grey cat): 1 pointing at the cat, 2 hand to
+  her ear, 3 the "?", 4 with her mother — beats 1-4 in that order.
+- Here: the same four files, story_assets/img_story_pinki_{cat,listen,ask,maa}.webp, now hold the user's pictures at their
+  native size (1672x941, 1738x905, 1738x905, 1672x940; WebP q90 method 6 as g4_picture.py, 134-159 KB like the old ones);
+  build step 7b copies them as before.
+- One CSS change per picture shape (build.py, the .sfig-img rules): the old bitmaps were 2:1 and the frames' image nodes
+  overhung the 430x224 box (b1 -14,-3 458x229; b2 -16,-4 462x231; b3 -14,-2 458x229) — kept for the new pictures they zoomed
+  beat 1 by 6 % and cut the cat off at the right edge on beats 1-3 (previewed). The new ones fill the box full width, centred:
+  b1 0,-9 430x242 (16:9, as b4 already was), b2 / b3 0,0 430x224 (1738x905 is the box's own 1.92); b4 unchanged (its new
+  picture has the old one's shape). Frame, border, text, VO, beat timing, the cat sound and beat 1's pop are untouched.
+- Checks: story_check.py's beat boxes follow the new rules, and its four Figma renders got the new pictures pasted into the
+  picture box (scratchpad patch_story_renders.py; the old renders kept as story_b*_figma_render_1280x720_v1_2026-10-28.png):
+  story 54/54 (ALL PASS, exit 0; picture + text box diffs 2.3-2.5 %, the picture's only resampling edges), smoke 47/47.
+  An unchanged rebuild first reproduced the dist byte for byte; after the change git shows only the four pictures (dist +
+  story_assets), style.css's .sfig-img lines and build.py. `../_before_story_pics/` holds the dist's three files, the old
+  pictures, build.py, the README, story_check.py and the old renders.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

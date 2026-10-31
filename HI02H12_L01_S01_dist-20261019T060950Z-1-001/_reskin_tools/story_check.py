@@ -36,9 +36,11 @@ REFERENCE = {   # stage px on the reference game's T1/T2 (same on every beat)
 }
 CONTENT = (416, 122, 864, 492)   # frame px region holding the picture + text box, for the Figma pixel diff
 BEAT = [   # each beat's picture node (its offset and size inside the 430x224 box) and the frame's text lines
-  {"img": (".sfig-img.b1", (108+317-14, 118+13-3, 458, 229)), "lines": ["पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”"]},   # node 668:314
-  {"img": (".sfig-img.b2", (108+317-16, 118+13-4, 462, 231)), "lines": ["माँ ने कहा, “उसे रोको मत जाने दो।”"]},             # node 669:317
-  {"img": (".sfig-img.b3", (108+317-14, 118+13-2, 458, 229)), "lines": ["पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”"]},           # node 671:320
+  # [story-pics] (2026-10-31) beats 1-3 carry the user's redrawn pictures, fitted to the box (16:9 / 1.92), not the frames' 2:1 nodes;
+  # the renders have them pasted in (old renders: story_b*_figma_render_1280x720_v1_2026-10-28.png)
+  {"img": (".sfig-img.b1", (108+317+0, 118+13-9, 430, 242)), "lines": ["पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”"]},   # node 668:314
+  {"img": (".sfig-img.b2", (108+317+0, 118+13+0, 430, 224)), "lines": ["माँ ने कहा, “उसे रोको मत जाने दो।”"]},             # node 669:317
+  {"img": (".sfig-img.b3", (108+317+0, 118+13+0, 430, 224)), "lines": ["पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”"]},           # node 671:320
   {"img": (".sfig-img.b4", (108+317+0, 118+13-9, 430, 242)),  "lines": ["माँ ने कहा, “उसे रोको, मत जाने दो।”"]},            # node 653:563
 ]
 BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
