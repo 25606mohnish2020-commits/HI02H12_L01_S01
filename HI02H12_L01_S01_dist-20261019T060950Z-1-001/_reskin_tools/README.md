@@ -1786,6 +1786,22 @@ Page 1 T0's white box and type: the reference poem game's caption ([poem-box], 2
   no longer the frames'): 70/70 ALL PASS; smoke 47/47; word_sync_check T0 all lines OK. `../_before_poem_box/` holds the dist's
   three files, build.py, the README and story_check.py from before.
 
+Page 1 T0's white box: one size, more white above and below ([poem-box2], 2026-10-31)
+- Asked: "make one size of the white text box at page 1 T0, don't make it adjust its size again and again; increase the vertical
+  white space of the box and centre the text in it so the whole layout looks fine."
+- Here (build.py [poem-box2]): the box is 566 x 94 stage px on every beat — the longest sentence's ink (beat 1, 502 x 30) with 32 px
+  of white on every side (beats 2-4, 394-414 wide, get the same box) — still the reference caption's white, 26 px corners and shadow,
+  and the type is untouched. It sits midway between the picture frame's bottom and आगे's top (gaps 41.6 / 41.0 px; was 41.8 / 75.8
+  around the 59 px box). The text is placed by its INK: Devanagari's matras rise above the headline, so the ink centre is 4.69 px above
+  the line box's centre; the line box sits 4.69 px below the box's centre and the ink lands on it (measured: 31 px of white above and
+  below beats 2 and 4; beat 1's comma tail 1 px lower; beat 3's ू hangs 7 px into the lower white; across, within half a pixel).
+  The texts moved down by exactly 22 stage px (21.125 frame px) so the glyphs keep their pixel phase. The re-fit code in STORY_LISTEN
+  (fitBox, --sfig-tw, the width transition) is gone: app.js is back to the module as it was before [poem-box].
+- Checked: story_check.py (75/75 ALL PASS) now asserts the one box per beat (566 x 94, gaps equal within 1 px), the ink-centred text
+  and the SAME box rect in every frame sample from beat 1 to the end (604 samples, spread 0.000 px); smoke 47/47; scratchpad
+  ink_margins.py read the white around each sentence off the shots. `../_before_poem_box2/` holds the [poem-box] dist, build.py
+  (from git HEAD), README and story_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

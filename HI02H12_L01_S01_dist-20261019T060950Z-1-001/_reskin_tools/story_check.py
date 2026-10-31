@@ -8,9 +8,10 @@ replays the beat on screen from its first word, hiding आगे until that repl
 Checks: the real flow from the start gate (the opening line, each beat's word sync, the three turns, a 🔊 tap in the first turn
 ignored, आगे's states frame by frame, the replay, आगे -> T0B); a stalled last clip (the watchdog opens आगे live); geometry and
 pixel diffs of the picture against the four Figma renders at 1280x720; the white box and its type are the reference poem game's
-caption ([poem-box], hi02h11l03s01poem-8cpz.vercel.app Page 1 T1): it wraps each beat's sentence (+ 2 x (22 + 3) px, 59.12 px tall,
-26 px corners), Baloo 2 declared 600 at 29 px on 37.12 px with 5.6 px word spacing (stage px), and no word stays lit or orange once a
-line has ended.
+caption ([poem-box], hi02h11l03s01poem-8cpz.vercel.app Page 1 T1: white, 26 px corners, its shadow; Baloo 2 declared 600 at 29 px on
+37.12 px with 5.6 px word spacing, stage px) in ONE size for all four beats ([poem-box2]: 566 x 94, the same rect through the whole
+flow), midway between the picture and आगे, the sentences' ink centred in it (line box centre 4.69 px below the box's); no word stays
+lit or orange once a line has ended.
 usage: python -I -X utf8 story_check.py <index.html> <render_652-3.png> <render_652-192.png> <render_660-127.png> <render_653-381.png> <outdir>
        (the renders: story_b1..b4_figma_render_1280x720.png next to this script)
 Screenshots in <outdir>: 1_gate.png, 3*_1333.png (the flow), 2_beat<k>_1280.png (+ _diff_mask.png), 3f_replay_1333.png, 4_T0B_after_story.png
@@ -43,8 +44,9 @@ STAGE = 720 / 750                # stage px -> screen px at 1280x720 (the engine
 CAPTION = """(k) => { const box = document.querySelector('.sfig-textbox'), t = document.querySelector('.sfig-text.b' + k);
   const fig = document.querySelector('.sfig-in'), st = document.querySelector('.stage').getBoundingClientRect().width / 1333;
   const s = fig.getBoundingClientRect().width / fig.offsetWidth / st, br = box.getBoundingClientRect(), tr = t.getBoundingClientRect();
+  const pr = document.querySelector('.sfig-pic').getBoundingClientRect(), nr = document.getElementById('navBtn').getBoundingClientRect();
   const bc = getComputedStyle(box), tc = getComputedStyle(t), ws = [...document.querySelectorAll('.sfig-w')];
-  return { box: [br.left, br.top, br.width, br.height], text: [tr.left, tr.top, tr.width, tr.height], radius: parseFloat(bc.borderTopLeftRadius) * s,
+  return { box: [br.left, br.top, br.width, br.height], text: [tr.left, tr.top, tr.width, tr.height], picBottom: pr.bottom, navTop: nr.top, radius: parseFloat(bc.borderTopLeftRadius) * s,
     bg: bc.backgroundColor, shadow: bc.boxShadow, family: tc.fontFamily, weight: tc.fontWeight, size: parseFloat(tc.fontSize) * s,
     lh: parseFloat(tc.lineHeight) * s, ws: parseFloat(tc.wordSpacing) * s, hot: ws.filter(w => w.classList.contains('hot')).length,
     orange: ws.filter(w => getComputedStyle(w).color !== 'rgb(0, 47, 118)').map(w => w.textContent) }; }"""
@@ -67,6 +69,7 @@ SAMPLE = """() => { const a = currentAudio, src = a ? a.src : '', nav = document
   return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying,
     shown: texts.map(x => x.querySelectorAll('.sfig-w.on').length), gone: texts.map(x => x.classList.contains('gone')), pic: pics.map(p => p.classList.contains('on')),
     hot: texts.map(x => [...x.querySelectorAll('.sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0)),   // [word-sync] the lit word(s)
+    box: (() => { const e = document.querySelector('.sfig-textbox'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; })(),   // [poem-box2]
     navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now(),
     cat: (typeof _kitSfx !== 'undefined' && _kitSfx.storyBeat1) ? (_kitSfx.storyBeat1.paused ? 'paused' : 'playing') : null,   // [story-cat] beat 1's sound
     pop: pics[0] ? getComputedStyle(pics[0]).animationName : null }; }"""
@@ -160,6 +163,10 @@ with sync_playwright() as p:
           i_s0 < i_s0e <= i_r1 <= i_b1 and all(s["pic"][0] for s in samples[:i_b1]) and ms(i_b1) - ms(i_s0e) <= 1250, f"beat 1 {ms(i_b1) - ms(i_s0e):.0f} ms after the line")
     WE = [bt.get("word_end") for bt in beats]
     for k in range(N): sync_checks(f"beat {k + 1}", samples, k, T[k], WE[k])
+    bx_all = [s["box"] for s in samples[i_b1:] if s["box"]]   # [poem-box2] from beat 1's line to the end, through all three turns
+    spread = max(max(v) - min(v) for v in zip(*bx_all)) if bx_all else None
+    check("the white box keeps ONE size and place through all four beats and the turns ([poem-box2])", bx_all and spread < 0.05,
+          f"{len(bx_all)} samples, max spread {spread:.3f} px" if bx_all else "no samples")
     # the turns between the beats
     i_end = [first(lambda s, k=k: s["clip"] == f"b{k + 1}" and s["shown"][k] == len(T[k]) and not s["playing"]) for k in range(N)]
     # [story-cat] as beat 1's line ends: its sound (sfx_story_cat.mp3, the kit element storyBeat1) once, with the picture's G4 pop
@@ -260,10 +267,13 @@ with sync_playwright() as p:
         cap = pg.evaluate(CAPTION, k); bx, tx = cap["box"], cap["text"]
         print(f"  caption box {[round(v, 2) for v in bx]}  text {[round(v, 2) for v in tx]}  {cap['family'].split(',')[0]} {cap['weight']} "
               f"{cap['size']:.2f}/{cap['lh']:.2f} ws {cap['ws']:.2f} radius {cap['radius']:.2f}")
-        check(f"beat {k}: the white box wraps the sentence as the reference caption does (+ 2 x (22 + 3) px wide, 59.12 tall, centred on it; stage px)",
-              abs(bx[2] - tx[2] - 50 * STAGE) <= 0.5 and abs(bx[3] - 59.12 * STAGE) <= 0.5 and abs(tx[3] - 37.12 * STAGE) <= 0.5
-              and abs(bx[0] + bx[2] / 2 - tx[0] - tx[2] / 2) <= 0.5 and abs(bx[1] + bx[3] / 2 - tx[1] - tx[3] / 2) <= 0.5,
-              (round((bx[2] - tx[2]) / STAGE, 2), round(bx[3] / STAGE, 2), round(tx[3] / STAGE, 2)))
+        g1, g2 = (bx[1] - cap["picBottom"]) / STAGE, (cap["navTop"] - bx[1] - bx[3]) / STAGE
+        dy = (tx[1] + tx[3] / 2 - bx[1] - bx[3] / 2) / STAGE
+        check(f"beat {k}: the white box is the one size, 566 x 94, midway between the picture and आगे (stage px, [poem-box2])",
+              abs(bx[2] - 566 * STAGE) <= 0.5 and abs(bx[3] - 94 * STAGE) <= 0.5 and abs(g1 - g2) <= 1.0,
+              (round(bx[2] / STAGE, 2), round(bx[3] / STAGE, 2), f"gaps {g1:.2f} / {g2:.2f}"))
+        check(f"beat {k}: the sentence sits centred in it — one line of 37.12, its ink on the box's centre (line box 4.69 px lower), centred across",
+              abs(tx[3] - 37.12 * STAGE) <= 0.5 and abs(dy - 4.69) <= 0.6 and abs(bx[0] + bx[2] / 2 - tx[0] - tx[2] / 2) <= 0.5, f"dy {dy:.2f}")
         check(f"beat {k}: the box is white with 26 px corners and the caption's shadow",
               cap["bg"] == "rgb(255, 255, 255)" and abs(cap["radius"] - 26) <= 0.05
               and "rgba(11, 42, 90, 0.1)" in cap["shadow"] and "rgba(11, 42, 90, 0.12)" in cap["shadow"], (cap["bg"], round(cap["radius"], 3)))

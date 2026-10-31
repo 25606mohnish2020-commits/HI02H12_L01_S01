@@ -802,16 +802,6 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
       setSwMood("talk");
       const alive = ()=> fig.isConnected;
       let run = 0, cur = 0, popped = false;   // [story-cat] popped: beat 1's sound and pop happen once per visit
-      // [poem-box] the white box wraps the sentence on screen (the reference poem game's caption): its width is the beat's text's
-      // (style.css adds the padding and rim; box and texts share one centre); `smooth` = the move to the next sentence's width
-      const box = fig.querySelector(".sfig-textbox");
-      const fitBox = (k, smooth)=>{
-        if(!smooth) box.style.transition = "none";
-        box.style.setProperty("--sfig-tw", getComputedStyle(texts[k]).width);
-        if(!smooth){ void box.offsetWidth; box.style.transition = ""; }
-      };
-      fitBox(0, false);
-      if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(alive()) fitBox(cur, false); });   // the width once the face is in
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
       const start = ()=>{
         const mine = ++run;
@@ -829,7 +819,6 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
       const turn = ()=>{
         texts[cur].classList.add("gone");
         cur++;
-        fitBox(cur, true);   // [poem-box] the box takes the next sentence's width once this one has faded (.3 s), before it rises
         pics[cur].classList.add("on", "enter");
         setTimeout(()=>{ if(!alive()) return; state.demoRunning = false; start(); }, 650);
       };
@@ -2151,25 +2140,25 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-img.sfig-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}   /* [story-cat] beat 1's picture pops as G4's picture does (p2BirdPop1s, 1 s) as its line ends, with its sound */
 @keyframes sfigPicIn{from{opacity:0;transform:scale(1.08);}to{opacity:1;transform:none;}}
 /* [poem-box] (2026-10-31) the box and its text are the reference poem game's caption (hi02h11l03s01poem-8cpz.vercel.app, Page 1 T1,
-   .story-caption, read as computed in Chrome): white, a 3 px white rim, 26 px corners, 8 px / 22 px padding, the shadow below; it
-   hugs its one line, so it is the beat's sentence + 2 x (22 + 3) px wide and 37.12 + 2 x (8 + 3) px tall (the rim is white on
-   white: it is in the size), centred where the sentences are (the module sets --sfig-tw per beat and re-fits it as the finished
-   sentence leaves — after its .3 s fade). Stage px, divided by --fig-s like the shadow. Was Figma's node 436:412: 436x119 at
-   314,250, 20 px corners */
-.sfig-textbox{position:absolute;left:532px;top:309.5px;width:calc(var(--sfig-tw, 482px) + 50px / var(--fig-s));height:calc(59.12px / var(--fig-s));
+   .story-caption, read as computed in Chrome): white, 26 px corners, the shadow below. [poem-box2] (2026-10-31) ONE size for all
+   four beats (the user: no re-sizing between them) and more white above and below the line: 566 x 94 stage px = the longest
+   sentence's ink (beat 1, 502 x 30) with 32 px of white on every side; placed midway between the picture frame's bottom (frame 241)
+   and आगे's top (frame 410.6): the box's centre is the sentences' ink centre, 4.5 frame px above their line box's centre (the
+   matras rise above the headline). Stage px, divided by --fig-s like the shadow. Was (10-31 [poem-box]) the beat's sentence + 2 x 25
+   wide and 59.12 tall, re-fitted at each turn; before that Figma's node 436:412: 436x119 at 314,250, 20 px corners */
+.sfig-textbox{position:absolute;left:532px;top:326.12px;width:calc(566px / var(--fig-s));height:calc(94px / var(--fig-s));
   transform:translate(-50%,-50%);background:#FFFFFF;border-radius:calc(26px / var(--fig-s));
-  box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);
-  transition:width .3s cubic-bezier(.2,.8,.3,1) .3s;}
+  box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);}
 /* [textbox-shadow] (2026-10-30) the shadow is the reference story's (hind-dear-story.vercel.app, Page 1 S01): its white sentence box
    (.stage.tut.l02-story .mr-read .mr-caption) casts a crisp 5 px navy lip and a soft 10 / 26 px navy glow under it, the same on every
    frame of the page; its stage px, divided by --fig-s so that .sfig-in's scale puts them on screen at exactly 5 / 10 / 26 px
    (was Figma's 0 4px 19.7px rgba(177,177,177,.25)) */
 /* [poem-box] the caption's type: Baloo 2 declared 600 (only the 700 and 800 faces are embedded — the reference's own files,
    byte for byte — so it renders in the 700 face, as there), 29 px on a 37.12 px line (1.28), 0.2em word spacing of its 28 px
-   box = 5.6 px; one line, every beat centred on the box's centre (the old box's, 532,309.5 — the frames' four text nodes sat
-   within half a pixel of it; beat 1's 310 put its glyphs on a half pixel, softer than the reference's). The colour stays this
-   page's #002F76. Was 'Story Baloo 2' 800, 26 px (beat 1) / 28 px, line-height normal, in the frames' text boxes */
-.sfig-text{position:absolute;left:532px;top:309.5px;transform:translate(-50%,-50%);white-space:nowrap;width:max-content;
+   box = 5.6 px; one line, every beat on one centre. [poem-box2] that centre is 22 stage px (21.125 frame px) below the 10-31 one
+   (309.5, the old box's), so the ink lands on the new box's centre and the glyphs keep the same pixel phase (a half-pixel y renders
+   them softer). The colour stays this page's #002F76. Was 'Story Baloo 2' 800, 26 px (beat 1) / 28 px, line-height normal */
+.sfig-text{position:absolute;left:532px;top:330.625px;transform:translate(-50%,-50%);white-space:nowrap;width:max-content;
   font-family:var(--font-hi);font-weight:600;font-size:calc(29px / var(--fig-s));line-height:calc(37.12px / var(--fig-s));
   word-spacing:calc(5.6px / var(--fig-s));color:#002F76;text-align:center;}
 .sfig-text.gone{opacity:0;visibility:hidden;transition:opacity .3s ease-out,visibility 0s .3s;}   /* a finished beat's text leaves */
