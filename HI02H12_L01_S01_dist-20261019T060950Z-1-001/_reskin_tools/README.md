@@ -1756,6 +1756,36 @@ Page 1 T0's four pictures: the user's redrawn art ([story-pics], 2026-10-31)
   story_assets), style.css's .sfig-img lines and build.py. `../_before_story_pics/` holds the dist's three files, the old
   pictures, build.py, the README, story_check.py and the old renders.
 
+Page 1 T0's white box and type: the reference poem game's caption ([poem-box], 2026-10-31)
+- Asked: "Take the reference of https://hi02h11l03s01poem-8cpz.vercel.app/ and apply the exact same white box for the text at page 1
+  T0 and the exact same font style and font size, but don't keep any word highlighted in orange even after the VO sync is over."
+- The reference: its Page 1 = T1 (STORY_SCENE, Meera's balloons), the poem in `.story-caption`. That deployment is NOT the GitHub
+  Ek-aur-Anek repo's file (a different build); read live in Chrome at 1333x750 (scratchpad poem_probe.py), computed: white, 3 px white
+  rim, 26 px corners, padding 8 px / 22 px (a later rule overrides the 10 / 30 written first), shadow 0 5px 0 rgba(11,42,90,.10) +
+  0 10px 26px rgba(11,42,90,.12) (already T0's, [textbox-shadow]), hugging its lines (max 1000 px); type Baloo 2 declared 600 —
+  only the 700 and 800 faces are embedded, so it renders in the 700 face (byte-identical to this engine's own 'Baloo 2' 700) —
+  29 px on 37.12 px (1.28), word spacing 5.6 px (0.2em of the box's 28 px), navy #0B3D8C. Its starred pair words (गुब्बारा /
+  गुब्बारे) turn orange when spoken and STAY orange — the part the user does not want; T0 has no such words, and its own word light
+  ([word-sync]) is off as soon as a line ends (unchanged).
+- Here (build.py [poem-box]; T0 only — .sfig-textbox / .sfig-text are T0's alone): the box is one line high (37.12 + 2 x (8 + 3) =
+  59.12 px) and the sentence + 2 x (22 + 3) px wide, 26 px corners, centred on the old box's centre (532, 309.5 frame px) — the
+  rim is white on white, so it is in the size; all stage px divided by --fig-s (.sfig-in is scaled). The sentences: Baloo 2 600,
+  29 px / 37.12 px, 5.6 px word spacing, one line, all four centred on that same point (the frames' per-beat centres were within
+  half a pixel of it; beat 1's y 310 put its glyphs on a half pixel and softer than the reference's). STORY_LISTEN sets the box's
+  --sfig-tw from the beat's computed text width at mount, again on document.fonts.ready, and at each turn — there with a .3 s
+  width transition delayed .3 s, so the box narrows / widens once the finished sentence has faded and before the next one rises.
+  Kept: this page's text colour #002F76 (the reference's is #0B3D8C — not named in the ask; one value to switch), the rise, the
+  word light, timings, picture, Swiftie, chip, आगे. Was: Figma node 436:412 (436x119 at 314,250, 20 px corners), 'Story Baloo 2'
+  800 at 26 px (beat 1) / 28 px, line-height normal, in the frames' text boxes.
+- Checked: scratchpad poem_box_verify.py (34 PASS: per beat box = text + 50 px, 59.12 tall, centred within 0.5 px, 26 px corners,
+  the type at 29.00 / 37.12 / 5.60 on screen, no word lit or orange after each line, after the last, after a 🔊 replay; the box
+  starts resizing only once the old sentence has faded and has its new width when the next one shows); the reference caption
+  given the same sentences in this page's colour comes out within 0.15 px of T0's box, and moved onto T0's box to the sub-pixel
+  (poem_box_phase.py) the interiors match: 0.40-1.12 % of pixels differ by > 32 levels (glyph anti-aliasing). story_check.py now
+  asserts the caption box / type / no-orange per beat and pixel-diffs only the picture against the Figma renders (the text box is
+  no longer the frames'): 70/70 ALL PASS; smoke 47/47; word_sync_check T0 all lines OK. `../_before_poem_box/` holds the dist's
+  three files, build.py, the README and story_check.py from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

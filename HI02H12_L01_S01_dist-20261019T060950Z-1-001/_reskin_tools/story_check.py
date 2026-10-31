@@ -7,7 +7,10 @@ and breathing once the LAST clip has ended; the 🔊 chip
 replays the beat on screen from its first word, hiding आगे until that replay ends.
 Checks: the real flow from the start gate (the opening line, each beat's word sync, the three turns, a 🔊 tap in the first turn
 ignored, आगे's states frame by frame, the replay, आगे -> T0B); a stalled last clip (the watchdog opens आगे live); geometry and
-pixel diffs against the four Figma renders at 1280x720.
+pixel diffs of the picture against the four Figma renders at 1280x720; the white box and its type are the reference poem game's
+caption ([poem-box], hi02h11l03s01poem-8cpz.vercel.app Page 1 T1): it wraps each beat's sentence (+ 2 x (22 + 3) px, 59.12 px tall,
+26 px corners), Baloo 2 declared 600 at 29 px on 37.12 px with 5.6 px word spacing (stage px), and no word stays lit or orange once a
+line has ended.
 usage: python -I -X utf8 story_check.py <index.html> <render_652-3.png> <render_652-192.png> <render_660-127.png> <render_653-381.png> <outdir>
        (the renders: story_b1..b4_figma_render_1280x720.png next to this script)
 Screenshots in <outdir>: 1_gate.png, 3*_1333.png (the flow), 2_beat<k>_1280.png (+ _diff_mask.png), 3f_replay_1333.png, 4_T0B_after_story.png
@@ -27,14 +30,24 @@ def check(name, ok, detail=""):
 
 COMMON = {   # frame px, from the Figma metadata / design context; identical in all four frames
   ".sfig-pic":           (108+317-4, 118+13-4, 438, 232),   # 430x224 frame + its 4px OUTSIDE stroke
-  ".sfig-textbox":       (108+314, 118+250, 436, 119),
 }
 REFERENCE = {   # stage px on the reference game's T1/T2 (same on every beat)
   ".tut-card.sfig-card": (100, 96, 1133, 562),
   ".sfig-swiftie":       (76, 472, 190, 190),
   ".tut-audio":          (202, 606, 58, 58),
 }
-CONTENT = (416, 122, 864, 492)   # frame px region holding the picture + text box, for the Figma pixel diff
+CONTENT = (416, 122, 864, 364)   # frame px region holding the picture (its frame + border), for the Figma pixel diff — [poem-box]
+                                 # the text box below it is the reference poem game's caption now, not the frames' node 436:412
+STAGE = 720 / 750                # stage px -> screen px at 1280x720 (the engine fits its 1333x750 stage by height)
+# [poem-box] at the end of a beat: the box and the beat's text (screen px), the type in stage px, any lit / non-navy word
+CAPTION = """(k) => { const box = document.querySelector('.sfig-textbox'), t = document.querySelector('.sfig-text.b' + k);
+  const fig = document.querySelector('.sfig-in'), st = document.querySelector('.stage').getBoundingClientRect().width / 1333;
+  const s = fig.getBoundingClientRect().width / fig.offsetWidth / st, br = box.getBoundingClientRect(), tr = t.getBoundingClientRect();
+  const bc = getComputedStyle(box), tc = getComputedStyle(t), ws = [...document.querySelectorAll('.sfig-w')];
+  return { box: [br.left, br.top, br.width, br.height], text: [tr.left, tr.top, tr.width, tr.height], radius: parseFloat(bc.borderTopLeftRadius) * s,
+    bg: bc.backgroundColor, shadow: bc.boxShadow, family: tc.fontFamily, weight: tc.fontWeight, size: parseFloat(tc.fontSize) * s,
+    lh: parseFloat(tc.lineHeight) * s, ws: parseFloat(tc.wordSpacing) * s, hot: ws.filter(w => w.classList.contains('hot')).length,
+    orange: ws.filter(w => getComputedStyle(w).color !== 'rgb(0, 47, 118)').map(w => w.textContent) }; }"""
 BEAT = [   # each beat's picture node (its offset and size inside the 430x224 box) and the frame's text lines
   # [story-pics] (2026-10-31) beats 1-3 carry the user's redrawn pictures, fitted to the box (16:9 / 1.92), not the frames' 2:1 nodes;
   # the renders have them pasted in (old renders: story_b*_figma_render_1280x720_v1_2026-10-28.png)
@@ -219,8 +232,8 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
     pg.evaluate(LEAVE_TO, 0)
     pg.evaluate("document.fonts.ready")
-    check("Baloo 2 ExtraBold ([baloo-font]) is loaded for the story text",
-          pg.evaluate("document.fonts.check(\"800 26px 'Story Baloo 2'\", 'पिंकी')"))
+    check("Baloo 2 Bold (the 700 face the caption's declared 600 renders in, [poem-box]) is loaded for the story text",
+          pg.evaluate("document.fonts.check(\"600 29px 'Baloo 2'\", 'पिंकी') && document.fonts.check(\"700 29px 'Baloo 2'\", 'पिंकी')"))
     for k, (beat, target) in enumerate(zip(BEAT, targets), 1):
         n = len(T[k - 1])
         if k < N:   # beat k complete, in the one-second pause before the turn
@@ -244,6 +257,20 @@ with sync_playwright() as p:
             got = boxes[s]; d = max(abs(g - e) for g, e in zip(got, exp)); worst = max(worst, d)
             print(f"  {s:22s} got {[round(v,2) for v in got]}  frame {list(exp)}  max|d|={d:.2f}")
         check(f"beat {k}: every frame element within 1 px of the frame", worst <= 1.0, f"worst {worst:.2f}px")
+        cap = pg.evaluate(CAPTION, k); bx, tx = cap["box"], cap["text"]
+        print(f"  caption box {[round(v, 2) for v in bx]}  text {[round(v, 2) for v in tx]}  {cap['family'].split(',')[0]} {cap['weight']} "
+              f"{cap['size']:.2f}/{cap['lh']:.2f} ws {cap['ws']:.2f} radius {cap['radius']:.2f}")
+        check(f"beat {k}: the white box wraps the sentence as the reference caption does (+ 2 x (22 + 3) px wide, 59.12 tall, centred on it; stage px)",
+              abs(bx[2] - tx[2] - 50 * STAGE) <= 0.5 and abs(bx[3] - 59.12 * STAGE) <= 0.5 and abs(tx[3] - 37.12 * STAGE) <= 0.5
+              and abs(bx[0] + bx[2] / 2 - tx[0] - tx[2] / 2) <= 0.5 and abs(bx[1] + bx[3] / 2 - tx[1] - tx[3] / 2) <= 0.5,
+              (round((bx[2] - tx[2]) / STAGE, 2), round(bx[3] / STAGE, 2), round(tx[3] / STAGE, 2)))
+        check(f"beat {k}: the box is white with 26 px corners and the caption's shadow",
+              cap["bg"] == "rgb(255, 255, 255)" and abs(cap["radius"] - 26) <= 0.05
+              and "rgba(11, 42, 90, 0.1)" in cap["shadow"] and "rgba(11, 42, 90, 0.12)" in cap["shadow"], (cap["bg"], round(cap["radius"], 3)))
+        check(f"beat {k}: the caption's type — Baloo 2 declared 600, 29 px on 37.12 px, word spacing 5.6 px (stage px)",
+              cap["family"].startswith('"Baloo 2"') and cap["weight"] == "600" and abs(cap["size"] - 29) < 0.01
+              and abs(cap["lh"] - 37.12) < 0.01 and abs(cap["ws"] - 5.6) < 0.01)
+        check(f"beat {k}: no word lit or orange once its line has ended", cap["hot"] == 0 and not cap["orange"], cap["orange"][:3])
         lines = pg.evaluate(LINES_OF, k); print("  text lines:", lines)
         check(f"beat {k}: text breaks into the frame's {len(beat['lines'])} line(s)", lines == beat["lines"])
         img = Image.open(shot).convert("RGB")
@@ -255,11 +282,11 @@ with sync_playwright() as p:
         near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2)
                        for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
         px = int(M.sum()); big = int(((near > 32) & M).sum())
-        print(f"  pixel diff vs Figma render over the picture + text box (within 1 px): {big} of {px} px differ by >32 levels ({100*big/px:.2f}%)")
+        print(f"  pixel diff vs Figma render over the picture (within 1 px): {big} of {px} px differ by >32 levels ({100*big/px:.2f}%)")
         Image.fromarray(np.where((near > 32) & M, 255, 0).astype(np.uint8)).save(out / f"2_beat{k}_diff_mask.png")
         # what is left at this point is Figma's vs Chrome's anti-aliasing of thin edges (glyph strokes, grid lines,
         # the picture's edges); a misplaced or mis-sized element shows up as whole shapes, far above this bar
-        check(f"beat {k}: picture + text box pixel-match the Figma render (within 1 px: >32-level diffs under 5% of the area)", big / px < 0.05)
+        check(f"beat {k}: the picture pixel-matches the Figma render (within 1 px: >32-level diffs under 5% of the area)", big / px < 0.05)
     pg.close()
     b.close()
 check("no page errors", not errs, errs[:3]); check("no failed requests", not bad, bad[:5])

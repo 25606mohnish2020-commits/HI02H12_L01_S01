@@ -6134,6 +6134,16 @@ const SlideModules = {
       setSwMood("talk");
       const alive = ()=> fig.isConnected;
       let run = 0, cur = 0, popped = false;   // [story-cat] popped: beat 1's sound and pop happen once per visit
+      // [poem-box] the white box wraps the sentence on screen (the reference poem game's caption): its width is the beat's text's
+      // (style.css adds the padding and rim; box and texts share one centre); `smooth` = the move to the next sentence's width
+      const box = fig.querySelector(".sfig-textbox");
+      const fitBox = (k, smooth)=>{
+        if(!smooth) box.style.transition = "none";
+        box.style.setProperty("--sfig-tw", getComputedStyle(texts[k]).width);
+        if(!smooth){ void box.offsetWidth; box.style.transition = ""; }
+      };
+      fitBox(0, false);
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(alive()) fitBox(cur, false); });   // the width once the face is in
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
       const start = ()=>{
         const mine = ++run;
@@ -6151,6 +6161,7 @@ const SlideModules = {
       const turn = ()=>{
         texts[cur].classList.add("gone");
         cur++;
+        fitBox(cur, true);   // [poem-box] the box takes the next sentence's width once this one has faded (.3 s), before it rises
         pics[cur].classList.add("on", "enter");
         setTimeout(()=>{ if(!alive()) return; state.demoRunning = false; start(); }, 650);
       };
