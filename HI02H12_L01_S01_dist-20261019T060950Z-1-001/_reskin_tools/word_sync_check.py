@@ -11,7 +11,7 @@ import sys, json, pathlib
 from playwright.sync_api import sync_playwright
 html = pathlib.Path(sys.argv[1]).resolve(); ids = sys.argv[2:] or ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "L2r1", "L2r2", "L2r3", "L2r4", "L2r5"]
 LEAVE = """() => { for (const id of ['startGate','bootLoader']) { const e = document.getElementById(id); if (e) { e.classList.add('hidden'); if (id === 'bootLoader') e.remove(); } } document.body.classList.remove('is-start'); document.body.classList.add('loaded'); }"""
-DUR = {"T0": 42000, "T0B": 30000, "T1": 60000, "T1B": 30000, "T1C": 30000, "T2": 16000, "T3": 16000, "T4": 18000, "G1": 22000, "G2": 22000, "G3": 22000, "L2": 26000}
+DUR = {"T0": 42000, "T0B": 30000, "T1": 60000, "T1B": 30000, "T1C": 30000, "T2": 12000, "T3": 16000, "T4": 18000, "G1": 22000, "G2": 22000, "G3": 22000, "L2": 26000}
 TRACE = r"""(dur) => new Promise(res => {
   const t0 = performance.now(), fr = [];
   const lines = () => { const m = new Map(); document.querySelectorAll('.sfig-w').forEach(w => { const p = w.parentElement.closest('p, .sfig-sent') || w.parentElement; if (!m.has(p)) m.set(p, []); m.get(p).push(w); }); return [...m.entries()]; };

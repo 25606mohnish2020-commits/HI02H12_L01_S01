@@ -82,9 +82,14 @@ with sync_playwright() as p:
     pg.click("#navBtn", force=True)
     pg.evaluate(GATE_LOG)
     pg.wait_for_function("CARD.slides[state.idx].id==='T2'", timeout=10000)
-    check("T1C's आगे opens T2 (the run-on sentence demo) on the plain stage", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band')"))
-    pg.wait_for_function("CARD.slides[state.idx].id==='T3'", timeout=40000)
-    check("T2 runs itself through to T3, the second demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    check("T1C's आगे opens T2 (the hallway scene, [t2-scene]) on T1's card", pg.evaluate("!!document.querySelector('.tut-card.sfig-round .dsc-bg') && CARD.slides[state.idx].type === 'PUNCT_SCENE'"))
+    # [t2-scene] T2 drives itself (intro, sentence, the girl's walk, the tiles, the explanation) up to the danda's tile pulsing for
+    # the child's tap; the tap moves it on to T3
+    pg.wait_for_function("!!document.querySelector('.dsc-tile.pulse.live')", timeout=60000)
+    check("T2 runs itself to the pulsing danda tile, the other two dim, no आगे", pg.evaluate("document.querySelectorAll('.dsc-tile.off').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    pg.click(".dsc-tile.pulse.live", force=True)
+    pg.wait_for_function("CARD.slides[state.idx].id==='T3'", timeout=15000)
+    check("the tap on it (green, the mark in the slot) moves T2 on to T3, the second demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=40000)
     check("T3 runs itself through to T4, the third demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && document.querySelectorAll('.dmf-blank').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)

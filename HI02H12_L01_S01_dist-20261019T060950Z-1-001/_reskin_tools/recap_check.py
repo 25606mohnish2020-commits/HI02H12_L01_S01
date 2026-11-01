@@ -328,8 +328,8 @@ with sync_playwright() as p:
     pg.wait_for_function(f"CARD.slides[state.idx].id === '{P['next']}'", timeout=10000)
     NEXT = {"T1B": ("rcf-v-alp", "the अल्प-विराम page"), "T1C": ("rcf-v-prashn", "the प्रश्नवाचक-चिह्न page")}
     landed = (f"!!document.querySelector('.tut-card.sfig-recap .rcf-row.{NEXT[P['next']][0]}')" if P["next"] in NEXT
-              else "!!document.querySelector('.sfig-full .dmf-band')")
-    check(f"आगे leads to {P['next']} ({NEXT[P['next']][1] if P['next'] in NEXT else 'the run-on sentence demo, see demo_check.py'}), no extra gate",
+              else "!!document.querySelector('.tut-card.sfig-round .dsc-bg')")   # [t2-scene] T2 = the hallway scene on T1's card
+    check(f"आगे leads to {P['next']} ({NEXT[P['next']][1] if P['next'] in NEXT else 'the hallway scene, see scene_check.py'}), no extra gate",
           not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')") and pg.evaluate(landed))
     pg.wait_for_timeout(1500); pg.screenshot(path=str(out / f"e_{P['next']}_after.png"))
     pg.evaluate(GOTO, "G4"); pg.wait_for_timeout(600)

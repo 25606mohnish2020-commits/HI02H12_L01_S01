@@ -75,6 +75,9 @@ LINES = {
     "sent":   ("पिंकी स्कूल जा रही है", None),                  # [demo1-pinki] frame 656:2 (2026-10-27; was "रीना ..." from 519:32)
     "purn":   ("पूर्ण विराम", None),
     "full":   ("पिंकी स्कूल जा रही है, पूर्णविराम।", None),
+    # [t2-scene] (2026-11-01) frame 706:188: the line over the tiles, "पूर्णविराम" lighting the danda's tile as it is said; a
+    # placeholder take (no recording of it yet)
+    "explain": ("सरल वाक्य में बात पूरी होने पर हम पूर्णविराम का प्रयोग करते हैं ।", None),
   },
   "demo2": {
     "intro":  ("सुनो, यह वाक्य बिना रुके पढ़ा गया ।", "सुनो यह वाक्य बिना रुके पढ़ा गया ।"),

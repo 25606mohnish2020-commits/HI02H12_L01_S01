@@ -1,4 +1,6 @@
 """Verify a run-on sentence demo page (PUNCT_DEMO) against its Figma frame and its timing:
+   [t2-scene] (2026-11-01): T2 is no longer a PUNCT_DEMO page — it is the hallway scene (PUNCT_SCENE, frame 706:188), checked by
+   scene_check.py; the T2 table below is kept for the record and the script refuses it.
    T2 = frame 656:2 ("पिंकी स्कूल जा रही है", पूर्ण विराम; 519:32's layout with its own picture, [demo1-pinki]), T3 = frame 521:288 ("तुम्हारा नाम क्या है", प्रश्नवाचक चिह्न),
    T4 = frame 523:320 ("मेरे पास आम केला सेब और संतरा है ।", अल्प विराम, two slots).
    [band-title] (2026-10-28): the title bar's line on all three is "विराम चिह्न का वाक्य में प्रयोग ।" — frame 656:2 carries it; the
@@ -32,7 +34,8 @@ from PIL import Image
 
 html = pathlib.Path(sys.argv[1]).resolve(); target = Image.open(sys.argv[2]).convert("RGB")
 out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
-SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T2"
+SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T3"
+if SLIDE == "T2": sys.exit("T2 is the hallway scene since [t2-scene] (2026-11-01): python -I -X utf8 scene_check.py <index.html> demo1b_figma_render_1280x720.png <outdir>")
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box

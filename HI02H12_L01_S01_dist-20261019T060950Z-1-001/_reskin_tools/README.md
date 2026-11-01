@@ -1968,6 +1968,67 @@ Page 2 T0B: T1's text sounds ([relisten-sfx], 2026-11-01)
   Tallies on that build: relisten_check 42/42 ALL PASS (pops 16 / 16 ms before their rise frames, the replay silent).
   `../_before_relisten_sfx/` holds the [recap-prashn] dist (app.js, index.html, style.css), build.py, README and relisten_check.py.
 
+Page 6 T2: the hallway scene ([t2-scene], 2026-11-01)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=706-188 — at page 6 T2 use this exact same layout,
+  the standing bird and the speaker icon placed exactly as on page 3 T1. The flow: the VO आइए कुछ वाक्यों के उदाहरण से समझते हैं
+  with the bird, the speaker icon and the picture inside the frame — no options, sentence or girl; then the sentence and the blank
+  box appear at once with the text-appearance sound of the previous pages; then the sentence's VO with the same orange word
+  highlight; then the girl appears, walking and coming down the stairs in the picture to where she stands, with
+  freesound_community-school-104993.mp3 in the background during the animation; after it the blank box blinks with the same orange
+  highlight animation for 2 seconds and during the blink the three tappable options appear with dragon-studio-pop-402323 (1).mp3;
+  then the VO सरल वाक्य में बात पूरी होने पर हम पूर्णविराम का प्रयोग करते हैं, the पूर्णविराम option (।) highlighted in the same
+  orange at that time, then the two wrong options disabled, then the correct option pulsing slightly in the same orange until the
+  user taps it; on the tap the option goes green, the correct sound effect, the symbol appears in the blank box at the end of the
+  sentence and the blank box disappears; then the page jumps to the next page by itself. Everything synced; rest exactly the same."
+- Frame 706:188 "2 T0B": T0B / T1's card (96,106 1088x508, 12px #5A8FEE, 64px corners) filled by a hallway picture (image 251,
+  node 710:601: a 1672x941 bitmap at 0,-113 1088x613 of the card, so the card's padding box shows rows 113..613 of it); the sentence
+  704:200 "पिंकी स्कूल जा रही है" Baloo 2 ExtraBold 55px #012F76 centred in a 495-wide box at 545,187; the slot 704:201 53x90 at
+  1013,187 (white, 8px corners, 2px dashed rgba(86,86,86,.85)); the girl 746:2534 ("Smiling Schoolgirl Walking with Backpack",
+  1024x1536) 239x358 at 264,215 over a soft ellipse 746:2535 (160x36 at 307,520, #B4ABA2 .29 x .5); three tiles (groups 706:569 /
+  573 / 577: #D9D9D9 base 117.819x116.498 at 564.09 / 791 / 1021.818, 397 with 0 4 4 rgba(0,0,0,.25) and 18px corners, a white
+  face 115.743x110.983 at +1.04,+1.38 with 2.386px #D5D8DF inside) over grey ellipses 711:603-606 (118x26 at y 496, #8F8F8F .6),
+  their marks "।" "," "?" in Noto Sans Devanagari SemiBold 64px #002F76 (483-wide boxes centred on 619.5,454.5 / 849.5,439.5 /
+  1080.32,454.5); its own Swiftie 706:369 (35,415 245) is not used — T1's standing Swiftie and chip instead, as asked.
+- Built (build.py [t2-scene]): T2 is a NEW module, PUNCT_SCENE (PUNCT_DEMO stays T3's / T4's, G1-G3's untouched), on T1's card
+  (.sfig-round; .dsc-* CSS). Its data: intro_audio vo_demo1_intro (the recorded line is this very text), bg_id img_demo1_hall,
+  image_id img_demo1_girl_walk, the sentence (vo_demo1_sent, word times), explain (vo_demo1_explain + cue_word = "पूर्णविराम"),
+  options, walk_ms 3400 + walk_sfx sfx_demo1_school.mp3, blink_ms 2000 + tiles_sfx sfx_demo1_pop.mp3 (both the user's files, bytes
+  as given, in demo1_assets/). The sequence: the intro over the picture alone (the Swiftie, the chip and the picture from the first
+  frame); 0.5 s after it the slot pops in (sfigBoxIn) and the sentence rises in whole with T1's pop (popSoft, [recap-sfx]); the clip
+  0.45 s later with the word light ([word-sync]); 0.3 s after it the girl's walk (CSS dscWalk on her box: opacity in at the doorway
+  at the top of the steps — 158 px left, 159 up, scale .6 about her feet — along the landing, down the three steps and on to her
+  place at 1, linear over 3.4 s; dscStep on her picture: two footfalls a cycle, five cycles, ending at rest) with the school sound
+  at .5 from her first frame, faded over her last 0.7 s and paused as she arrives (its "ended" dispatched so the engine's sfx hold
+  ends with it); 0.3 s later the slot blinks (dscBlink / dscBlinkRing: the words' orange on its ring + the demos' glow, three
+  blinks over 2 s) and as it starts the tiles pop in 90 ms apart with the pop at .8; 0.3 s after the blink the explanation — its
+  cue (the clip's own word time for पूर्णविराम, 3.28 s) lights the danda's tile (.lit: the mark the words' orange + p2WordPop, the
+  face an orange ring + glow); 0.3 s after the clip the other two go dim and dead (.off, the demos' look); 0.3 s later the lit tile
+  pulses (dscPulse 1.06 + dscGlow, 1.1 s, infinite) and is live (state.demoRunning off: the 🔊 chip reads the sentence again, words
+  lit; the engine gives tutorial pages no idle reminder); the tap: .done (the press dmfTap, the face --correct / --correct-bg, the
+  mark #0A7A2E), sfxCorrect (the kit's sfx_correct_new.ogg, as the picks' right tap), the mark in the slot (centreInk, the
+  sentence's face at 55px), the slot's box gone 0.45 s later, completeSlide 1.2 s after that (T3; no gate). Taps before the tile is
+  live and the chip while the page drives itself are ignored.
+- Type: the frame sets the tiles' marks in Noto Sans Devanagari where the lesson's text is Baloo 2 ([baloo-font]): shipped as 'Story
+  Noto Marks' — Google Fonts' SemiBold subset for "।", "," and "?" alone (css2 ?text=%3F%2C%E0%A5%A4&wght 600: static, 0.9 KB, OFL;
+  demo1_assets/demo1_font_noto_marks.woff2), inlined with unicode-range U+2C,U+3F,U+964. The sentence and the landing mark stay
+  Baloo 2 800 (Story Baloo 2); its line box, as T1's, placed where Chrome's ink lands on the render's (5 px below the box's
+  centre: the Noto-metric override). After the nudges all four inks are on the render's to the pixel (the comma 0.5).
+- Voice: "सरल वाक्य में बात पूरी होने पर हम पूर्णविराम का प्रयोग करते हैं ।" has no recording: a PLACEHOLDER take by recap_vo.py
+  (demo1 explain, edge-tts hi-IN-SwaraNeural -15%, its word boundaries as the cue) — replace via vo_rec.py when recorded. The old
+  T2 clips vo_demo1_purn / full / conclude are no longer played (purn / full still copied and registered as before — the [vo-rec]
+  step expects the recording vo_demo1_full in the dist; conclude is the vo-rec block's); the old cut-out img_demo1_girl.webp is
+  removed from the dist (its source stays in demo1_assets/). T2's data hooks in the vo-rec block (mark_audio, conclude_audio) are
+  gone. Nothing else in the dist changed: app.js gained the module (no line removed), style.css the .dsc-* rules + the face, the
+  card T2 + the two images + the clip.
+- Checked: scene_check.py (new; usage: scene_check.py <index.html> demo1b_figma_render_1280x720.png <outdir> — the frame's 1:1
+  render): the timeline sampled every frame with in-page taps (the chip in the intro, the tile before it is live, the chip when
+  live, then the tile), the sounds logged in the page, the walk's translate / scale / opacity per frame, the blink's ring colour,
+  the boxes vs the frame's nodes, the inks vs the render, the type, pixel diffs. smoke.py now taps T2's pulsing tile; recap_check
+  T1C's landing test and demo_check (T2 refused, T3 default) updated; word_sync_check T2 12 s.
+  TALLIES_T2
+  `../_before_t2_scene/` holds the [relisten-sfx] dist, build.py, README, recap_vo.py, recap_check.py, smoke.py, word_sync_check.py
+  and demo_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

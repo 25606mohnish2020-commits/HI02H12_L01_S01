@@ -3135,6 +3135,78 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dmf-live .dmf-tile{cursor:pointer;}
 .dmf-tile.wiggle{animation:wgNo var(--fx-beat) ease-in-out both;}
 
+/* ===== [t2-scene] (2026-11-01) T2, the first example page (frame 706:188 "2 T0B", PUNCT_SCENE), on T0B / T1's card (.sfig-round,
+   above: the frame's 1088x508 card at 96,106 with its 12px border and 64px corners; the standing Swiftie and the 🔊 chip where
+   page 3 T1 has them — the frame's own Swiftie 706:369 is not used, as asked). Positions in .sfig-in px = card px - 12.
+   The hallway picture 710:601 (its 1672x941 bitmap) 1088x613 at 0,-113 of the card, clipped to the card's padding box (its
+   corners: the card's 64px less the 12px border); the sentence 704:200 "पिंकी स्कूल जा रही है" Baloo 2 ExtraBold 55px #012F76 (its
+   ink in the render 432x69 centred on 793,228.5 of the page -> 685,110.5 here; the line box placed where Chrome's ink lands on
+   it, measured); the slot 704:201 53x90 at 1013,187 (page), white, 8px corners, a 2px dashed rgba(86,86,86,.85) stroke inside
+   (the dashes as the demos' slot draws them, 10 on 5 off); the girl 746:2534 239x358 at 264,215 (her bitmap, 1024x1536) with her
+   floor shadow 746:2535 (160x36 at 307,520: #B4ABA2 at .29 x .5); the tiles 706:569 / 573 / 577: a #D9D9D9 base 117.819x116.498
+   at 564.09 / 791 / 1021.818, 397 (18px corners, 0 4 4 rgba(0,0,0,.25)) under a white face 115.743x110.983 at +1.04,+1.38
+   (2.386px #D5D8DF inside, 18px corners), each over a grey ellipse 711:603-606 (118x26 at y 496, #8F8F8F .6); the marks 706:572 /
+   576 / 580 in the frame's Noto Sans Devanagari SemiBold 64px #002F76 ('Story Noto Marks' below: that face for "।", "," and "?"
+   alone), 483-wide boxes centred on 619.5,454.5 / 849.5,439.5 / 1080.32,454.5 (page) ===== */
+.dsc-bg{position:absolute;left:0;top:0;width:1064px;height:484px;overflow:hidden;border-radius:calc(64px - 12px / var(--fig-s));}
+.dsc-bg > img{position:absolute;left:-12px;top:-125px;width:1088px;height:613px;}
+.sfig-scene .dsc-sent{position:absolute;left:685.5px;top:115.5px;transform:translate(-50%,-50%);margin:0;width:max-content;white-space:nowrap;text-align:center;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:55px;line-height:normal;color:#012F76;}
+.dsc-slot{position:absolute;left:905px;top:69px;width:53px;height:90px;background:#FFFFFF;border-radius:8px;opacity:0;transform:scale(.9);transition:background-color .4s,box-shadow .25s;}
+.dsc-slot.in{opacity:1;transform:none;animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as the sentence rises */
+.dsc-dash{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;stroke-dasharray:10 5;transition:opacity .4s,stroke .25s;}
+/* the blink: the words' orange on the ring + the demos' slot glow, three times over data.blink_ms */
+.dsc-slot.in.blink{animation:dscBlink var(--blink-ms,666.667ms) ease-in-out 3;}
+.dsc-slot.blink .dsc-dash{animation:dscBlinkRing var(--blink-ms,666.667ms) ease-in-out 3;}
+@keyframes dscBlink{0%,100%{box-shadow:0 0 0 0 rgba(232,106,0,0);}50%{box-shadow:0 0 0 6px rgba(232,106,0,.22);}}
+@keyframes dscBlinkRing{0%,100%{stroke:rgba(86,86,86,.85);}50%{stroke:#E86A00;}}
+/* the mark, in the sentence's face, its INK centred on the slot (--ix / --iy measured by the module from the font) */
+.dsc-slot .dsc-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;
+  transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(.4);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:55px;line-height:normal;color:#012F76;
+  transition:opacity .35s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.3);}
+.dsc-slot .dsc-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
+.dsc-slot.gone{background:transparent;box-shadow:none;}      /* the box goes, the mark stays */
+.dsc-slot.gone .dsc-dash{opacity:0;}
+/* the girl: her box where the frame has her, scaled about her feet (her ink ends 348/358 down the box) along the walk: she appears
+   at the doorway at the top of the steps (158 px left, 159 up, at .6), walks to the steps, down them (three drops) and on to her
+   place, growing as she comes; her steps = dscStep on the picture, two footfalls a cycle, five cycles over the walk, ending at rest */
+.dsc-girl{position:absolute;left:156px;top:97px;width:239px;height:358px;opacity:0;transform-origin:50% 97.2%;}
+.dsc-girl > img{position:absolute;left:0;top:0;width:239px;height:358px;transform-origin:50% 100%;}
+.dsc-shade{position:absolute;left:43px;top:305px;width:160px;height:36px;border-radius:50%;background:rgba(180,171,162,.145);}
+.dsc-girl.here{opacity:1;}
+.dsc-girl.walk{animation:dscWalk var(--walk-ms,3400ms) linear both;}
+.dsc-girl.walk > img{animation:dscStep calc(var(--walk-ms,3400ms) / 5) ease-in-out 5;}
+@keyframes dscWalk{0%{opacity:0;translate:-158px -159px;scale:.6;}6%{opacity:1;}28%{translate:-138px -157px;scale:.62;}42%{translate:-118px -131px;scale:.68;}
+  56%{translate:-98px -106px;scale:.75;}70%{translate:-75px -82px;scale:.82;}100%{opacity:1;translate:0 0;scale:1;}}
+@keyframes dscStep{0%,50%,100%{transform:translateY(0) rotate(0);}25%{transform:translateY(-5px) rotate(1.6deg);}75%{transform:translateY(-5px) rotate(-1.6deg);}}
+/* the tiles: in by transition (as the demos' .dmf-tile), so the dim state after is not fought by an animation's fill */
+.dsc-tile{position:absolute;top:279px;width:117.819px;height:116.498px;opacity:0;transform:scale(.9);transition:opacity .45s ease-out,transform .5s cubic-bezier(.2,.9,.3,1.2);}
+.dsc-tile.t1{left:456.09px;} .dsc-tile.t2{left:683px;} .dsc-tile.t3{left:913.818px;}
+.dsc-tile.in{opacity:1;transform:none;}
+.dsc-tshade{position:absolute;left:0;top:99px;width:118px;height:26px;border-radius:50%;background:rgba(143,143,143,.6);}
+.t1 .dsc-tshade{left:-1.09px;} .t3 .dsc-tshade{top:99.498px;}
+.dsc-base{position:absolute;left:0;top:0;width:117.819px;height:116.498px;background:#D9D9D9;border-radius:18px;box-shadow:0 4px 4px rgba(0,0,0,.25);}
+.dsc-face{position:absolute;left:1.04px;top:1.38px;width:115.743px;height:110.983px;box-sizing:border-box;background:#FFFFFF;border:2.386px solid #D5D8DF;border-radius:18px;
+  transition:border-color .25s,background-color .25s,box-shadow .25s;}
+.dsc-sym{position:absolute;margin:0;width:483px;translate:-50% -50%;text-align:center;white-space:pre;pointer-events:none;   /* [tile-hit] the box is wider than the tile: the tile takes the tap */
+  font-family:'Story Noto Marks',var(--font-hi);font-weight:600;font-size:64px;line-height:normal;color:#002F76;transition:color .25s;}
+.t1 .dsc-sym{left:56.41px;top:56.5px;} .t2 .dsc-sym{left:58.5px;top:41px;} .t3 .dsc-sym{left:59.5px;top:56.5px;}   /* the line boxes where Chrome's ink lands on the render's (measured) */
+/* lit as the explanation names the mark: the words' orange (+ G4's pop) on the mark, an orange ring + the slot's glow on the face */
+.dsc-tile.lit .dsc-face{border-color:#E86A00;box-shadow:0 0 0 6px rgba(232,106,0,.22);}
+.dsc-tile.lit .dsc-sym{color:#E86A00;transform-origin:50% 60%;animation:p2WordPop .28s ease-out 1;}
+.dsc-tile.off{opacity:.35;filter:saturate(.6);transition:opacity .3s,filter .3s;pointer-events:none;}   /* the demos' dim tile, dead */
+.dsc-tile.live{cursor:pointer;}
+.dsc-tile.pulse{animation:dscPulse 1.1s ease-in-out infinite;transform-origin:50% 50%;}
+.dsc-tile.pulse .dsc-face{animation:dscGlow 1.1s ease-in-out infinite;}
+@keyframes dscPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+@keyframes dscGlow{0%,100%{box-shadow:0 0 0 6px rgba(232,106,0,.22);}50%{box-shadow:0 0 0 12px rgba(232,106,0,.32);}}
+/* tapped: the press (the demos' dmfTap), then green — the engine's correct colours */
+.dsc-tile.done{animation:dmfTap .45s ease-out;}
+.dsc-tile.done .dsc-face{border-color:var(--correct,#00B132);background:var(--correct-bg,#CCF8D8);box-shadow:0 0 0 6px rgba(0,177,50,.22);}
+.dsc-tile.done .dsc-sym{color:#0A7A2E;animation:none;}
+@font-face{font-family:'Story Noto Marks';font-style:normal;font-weight:600;font-display:block;unicode-range:U+2C,U+3F,U+964;src:url(data:font/woff2;base64,d09GMgABAAAAAANgAA8AAAAABowAAAMIAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGx4cQAZgP1NUQVRAAEwRCAqBdIFQCwwAATYCJAMUBCAFhQQHIAwHG1oFyAQevrzqV7rSAyhDZbiC0yOmF8AVwknWu8P5/++nrkAL5B0f6NTe77u7botISsIGraSJDHi0M9oDPMOkk81sQgDuRGpbRPuO3fvjikRxWNaJF6Alox33pY2b1FBFkuEYr7NsjK60wVGpqxpj1rDRh5Jul0qmMhgVlMXKYDZ1u2wWI9FFW4LYTGbGo0fr+HGhU69enTiD5mbYZv4vgxa1vZIFBPyOK6FKDd3TsCMQuKIAgZosITGhtMwsc2qCYZYJKeiLjJJVRHOM5gQRuVVBEqAtKdp+pgORFDeYybJdQSODVm5GU8RHh/XWemxd/L4+Gz4oFwjLwodQPcndwc7QjswDIlhlgWx13iml9NA8R3lJz3GqpxzlId0HbHj8OMYjaO2DBxmDxKwtp9P3nN4gZp1yX/ygeODxxx5LHjLz4J3inSfW4of0n3XaY8lJZp5wX3xqxNU119aU6kaBwaFqZ42T5Lmr/Id7D243tWJ2xKCYwZLDLyLiH/T4+TX/c1jSy6zkziFaxsiH4yLzx1aN7pc+Uq154n821HvS2oyzsdrZjNTzWux5AGjeLUVcP/pLnzHKp/k3V5vtCyTuzmm1Rd316dIpz3+r/r23m6qJ9maxCfhBq5z4b9XvbXYTB4PXVGUwI4UEsZjDIpIUJYw2nVmusg5XpgztEHGDE/Bk+c0u3XT1ZtGdCJoKf6LgLSSx0Z0j41ImKuGsJ3YKKQNvVOlGUYw5CVEsEA5JLr54QnPtOvSklgaqGUMV/XDAtnLaUksVBoMwaWBShuBAKEXGvWZiUkcjTckmm1ot6aCGEq29BpMqyhn3kW7EQVbWWFpE0qSWfjrzE9rrOP7x6zGUMoYGysks3D8QB0OjzmT7rYZOFjnkUHTTb0YnetGLTiMoQN43XYqTKlFIbtX02ZpuWMN23YCTBK6bmMr+m4OOjkZ/ynCgZV3cmwZqqSAcFy3YBmfXMp3FFDg9pZuDpZSLz5yMJYtx1FJNNjWZCZ0/r5FsjMpi6lZBzXnWWnSC0iPCmndQLgMA) format("woff2");}
+
 /* ===== [sent-fig] G4, P1 + P2 = the reference game's Page 11 (P4, https://hi-02-h04-l01-s01-dun.vercel.app/), SENT_PICK: its rules,
    read from the live page (CSSOM) and scoped to .stage.sent-page, so no other page changes. The picture bare at 315px high
    (its grey frame is in the bitmap), one row of three white sentence pills (344x78, 28px Baloo 2 ExtraBold, 3px #DADADA,
