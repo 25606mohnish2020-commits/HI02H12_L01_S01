@@ -1802,6 +1802,19 @@ Page 1 T0's white box: one size, more white above and below ([poem-box2], 2026-1
   ink_margins.py read the white around each sentence off the shots. `../_before_poem_box2/` holds the [poem-box] dist, build.py
   (from git HEAD), README and story_check.py.
 
+Page 1 T0's text a little bigger, still centred in the box ([t0-font], 2026-11-01)
+- Asked: "at page 1 T0 increase the size of the font text by a little bit but keep the text in the center of this white box both
+  horizontally and vertically. Rest keep everything exactly the same."
+- Here (build.py [t0-font], the one .sfig-text rule): 31 px (was 29) on a 39.68 px line (1.28 x 31), word spacing 6 px (was 5.6);
+  the 566 x 94 box, its place, colour, shadow and everything else untouched (the rebuilt dist differs from the backup in that one
+  rule only). Across: the line box's centre is the box's (translate -50 %). Down: the ink centre is 5.01 stage px above the line box's
+  centre at 31 px, so the text's top is 330.93 frame px (box centre 326.12 + 4.81). Chrome snaps these glyphs to whole frame px:
+  every top from 330.5 to 331.25 renders the same pixels (scratchpad t0_font_sweep.py swept it), 330.93 is mid-step.
+  Measured at 1333x750 (white around the ink, stage px): beats 2 and 4 30 / 30 above / below; beat 1 30 / 28 (the comma tails),
+  beat 3 31 / 22 (the ू); the longest sentence (beat 1) 537 px of ink, 14 / 15 px either side (was 31 / 32 at 29 px).
+- Checked: story_check.py (its type / centring asserts moved to 31 / 39.68 / 6 / 5.01) 75/75 ALL PASS; smoke 47/47.
+  `../_before_t0_font/` holds the [poem-box2] dist, build.py, README and story_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

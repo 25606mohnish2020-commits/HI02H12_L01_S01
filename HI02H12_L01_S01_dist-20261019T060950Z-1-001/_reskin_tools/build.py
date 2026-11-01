@@ -2157,10 +2157,15 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
    byte for byte — so it renders in the 700 face, as there), 29 px on a 37.12 px line (1.28), 0.2em word spacing of its 28 px
    box = 5.6 px; one line, every beat on one centre. [poem-box2] that centre is 22 stage px (21.125 frame px) below the 10-31 one
    (309.5, the old box's), so the ink lands on the new box's centre and the glyphs keep the same pixel phase (a half-pixel y renders
-   them softer). The colour stays this page's #002F76. Was 'Story Baloo 2' 800, 26 px (beat 1) / 28 px, line-height normal */
-.sfig-text{position:absolute;left:532px;top:330.625px;transform:translate(-50%,-50%);white-space:nowrap;width:max-content;
-  font-family:var(--font-hi);font-weight:600;font-size:calc(29px / var(--fig-s));line-height:calc(37.12px / var(--fig-s));
-  word-spacing:calc(5.6px / var(--fig-s));color:#002F76;text-align:center;}
+   them softer). The colour stays this page's #002F76. Was 'Story Baloo 2' 800, 26 px (beat 1) / 28 px, line-height normal.
+   [t0-font] (2026-11-01) the user: "increase the size of the font a little, keep the text in the centre of the white box" — 31 px
+   (was 29), line and word spacing scaled with it (39.68 = 1.28 x 31; 6 px), the box untouched. The ink's centre is now 5.0 stage px
+   (4.81 frame px) above the line box's centre, so the line box sits that much below the box's centre (326.12): top 330.93. Chrome
+   snaps these glyphs to whole frame px, so any top from 330.5 to 331.25 renders the same pixels (30 px of white above and below
+   beats 2 and 4); 330.93 is mid-step. The longest sentence (beat 1) is 537 px of ink in the 566 px box (14 / 15 px either side) */
+.sfig-text{position:absolute;left:532px;top:330.93px;transform:translate(-50%,-50%);white-space:nowrap;width:max-content;
+  font-family:var(--font-hi);font-weight:600;font-size:calc(31px / var(--fig-s));line-height:calc(39.68px / var(--fig-s));
+  word-spacing:calc(6px / var(--fig-s));color:#002F76;text-align:center;}
 .sfig-text.gone{opacity:0;visibility:hidden;transition:opacity .3s ease-out,visibility 0s .3s;}   /* a finished beat's text leaves */
 /* Swiftie at the reference's 76,472 190x190 on the stage (in .sfig-in's frame px) */
 .sfig-swiftie{position:absolute;left:calc(64px / var(--fig-s) - 96px);top:calc(460px / var(--fig-s) - 106px);

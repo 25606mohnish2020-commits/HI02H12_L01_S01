@@ -8,9 +8,9 @@ replays the beat on screen from its first word, hiding आगे until that repl
 Checks: the real flow from the start gate (the opening line, each beat's word sync, the three turns, a 🔊 tap in the first turn
 ignored, आगे's states frame by frame, the replay, आगे -> T0B); a stalled last clip (the watchdog opens आगे live); geometry and
 pixel diffs of the picture against the four Figma renders at 1280x720; the white box and its type are the reference poem game's
-caption ([poem-box], hi02h11l03s01poem-8cpz.vercel.app Page 1 T1: white, 26 px corners, its shadow; Baloo 2 declared 600 at 29 px on
-37.12 px with 5.6 px word spacing, stage px) in ONE size for all four beats ([poem-box2]: 566 x 94, the same rect through the whole
-flow), midway between the picture and आगे, the sentences' ink centred in it (line box centre 4.69 px below the box's); no word stays
+caption ([poem-box], hi02h11l03s01poem-8cpz.vercel.app Page 1 T1: white, 26 px corners, its shadow; Baloo 2 declared 600, [t0-font] 31 px on
+39.68 px with 6 px word spacing, stage px) in ONE size for all four beats ([poem-box2]: 566 x 94, the same rect through the whole
+flow), midway between the picture and आगे, the sentences' ink centred in it (line box centre 5.01 px below the box's); no word stays
 lit or orange once a line has ended.
 usage: python -I -X utf8 story_check.py <index.html> <render_652-3.png> <render_652-192.png> <render_660-127.png> <render_653-381.png> <outdir>
        (the renders: story_b1..b4_figma_render_1280x720.png next to this script)
@@ -240,7 +240,7 @@ with sync_playwright() as p:
     pg.evaluate(LEAVE_TO, 0)
     pg.evaluate("document.fonts.ready")
     check("Baloo 2 Bold (the 700 face the caption's declared 600 renders in, [poem-box]) is loaded for the story text",
-          pg.evaluate("document.fonts.check(\"600 29px 'Baloo 2'\", 'पिंकी') && document.fonts.check(\"700 29px 'Baloo 2'\", 'पिंकी')"))
+          pg.evaluate("document.fonts.check(\"600 31px 'Baloo 2'\", 'पिंकी') && document.fonts.check(\"700 31px 'Baloo 2'\", 'पिंकी')"))
     for k, (beat, target) in enumerate(zip(BEAT, targets), 1):
         n = len(T[k - 1])
         if k < N:   # beat k complete, in the one-second pause before the turn
@@ -272,14 +272,14 @@ with sync_playwright() as p:
         check(f"beat {k}: the white box is the one size, 566 x 94, midway between the picture and आगे (stage px, [poem-box2])",
               abs(bx[2] - 566 * STAGE) <= 0.5 and abs(bx[3] - 94 * STAGE) <= 0.5 and abs(g1 - g2) <= 1.0,
               (round(bx[2] / STAGE, 2), round(bx[3] / STAGE, 2), f"gaps {g1:.2f} / {g2:.2f}"))
-        check(f"beat {k}: the sentence sits centred in it — one line of 37.12, its ink on the box's centre (line box 4.69 px lower), centred across",
-              abs(tx[3] - 37.12 * STAGE) <= 0.5 and abs(dy - 4.69) <= 0.6 and abs(bx[0] + bx[2] / 2 - tx[0] - tx[2] / 2) <= 0.5, f"dy {dy:.2f}")
+        check(f"beat {k}: the sentence sits centred in it — one line of 39.68, its ink on the box's centre (line box 5.01 px lower, [t0-font]), centred across",
+              abs(tx[3] - 39.68 * STAGE) <= 0.5 and abs(dy - 5.01) <= 0.6 and abs(bx[0] + bx[2] / 2 - tx[0] - tx[2] / 2) <= 0.5, f"dy {dy:.2f}")
         check(f"beat {k}: the box is white with 26 px corners and the caption's shadow",
               cap["bg"] == "rgb(255, 255, 255)" and abs(cap["radius"] - 26) <= 0.05
               and "rgba(11, 42, 90, 0.1)" in cap["shadow"] and "rgba(11, 42, 90, 0.12)" in cap["shadow"], (cap["bg"], round(cap["radius"], 3)))
-        check(f"beat {k}: the caption's type — Baloo 2 declared 600, 29 px on 37.12 px, word spacing 5.6 px (stage px)",
-              cap["family"].startswith('"Baloo 2"') and cap["weight"] == "600" and abs(cap["size"] - 29) < 0.01
-              and abs(cap["lh"] - 37.12) < 0.01 and abs(cap["ws"] - 5.6) < 0.01)
+        check(f"beat {k}: the caption's type — Baloo 2 declared 600, 31 px on 39.68 px, word spacing 6 px (stage px, [t0-font])",
+              cap["family"].startswith('"Baloo 2"') and cap["weight"] == "600" and abs(cap["size"] - 31) < 0.01
+              and abs(cap["lh"] - 39.68) < 0.01 and abs(cap["ws"] - 6) < 0.01)
         check(f"beat {k}: no word lit or orange once its line has ended", cap["hot"] == 0 and not cap["orange"], cap["orange"][:3])
         lines = pg.evaluate(LINES_OF, k); print("  text lines:", lines)
         check(f"beat {k}: text breaks into the frame's {len(beat['lines'])} line(s)", lines == beat["lines"])
