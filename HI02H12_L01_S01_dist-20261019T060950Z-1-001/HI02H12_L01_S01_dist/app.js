@@ -6401,20 +6401,26 @@ const SlideModules = {
         CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
      6. the tap: the tile's BORDER turns green ([t2-scene2]: the face stays white, the mark its blue), the kit's correct sound
         (sfxCorrect), the mark lands in the slot (its INK centred, the demos' centreInk), 0.45 s later the slot's box goes (the
-        mark stays) and 1.2 s after that the page moves on by itself: no आगे here. ===== */
+        mark stays) and 1.2 s after that the page moves on by itself: no आगे here.
+     [t3-scene] T3 (frame 724:2016 "7 T3") runs on this module too, as data.variant "ask" (the card gets dsc-v-ask; its geometry is
+        CSS): no intro line (data.intro_audio null — the scene stands for data.open_ms), a speech bubble (data.bubble_id, an SVG)
+        popping in with the sentence and the slot in stage 2 to data.box_sfx (the user's sharp pop) instead of T1's tone, the slot's
+        box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const sw = d.slot_w || 53, sh = d.slot_h || 90;   // [t3-scene] the slot's box: T2's 53x90, T3's 59x100 (the ring drawn to size)
       const fig = sfigMount(host,
         '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' +
           '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>' +
+        (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
-        '<div class="dsc-slot"><svg class="dsc-dash" width="53" height="90" viewBox="0 0 53 90" aria-hidden="true"><rect x="1" y="1" width="51" height="88" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
+        '<div class="dsc-slot"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
         opts.map((_, k)=> '<div class="dsc-tile t' + (k + 1) + '"><span class="dsc-tshade"></span><div class="dsc-base"></div><div class="dsc-face"></div><p class="dsc-sym"></p></div>').join(""));
-      const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round", "sfig-scene");
+      const card = host.closest(".tut-card"); if(card){ card.classList.add("sfig-round", "sfig-scene"); if(d.variant) card.classList.add("dsc-v-" + d.variant); }   // [t3-scene] the variant's geometry by CSS
       const sentEl = fig.querySelector(".dsc-sent"), slot = fig.querySelector(".dsc-slot"), mark = fig.querySelector(".dsc-mark"),
-            girl = fig.querySelector(".dsc-girl"), tiles = Array.from(fig.querySelectorAll(".dsc-tile"));
+            girl = fig.querySelector(".dsc-girl"), tiles = Array.from(fig.querySelectorAll(".dsc-tile")), bubble = fig.querySelector(".dsc-bubble");
       mark.textContent = d.mark || "";
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
@@ -6429,7 +6435,7 @@ const SlideModules = {
       // the user's two sounds, fetched now (heard seconds later): the school after the sentence, the pop with EACH tile — one
       // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
-      kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx));
+      kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx)); kit("sceneBox", d.box_sfx);   // [t3-scene] the bubble's pop
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -6465,8 +6471,12 @@ const SlideModules = {
           el.style.setProperty("--ix", ix.toFixed(2) + "px"); el.style.setProperty("--iy", iy.toFixed(2) + "px");
         }catch(e){}
       }
-      // 2. the sentence rises in whole and the slot pops in, with T1's pop; the clip 0.45 s after the rise, each word lit
-      const stage2 = ()=>{ slot.classList.add("in"); popSoft(); sfigNarrate(L, alive, ()=> after(300, stage3)); };
+      // 2. the sentence rises in whole and the slot pops in — inside the speech bubble popping in, where the page has one ([t3-scene]) —
+      //    with T1's pop, or the page's own box sound (data.box_sfx); the clip 0.45 s after the rise, each word lit
+      const stage2 = ()=>{
+        if(bubble) bubble.classList.add("in");
+        slot.classList.add("in"); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
+        sfigNarrate(L, alive, ()=> after(300, stage3)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
         const ms = d.pic_sfx_ms || 2000, FADE = 400;
@@ -6519,9 +6529,10 @@ const SlideModules = {
         centreInk(mark); mark.classList.add("in");
         after(450, ()=>{ slot.classList.add("gone"); after(1200, ()=> completeSlide(true)); });
       }
-      // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it
+      // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
+      //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
       let introDone = false;
-      say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(500, stage2); });
+      say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
     }
   },
 

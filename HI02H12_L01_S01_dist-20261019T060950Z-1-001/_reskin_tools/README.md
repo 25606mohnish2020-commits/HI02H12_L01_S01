@@ -2126,6 +2126,47 @@ Page 6 T2: the blank box fades out and in slowly, as a whole, for 7 s ([t2-scene
   look frames all orange / tint / .6 glow; the tail flat. smoke.py 50/50 passed on the new build.
   `../_before_t2_scene5/` holds the [t2-scene4] dist, build.py, README and scene_check.py.
 
+Page 7 T3: the classroom scene from Figma 724:2016 on T2's module ([t3-scene], 2026-11-01)
+- Asked: "at page 7 T3 make this exact same layout as the Figma frame (724:2016) and follow the exact same flow as page 6 T2: the
+  frame and the image with the standing girl appear first, then the dialogue box pops along with the sentence inside it, synced with
+  creatorshome-sharp-pop-328170.mp3; then the exact same flow as T2 — the VO changes to यह एक सवाल है, सवाल के अंत में प्रश्नवाचक
+  चिह्न लगाया जाता है । and the correct answer is the question mark; rest exactly the same."
+- The frame (724:2016 "7 T3"): T2's card (96,106 1088x508, 12px #5A8FEE, 64px corners) with a classroom picture ("image 261",
+  1816x866, drawn 0,-4 1088x519 of the card), a speech bubble (a vector group: a white 615.6x122.5 body with a #D5D8DF 2.39 stroke
+  and a tail pointing left, drop shadows) at 402.995,163, the sentence "तुम्हारा नाम क्या है" (Baloo 2 ExtraBold 55 #012F76, box
+  477,180 479x88) with a YELLOW dashed slot (907,174 59x100, #FFF1B6) inside it, the three tiles at 465.09 / 692 / 922.818, 453 in the
+  order । ? , (T2's is । , ?), their shadows, the Swiftie placeholder at bottom-left. It draws NO girl (its hidden "image 218" is a
+  drag-hint hand). Taken: the picture, the bubble (as the exported SVG, shadows included), the slot, the tiles, the type. Added: T2's
+  standing girl in T2's place — the user asked for "the image with the standing girl", and the bubble's tail points exactly there.
+- Built (build.py [t3-scene]): T3's card entry is a PUNCT_SCENE with data.variant "ask" (the card gets dsc-v-ask; its geometry is
+  CSS: the picture's box, .dsc-bubble 289.306,42.61 651.745x135.269 of the padding box, the sentence centred at 608.5,109 — the box's
+  centre would be 106, Chrome's Baloo ink sat 3 px above the render's there —, the slot 799,56 59x100 #FFF1B6 with its blink tint
+  #FAD692 and a transparent `.gone`, the tiles at 357.09 / 584 / 814.818, 335, the "?" and "," line-box offsets swapped with the
+  marks). The module (shared with T2, T2 unchanged in behaviour): an optional speech bubble (data.bubble_id) popping in (dscBubbleIn,
+  scale .5 -> 1 from its tail, .5 s) with the slot and the rising sentence in stage 2; the slot's ring drawn to data.slot_w x
+  data.slot_h (T2 keeps 53x90); data.box_sfx (the user's sharp pop at .8) in place of T1's soft tone when set; data.open_ms (1 s) before
+  stage 2 when there is no intro line (T2 keeps 0.5 s after its intro). The flow after that is T2's byte for byte: the RECORDED
+  sentence vo_demo2_sent with its re-derived word times, 2 s of the school sound with the girl's small pop, the 7 s slow whole-box
+  blink, the tiles one by one with a pop each, the RECORDED explanation vo_demo2_explain (the [vo-rec] take; its whisper word times
+  from vo_rec/transcripts.json) lighting the "?" — the MIDDLE tile — at "प्रश्नवाचक" (3.34 s), the other two dim, the pulse, the
+  child's tap, the green border, the "?" in the slot, on to T4 by itself. Data: no intro_audio, no band; the [vo-rec] T3 hooks
+  (mark_audio, explain/again/conclude_audio) dropped — vo_demo2_conclude ("सवाल पूछते समय...") is no longer played anywhere;
+  vo_demo2_prashn / full / explain stay in the card (the [vo-rec] block asserts their files). Assets: demo2_assets/img_demo2_room.webp
+  (q90), img_demo2_bubble.svg (as exported), sfx_demo2_sharp_pop.mp3 (bytes as given); img_demo2_girl.webp ([demo2-girl]'s cut-out)
+  unregistered and removed from the dist. Nothing else changed in the dist (app.js: the module's bubble / slot-size / variant /
+  box-sound / open_ms lines + comments; style.css: the .dsc-v-ask block; the card: T3's entry and the two image assets).
+- Checked: scene_check.py now takes the page (T2 | T3) with a per-page config (clips' prefix, the opening — intro line vs open_ms +
+  bubble pop —, the box sound, the frame's boxes, ink regions, the slot's fill / blink tint / interior, the answer tile, the next
+  page; T3's render demo2b_figma_render_1280x720.png = the frame's screenshot). T3: 37/37 ALL PASS — the bubble 988 ms after the first
+  frame with the slot and the rise in its frame, dscBubbleIn .5 -> 1.03, the sharp pop 16 ms before it; the "?" tile lit 0.02 s
+  before its cue; boxes within 0.27 px of the frame; the sentence's ink centre within 0.5 px and the marks' within 1 px of the
+  render; solid pixel diffs 0.001%. T2 re-run on the shared module: 38/38 ALL PASS. word_sync_check T2 T3 OK. demo_check.py now
+  refuses T3 as well (default page T4): T4 on this build 41 PASS with the same two FAILs as on the previous build (the bar
+  line's ink 8 px / 11 px off the render and the pixel diff — Baloo vs the render's Noto, by design since [baloo-font]; verified
+  identical on `_before_t3_scene`'s files). smoke.py's T3 step is now the scene (the tap on the
+  pulsing middle tile moves on to T4). SMOKE_T3
+  `../_before_t3_scene/` holds the [t2-scene5] dist, build.py, README, scene_check.py, smoke.py and demo_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

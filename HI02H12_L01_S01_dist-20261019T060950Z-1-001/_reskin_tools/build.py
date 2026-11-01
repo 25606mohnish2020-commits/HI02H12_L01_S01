@@ -310,6 +310,36 @@ for k in DEMO2_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio_text"][f"vo_demo2_{k}"] = dl2[k]["text"]
 card["assets"]["image"]["img_demo2_girl"] = "assets/Images/img_demo2_girl.webp"   # [demo2-girl]
 card["_emoji_fallback"]["img_demo2_girl"] = "✏️"
+
+# [t3-scene] (asked 2026-11-01): T3 is now frame 724:2016 "7 T3" — a second scene on T2's PUNCT_SCENE module (data.variant "ask",
+# card class dsc-v-ask): the frame's classroom picture (its "image 261", 1816x866, 0,-4 1088x519 of the card) in T2's card with T2's
+# standing girl in T2's place (the frame draws no girl — its only figure is the Swiftie placeholder; the user asked for "the image
+# with the standing girl", and the frame's speech bubble points its tail at where T2's girl stands); no intro line: the scene stands
+# for data.open_ms = 1 s, then the frame's speech bubble (its vector group, kept as an SVG with its own shadows) POPS in with the
+# sentence "तुम्हारा नाम क्या है" and the frame's yellow dashed slot (907,174 59x100, #FFF1B6) inside it, to the user's sharp pop
+# (creatorshome-sharp-pop-328170.mp3, data.box_sfx — in place of T1's soft tone); then T2's flow: the RECORDED sentence (vo_demo2_sent,
+# its re-derived word times) with the words lit, 2 s of the school sound with the girl's small pop, the slot's slow whole-box blink
+# with the tiles popping in one by one, the RECORDED explanation "यह एक सवाल है, सवाल के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।"
+# (vo_demo2_explain — the [vo-rec] take, its whisper word times from vo_rec/transcripts.json) lighting the "?" tile at "प्रश्नवाचक",
+# the other two dim, the "?" pulsing until the child taps it, its border green, the "?" in the slot, the box gone, on to T4 by
+# itself. The frame orders its tiles । ? , (T2's are । , ?), so the "?" is the MIDDLE tile here. PUNCT_DEMO stays for T4 only.
+_vr_t3 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))   # vo_rec.py's whisper word times per recording
+_x3 = _vr_t3["vo_demo2_explain.wav"]; _x3_words = [w[0] for w in _x3["words"]]
+assert " ".join(_x3_words) == _x3["text"] == "यह एक सवाल है, सवाल के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।", _x3["text"]
+assert dl2["sent"]["shown"] == "तुम्हारा नाम क्या है" and len(dl2["sent"]["word_times"]) == 4, dl2["sent"]
+card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
+    "prompt_hi": dl2["sent"]["text"], "audio": {},
+    "data": {"variant": "ask", "intro_audio": None, "open_ms": 1000, "bg_id": "img_demo2_room", "image_id": "img_demo1_girl_walk",
+             "bubble_id": "img_demo2_bubble", "box_sfx": "sfx_demo2_sharp_pop.mp3", "slot_w": 59, "slot_h": 100,   # the frame's slot (T2's is 53x90)
+             "sentence": dpart2("sent"), "mark": "?",
+             "explain": {"text_hi": _x3["text"], "audio": "vo_demo2_explain", "word_times": [w[1] for w in _x3["words"]], "word_end": _x3["words"][-1][2], "cue_word": _x3_words.index("प्रश्नवाचक")},
+             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}, {"mark": ",", "name_hi": "अल्प विराम"}],   # the frame's order
+             "pic_sfx": "sfx_demo1_school.mp3", "pic_sfx_ms": 2000,   # T2's: 2 s of the school sound after the sentence, the girl's small pop with it
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
+    "signals": {"on_complete": []}}
+card["assets"]["image"]["img_demo2_room"] = "assets/Images/img_demo2_room.webp"
+card["assets"]["image"]["img_demo2_bubble"] = "assets/Images/img_demo2_bubble.svg"
+del card["assets"]["image"]["img_demo2_girl"]; del card["_emoji_fallback"]["img_demo2_girl"]   # [demo2-girl]'s cut-out: no page shows it now
 # [demo-fig] T4 = the Figma frame 523:320 "6 T4", the third run-on sentence demo, in place of the ported BUILD_PUNCT auto
 # demo ("मेरे पास आम केला और सेब हैं"): T2's flow with अल्प विराम as the tapped tile and a sentence that needs TWO commas.
 # The frame moves the picture box to 144 (its "image 230", fruit, 144x96 at 144,229, drawn over the box) and widens the
@@ -1109,20 +1139,26 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
      6. the tap: the tile's BORDER turns green ([t2-scene2]: the face stays white, the mark its blue), the kit's correct sound
         (sfxCorrect), the mark lands in the slot (its INK centred, the demos' centreInk), 0.45 s later the slot's box goes (the
-        mark stays) and 1.2 s after that the page moves on by itself: no आगे here. ===== */
+        mark stays) and 1.2 s after that the page moves on by itself: no आगे here.
+     [t3-scene] T3 (frame 724:2016 "7 T3") runs on this module too, as data.variant "ask" (the card gets dsc-v-ask; its geometry is
+        CSS): no intro line (data.intro_audio null — the scene stands for data.open_ms), a speech bubble (data.bubble_id, an SVG)
+        popping in with the sentence and the slot in stage 2 to data.box_sfx (the user's sharp pop) instead of T1's tone, the slot's
+        box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const sw = d.slot_w || 53, sh = d.slot_h || 90;   // [t3-scene] the slot's box: T2's 53x90, T3's 59x100 (the ring drawn to size)
       const fig = sfigMount(host,
         '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' +
           '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>' +
+        (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
-        '<div class="dsc-slot"><svg class="dsc-dash" width="53" height="90" viewBox="0 0 53 90" aria-hidden="true"><rect x="1" y="1" width="51" height="88" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
+        '<div class="dsc-slot"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
         opts.map((_, k)=> '<div class="dsc-tile t' + (k + 1) + '"><span class="dsc-tshade"></span><div class="dsc-base"></div><div class="dsc-face"></div><p class="dsc-sym"></p></div>').join(""));
-      const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round", "sfig-scene");
+      const card = host.closest(".tut-card"); if(card){ card.classList.add("sfig-round", "sfig-scene"); if(d.variant) card.classList.add("dsc-v-" + d.variant); }   // [t3-scene] the variant's geometry by CSS
       const sentEl = fig.querySelector(".dsc-sent"), slot = fig.querySelector(".dsc-slot"), mark = fig.querySelector(".dsc-mark"),
-            girl = fig.querySelector(".dsc-girl"), tiles = Array.from(fig.querySelectorAll(".dsc-tile"));
+            girl = fig.querySelector(".dsc-girl"), tiles = Array.from(fig.querySelectorAll(".dsc-tile")), bubble = fig.querySelector(".dsc-bubble");
       mark.textContent = d.mark || "";
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
@@ -1137,7 +1173,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // the user's two sounds, fetched now (heard seconds later): the school after the sentence, the pop with EACH tile — one
       // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
-      kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx));
+      kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx)); kit("sceneBox", d.box_sfx);   // [t3-scene] the bubble's pop
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -1173,8 +1209,12 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
           el.style.setProperty("--ix", ix.toFixed(2) + "px"); el.style.setProperty("--iy", iy.toFixed(2) + "px");
         }catch(e){}
       }
-      // 2. the sentence rises in whole and the slot pops in, with T1's pop; the clip 0.45 s after the rise, each word lit
-      const stage2 = ()=>{ slot.classList.add("in"); popSoft(); sfigNarrate(L, alive, ()=> after(300, stage3)); };
+      // 2. the sentence rises in whole and the slot pops in — inside the speech bubble popping in, where the page has one ([t3-scene]) —
+      //    with T1's pop, or the page's own box sound (data.box_sfx); the clip 0.45 s after the rise, each word lit
+      const stage2 = ()=>{
+        if(bubble) bubble.classList.add("in");
+        slot.classList.add("in"); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
+        sfigNarrate(L, alive, ()=> after(300, stage3)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
         const ms = d.pic_sfx_ms || 2000, FADE = 400;
@@ -1227,9 +1267,10 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         centreInk(mark); mark.classList.add("in");
         after(450, ()=>{ slot.classList.add("gone"); after(1200, ()=> completeSlide(true)); });
       }
-      // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it
+      // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
+      //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
       let introDone = false;
-      say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(500, stage2); });
+      say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
     }
   },
 
@@ -2619,6 +2660,24 @@ scene_css = """
 scene_css += ("@font-face{font-family:'Story Noto Marks';font-style:normal;font-weight:600;font-display:block;unicode-range:U+2C,U+3F,U+964;"
               "src:url(data:font/woff2;base64," + base64.b64encode((SCR / "demo1_assets" / "demo1_font_noto_marks.woff2").read_bytes()).decode()
               + ") format(\"woff2\");}\n")
+# [t3-scene] T3's geometry (frame 724:2016 "7 T3"; stage px less the padding box's 108,118): the room picture 0,-4 1088x519 of the
+# card; the speech bubble's group 402.995,163 639.666x122.489 — the SVG carries its shadows, 651.745x135.269 from 397.306,160.610
+# (the body rect at 29.7686,2.39 inside it = the frame's 427.074,163); the sentence's box 477,180 479x88 (centre 716.5,224); the slot
+# 907,174 59x100, #FFF1B6 with the same dashes; the tiles 465.09 / 692 / 922.818 at 453 with T2's shadows; the "?" and "," swap
+# tiles, so their measured line boxes go with the MARK. The girl is T2's, in T2's place (not in the frame).
+scene_css += r"""
+/* ===== [t3-scene] T3 = frame 724:2016 "7 T3" on the scene module: the "ask" variant (.dsc-v-ask) ===== */
+.dsc-v-ask .dsc-bg > img{left:-12px;top:-16px;width:1088px;height:519px;object-fit:cover;}
+.dsc-bubble{position:absolute;left:289.306px;top:42.61px;width:651.745px;height:135.269px;opacity:0;transform:scale(.5);transform-origin:1% 78%;pointer-events:none;}   /* the origin at the tail's tip */
+.dsc-bubble.in{opacity:1;transform:none;animation:dscBubbleIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops out of its tail as the sentence rises */
+@keyframes dscBubbleIn{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:none;}}
+.dsc-v-ask .dsc-sent{left:608.5px;top:109px;}   /* the box's centre 716.5,224 on the stage would be top 106: Chrome's Baloo ink sat 3 px above the render's there (measured) */
+.dsc-v-ask .dsc-slot{left:799px;top:56px;width:59px;height:100px;background:#FFF1B6;}
+.dsc-v-ask .dsc-slot.in.blink{background-color:#FAD692;}   /* the frame's yellow warmed by the orange's .2, as the white slot's #FAE1CC */
+.dsc-v-ask .dsc-slot.gone{background:transparent;}
+.dsc-v-ask .dsc-tile{top:335px;} .dsc-v-ask .dsc-tile.t1{left:357.09px;} .dsc-v-ask .dsc-tile.t2{left:584px;} .dsc-v-ask .dsc-tile.t3{left:814.818px;}
+.dsc-v-ask .t2 .dsc-sym{left:59.5px;top:56.5px;} .dsc-v-ask .t3 .dsc-sym{left:58.5px;top:41px;}   /* "?" on the middle tile, "," on the right one */
+"""
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial
@@ -3232,8 +3291,7 @@ SL = {s["id"]: s for s in card["slides"]}
 SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
 SL["T0"]["data"]["beat1_sfx"] = "sfx_story_cat.mp3"   # [story-cat] the user's stu9-cute-cat-352656.mp3 (0.89 s, as given): once, as beat 1's line ends, with the picture's pop
 SL["T1"]["data"]["lead_audio"] = "vo_recap_lead"
-for sid, mk in (("T3", "prashn"), ("T4", "alp")): SL[sid]["data"]["mark_audio"] = f"vo_recap_{mk}_name"   # [t2-scene] T2 names no mark and has no conclusion now (was T2 too, + conclude_audio vo_demo1_conclude)
-SL["T3"]["data"].update({"explain_audio": "vo_demo2_explain", "again_audio": "vo_demo_again", "conclude_audio": "vo_demo2_conclude"})
+SL["T4"]["data"]["mark_audio"] = "vo_recap_alp_name"   # [t2-scene] T2 names no mark and has no conclusion now (was T2 too, + conclude_audio vo_demo1_conclude); [t3-scene] T3 neither (its explanation vo_demo2_explain is in its own data; vo_demo2_conclude is not played)
 SL["T4"]["data"].update({"explain_audio": "vo_demo3_explain", "again_audio": "vo_demo_again"})
 for sid, mk, h3 in (("G1", "purn", None), ("G2", "prashn", "vo_g2_hint3"), ("G3", "alp", "vo_g3_hint3")):
     SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": h3})
@@ -3622,11 +3680,12 @@ for name, sub in (("img_demo1_girl.webp", "Images"),):   # [t2-scene] T2's old c
 # ---------- 7e. [demo-fig] T3's clips and picture (demo2_assets/: recap_vo.py demo2; the frame's "image 229"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------
 DEMO2_SRC = SCR / "demo2_assets"
-for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_CLIPS] + [("img_demo2_girl.webp", "Images")]:   # [demo2-girl]
+for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_CLIPS] + [("img_demo2_room.webp", "Images"), ("img_demo2_bubble.svg", "Images"), ("sfx_demo2_sharp_pop.mp3", "Audio")]:   # [t3-scene] the frame's room (image 261, 1816x866 q90) and bubble (its vector group, as exported), the user's sharp pop (bytes as given)
     f, dst = DEMO2_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing demo asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 (DIST / "assets" / "Audio" / "vo_demo2_intro.ogg").unlink(missing_ok=True)   # [demo-intro] the intro line is off the page
+(DIST / "assets" / "Images" / "img_demo2_girl.webp").unlink(missing_ok=True)   # [t3-scene] [demo2-girl]'s cut-out: no page shows it now
 
 # ---------- 7f. [demo-fig] T4's clips and picture (demo3_assets/: recap_vo.py demo3; the frame's "image 230"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------

@@ -89,9 +89,14 @@ with sync_playwright() as p:
     check("T2 runs itself to the pulsing danda tile, the other two dim, no आगे", pg.evaluate("document.querySelectorAll('.dsc-tile.off').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     pg.click(".dsc-tile.pulse.live", force=True)
     pg.wait_for_function("CARD.slides[state.idx].id==='T3'", timeout=15000)
-    check("the tap on it (green, the mark in the slot) moves T2 on to T3, the second demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
-    pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=40000)
-    check("T3 runs itself through to T4, the third demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && document.querySelectorAll('.dmf-blank').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    check("the tap on it (green, the mark in the slot) moves T2 on to T3, the second scene ([t3-scene], no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-round.dsc-v-ask .dsc-bg') && CARD.slides[state.idx].type === 'PUNCT_SCENE' && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    # [t3-scene] T3 drives itself (the bubble, the sentence, the school sound, the tiles, the explanation) up to the "?" tile pulsing for
+    # the child's tap; the tap moves it on to T4
+    pg.wait_for_function("!!document.querySelector('.dsc-tile.pulse.live')", timeout=60000)
+    check("T3 runs itself to the pulsing \"?\" tile (the middle one), the other two dim, no आगे", pg.evaluate("document.querySelector('.dsc-tile.pulse.live').classList.contains('t2') && document.querySelectorAll('.dsc-tile.off').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    pg.click(".dsc-tile.pulse.live", force=True)
+    pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=15000)
+    check("the tap on it moves T3 on to T4, the third demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && document.querySelectorAll('.dmf-blank').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)
     check("T4 runs itself through the round gate to G1, the Figma tap page (no आगे)",
           pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))

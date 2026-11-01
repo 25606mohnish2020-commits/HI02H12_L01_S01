@@ -5,7 +5,7 @@
    T4 = frame 523:320 ("मेरे पास आम केला सेब और संतरा है ।", अल्प विराम, two slots).
    [band-title] (2026-10-28): the title bar's line on all three is "विराम चिह्न का वाक्य में प्रयोग ।" — frame 656:2 carries it; the
    demo2 / demo3 renders' bands are 656:2's band pasted over their own (their frames still show the old line).
-usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4]     (default T2)
+usage: python -I -X utf8 demo_check.py <index.html> <render_1280x720.png> <outdir> [T4]     (default T4; T2 and T3 are scenes since 2026-11-01: scene_check.py)
        renders: demo1_figma_render_1280x720.png (T2), demo2_... (T3), demo3_... (T4)
 1. At 1333x750, the page mounted on its own: the title bar appears as the intro line starts to sound and nothing else
    shows before that line has ended; the picture, the sentence bar and the tiles come in 0.5 s after it (T3 / T4 since
@@ -34,8 +34,8 @@ from PIL import Image
 
 html = pathlib.Path(sys.argv[1]).resolve(); target = Image.open(sys.argv[2]).convert("RGB")
 out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
-SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T3"
-if SLIDE == "T2": sys.exit("T2 is the hallway scene since [t2-scene] (2026-11-01): python -I -X utf8 scene_check.py <index.html> demo1b_figma_render_1280x720.png <outdir>")
+SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T4"
+if SLIDE in ("T2", "T3"): sys.exit(f"{SLIDE} is a scene since [t2-scene] / [t3-scene] (2026-11-01): python -I -X utf8 scene_check.py <index.html> <render> <outdir> {SLIDE}")
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box

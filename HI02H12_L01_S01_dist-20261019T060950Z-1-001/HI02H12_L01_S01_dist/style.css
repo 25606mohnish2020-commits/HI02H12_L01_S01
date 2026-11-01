@@ -3214,6 +3214,18 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-tile.done .dsc-sym{color:#002F76;animation:none;}
 @font-face{font-family:'Story Noto Marks';font-style:normal;font-weight:600;font-display:block;unicode-range:U+2C,U+3F,U+964;src:url(data:font/woff2;base64,d09GMgABAAAAAANgAA8AAAAABowAAAMIAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGx4cQAZgP1NUQVRAAEwRCAqBdIFQCwwAATYCJAMUBCAFhQQHIAwHG1oFyAQevrzqV7rSAyhDZbiC0yOmF8AVwknWu8P5/++nrkAL5B0f6NTe77u7botISsIGraSJDHi0M9oDPMOkk81sQgDuRGpbRPuO3fvjikRxWNaJF6Alox33pY2b1FBFkuEYr7NsjK60wVGpqxpj1rDRh5Jul0qmMhgVlMXKYDZ1u2wWI9FFW4LYTGbGo0fr+HGhU69enTiD5mbYZv4vgxa1vZIFBPyOK6FKDd3TsCMQuKIAgZosITGhtMwsc2qCYZYJKeiLjJJVRHOM5gQRuVVBEqAtKdp+pgORFDeYybJdQSODVm5GU8RHh/XWemxd/L4+Gz4oFwjLwodQPcndwc7QjswDIlhlgWx13iml9NA8R3lJz3GqpxzlId0HbHj8OMYjaO2DBxmDxKwtp9P3nN4gZp1yX/ygeODxxx5LHjLz4J3inSfW4of0n3XaY8lJZp5wX3xqxNU119aU6kaBwaFqZ42T5Lmr/Id7D243tWJ2xKCYwZLDLyLiH/T4+TX/c1jSy6zkziFaxsiH4yLzx1aN7pc+Uq154n821HvS2oyzsdrZjNTzWux5AGjeLUVcP/pLnzHKp/k3V5vtCyTuzmm1Rd316dIpz3+r/r23m6qJ9maxCfhBq5z4b9XvbXYTB4PXVGUwI4UEsZjDIpIUJYw2nVmusg5XpgztEHGDE/Bk+c0u3XT1ZtGdCJoKf6LgLSSx0Z0j41ImKuGsJ3YKKQNvVOlGUYw5CVEsEA5JLr54QnPtOvSklgaqGUMV/XDAtnLaUksVBoMwaWBShuBAKEXGvWZiUkcjTckmm1ot6aCGEq29BpMqyhn3kW7EQVbWWFpE0qSWfjrzE9rrOP7x6zGUMoYGysks3D8QB0OjzmT7rYZOFjnkUHTTb0YnetGLTiMoQN43XYqTKlFIbtX02ZpuWMN23YCTBK6bmMr+m4OOjkZ/ynCgZV3cmwZqqSAcFy3YBmfXMp3FFDg9pZuDpZSLz5yMJYtx1FJNNjWZCZ0/r5FsjMpi6lZBzXnWWnSC0iPCmndQLgMA) format("woff2");}
 
+/* ===== [t3-scene] T3 = frame 724:2016 "7 T3" on the scene module: the "ask" variant (.dsc-v-ask) ===== */
+.dsc-v-ask .dsc-bg > img{left:-12px;top:-16px;width:1088px;height:519px;object-fit:cover;}
+.dsc-bubble{position:absolute;left:289.306px;top:42.61px;width:651.745px;height:135.269px;opacity:0;transform:scale(.5);transform-origin:1% 78%;pointer-events:none;}   /* the origin at the tail's tip */
+.dsc-bubble.in{opacity:1;transform:none;animation:dscBubbleIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops out of its tail as the sentence rises */
+@keyframes dscBubbleIn{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:none;}}
+.dsc-v-ask .dsc-sent{left:608.5px;top:109px;}   /* the box's centre 716.5,224 on the stage would be top 106: Chrome's Baloo ink sat 3 px above the render's there (measured) */
+.dsc-v-ask .dsc-slot{left:799px;top:56px;width:59px;height:100px;background:#FFF1B6;}
+.dsc-v-ask .dsc-slot.in.blink{background-color:#FAD692;}   /* the frame's yellow warmed by the orange's .2, as the white slot's #FAE1CC */
+.dsc-v-ask .dsc-slot.gone{background:transparent;}
+.dsc-v-ask .dsc-tile{top:335px;} .dsc-v-ask .dsc-tile.t1{left:357.09px;} .dsc-v-ask .dsc-tile.t2{left:584px;} .dsc-v-ask .dsc-tile.t3{left:814.818px;}
+.dsc-v-ask .t2 .dsc-sym{left:59.5px;top:56.5px;} .dsc-v-ask .t3 .dsc-sym{left:58.5px;top:41px;}   /* "?" on the middle tile, "," on the right one */
+
 /* ===== [sent-fig] G4, P1 + P2 = the reference game's Page 11 (P4, https://hi-02-h04-l01-s01-dun.vercel.app/), SENT_PICK: its rules,
    read from the live page (CSSOM) and scoped to .stage.sent-page, so no other page changes. The picture bare at 315px high
    (its grey frame is in the bitmap), one row of three white sentence pills (344x78, 28px Baloo 2 ExtraBold, 3px #DADADA,
