@@ -1905,6 +1905,50 @@ Page 3 T1: the reference's appearance sounds and the horse's entrance ([recap-sf
   every frame vs the reference's own trace — max d .005 / .0012, peak 1.0095 — and its computed transition): 42/42 ALL PASS;
   smoke 47/47. `../_before_recap_sfx/` holds the [recap-fig2] dist, build.py, README and recap_check.py.
 
+Page 4 T1B: the अल्प विराम page ([recap-alp], 2026-11-01)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=764-755 — after page 3 T1 this page should exist
+  with the exact same functionality and animations and design as of page 3 T1 but with the alp viram sign instead of poorn viram;
+  rest exactly the same."
+- Built (build.py [recap-alp]): a new slide T1B right after T1, the same MARKS_RECAP module with data.variant = "alp" (the row gets
+  .rcf-v-alp, whose rules hold the frame's own placements: the sign's box 764:937 and the sentence's box 764:940 10 px right of
+  T1's; the ",", the name and "आम, केला, संतरा और सेब" placed by their ink in the frame's render; the picture 524:350 219x146 at
+  816,143 with no shadow, its bitmap = T4's img_demo3_fruits). The recorded vo_recap_alp_name / _when / _eg clips (the use is said,
+  not shown). No lead / intro line (they open T1 only): the mark comes 0.7 s after the page appears. A mark that ends a word
+  ("आम,", "केला,") is split into its own .rcf-mk span so only the mark keeps its orange. Sounds and the picture's entrance =
+  T1's ([recap-sfx]). 16 pages; the two page-list asserts list T1B.
+- Checked: recap_check.py takes the page (T1 | T1B; PAGES table, render recap_alp_figma_render_1280x720.png = 764:755 1:1), and
+  now exits 1 on any FAIL. Its horse-trace check had read 0.012 off on one T1B run: a check bug (the compared curve started at the
+  first frame with the class on, which by rAF order can already be one transition step in) — fixed to start at the last waiting
+  frame; replayed on that run's saved trace: d opacity .005 / d scale .001. `../_before_recap_alp/` holds the [recap-sfx] dist,
+  build.py, README, recap_check.py, smoke.py and word_sync_check.py.
+
+Page 5 T1C: the प्रश्नवाचक चिह्न page ([recap-prashn], 2026-11-01)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=764-945 — after page 4 T1B this page should
+  exist with the exact same functionality and animations and design as of page 3 T1 but with the prashan vachak chinh sign
+  instead of poorn viram; rest exactly the same."
+- Frame 764:945: the sign's box 764:1127 175x169.355 at 199,65 (T1's place, 4 px stroke outside); the name 764:1128 "प्रश्नवाचक
+  चिह्न" Baloo 2 ExtraBold 64; the sentence's box 764:1129 580x84 at 199,274 (2 px wider than T1's); the sentence 764:1132
+  "तुम्हारा घर कहाँ है ?" ExtraBold 40 — its "?" in Noto Sans Devanagari ExtraBold; the sign 764:1135 "?" Noto Sans Devanagari
+  SemiBold 128; the picture 766:1140 (a house) 216x144 at 822,168 with a 0 2 2 rgba(0,0,0,.25) shadow.
+- Built (build.py [recap-prashn]): slide T1C after T1B, variant "prashn", the recorded vo_recap_prashn_* clips (the example clip
+  says "उदाहरण- तुम्हारा घर कहाँ है?" and shows the frame's sentence; its "?" is its own word, kept orange from its cue). The
+  picture = the node's own fill (download_assets returned six near-identical raws; the one whose bytes match get_design_context's
+  fill URL), as recap_assets/img_recap_house.webp (1536x1024, WebP q90, alpha exact) -> assets/Images/. The frame's "?" face:
+  Google Fonts' Noto Sans Devanagari subset for "?" alone (css2 ?text=%3F: variable wght 100-900, 1.5 KB, OFL; kept as
+  recap_assets/recap_font_noto_q.woff2), inlined in style.css as 'Story Noto Q' with unicode-range U+3F and put first in the
+  family stack of the sign and the sentence, so only the ?s take it (600 / 800 from the rules); its line metrics (896 / -408)
+  are Story Baloo 2's overrides, so no line box moves. Placements (.rcf-v-prashn): the ?, the name and the sentence by their ink
+  in the render, the line boxes nudged where Chrome's ink lands (all three now within 0.5 px of the render's ink). The rest is
+  T1's: the sequence, the word-by-word light, the pops + the horse's entrance and sound, आगे at T0's place, Swiftie and 🔊 as T0.
+  17 pages; tutorial phase 7 -> 8 pages. The rebuilt dist differs from the backup in the new slide, its image entry, the
+  .rcf-v-prashn rules + the font face, and phase_distribution only (app.js byte-identical).
+- Checked: recap_check.py T1C (render recap_prashn_figma_render_1280x720.png = 764:945 1:1; the sign's TOL 1 px since it is the
+  frame's own face; the type check expects 'Story Noto Q' on the sign and sentence, and the face loaded): 43/43 ALL PASS — the
+  ?, name and sentence inks 53x95 / 365x72 / 287x52 at d (0,0) / (0,0) / (0,-0.5) px. smoke.py walks T1 -> T1B -> T1C -> T2 and
+  expects 17 pages; word_sync_check.py knows T1C.
+  TALLIES
+  `../_before_recap_prashn/` holds the [recap-alp] dist, build.py, README, recap_check.py, smoke.py and word_sync_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

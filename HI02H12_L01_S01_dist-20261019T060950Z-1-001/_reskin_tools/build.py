@@ -104,7 +104,7 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          and is read 0.45 s later with the reference's word light (one word at a time, dark orange + a small pop, on the clip's clock).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
-import re, json, shutil, pathlib, sys
+import re, json, shutil, pathlib, sys, base64
 
 SCR  = pathlib.Path(__file__).resolve().parent
 # usage: python -I build.py [<path to a clone of github.com/siddharthsharma-ctrl/Ek-aur-Anek>] [<path to the game's dist folder>]
@@ -220,6 +220,15 @@ card["slides"].insert(i_t1 + 1, {"id": "T1B", "phase": "tutorial", "eis": "symbo
     "data": {"variant": "alp", "mark": ",", "image_id": "img_demo3_fruits",
              "name": part("alp_name"), "when": part("alp_when"), "example": part("alp_eg"),
              "pic_sfx": "sfx_fb_correct.ogg"}})
+# [recap-prashn] (2026-11-01) frame 764:945: the same page for प्रश्नवाचक चिह्न, right after T1B (T1C) — the sign "?", its name, the
+# example "तुम्हारा घर कहाँ है ?" (its ? kept lit), the house picture (node 766:1140's source bitmap) with T1's sounds; the recorded
+# प्रश्नवाचक lines (the use is said, not shown). No lead / intro line, as T1B.
+card["slides"].insert(i_t1 + 2, {"id": "T1C", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
+    "prompt_hi": rl["prashn_name"]["shown"], "audio": {"prompt": "vo_recap_prashn_name"},
+    "data": {"variant": "prashn", "mark": "?", "image_id": "img_recap_house",
+             "name": part("prashn_name"), "when": part("prashn_when"), "example": part("prashn_eg"),
+             "pic_sfx": "sfx_fb_correct.ogg"}})
+card["assets"]["image"]["img_recap_house"] = "assets/Images/img_recap_house.webp"   # node 766:1140's source bitmap (1536x1024, WebP q90, alpha exact)
 for k in RECAP_KEYS:
     card["assets"]["audio"][f"vo_recap_{k}"] = f"assets/Audio/vo_recap_{k}.ogg"
     card["assets"]["audio_text"][f"vo_recap_{k}"] = rl[k]["text"]
@@ -504,7 +513,7 @@ _rm = [s for s in card["slides"] if s["id"] in RM_PAGES]
 assert [s["id"] for s in _rm] == RM_PAGES and [s["type"] for s in _rm] == ["EVIDENCE_QA", "BUILD_PUNCT", "BUILD_PUNCT", "SORT_WORDS"], "pages 13-16 are not the ported P3-P6"
 assert all(s["phase"] == "practice" and s["data"].get("mastery") is True for s in _rm)
 card["slides"] = [s for s in card["slides"] if s["id"] not in RM_PAGES]
-assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T1B", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "CEL"], "unexpected page list after the removal"   # [recap-alp] + T1B
+assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "CEL"], "unexpected page list after the removal"   # [recap-alp] + T1B, [recap-prashn] + T1C
 assert "qtype_sort_done" in card["signals_expected"]
 card["signals_expected"] = [x for x in card["signals_expected"] if x != "qtype_sort_done"]
 assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.get("signals") or {}).get("on_complete", [])), "a remaining page still fires qtype_sort_done"
@@ -669,7 +678,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                       # glitter's start and length (with its 1.3 s chime), its sparks, and the hand-over to the end screen
                       "fin_fade": 3000, "fin_glitter_at": 3400, "fin_glitter_ms": 1300, "fin_sparks": 16, "fin_done": 5400}},
     "signals": {"on_complete": []}})
-assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T1B", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]   # [recap-alp] + T1B
+assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]   # [recap-alp] + T1B, [recap-prashn] + T1C
 pd = {}
 for s in card["slides"]: pd[s["phase"]] = pd.get(s["phase"], 0) + 1
 card["phase_distribution"] = pd
@@ -2332,7 +2341,26 @@ recap_css = """
 .rcf-v-alp .rcf-ebox{left:197px;}
 .rcf-v-alp .rcf-eg{left:485.5px;top:306px;}
 .rcf-v-alp .rcf-pic{left:804px;top:131px;width:219px;height:146px;filter:none;}
+/* [recap-prashn] (2026-11-01) T1C, the प्रश्नवाचक चिह्न page = frame 764:945 (variant "prashn"), T1's design with the frame's own
+   placements (card px - 12): the sign's box 764:1127 at 199,65 (T1's place) and the sentence's box 764:1129 at 199,274, 580 wide (2
+   px wider than T1's); the "?", the name and the sentence by their INK in the frame's render (centres, card px: the ? 286.5,145.5;
+   प्रश्नवाचक चिह्न 592.5,145; तुम्हारा घर कहाँ है ? 486.5,314.5) with the line boxes placed where Chrome's ink lands on them
+   (measured, as T1's); the picture 766:1140 216x144 at 822,168 with the node's 0 2 2 rgba(0,0,0,.25) shadow (T1's girl's). The
+   frame sets both its ?s in Noto Sans Devanagari (the sign SemiBold 128 px, the sentence's ExtraBold 40 px) where the rest is
+   Baloo 2: 'Story Noto Q' below, that face for U+003F alone, the weight from the rule (600 / 800) */
+.rcf-v-prashn .rcf-mark{left:88.5px;top:92px;}
+.rcf-v-prashn .rcf-mark p{font-family:'Story Noto Q',var(--font-hi);}
+.rcf-v-prashn .rcf-name{left:581px;top:141px;}
+.rcf-v-prashn .rcf-ebox{width:580px;}
+.rcf-v-prashn .rcf-eg{left:477px;top:305.5px;font-family:'Story Noto Q','Story Baloo 2',var(--font-hi);}
+.rcf-v-prashn .rcf-pic{left:810px;top:156px;width:216px;height:144px;}
 """
+# [recap-prashn] the frame's "?" face: Google Fonts' subset of Noto Sans Devanagari for "?" alone (variable wght 100-900, 1.5 KB, OFL;
+# recap_assets/recap_font_noto_q.woff2), inlined so it is there the moment the sign shows; unicode-range keeps every other character
+# on the rule's next family. Its line metrics (896 / -408, USE_TYPO) are 'Story Baloo 2''s overrides, so no line box changes
+recap_css += ("@font-face{font-family:'Story Noto Q';font-style:normal;font-weight:100 900;font-display:block;unicode-range:U+3F;"
+              "src:url(data:font/woff2;base64," + base64.b64encode((SCR / "recap_assets" / "recap_font_noto_q.woff2").read_bytes()).decode()
+              + ") format(\"woff2\");}\n")
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial
@@ -3311,7 +3339,8 @@ for name in ("story_font_nsd600_deva.woff2", "story_font_nsd600_latin.woff2"):  
 for name, sub in (("img_story_chintu.webp", "Images"), ("img_story_chintu_2.webp", "Images"), ("vo_story_s1.ogg", "Audio"), ("vo_story_s2.ogg", "Audio")):
     (DIST / "assets" / sub / name).unlink(missing_ok=True)   # [story-pinki] the Chintu beats' files: no page uses them now
 # [recap-fig2] T1's picture (frame 764:144's node 764:753, its source bitmap as WebP), kept in recap_assets/
-for name, sub in (("img_recap_girl.webp", "Images"), ("sfx_fb_correct.ogg", "Audio")):   # [recap-sfx] the picture's sound
+for name, sub in (("img_recap_girl.webp", "Images"), ("sfx_fb_correct.ogg", "Audio"),   # [recap-sfx] the picture's sound
+                  ("img_recap_house.webp", "Images")):   # [recap-prashn] T1C's picture (node 766:1140's source bitmap)
     f, dst = SCR / "recap_assets" / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing recap asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)

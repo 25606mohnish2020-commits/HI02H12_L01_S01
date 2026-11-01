@@ -1,20 +1,22 @@
 """Verify a mark page (MARKS_RECAP) against its Figma frame and its timing: T1, the पूर्ण-विराम page ([recap-fig2], FLN-by-MJ frame
 764:144), or T1B, the अल्प-विराम page right after it ([recap-alp], frame 764:755: T1's design and behaviour with the frame's own
-placements, no opening lines).
-usage: python -I -X utf8 recap_check.py <index.html> <render 1280x720> <outdir> [T1|T1B]
-       T1: recap2_figma_render_1280x720.png (the default page); T1B: recap_alp_figma_render_1280x720.png
+placements, no opening lines), or T1C, the प्रश्नवाचक-चिह्न page after that ([recap-prashn], frame 764:945, likewise; its two "?"
+in the frame's Noto Sans Devanagari, 'Story Noto Q').
+usage: python -I -X utf8 recap_check.py <index.html> <render 1280x720> <outdir> [T1|T1B|T1C]
+       T1: recap2_figma_render_1280x720.png (the default page); T1B: recap_alp_figma_render_1280x720.png;
+       T1C: recap_prashn_figma_render_1280x720.png
 1. At 1333x750, the page mounted on its own: no title (the frames have none). T1: the lead line ("आपने देखा, ...", vo_recap_lead,
    [vo-rec]) then the intro line ("आइए समझते हैं कि कौन-से चिह्न का प्रयोग कब किया जाता है ।", vo_recap_intro) sound over the card
-   alone — nothing of the mark shows before the intro has ended — and 0.7 s after it the mark comes; T1B: no line first, the mark
+   alone — nothing of the mark shows before the intro has ended — and 0.7 s after it the mark comes; T1B / T1C: no line first, the mark
    comes 0.7 s after the page appears. Then: the sign's box + sign pop in as the name rises in whole, and the name's clip (0.45 s
    later) lights the SIGN — the words' orange + pop — from its first word to its last word's end (the name's own words never lit);
    0.3 s after it the use's clip sounds with nothing new on screen; 0.3 s after that the sentence's white box pops in as the
    sentence rises in whole, its clip 0.45 s later: as the clip reaches the sentence's first word the picture pops in, the words
-   light one by one ([word-sync]), and each mark in the sentence (T1's "।", T1B's two commas) keeps its orange from its own word on;
+   light one by one ([word-sync]), and each mark in the sentence (T1's "।", T1B's two commas, T1C's "?") keeps its orange from its own word on;
    आगे shows the reference's disabled pill ([dun-chrome]) until the sentence's clip has ended, then goes live, breathing, at T0's
    place; a 🔊 tap early (T1: in the intro; T1B: before the mark) or in the breath after the name is ignored (every clip plays
    once); a 🔊 tap afterwards reads the page again from the name (everything staying; the kept marks cleared, the sign and the words
-   lit again, the marks kept again) with आगे hidden meanwhile; आगे leads on (T1 -> T1B -> T2, no gate); past the Figma pages (G4)
+   lit again, the marks kept again) with आगे hidden meanwhile; आगे leads on (T1 -> T1B -> T1C -> T2, no gate); past the Figma pages (G4)
    no story styling is left.
    [recap-sfx] The sounds of the reference hi02h11l02s04-file5's page 2 (T2), logged in the page (the engine's _tone and every
    <audio> play, on the samples' clock): the soft pop (_tone [720] sine 0.10 / 0.07, its sfxPopSoft) as the sign's box + name appear
@@ -66,7 +68,7 @@ PAGES = {
     "pic_filter": "drop-shadow(rgba(0, 0, 0, 0.25) 0px 2px 2px)"},
   "T1B": {   # frame 764:755
     "key": "alp", "mark": ",", "image": "img_demo3_fruits", "variant": "alp", "name": "अल्प विराम", "sent": "आम, केला, संतरा और सेब",
-    "lead": None, "intro": None, "next": "T2",
+    "lead": None, "intro": None, "next": "T1C",
     "FRAME": {".rcf-sign": (CX+209-4, CY+65-4, 183, 177.355),   # node 764:937
               ".rcf-ebox": (CX+209, CY+274, 578, 84),           # node 764:940
               ".rcf-pic":  (CX+816, CY+143, 219, 146)},         # node 524:350 (its bitmap = T4's img_demo3_fruits)
@@ -75,6 +77,18 @@ PAGES = {
     "BY_DESIGN": [(368, 238, 414, 290), (540, 205, 840, 285), (388, 388, 800, 446), (290, 462, 900, 512),
                   (CX+816-6, CY+143-4, CX+816+219+6, CY+143+146+10)],
     "pic_filter": "none"},
+  "T1C": {   # frame 764:945
+    "key": "prashn", "mark": "?", "image": "img_recap_house", "variant": "prashn", "name": "प्रश्नवाचक चिह्न", "sent": "तुम्हारा घर कहाँ है ?",
+    "lead": None, "intro": None, "next": "T2",
+    "FRAME": {".rcf-sign": (CX+199-4, CY+65-4, 183, 177.355),   # node 764:1127 (T1's place)
+              ".rcf-ebox": (CX+199, CY+274, 580, 84),           # node 764:1129 (2 px wider than T1's)
+              ".rcf-pic":  (CX+822, CY+168, 216, 144)},         # node 766:1140
+    "INK": {"sign": (310, 180, 460, 330), "name": (480, 200, 920, 320), "sentence": (310, 384, 860, 458)},
+    "TOL": {"sign": (1, 1), "name": (2, 2), "sentence": (2, 2)},   # the ?s in the frame's own face, so their ink is the render's
+    "BY_DESIGN": [(350, 198, 415, 305), (500, 209, 877, 293), (434, 388, 733, 453), (280, 462, 890, 512),
+                  (CX+822-6, CY+168-4, CX+822+216+6, CY+168+144+10)],
+    "pic_filter": "drop-shadow(rgba(0, 0, 0, 0.25) 0px 2px 2px)",
+    "font_mark": '"Story Noto Q"', "font_eg": '"Story Noto Q"'},
 }
 P = PAGES[PAGE]; K = P["key"]; SENT = P["sent"]; FRAME = P["FRAME"]; INK = P["INK"]
 KEEP_WI = [i for i, w in enumerate(SENT.split()) if re.search(r"[।?,!]$", w)]   # the words whose mark stays lit
@@ -157,6 +171,9 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("requestfailed", lambda r: bad.append(r.url))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
+    # the engine makes its AudioContext on the first sound (_ac); in the lesson the start tap and the pages before have long made it,
+    # but a page mounted on its own would make it on the sign's pop, and new AudioContext() holds that frame 30-60 ms: made here first
+    pg.evaluate("_ac()"); pg.wait_for_timeout(300)
     pg.evaluate(NAVLOG); pg.evaluate(SOUNDS); pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, PAGE)
     d = pg.evaluate("CARD.slides[state.idx].data")
     NT, NE = d["name"]["word_times"], d["name"].get("word_end"); ET, EE = d["example"]["word_times"], d["example"].get("word_end")
@@ -254,7 +271,9 @@ with sync_playwright() as p:
     pi = [s for s in samples if s["picOp"] is not None]
     j0 = next(k for k, s in enumerate(pi) if s["picIn"])
     def sc(tr): return 1.0 if tr in (None, "none") else float(tr.split("(")[1].split(",")[0])
-    t_in = pi[j0]["ms"]; curve = [(s["ms"] - t_in, s["picOp"], sc(s["picTr"])) for s in pi[j0:] if s["ms"] - t_in <= 600]
+    # the curve from the last frame still waiting: the class flips between two samples, and whether the first sample after it already
+    # shows a frame of the transition depends on the rAF order (the cue's tick vs the sampler's), so the waiting frame bounds its start
+    t_in = pi[j0]["ms"]; curve = [(s["ms"] - t_in, s["picOp"], sc(s["picTr"])) for s in pi[max(j0 - 1, 0):] if s["ms"] - t_in <= 600]
     def at(t, k):   # our curve at t ms after the class went on (k 0 = opacity, 1 = scale), linearly interpolated
         for (a, *va), (b2, *vb) in zip(curve, curve[1:]):
             if a <= t <= b2: return va[k] + (vb[k] - va[k]) * ((t - a) / (b2 - a) if b2 > a else 0)
@@ -307,9 +326,10 @@ with sync_playwright() as p:
     check("आगे is never live while a VO plays", not any(e["img"] == "ON" and e["playing"] for e in log))
     pg.click("#navBtn", force=True)   # force: the active pill pulses forever, so it is never "stable"
     pg.wait_for_function(f"CARD.slides[state.idx].id === '{P['next']}'", timeout=10000)
-    landed = ("!!document.querySelector('.tut-card.sfig-recap .rcf-row.rcf-v-alp')" if P["next"] == "T1B"
+    NEXT = {"T1B": ("rcf-v-alp", "the अल्प-विराम page"), "T1C": ("rcf-v-prashn", "the प्रश्नवाचक-चिह्न page")}
+    landed = (f"!!document.querySelector('.tut-card.sfig-recap .rcf-row.{NEXT[P['next']][0]}')" if P["next"] in NEXT
               else "!!document.querySelector('.sfig-full .dmf-band')")
-    check(f"आगे leads to {P['next']} ({'the अल्प-विराम page' if P['next'] == 'T1B' else 'the run-on sentence demo, see demo_check.py'}), no extra gate",
+    check(f"आगे leads to {P['next']} ({NEXT[P['next']][1] if P['next'] in NEXT else 'the run-on sentence demo, see demo_check.py'}), no extra gate",
           not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')") and pg.evaluate(landed))
     pg.wait_for_timeout(1500); pg.screenshot(path=str(out / f"e_{P['next']}_after.png"))
     pg.evaluate(GOTO, "G4"); pg.wait_for_timeout(600)
@@ -348,11 +368,15 @@ with sync_playwright() as p:
       return tops.map(t => ws.filter(w => Math.round(w.getBoundingClientRect().top) === t).map(w => w.textContent).join(' ')); })""")
     print("  text lines:", lines)
     check("the name and the sentence are the frame's, on one line each", lines == [[P["name"]], [SENT]])
-    fonts = pg.evaluate("""(m) => { const f = (s) => { const c = getComputedStyle(document.querySelector(s)); return [c.fontFamily.split(',')[0], c.fontWeight, c.fontSize, c.color]; };
-      return [f('.rcf-mark p'), f('.rcf-name'), f('.rcf-eg'), document.fonts.check("600 128px 'Baloo 2'", m) && document.fonts.check("800 64px 'Story Baloo 2'", 'विराम')]; }""", P["mark"])
-    check("type: the sign in the family's 600 (the embedded 700 face, as T0's text) at the frame's 128px #002F76; the name and sentence Baloo 2 800 at 64 / 40px #012F76",
-          fonts[0] == ['"Baloo 2"', "600", "128px", "rgb(0, 47, 118)"] and fonts[1] == ['"Story Baloo 2"', "800", "64px", "rgb(1, 47, 118)"]
-          and fonts[2] == ['"Story Baloo 2"', "800", "40px", "rgb(1, 47, 118)"] and fonts[3], fonts)
+    fonts = pg.evaluate("""([m, q]) => { const f = (s) => { const c = getComputedStyle(document.querySelector(s)); return [c.fontFamily.split(',')[0], c.fontWeight, c.fontSize, c.color]; };
+      return [f('.rcf-mark p'), f('.rcf-name'), f('.rcf-eg'), document.fonts.check("600 128px 'Baloo 2'", m) && document.fonts.check("800 64px 'Story Baloo 2'", 'विराम')
+              && (!q || document.fonts.check("600 128px 'Story Noto Q'", '?') && document.fonts.check("800 40px 'Story Noto Q'", '?'))]; }""",   # T1C's ? face: a face loads only once used, so only there
+                       [P["mark"], "font_mark" in P])
+    fm, fe = P.get("font_mark", '"Baloo 2"'), P.get("font_eg", '"Story Baloo 2"')
+    check("type: the sign in the frame's face (T1 / T1B: the family's 600 = the embedded 700 face, as T0's text; T1C: Noto Sans Devanagari SemiBold) at its 128px #002F76; "
+          "the name and sentence Baloo 2 800 at 64 / 40px #012F76 (T1C's ? in Noto ExtraBold), every face loaded",
+          fonts[0] == [fm, "600", "128px", "rgb(0, 47, 118)"] and fonts[1] == ['"Story Baloo 2"', "800", "64px", "rgb(1, 47, 118)"]
+          and fonts[2] == [fe, "800", "40px", "rgb(1, 47, 118)"] and fonts[3], fonts)
     mine = Image.open(shot).convert("RGB")
     print("== text ink vs the Figma render (page px): centre and size ==")
     for name, region in INK.items():
@@ -385,3 +409,4 @@ with sync_playwright() as p:
     b.close()
 check("no page errors", not errs, errs[:3]); check("no failed requests", not bad, bad[:5])
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
+sys.exit(1 if fails else 0)
