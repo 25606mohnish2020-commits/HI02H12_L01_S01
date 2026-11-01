@@ -11,6 +11,10 @@ usage: python -I -X utf8 relisten_check.py <index.html> <relisten3_figma_render_
    reference's disabled pill ([dun-chrome]) through all of it and goes live, breathing, once the moral has ended; a 🔊 tap
    before the sentences is ignored, and afterwards replays the whole reading (sentences, explanation, moral); आगे leads to T1
    (the three-marks recap); past the Figma pages (G4) no story styling is left over.
+   [relisten-sfx] T1's text sounds ([recap-sfx], the reference hi02h11l02s04-file5 page 2's sfxPopSoft), logged in the page (the
+   engine's _tone and every <audio> play, on the samples' clock): the soft pop (_tone [720] sine 0.10 / 0.07) as sentence 1 rises
+   in and as sentence 2 rises in — each once, within 50 ms of its frame — and no other sound effect (the box, the highlights and
+   the commas make none); the 🔊 replay silent (nothing appears again).
 2. The card is the frame's (96,106 1088x508 x 1333/1280 = 100,110.39 1133x529.03 on the stage, 64px corners); Swiftie, 🔊
    chip and आगे are the story page's (T0): Swiftie 76,472 190x190, chip 202,606 58x58, आगे 581.5,550 170x62.
 3. 1280x720 viewport (stage px x 1333/1280 = frame px): sentence box and the two sentence nodes' centres vs the frame, each
@@ -83,6 +87,12 @@ TIMELINE = "(sample) => { window._tl = []; window._taps = []; const S = eval(sam
     " if (chip && !window._taps.includes('landing') && s.box && s.clip === 'r0') { window._taps.push('landing'); chip.click(); }" \
     " if (!s.nav) requestAnimationFrame(step); }; requestAnimationFrame(step); }"
 PULSING = "getComputedStyle(document.getElementById('navBtn'), '::after').animationName"
+# [relisten-sfx] every sound the page makes: the engine's procedural _tone and every <audio> play, on the samples' clock
+SOUNDS = """() => { window._snd = []; const T = window._tone;
+  window._tone = function(f, ty, d, v){ window._snd.push({ ms: performance.now(), kind: 'tone', f: f.join('/'), ty, d, v }); return T.apply(this, arguments); };
+  const P = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function(){ window._snd.push({ ms: performance.now(), kind: 'media', src: decodeURIComponent(String(this.currentSrc || this.src).split('/').pop()), vol: +this.volume.toFixed(3) });
+    return P.apply(this, arguments); }; }"""
 
 def lit_want(times, wend, t):
     """[word-sync] the word(s) lit at clip time t: the stretch [start, next start) holding t (words sharing a start light together),
@@ -116,7 +126,10 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("requestfailed", lambda r: bad.append(r.url))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
-    pg.evaluate(NAVLOG); pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, "T0B")
+    # the engine makes its AudioContext on the first sound (_ac); in the lesson the start tap has long made it, but a page mounted
+    # on its own would make it on the first pop, and new AudioContext() holds that frame 30-60 ms: made here first
+    pg.evaluate("_ac()"); pg.wait_for_timeout(300)
+    pg.evaluate(NAVLOG); pg.evaluate(SOUNDS); pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, "T0B")
     d = pg.evaluate("CARD.slides[state.idx].data"); T = [ln["word_times"] for ln in d["lines"]]; CUES = d["explain_cues"]; MCUE = d["moral_cue"]
     check("the page's data: the frame's two sentences on vo_story_c1 / c2, the explanation vo_story_r1 with its two cues, the moral vo_story_moral with its cue",
           [ln["text_hi"] for ln in d["lines"]] == LINES and [ln["audio"] for ln in d["lines"]] == ["vo_story_c1", "vo_story_c2"] and d["explain_audio"] == "vo_story_r1"
@@ -178,6 +191,14 @@ with sync_playwright() as p:
     check(f"the two commas light orange, lifted, as the moral reaches \"विराम\" ({MCUE} s on its clock, within -0.05/+0.15 s), none before, both staying lit to the end",
           i_m < i_mk < i_me and -0.05 <= samples[i_mk]["t"] - MCUE <= 0.15 and not any(s["mk"] for s in samples[:i_mk]) and all(s["mk"] == 2 for s in samples[i_mk:]), round(samples[i_mk]["t"] - MCUE, 2) if i_mk > i_m else None)
     check("आगे stays away (not live) until the moral has ended", not any(s["nav"] for s in samples[:i_me]))
+    # [relisten-sfx] T1's sounds: a pop as each sentence rises in, nothing else
+    snd = [e for e in pg.evaluate("window._snd") if samples[0]["ms"] - 50 <= e["ms"] <= ms(i_me) + 500]
+    pops = [e for e in snd if e["kind"] == "tone" and e["f"] == "720" and e["ty"] == "sine" and e["d"] == 0.1 and e["v"] == 0.07]
+    others = [e for e in snd if e not in pops and not (e["kind"] == "media" and e["src"].startswith("vo_"))]
+    check("[relisten-sfx] the soft pop (T1's = the reference's sfxPopSoft: _tone 720 Hz sine, 0.10 s, 0.07) as sentence 1 rises in and as sentence 2 rises in — twice, each within 50 ms of its frame",
+          len(pops) == 2 and abs(pops[0]["ms"] - ms(i_s1)) <= 50 and abs(pops[1]["ms"] - ms(i_s2)) <= 50,
+          [round(e["ms"] - ms(i)) for e, i in zip(pops, (i_s1, i_s2))] + [len(pops)])
+    check("[relisten-sfx] no other sound effect during the page (the box, the sentences' highlights and the commas make none; only the voice clips besides)", not others, others[:4])
     check("आगे opens (live, breathing) ~0.3 s after the moral ends", samples[-1]["nav"] and 200 <= ms(len(samples) - 1) - ms(i_me) <= 700 and pg.evaluate(PULSING) == "navBreathe",
           f"{ms(len(samples) - 1) - ms(i_me):.0f} ms after the clip ended")
     pg.evaluate("document.getElementById('navBtn').style.animation = 'none'")   # measure आगे at rest, not mid-pulse
@@ -191,6 +212,7 @@ with sync_playwright() as p:
     radius = pg.evaluate("getComputedStyle(document.querySelector('.tut-card.sfig-card')).borderTopLeftRadius")
     check("the card has the frame's 64px corners (x 1333/1280)", abs(float(radius[:-2]) - 64 * 1333 / 1280) < 0.05, radius)
     pg.wait_for_timeout(1200)
+    t_rep = pg.evaluate("performance.now()")
     pg.click(".tut-audio", force=True); pg.wait_for_timeout(400)
     r = pg.evaluate(SAMPLE)
     check("🔊 afterwards replays the reading from sentence 1 (box and both sentences staying, sentence 1 lit word by word again, the highlights cleared) ([word-sync])",
@@ -201,6 +223,8 @@ with sync_playwright() as p:
     pg.wait_for_function("!isPlaying && document.getElementById('navBtn').classList.contains('active')", timeout=30000)
     pg.wait_for_timeout(300)
     check("...the replay runs the whole reading again (the commas lit once more) and आगे comes back live, breathing", pg.evaluate(PULSING) == "navBreathe")
+    rep_snd = [e for e in pg.evaluate("window._snd") if e["ms"] >= t_rep and not (e["kind"] == "media" and e["src"].startswith("vo_"))]
+    check("[relisten-sfx] the replay makes no pop (nothing appears again)", not rep_snd, rep_snd[:4])
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T0B"]
     first_on = next((e for e in log if e["img"] == "ON"), None)   # [dun-chrome] the reference's pill: disabled art through the clips, live once the last has ended
     check("आगे shows the reference's disabled pill from the start, through every clip (frame by frame, incl. the replay), and goes live only once the moral has ended",
@@ -283,3 +307,4 @@ with sync_playwright() as p:
     b.close()
 check("no page errors", not errs, errs[:3]); check("no failed requests", not bad, bad[:5])
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
+sys.exit(1 if fails else 0)
