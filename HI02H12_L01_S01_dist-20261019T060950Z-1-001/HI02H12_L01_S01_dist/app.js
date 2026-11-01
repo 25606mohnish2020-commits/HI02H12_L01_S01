@@ -2207,19 +2207,20 @@ function sfigSync(L){
 /* live() = "still this run, on a mounted page"; onEnd runs once, with every word shown. A line not yet on screen rises in first
    and is read SENT_IN_MS later; a line already shown (a replay) is read at once. Watchdog: a clip that never reports its end
    must not strand the page. It stops the clip first, so आगे still opens live, never greyed out under a "playing" clip. */
-function sfigNarrate(L, live, onEnd){
+function sfigNarrate(L, live, onEnd, S){
+  const Y = S || L;   // [recap-fig2] the line whose words light on the clip: the line itself, or another (T1's sign on the name's clip)
   let done = false;
   const end = ()=>{
     if(done || !live()) return;
     done = true;
-    if(L.unsync) L.unsync();
+    if(Y.unsync) Y.unsync();
     sfigShow(L, L.words.length);
     onEnd();
   };
   const read = ()=>{
     if(!live()) return;
     play(L.src, end);
-    sfigSync(L);
+    sfigSync(Y);
     const last = L.end != null ? L.end : (L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000);
     setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
   };
@@ -6262,36 +6263,40 @@ const SlideModules = {
     }
   },
 
-  /* ===== [recap-fig] MARKS_RECAP — "ये हैं तीन विराम चिह्न" (FLN-by-MJ frame 508:2), the three-marks recap after the
-     read-again page. T0B's card, grid, Swiftie and 🔊 chip (the frame's card is that same box); the frame's own
-     title and three rows: the mark in its white box, its name, when it is used, and an example in a yellow box.
-     Everything arrives WITH its narration: the title as the intro line starts to sound (as on T0B); then, mark by
-     mark, the box + mark pop in as the name's clip starts, the use follows with its clip, and the yellow box pops in
-     as the example's clip starts — every text rising in whole, then read with each word lit (sfigNarrate), with a short
-     breath between the beats and a longer one before the next mark. आगे only ever shows LIVE, when the last example
-     has been read; the 🔊 chip is ignored while the marks are being read (the sequence drives itself) and afterwards
-     reads the three marks again from the first, hiding आगे until that replay ends. ===== */
+  /* ===== [recap-fig] MARKS_RECAP — the mark page after the read-again page. [recap-fig2] (2026-11-01): laid out as FLN-by-MJ
+     frame 764:144 "html_Guided_instructions" (was 508:2, the three-marks recap in rows) — ONE mark: the sign in its white box
+     with its name beside it, the example sentence in a white box under them, the picture at the right — on T0B's card, grid,
+     Swiftie and 🔊 chip. Everything arrives WITH its narration: the lead line ([vo-rec]) and the intro line sound over the
+     card alone (the frame has no title); then the box + sign pop in as the name rises in whole, and the name's clip lights the
+     SIGN (the words' orange + pop, [word-sync]) for as long as it says the name; the use's clip sounds with nothing new on
+     screen; then the sentence's box pops in as the sentence rises in whole and its clip follows — as it reaches the sentence's
+     first word the picture pops in and the words light one by one; the mark at the sentence's end keeps its orange once lit.
+     आगे (T0's place) only ever shows LIVE, when the example has been read; the 🔊 chip is ignored while the page reads itself
+     (the sequence drives itself) and afterwards reads it again from the name — everything staying, the sign and the words lit
+     again, the kept mark cleared until it is lit again — hiding आगे until that replay ends. ===== */
   MARKS_RECAP: {
     mount(host, slide){
-      const d = slide.data || {}, rows = d.rows || [], GAP = 300, GAP_MARK = 700;
-      const fig = sfigMount(host, '<div class="sfig-title"><p></p></div>' + rows.map((_, k)=>
-        '<div class="rcf-row r' + (k + 1) + '"><div class="rcf-sign"><div class="rcf-mark"><p></p></div></div>' +
-        '<div class="rcf-name"><p></p></div><div class="rcf-when"><p></p></div><div class="rcf-eg"><p></p></div></div>').join(""));
+      const d = slide.data || {}, GAP = 300, GAP_MARK = 700;
+      const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const fig = sfigMount(host,
+        '<div class="rcf-row"><div class="rcf-sign"><div class="rcf-mark"><p><span class="sfig-w on"></span></p></div></div>' +
+        '<div class="rcf-name"><p></p></div><div class="rcf-ebox"></div><div class="rcf-eg"><p></p></div>' +
+        '<div class="rcf-pic"><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round", "sfig-recap");
-      const title = fig.querySelector(".sfig-title");
-      title.querySelector("p").textContent = d.title_hi || "";
-      const introSrc = d.intro_audio ? ("assets/Audio/" + d.intro_audio + "." + AUDIO_EXT) : null;
-      // the beats in reading order: for each mark its name (with the box + mark), its use, its example (with the yellow box)
-      const beats = [];
-      fig.querySelectorAll(".rcf-row").forEach((row, k)=>{
-        const r = rows[k] || {};
-        row.querySelector(".rcf-mark p").textContent = r.mark || "";
-        [["name", ".rcf-name", ".rcf-sign"], ["when", ".rcf-when", null], ["example", ".rcf-eg", ".rcf-eg"]].forEach(([key, sel, pop])=>{
-          const p = r[key] || {};
-          beats.push({ L: sfigLine(row.querySelector(sel + " p"), p.text_hi, p.word_times, p.audio, p.word_end),
-                       pop: pop ? row.querySelector(pop) : null, mark: key === "name" });
-        });
-      });
+      const sign = fig.querySelector(".rcf-sign"), glyph = fig.querySelector(".rcf-mark .sfig-w"),
+            ebox = fig.querySelector(".rcf-ebox"), pic = fig.querySelector(".rcf-pic");
+      glyph.textContent = d.mark || "";
+      const nm = d.name || {}, wh = d.when || {}, eg = d.example || {};
+      const Lname = sfigLine(fig.querySelector(".rcf-name p"), nm.text_hi, nm.word_times, nm.audio, nm.word_end);
+      const Leg = sfigLine(fig.querySelector(".rcf-eg p"), eg.text_hi, eg.word_times, eg.audio, eg.word_end);
+      // the sign reads as a one-word line on the name's clip (sfigSync): lit from the clip's first word to its last word's end
+      const Lsign = { p: glyph.parentElement, words: [glyph], share: [0], times: [Lname.times ? Lname.times[0] : 0],
+                      end: Lname.end, src: Lname.src, file: Lname.file, shown: true };
+      // the mark(s) at the sentence's end — a token of punctuation alone — keep their orange once the clip has lit them
+      const keeps = Leg.words.filter(w=> /^[।?,!]+$/.test(w.textContent));
+      const egTimes = Leg.times || [];
+      const cues = [egTimes[0] || 0];   // the picture, at the sentence's first word
+      if(keeps.length && egTimes.length) cues.push(egTimes[Math.max(0, Leg.words.indexOf(keeps[0]))]);   // the kept mark, at its word
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -6299,52 +6304,53 @@ const SlideModules = {
       const alive = ()=> fig.isConnected;
       let run = 0;
       const armNav = ()=>{ if(!alive()) return; state.demoRunning = false; setNavActive(true); setSwMood("point"); };
-      // beat i: its box pops in as its clip starts; the next beat after a breath (a longer one before the next mark)
-      const read = (i, mine)=>{
-        if(mine !== run || !alive()) return;
-        if(i >= beats.length){ armNav(); return; }
-        const b = beats[i];
-        if(b.pop) b.pop.classList.add("in");
-        sfigNarrate(b.L, ()=> mine === run && alive(), ()=>{
-          const next = beats[i + 1];
-          setTimeout(()=> read(i + 1, mine), next && next.mark ? GAP_MARK : GAP);
-        });
+      // a clip with nothing to light: it sounds, then onEnd (a watchdog stops a stalled clip, as sfigNarrate's)
+      const say = (src, live, onEnd)=>{
+        if(!src){ onEnd(); return; }
+        let done = false; const end = ()=>{ if(done || !live()) return; done = true; onEnd(); };
+        play(src, end);
+        setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, authoredVoHoldMs(src) + 10000);
+      };
+      // cues (seconds on the clip's own clock) on the clip `file`, which sfigNarrate starts after the text's rise: waits for it,
+      // then onCue(i) as each is reached; the ones not reached when the clip is gone fire then, so nothing is skipped
+      const cueOn = (file, onCue, live)=>{
+        let next = 0; const t0 = Date.now();
+        const own = (a)=> !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === file;
+        const wait = ()=>{ if(!live()) return;
+          const a = currentAudio;
+          if(!own(a)){ if(Date.now() - t0 < SENT_IN_MS + 3000) nextFrame(wait); else while(next < cues.length) onCue(next++); return; }
+          const tick = ()=>{ if(!live()) return;
+            const gone = a.ended || currentAudio !== a || (a.paused && a.currentTime > 0);
+            while(next < cues.length && (gone || a.currentTime + 0.04 >= cues[next])) onCue(next++);
+            if(next < cues.length) nextFrame(tick); };
+          tick(); };
+        wait();
       };
       const readAll = ()=>{
-        const mine = ++run;
-        state.demoRunning = true;   // the chip is ignored until the marks have been read; a replay hides आगे meanwhile
+        const mine = ++run, live = ()=> mine === run && alive();
+        state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
         setNavActive(false);
-        read(0, mine);   // [word-sync] a replay keeps the texts on screen
+        keeps.forEach(w=> w.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
+        // 1. the box + sign pop in as the name rises; the name's clip lights the sign
+        sign.classList.add("in");
+        sfigNarrate(Lname, live, ()=>{
+          // 2. the use's clip, nothing new on screen
+          setTimeout(()=>{ if(!live()) return; say(A(wh.audio), live, ()=>{
+            // 3. the sentence's box pops in as the sentence rises; its clip: the picture pops in at the first word, the words
+            //    light one by one, the mark at the end keeps its light
+            setTimeout(()=>{ if(!live()) return;
+              ebox.classList.add("in");
+              const onCue = (i)=>{ if(i === 0) pic.classList.add("in"); else keeps.forEach(w=> w.classList.add("keep")); };
+              sfigNarrate(Leg, live, ()=>{ cues.forEach((_, i)=> onCue(i)); armNav(); });
+              cueOn(Leg.file, onCue, live);
+            }, GAP); }); }, GAP);
+        }, Lsign);
       };
-      // 1. the intro line, with the title appearing the moment it starts to sound (as on T0B)
+      // the lead line ([vo-rec], data.lead_audio) then the intro line (data.intro_audio), both over the card alone; then the mark
       state.demoRunning = true;
-      const showTitle = ()=>{ if(alive()) title.classList.add("in"); };
       let introDone = false;
-      const afterIntro = ()=>{
-        if(introDone || !alive()) return;
-        introDone = true; showTitle();
-        // 2. then the marks, one beat at a time
-        setTimeout(()=>{ if(alive()) readAll(); }, GAP_MARK);
-      };
-      // [vo-rec] the lead line ("आपने देखा, ...", data.lead_audio) first, the title still out; then the intro as before
-      const startIntro = ()=>{
-        if(!alive()) return;
-        play(introSrc, afterIntro);
-        // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
-        const a = currentAudio;
-        const whenSounding = ()=>{
-          if(!alive() || title.classList.contains("in")) return;
-          if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
-        };
-        if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
-        setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
-        // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
-        setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
-      };
-      const leadSrc = d.lead_audio ? ("assets/Audio/" + d.lead_audio + "." + AUDIO_EXT) : null;
-      if(leadSrc){ let leadDone = false; const go = ()=>{ if(leadDone || !alive()) return; leadDone = true; startIntro(); };
-        play(leadSrc, go); setTimeout(()=>{ if(!leadDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(leadSrc) + 10000); }
-      else startIntro();
+      const afterIntro = ()=>{ if(introDone || !alive()) return; introDone = true; setTimeout(()=>{ if(alive()) readAll(); }, GAP_MARK); };
+      say(A(d.lead_audio), alive, ()=> say(A(d.intro_audio), alive, afterIntro));
       state.replayAudio = readAll;
     }
   },

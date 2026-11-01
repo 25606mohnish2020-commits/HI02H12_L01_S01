@@ -202,11 +202,14 @@ rl = {k: json.loads((SCR / "recap_assets" / f"vo_recap_{k}.words.json").read_tex
 i_t1 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T1")
 assert card["slides"][i_t1]["type"] == "QTYPE_RECAP", "T1 is not the three-marks recap"
 part = lambda k: {"text_hi": rl[k]["shown"], "audio": f"vo_recap_{k}", "word_times": [t[0] for t in rl[k]["word_times"]], "word_end": rl[k]["word_times"][-1][1]}
+# [recap-fig2] (2026-11-01) frame 764:144: ONE mark — पूर्ण विराम — its sign, its name, the example sentence and the frame's picture; no
+# title (the lead and intro lines sound over the card alone). The use ("बात पूरी होने पर") is said, not shown. (Was 508:2's three rows;
+# the अल्प विराम / प्रश्नवाचक rows' clips stay registered: T3 / T4 name their marks with vo_recap_prashn_name / vo_recap_alp_name.)
 card["slides"][i_t1] = {"id": "T1", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
-    "prompt_hi": rl["intro"]["shown"], "audio": {"prompt": "vo_recap_intro"},
-    "data": {"title_hi": rl["intro"]["shown"], "intro_audio": "vo_recap_intro",
-             "rows": [{"mark": mark, "name": part(f"{m}_name"), "when": part(f"{m}_when"), "example": part(f"{m}_eg")}
-                      for m, mark in (("purn", "।"), ("alp", ","), ("prashn", "?"))]}}
+    "prompt_hi": rl["purn_name"]["shown"], "audio": {"prompt": "vo_recap_intro"},
+    "data": {"intro_audio": "vo_recap_intro", "mark": "।", "image_id": "img_recap_girl",
+             "name": part("purn_name"), "when": part("purn_when"), "example": part("purn_eg")}}
+card["assets"]["image"]["img_recap_girl"] = "assets/Images/img_recap_girl.webp"   # node 764:753's source bitmap (1024x1536, WebP q90, alpha exact)
 for k in RECAP_KEYS:
     card["assets"]["audio"][f"vo_recap_{k}"] = f"assets/Audio/vo_recap_{k}.ogg"
     card["assets"]["audio_text"][f"vo_recap_{k}"] = rl[k]["text"]
@@ -759,19 +762,20 @@ function sfigSync(L){
 /* live() = "still this run, on a mounted page"; onEnd runs once, with every word shown. A line not yet on screen rises in first
    and is read SENT_IN_MS later; a line already shown (a replay) is read at once. Watchdog: a clip that never reports its end
    must not strand the page. It stops the clip first, so आगे still opens live, never greyed out under a "playing" clip. */
-function sfigNarrate(L, live, onEnd){
+function sfigNarrate(L, live, onEnd, S){
+  const Y = S || L;   // [recap-fig2] the line whose words light on the clip: the line itself, or another (T1's sign on the name's clip)
   let done = false;
   const end = ()=>{
     if(done || !live()) return;
     done = true;
-    if(L.unsync) L.unsync();
+    if(Y.unsync) Y.unsync();
     sfigShow(L, L.words.length);
     onEnd();
   };
   const read = ()=>{
     if(!live()) return;
     play(L.src, end);
-    sfigSync(L);
+    sfigSync(Y);
     const last = L.end != null ? L.end : (L.times ? L.times[L.times.length - 1] : authoredVoHoldMs(L.src) / 1000);
     setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, (last + 10) * 1000);
   };
@@ -930,36 +934,40 @@ story_mod = r"""  /* ===== [story-fig] STORY_LISTEN — the Figma story page, th
 """
 js = sub1(js, r"/\* ---------- 12\. SLIDE MODULES ---------- \*/", lambda m: story_js + m.group(0), 0, "section 12 (story helpers)")
 js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: story_mod + m.group(0), re.M, "PHASE_TRANSITION anchor (story)")
-recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — "ये हैं तीन विराम चिह्न" (FLN-by-MJ frame 508:2), the three-marks recap after the
-     read-again page. T0B's card, grid, Swiftie and 🔊 chip (the frame's card is that same box); the frame's own
-     title and three rows: the mark in its white box, its name, when it is used, and an example in a yellow box.
-     Everything arrives WITH its narration: the title as the intro line starts to sound (as on T0B); then, mark by
-     mark, the box + mark pop in as the name's clip starts, the use follows with its clip, and the yellow box pops in
-     as the example's clip starts — every text rising in whole, then read with each word lit (sfigNarrate), with a short
-     breath between the beats and a longer one before the next mark. आगे only ever shows LIVE, when the last example
-     has been read; the 🔊 chip is ignored while the marks are being read (the sequence drives itself) and afterwards
-     reads the three marks again from the first, hiding आगे until that replay ends. ===== */
+recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the read-again page. [recap-fig2] (2026-11-01): laid out as FLN-by-MJ
+     frame 764:144 "html_Guided_instructions" (was 508:2, the three-marks recap in rows) — ONE mark: the sign in its white box
+     with its name beside it, the example sentence in a white box under them, the picture at the right — on T0B's card, grid,
+     Swiftie and 🔊 chip. Everything arrives WITH its narration: the lead line ([vo-rec]) and the intro line sound over the
+     card alone (the frame has no title); then the box + sign pop in as the name rises in whole, and the name's clip lights the
+     SIGN (the words' orange + pop, [word-sync]) for as long as it says the name; the use's clip sounds with nothing new on
+     screen; then the sentence's box pops in as the sentence rises in whole and its clip follows — as it reaches the sentence's
+     first word the picture pops in and the words light one by one; the mark at the sentence's end keeps its orange once lit.
+     आगे (T0's place) only ever shows LIVE, when the example has been read; the 🔊 chip is ignored while the page reads itself
+     (the sequence drives itself) and afterwards reads it again from the name — everything staying, the sign and the words lit
+     again, the kept mark cleared until it is lit again — hiding आगे until that replay ends. ===== */
   MARKS_RECAP: {
     mount(host, slide){
-      const d = slide.data || {}, rows = d.rows || [], GAP = 300, GAP_MARK = 700;
-      const fig = sfigMount(host, '<div class="sfig-title"><p></p></div>' + rows.map((_, k)=>
-        '<div class="rcf-row r' + (k + 1) + '"><div class="rcf-sign"><div class="rcf-mark"><p></p></div></div>' +
-        '<div class="rcf-name"><p></p></div><div class="rcf-when"><p></p></div><div class="rcf-eg"><p></p></div></div>').join(""));
+      const d = slide.data || {}, GAP = 300, GAP_MARK = 700;
+      const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
+      const fig = sfigMount(host,
+        '<div class="rcf-row"><div class="rcf-sign"><div class="rcf-mark"><p><span class="sfig-w on"></span></p></div></div>' +
+        '<div class="rcf-name"><p></p></div><div class="rcf-ebox"></div><div class="rcf-eg"><p></p></div>' +
+        '<div class="rcf-pic"><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round", "sfig-recap");
-      const title = fig.querySelector(".sfig-title");
-      title.querySelector("p").textContent = d.title_hi || "";
-      const introSrc = d.intro_audio ? ("assets/Audio/" + d.intro_audio + "." + AUDIO_EXT) : null;
-      // the beats in reading order: for each mark its name (with the box + mark), its use, its example (with the yellow box)
-      const beats = [];
-      fig.querySelectorAll(".rcf-row").forEach((row, k)=>{
-        const r = rows[k] || {};
-        row.querySelector(".rcf-mark p").textContent = r.mark || "";
-        [["name", ".rcf-name", ".rcf-sign"], ["when", ".rcf-when", null], ["example", ".rcf-eg", ".rcf-eg"]].forEach(([key, sel, pop])=>{
-          const p = r[key] || {};
-          beats.push({ L: sfigLine(row.querySelector(sel + " p"), p.text_hi, p.word_times, p.audio, p.word_end),
-                       pop: pop ? row.querySelector(pop) : null, mark: key === "name" });
-        });
-      });
+      const sign = fig.querySelector(".rcf-sign"), glyph = fig.querySelector(".rcf-mark .sfig-w"),
+            ebox = fig.querySelector(".rcf-ebox"), pic = fig.querySelector(".rcf-pic");
+      glyph.textContent = d.mark || "";
+      const nm = d.name || {}, wh = d.when || {}, eg = d.example || {};
+      const Lname = sfigLine(fig.querySelector(".rcf-name p"), nm.text_hi, nm.word_times, nm.audio, nm.word_end);
+      const Leg = sfigLine(fig.querySelector(".rcf-eg p"), eg.text_hi, eg.word_times, eg.audio, eg.word_end);
+      // the sign reads as a one-word line on the name's clip (sfigSync): lit from the clip's first word to its last word's end
+      const Lsign = { p: glyph.parentElement, words: [glyph], share: [0], times: [Lname.times ? Lname.times[0] : 0],
+                      end: Lname.end, src: Lname.src, file: Lname.file, shown: true };
+      // the mark(s) at the sentence's end — a token of punctuation alone — keep their orange once the clip has lit them
+      const keeps = Leg.words.filter(w=> /^[।?,!]+$/.test(w.textContent));
+      const egTimes = Leg.times || [];
+      const cues = [egTimes[0] || 0];   // the picture, at the sentence's first word
+      if(keeps.length && egTimes.length) cues.push(egTimes[Math.max(0, Leg.words.indexOf(keeps[0]))]);   // the kept mark, at its word
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -967,44 +975,53 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — "ये हैं ती�
       const alive = ()=> fig.isConnected;
       let run = 0;
       const armNav = ()=>{ if(!alive()) return; state.demoRunning = false; setNavActive(true); setSwMood("point"); };
-      // beat i: its box pops in as its clip starts; the next beat after a breath (a longer one before the next mark)
-      const read = (i, mine)=>{
-        if(mine !== run || !alive()) return;
-        if(i >= beats.length){ armNav(); return; }
-        const b = beats[i];
-        if(b.pop) b.pop.classList.add("in");
-        sfigNarrate(b.L, ()=> mine === run && alive(), ()=>{
-          const next = beats[i + 1];
-          setTimeout(()=> read(i + 1, mine), next && next.mark ? GAP_MARK : GAP);
-        });
+      // a clip with nothing to light: it sounds, then onEnd (a watchdog stops a stalled clip, as sfigNarrate's)
+      const say = (src, live, onEnd)=>{
+        if(!src){ onEnd(); return; }
+        let done = false; const end = ()=>{ if(done || !live()) return; done = true; onEnd(); };
+        play(src, end);
+        setTimeout(()=>{ if(!done && live()){ stopAudio(); end(); } }, authoredVoHoldMs(src) + 10000);
+      };
+      // cues (seconds on the clip's own clock) on the clip `file`, which sfigNarrate starts after the text's rise: waits for it,
+      // then onCue(i) as each is reached; the ones not reached when the clip is gone fire then, so nothing is skipped
+      const cueOn = (file, onCue, live)=>{
+        let next = 0; const t0 = Date.now();
+        const own = (a)=> !!a && decodeURIComponent(String(a.currentSrc || a.src || "").split("/").pop()) === file;
+        const wait = ()=>{ if(!live()) return;
+          const a = currentAudio;
+          if(!own(a)){ if(Date.now() - t0 < SENT_IN_MS + 3000) nextFrame(wait); else while(next < cues.length) onCue(next++); return; }
+          const tick = ()=>{ if(!live()) return;
+            const gone = a.ended || currentAudio !== a || (a.paused && a.currentTime > 0);
+            while(next < cues.length && (gone || a.currentTime + 0.04 >= cues[next])) onCue(next++);
+            if(next < cues.length) nextFrame(tick); };
+          tick(); };
+        wait();
       };
       const readAll = ()=>{
-        const mine = ++run;
-        state.demoRunning = true;   // the chip is ignored until the marks have been read; a replay hides आगे meanwhile
+        const mine = ++run, live = ()=> mine === run && alive();
+        state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
         setNavActive(false);
-        read(0, mine);   // [word-sync] a replay keeps the texts on screen
+        keeps.forEach(w=> w.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
+        // 1. the box + sign pop in as the name rises; the name's clip lights the sign
+        sign.classList.add("in");
+        sfigNarrate(Lname, live, ()=>{
+          // 2. the use's clip, nothing new on screen
+          setTimeout(()=>{ if(!live()) return; say(A(wh.audio), live, ()=>{
+            // 3. the sentence's box pops in as the sentence rises; its clip: the picture pops in at the first word, the words
+            //    light one by one, the mark at the end keeps its light
+            setTimeout(()=>{ if(!live()) return;
+              ebox.classList.add("in");
+              const onCue = (i)=>{ if(i === 0) pic.classList.add("in"); else keeps.forEach(w=> w.classList.add("keep")); };
+              sfigNarrate(Leg, live, ()=>{ cues.forEach((_, i)=> onCue(i)); armNav(); });
+              cueOn(Leg.file, onCue, live);
+            }, GAP); }); }, GAP);
+        }, Lsign);
       };
-      // 1. the intro line, with the title appearing the moment it starts to sound (as on T0B)
+      // the lead line ([vo-rec], data.lead_audio) then the intro line (data.intro_audio), both over the card alone; then the mark
       state.demoRunning = true;
-      const showTitle = ()=>{ if(alive()) title.classList.add("in"); };
       let introDone = false;
-      const afterIntro = ()=>{
-        if(introDone || !alive()) return;
-        introDone = true; showTitle();
-        // 2. then the marks, one beat at a time
-        setTimeout(()=>{ if(alive()) readAll(); }, GAP_MARK);
-      };
-      play(introSrc, afterIntro);
-      // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
-      const a = currentAudio;
-      const whenSounding = ()=>{
-        if(!alive() || title.classList.contains("in")) return;
-        if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
-      };
-      if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
-      setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
-      // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
-      setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
+      const afterIntro = ()=>{ if(introDone || !alive()) return; introDone = true; setTimeout(()=>{ if(alive()) readAll(); }, GAP_MARK); };
+      say(A(d.lead_audio), alive, ()=> say(A(d.intro_audio), alive, afterIntro));
       state.replayAudio = readAll;
     }
   },
@@ -2208,8 +2225,9 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
    edge. Was node 488:371 / 654:748: 683x219 at 191,144 (187,140 691x227 with the stroke) */
 .sfig-sbox{position:absolute;left:241px;top:38px;width:582px;height:291px;background:#FFFFFF;border:4px solid #DADADA;
   border-radius:24px;opacity:0;transform:scale(.9);}
-/* [t0b-fig] the frame's second grid tile (node 704:181) sits 2 px left of 488:369's: 529.969 (card x 541.969 - 12) */
-.sfig-round .sfig-in:has(.sfig-sbox) .sfig-grid.g2{left:calc(529.969px - 112px / var(--fig-s) + 108px);}
+/* [t0b-fig] the frame's second grid tile (node 704:181) sits 2 px left of 488:369's: 529.969 (card x 541.969 - 12); [recap-fig2]
+   T1's frame 764:144 has it there too (node 764:323) */
+.sfig-round .sfig-in:has(.sfig-sbox) .sfig-grid.g2, .sfig-recap .sfig-grid.g2{left:calc(529.969px - 112px / var(--fig-s) + 108px);}
 .sfig-sbox.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}
 @keyframes sfigBoxIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:none;}}
 /* node 488:374 (the frame as of 2026-10-21 evening): 631 wide, centred on 532.5, bottom-aligned on y 369 (280 tall),
@@ -2237,49 +2255,45 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-mk.on{color:#E86A00;transform:scale(1.4);}
 """
 recap_css = """
-/* ===== [recap-fig] T1 "ये हैं तीन विराम चिह्न" (frame 508:2, MARKS_RECAP): T0B's card, grid, Swiftie and 🔊 chip (the
-   frame's card is the same 96,106 1088x508 box with 64px corners, so the .sfig-round rules above apply as they are);
-   the frame's own title and three rows, in .sfig-in's frame px (= the frame's card px - 12, its border). The texts
-   are Noto Sans Devanagari SemiBold: the title and marks are set in it in the frame, and the labels — "Baloo Bhai 2"
-   in the frame, which has no Devanagari glyphs — render in Figma's Noto Sans Devanagari fallback. ===== */
-.sfig-recap .sfig-title{left:291px;top:52.5px;width:483px;}   /* node 508:184: 483 wide, centred on 544.5,64.5 (card px) */
+/* ===== [recap-fig] T1 (MARKS_RECAP) — [recap-fig2] (2026-11-01) laid out as frame 764:144 "html_Guided_instructions": T0B's card,
+   grid (its second tile at 764:323's x, as 704:2's), Swiftie and 🔊 chip (the frame's own Swiftie, 245 px at 35,415, is not used:
+   T0's stay, as asked), and the frame's own content in .sfig-in's px (= the frame's card px - 12, its border): the sign's white
+   box, the name beside it, the sentence's white box under them (T0's shadow, the frame's size) and the picture at the right.
+   No title. आगे at T0's place (the engine's rule for these cards; the three-row page had moved it under the card). Was frame
+   508:2: the title and three rows (sign box, name, use, yellow example box) in Noto / Baloo Bhai 2 metrics. ===== */
 .rcf-row{position:absolute;left:0;top:0;width:1064px;height:484px;pointer-events:none;}
-/* the marks' boxes: nodes 508:183 / 516:22 / 516:23, 93x90 at 166,127 / 166,256 / 166,385 (card px) with their 4px
-   stroke drawn OUTSIDE (the render is 101x98 at 162,123 ...) and 10px corners, i.e. 14px on the stroke's outer edge */
-.rcf-sign{position:absolute;left:150px;width:101px;height:98px;background:#FFFFFF;border:4px solid #DADADA;
+/* the sign's box: node 764:326, 175x169.355 at 199,65 (card px) with its 4px stroke drawn OUTSIDE (the render: 195..378 x 61..238.4)
+   and 10px corners, i.e. 14px on the stroke's outer edge; it pops in with the name */
+.rcf-sign{position:absolute;left:183px;top:49px;width:183px;height:177.355px;background:#FFFFFF;border:4px solid #DADADA;
   border-radius:14px;opacity:0;transform:scale(.9);}
-.r1 .rcf-sign{top:111px;} .r2 .rcf-sign{top:240px;} .r3 .rcf-sign{top:369px;}
-.rcf-sign.in, .rcf-eg.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as its clip starts */
-/* the marks: text nodes 512:3 / 512:4 / 515:21 — 483-wide centred boxes, centred on 209.5,174.5 / 212.5,304.5 /
-   212.5,438.5 (card px), 64px — placed from their box's padding box. 512:3 is "। " with a trailing space, which
-   Figma does NOT count when centring (the render's danda sits on the node's centre), so it is dropped here */
-.rcf-mark{position:absolute;width:483px;transform:translate(-50%,-50%);font-family:'Story Baloo 2',var(--font-hi);
-  font-weight:800;font-size:64px;line-height:normal;color:#002F76;text-align:center;white-space:pre;}
-.r1 .rcf-mark{left:43.5px;top:47.5px;} .r2 .rcf-mark{left:46.5px;top:48.5px;} .r3 .rcf-mark{left:46.5px;top:53.5px;}
-/* names and uses: nodes 520:260-262 and 514:8 / 517:24 / 517:25 — 1075-wide centred boxes, 48 tall, 28px, #012F76:
-   centred on x 372.5 / 372.5 / 380.5 and 633.5, tops 148 / 275 / 414 and 148 / 278 / 414 (card px). The line box is
-   Baloo Bhai 2's, not Noto's: 1.714 x 28 = 48px (the nodes' height), with the fallback glyphs centred in it. The spaces
-   are Baloo Bhai 2's too, 2px narrower than Noto's at this size (the render's words sit that much closer; measured by
-   pixel-matching the render over SemiBold/-0.5..-4px, see the README) */
-.rcf-name, .rcf-when{position:absolute;width:1075px;height:48px;transform:translateX(-50%);
-  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:28px;line-height:48px;color:#012F76;text-align:center;}
-.r1 .rcf-name{left:360.5px;top:136px;} .r2 .rcf-name{left:360.5px;top:263px;} .r3 .rcf-name{left:368.5px;top:402px;}
-.r1 .rcf-when{left:621.5px;top:136px;} .r2 .rcf-when{left:621.5px;top:266px;} .r3 .rcf-when{left:621.5px;top:402px;}
-/* the examples' yellow boxes: nodes 514:12 / 518:26 / 519:28 at 790,143 163x49 / 790,274 262x49 / 790,405 191x49
-   (card px), 8px corners, clipping; their text 22px, centred, 7 / 8 / 9 px from the top, in Baloo Bhai 2's line box
-   (1.714 x 22 = 38px, Figma's rounding; the render's glyphs sit 1px lower than that box centred in Chrome, hence
-   8 / 9 / 10) and with Baloo Bhai 2's spaces, 2px narrower than Noto's. 514:10 starts with a space, which Figma
-   counts (as on T0's first line) */
-.rcf-eg{position:absolute;left:778px;height:49px;background:#FFF1B6;border-radius:8px;overflow:hidden;opacity:0;transform:scale(.9);}
-.r1 .rcf-eg{top:131px;width:163px;} .r2 .rcf-eg{top:262px;width:262px;} .r3 .rcf-eg{top:393px;width:191px;}
-.rcf-eg p{position:absolute;left:calc(50% - 537.5px);width:1075px;height:48px;   /* [word-sync] = left:50% + translateX(-50%), without the transform the rise would scale */
-  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:22px;line-height:38px;color:#012F76;text-align:center;}
-.r1 .rcf-eg p{top:8px;} .r2 .rcf-eg p{top:9px;} .r3 .rcf-eg p{top:10px;}
-.r1 .rcf-eg p::before{content:"\\a0";}
-/* आगे is not in the frame and the frame's rows fill the card down to its third example, so T0's place for the pill
-   (inside the card, 567.5,522) would sit on "सवाल पूछने पर": here it is centred in the gap under the card
-   (card bottom 614 x 1333/1280 = 639.4 on the stage; the pill 198x90 at 567.5,650) */
-.stage.tut:has(.sfig-recap) .nav-btn{bottom:10px;}
+.rcf-sign.in, .rcf-ebox.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as its text rises */
+/* the sign: node 764:329 "। " (a trailing space), Baloo 2 SemiBold 128px — here the family's 600 (the embedded 700 face, as T0's
+   text); placed by INK: the render's danda is 16x84 centred on 286,144 of the card = 87,79 of the box's padding box. It lights as
+   a word does (.sfig-w.hot: the orange + p2WordPop) while the name's clip says the name */
+.rcf-mark{position:absolute;left:87.5px;top:85.5px;transform:translate(-50%,-50%);}   /* the line box 0.5 right / 6.5 lower: the 700 face's danda sits high in it (measured in Chrome) */
+.rcf-mark p{margin:0;font-family:var(--font-hi);font-weight:600;font-size:128px;line-height:normal;color:#002F76;white-space:pre;}
+/* the name: node 764:334, Baloo 2 ExtraBold 64px #012F76, 1075 wide centred on x 580.5, top 98 (card px); its ink in the render
+   253x80 centred on 580.5,148 -> 568.5,136 here. The sentence: node 764:340 " पिंकी स्कूल गई ।" (its leading space counted),
+   ExtraBold 40px, centred on x 487.5, top 289; its ink 249x51 centred on 488.5,319.5 -> 476.5,307.5 here (3.5 px below its box's
+   centre, as the frame has it). Both centred by transform, so the rise ([word-sync], on the p's own translate / scale) keeps it */
+.rcf-name, .rcf-eg{position:absolute;transform:translate(-50%,-50%);width:max-content;white-space:nowrap;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#012F76;text-align:center;}
+.rcf-name{left:569.5px;top:141px;font-size:64px;line-height:normal;}      /* line boxes centred where Chrome's ink lands on the render's (measured): */
+.rcf-eg{left:480px;top:310.5px;font-size:40px;line-height:normal;}        /* the name 1 / 5 px, the sentence 3.5 / 3 px past the ink targets above */
+.rcf-name p, .rcf-eg p{margin:0;}
+/* the sentence's white box: node 764:752, 578x84 at 199,274 (card px), 20px corners, no stroke; the frame's shadow (0 4 19.7
+   rgba(177,177,177,.25)) replaced by page 1 T0's ([textbox-shadow]: a 5 px lip + a 10 / 26 px glow, stage px / --fig-s), as asked */
+.rcf-ebox{position:absolute;left:187px;top:262px;width:578px;height:84px;background:#FFFFFF;border-radius:20px;opacity:0;transform:scale(.9);
+  box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);}
+/* the picture: node 764:753, 176x264 at 835,91 (card px) with the frame's 0 2 2 rgba(0,0,0,.25) drop shadow; it pops in as the
+   example's clip reaches the sentence's first word */
+.rcf-pic{position:absolute;left:823px;top:79px;width:176px;height:264px;opacity:0;transform:scale(.7);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+.rcf-pic img{display:block;width:100%;height:100%;}
+.rcf-pic.in{animation:rcfPicIn .5s cubic-bezier(.2,.9,.3,1.3) both;}
+@keyframes rcfPicIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:none;}}
+/* the mark at the sentence's end keeps the words' orange once its clip has lit it */
+.rcf-eg .sfig-w.keep{color:#E86A00;}
 """
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
@@ -2927,47 +2941,7 @@ js = rep1(js, "      state.replayAudio = start;\n      start();\n",
       else start();
 """, "story intro")
 # the recap's lead line before its intro
-_recap_tail = """      play(introSrc, afterIntro);
-      // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
-      const a = currentAudio;
-      const whenSounding = ()=>{
-        if(!alive() || title.classList.contains("in")) return;
-        if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
-      };
-      if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
-      setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
-      // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
-      setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
-      state.replayAudio = readAll;
-    }
-  },
-
-  /* ===== [demo-fig] PUNCT_DEMO"""
-js = rep1(js, _recap_tail,
-"""      // [vo-rec] the lead line ("आपने देखा, ...", data.lead_audio) first, the title still out; then the intro as before
-      const startIntro = ()=>{
-        if(!alive()) return;
-        play(introSrc, afterIntro);
-        // the title starts the moment the clip's own clock starts moving ("playing" fires ~0.15 s before that)
-        const a = currentAudio;
-        const whenSounding = ()=>{
-          if(!alive() || title.classList.contains("in")) return;
-          if(a === currentAudio && a.currentTime > 0) showTitle(); else nextFrame(whenSounding);
-        };
-        if(a && introSrc && decodeURIComponent(String(a.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showTitle();
-        setTimeout(showTitle, 1500);   // a clip that is slow to start never keeps the title away
-        // watchdog, as sfigNarrate's: an intro clip that never reports its end must not strand the page
-        setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); afterIntro(); } }, authoredVoHoldMs(introSrc) + 10000);
-      };
-      const leadSrc = d.lead_audio ? ("assets/Audio/" + d.lead_audio + "." + AUDIO_EXT) : null;
-      if(leadSrc){ let leadDone = false; const go = ()=>{ if(leadDone || !alive()) return; leadDone = true; startIntro(); };
-        play(leadSrc, go); setTimeout(()=>{ if(!leadDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(leadSrc) + 10000); }
-      else startIntro();
-      state.replayAudio = readAll;
-    }
-  },
-
-  /* ===== [demo-fig] PUNCT_DEMO""", "recap lead")
+# [recap-fig2] the [vo-rec] lead line (data.lead_audio, set below) is played by the module itself now
 # [tap-lock] (2026-10-28) the engine: (1) a page's pointing hand never outlives its page — the picks' and the sentence picks'
 # hands are appended to .slide-stage, which clearHost() leaves alone, so a dev-nav jump kept them on the next page (T1's CSS even
 # blew the sentence picks' up to 405x508); (2) sfxBusy(): is a sound effect sounding? Every effect path (playSfx, the kit's
@@ -3298,6 +3272,11 @@ for name in ("story_font_nsd600_deva.woff2", "story_font_nsd600_latin.woff2"):  
     (DIST / "assets" / "UI" / name).unlink(missing_ok=True)
 for name, sub in (("img_story_chintu.webp", "Images"), ("img_story_chintu_2.webp", "Images"), ("vo_story_s1.ogg", "Audio"), ("vo_story_s2.ogg", "Audio")):
     (DIST / "assets" / sub / name).unlink(missing_ok=True)   # [story-pinki] the Chintu beats' files: no page uses them now
+# [recap-fig2] T1's picture (frame 764:144's node 764:753, its source bitmap as WebP), kept in recap_assets/
+for name, sub in (("img_recap_girl.webp", "Images"),):
+    f, dst = SCR / "recap_assets" / name, DIST / "assets" / sub / name
+    assert f.exists(), f"missing recap asset {f}"
+    if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 
 # ---------- 7c. [recap-fig] the recap's clips (kept next to this script, in recap_assets/, made by recap_vo.py) ----------
 RECAP_SRC = SCR / "recap_assets"

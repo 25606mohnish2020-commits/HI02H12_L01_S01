@@ -65,6 +65,7 @@ def lines_of(sid, d):
     for l in d.get("lines", []) or []: add(l)
     for r in d.get("rows", []) or []:
         for k in ("name", "when", "example"): add(r.get(k))
+    add(d.get("example"))   # [recap-fig2] T1's one sentence (its name lights the SIGN, not its words; its use is said, not shown)
     add(d.get("sentence"))
     for r in d.get("rounds", []) or []: add(r.get("sentence"))
     return out

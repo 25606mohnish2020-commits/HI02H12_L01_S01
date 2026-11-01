@@ -1841,6 +1841,47 @@ Page 2 T0B laid out as Figma frame 704:2 ([t0b-fig], 2026-11-01)
   [baloo-font] by-design ink / whole-card diffs) and its 1280 end shot pixel-identical before and after.
   `../_before_t0b_fig/` holds the [t0-font] dist, build.py, README, relisten_check.py and the old frame's render.
 
+Page 3 T1 laid out as Figma frame 764:144, one mark ([recap-fig2], 2026-11-01)
+- Asked: "at page 3 T1 use this exact layout (FLN-by-MJ 764:144): after the VO आइए समझते हैं ... the पूर्ण विराम sign in the square
+  and the text पूर्ण विराम appear together; on the पूर्ण विराम VO the sign in the square is highlighted with the same orange animation,
+  synced; then the बात पूरी होने पर VO in the background; then the white text box below with the whole sentence at once, then the VO
+  उदाहरण ...; when the VO reaches the sentence the picture at the right appears with a pop and the word-by-word highlight of page 1
+  T0 runs; at the end the । of the sentence keeps the highlight; then the next button at page 1 T0's place. The white box has page 1
+  T0's shadow at the Figma's size; the standing bird and the speaker icon as on page 1 T0; rest exactly the same."
+- The frame (card px = frame px - 96,106; here = card px - 12): the same card and grid as T0B's (the second grid tile at 764:323's x,
+  as 704:2's); NO title; the sign's box 764:326 175x169.355 at 199,65, 4 px #DADADA stroke OUTSIDE, 10 px corners; the sign 764:329
+  "। " Baloo 2 SemiBold 128 (its ink 16x84 centred on 286,144 of the card in the render); the name 764:334 "पूर्ण विराम" Baloo 2
+  ExtraBold 64 #012F76 centred on x 580.5 (ink 253x80 centred on 580.5,148); the sentence's box 764:752 578x84 at 199,274, 20 px
+  corners (its own shadow 0 4 19.7 rgba(177,177,177,.25) — replaced by T0's, as asked); the sentence 764:340 " पिंकी स्कूल गई ।"
+  ExtraBold 40 (ink 249x51 centred on 488.5,319.5 — 3.5 px below its box's centre, as the frame has it); the picture 764:753
+  176x264 at 835,91 with a 0 2 2 rgba(0,0,0,.25) drop shadow (its fill = raw image 1024x1536, the design context's one of the two
+  near-identical source bitmaps; recap_assets/img_recap_girl.webp, q90, alpha exact); its Swiftie 245 at 35,415 NOT used (T0's
+  76,472 190, chip 202,606 58, as asked). The use "बात पूरी होने पर" has no node: said, not shown.
+- Here (build.py [recap-fig2]): T1's data is ONE mark — mark "।", image_id, name / when / example = the पूर्ण-विराम recordings
+  (vo_recap_purn_name / _when / _eg, [vo-rec] word times) — no title_hi; the alp / prashn rows are gone from the page (their clips
+  stay registered: T3 / T4 name their marks with them). The MARKS_RECAP module is rewritten for it: the lead line ([vo-rec],
+  folded in from its old tail patch) then the intro line sound over the card alone; 0.7 s later the sign's box pops in (sfigBoxIn)
+  as the name rises in whole (sfigRise); the name's clip 0.45 s later lights the SIGN — sfigNarrate got an optional 4th argument,
+  the line to light on the clip (the sign as a one-word line: its first word's start to its last word's end, .sfig-w.hot = the
+  words' #E86A00 + p2WordPop) — the name's own words stay plain; 0.3 s: the use's clip, nothing new; 0.3 s: the sentence's box
+  pops in as the sentence rises, its clip 0.45 s later with the words lit one by one; a rAF cue tick on that clip (cueOn, as
+  T0B's speak) pops the picture in (rcfPicIn: .7 -> 1 with overshoot, 0.5 s) at the sentence's first word and gives the "।"
+  (a punctuation-only token) .keep = the orange that stays, at its own word; आगे arms as the clip ends. The 🔊 replay reads from
+  the name again with everything staying (the kept "।" cleared first, lit again at its word). CSS: .sfig-recap's title rule and
+  the आगे override (bottom:10px, under the card) are gone, so आगे is at T0's place (the engine's bottom:138px for these cards:
+  581.5,550 170x62); the texts are centred by transform on their INK targets (the line boxes measured in Chrome at 1280x720:
+  the sign's 0.5 / 6.5 px, the name's 1 / 5, the sentence's 3.5 / 3 past the nominal centres — the 700 face's danda sits high in
+  its line box; Baloo's line box is not Figma's); the sign in var(--font-hi) 600 (the embedded 700 face, as T0's text; the render's
+  600 stem is 16 px, ours 20), the name and sentence in 'Story Baloo 2' 800 (= the frame's ExtraBold, so their ink is the render's
+  size within 1 px); the sentence's box has .sfig-textbox's shadow (stage px / --fig-s, computed identical to T0's).
+- Measured (1280x720, page px): the three boxes within 0.14 px of the frame; ink centres vs the render — sign 0 / +0.5, name +0.5 / 0,
+  sentence -0.5 / 0; the picture vs the render mean 2.6 levels; the whole card 0 solid differing px (less Swiftie / chip / आगे, the
+  ink bands, the box's shadow band and the picture).
+- Checked: recap_check.py rewritten for the page (usage: recap2_figma_render_1280x720.png, the 1:1 render of 764:144) — see the
+  tallies below; smoke 47/47. `../_before_recap_fig2/` holds the [t0b-fig] dist, build.py, README, recap_check.py,
+  word_sync_check.py and the old frame's render (recap_figma_render_1280x720.png stays in place for the record).
+  Tallies: (filled in below)
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

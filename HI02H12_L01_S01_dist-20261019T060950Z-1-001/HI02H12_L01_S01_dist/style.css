@@ -2941,8 +2941,9 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
    edge. Was node 488:371 / 654:748: 683x219 at 191,144 (187,140 691x227 with the stroke) */
 .sfig-sbox{position:absolute;left:241px;top:38px;width:582px;height:291px;background:#FFFFFF;border:4px solid #DADADA;
   border-radius:24px;opacity:0;transform:scale(.9);}
-/* [t0b-fig] the frame's second grid tile (node 704:181) sits 2 px left of 488:369's: 529.969 (card x 541.969 - 12) */
-.sfig-round .sfig-in:has(.sfig-sbox) .sfig-grid.g2{left:calc(529.969px - 112px / var(--fig-s) + 108px);}
+/* [t0b-fig] the frame's second grid tile (node 704:181) sits 2 px left of 488:369's: 529.969 (card x 541.969 - 12); [recap-fig2]
+   T1's frame 764:144 has it there too (node 764:323) */
+.sfig-round .sfig-in:has(.sfig-sbox) .sfig-grid.g2, .sfig-recap .sfig-grid.g2{left:calc(529.969px - 112px / var(--fig-s) + 108px);}
 .sfig-sbox.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}
 @keyframes sfigBoxIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:none;}}
 /* node 488:374 (the frame as of 2026-10-21 evening): 631 wide, centred on 532.5, bottom-aligned on y 369 (280 tall),
@@ -2969,49 +2970,45 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .sfig-mk{display:inline-block;transition:color .3s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.3);}
 .sfig-mk.on{color:#E86A00;transform:scale(1.4);}
 
-/* ===== [recap-fig] T1 "ये हैं तीन विराम चिह्न" (frame 508:2, MARKS_RECAP): T0B's card, grid, Swiftie and 🔊 chip (the
-   frame's card is the same 96,106 1088x508 box with 64px corners, so the .sfig-round rules above apply as they are);
-   the frame's own title and three rows, in .sfig-in's frame px (= the frame's card px - 12, its border). The texts
-   are Noto Sans Devanagari SemiBold: the title and marks are set in it in the frame, and the labels — "Baloo Bhai 2"
-   in the frame, which has no Devanagari glyphs — render in Figma's Noto Sans Devanagari fallback. ===== */
-.sfig-recap .sfig-title{left:291px;top:52.5px;width:483px;}   /* node 508:184: 483 wide, centred on 544.5,64.5 (card px) */
+/* ===== [recap-fig] T1 (MARKS_RECAP) — [recap-fig2] (2026-11-01) laid out as frame 764:144 "html_Guided_instructions": T0B's card,
+   grid (its second tile at 764:323's x, as 704:2's), Swiftie and 🔊 chip (the frame's own Swiftie, 245 px at 35,415, is not used:
+   T0's stay, as asked), and the frame's own content in .sfig-in's px (= the frame's card px - 12, its border): the sign's white
+   box, the name beside it, the sentence's white box under them (T0's shadow, the frame's size) and the picture at the right.
+   No title. आगे at T0's place (the engine's rule for these cards; the three-row page had moved it under the card). Was frame
+   508:2: the title and three rows (sign box, name, use, yellow example box) in Noto / Baloo Bhai 2 metrics. ===== */
 .rcf-row{position:absolute;left:0;top:0;width:1064px;height:484px;pointer-events:none;}
-/* the marks' boxes: nodes 508:183 / 516:22 / 516:23, 93x90 at 166,127 / 166,256 / 166,385 (card px) with their 4px
-   stroke drawn OUTSIDE (the render is 101x98 at 162,123 ...) and 10px corners, i.e. 14px on the stroke's outer edge */
-.rcf-sign{position:absolute;left:150px;width:101px;height:98px;background:#FFFFFF;border:4px solid #DADADA;
+/* the sign's box: node 764:326, 175x169.355 at 199,65 (card px) with its 4px stroke drawn OUTSIDE (the render: 195..378 x 61..238.4)
+   and 10px corners, i.e. 14px on the stroke's outer edge; it pops in with the name */
+.rcf-sign{position:absolute;left:183px;top:49px;width:183px;height:177.355px;background:#FFFFFF;border:4px solid #DADADA;
   border-radius:14px;opacity:0;transform:scale(.9);}
-.r1 .rcf-sign{top:111px;} .r2 .rcf-sign{top:240px;} .r3 .rcf-sign{top:369px;}
-.rcf-sign.in, .rcf-eg.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as its clip starts */
-/* the marks: text nodes 512:3 / 512:4 / 515:21 — 483-wide centred boxes, centred on 209.5,174.5 / 212.5,304.5 /
-   212.5,438.5 (card px), 64px — placed from their box's padding box. 512:3 is "। " with a trailing space, which
-   Figma does NOT count when centring (the render's danda sits on the node's centre), so it is dropped here */
-.rcf-mark{position:absolute;width:483px;transform:translate(-50%,-50%);font-family:'Story Baloo 2',var(--font-hi);
-  font-weight:800;font-size:64px;line-height:normal;color:#002F76;text-align:center;white-space:pre;}
-.r1 .rcf-mark{left:43.5px;top:47.5px;} .r2 .rcf-mark{left:46.5px;top:48.5px;} .r3 .rcf-mark{left:46.5px;top:53.5px;}
-/* names and uses: nodes 520:260-262 and 514:8 / 517:24 / 517:25 — 1075-wide centred boxes, 48 tall, 28px, #012F76:
-   centred on x 372.5 / 372.5 / 380.5 and 633.5, tops 148 / 275 / 414 and 148 / 278 / 414 (card px). The line box is
-   Baloo Bhai 2's, not Noto's: 1.714 x 28 = 48px (the nodes' height), with the fallback glyphs centred in it. The spaces
-   are Baloo Bhai 2's too, 2px narrower than Noto's at this size (the render's words sit that much closer; measured by
-   pixel-matching the render over SemiBold/-0.5..-4px, see the README) */
-.rcf-name, .rcf-when{position:absolute;width:1075px;height:48px;transform:translateX(-50%);
-  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:28px;line-height:48px;color:#012F76;text-align:center;}
-.r1 .rcf-name{left:360.5px;top:136px;} .r2 .rcf-name{left:360.5px;top:263px;} .r3 .rcf-name{left:368.5px;top:402px;}
-.r1 .rcf-when{left:621.5px;top:136px;} .r2 .rcf-when{left:621.5px;top:266px;} .r3 .rcf-when{left:621.5px;top:402px;}
-/* the examples' yellow boxes: nodes 514:12 / 518:26 / 519:28 at 790,143 163x49 / 790,274 262x49 / 790,405 191x49
-   (card px), 8px corners, clipping; their text 22px, centred, 7 / 8 / 9 px from the top, in Baloo Bhai 2's line box
-   (1.714 x 22 = 38px, Figma's rounding; the render's glyphs sit 1px lower than that box centred in Chrome, hence
-   8 / 9 / 10) and with Baloo Bhai 2's spaces, 2px narrower than Noto's. 514:10 starts with a space, which Figma
-   counts (as on T0's first line) */
-.rcf-eg{position:absolute;left:778px;height:49px;background:#FFF1B6;border-radius:8px;overflow:hidden;opacity:0;transform:scale(.9);}
-.r1 .rcf-eg{top:131px;width:163px;} .r2 .rcf-eg{top:262px;width:262px;} .r3 .rcf-eg{top:393px;width:191px;}
-.rcf-eg p{position:absolute;left:calc(50% - 537.5px);width:1075px;height:48px;   /* [word-sync] = left:50% + translateX(-50%), without the transform the rise would scale */
-  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;font-size:22px;line-height:38px;color:#012F76;text-align:center;}
-.r1 .rcf-eg p{top:8px;} .r2 .rcf-eg p{top:9px;} .r3 .rcf-eg p{top:10px;}
-.r1 .rcf-eg p::before{content:"\a0";}
-/* आगे is not in the frame and the frame's rows fill the card down to its third example, so T0's place for the pill
-   (inside the card, 567.5,522) would sit on "सवाल पूछने पर": here it is centred in the gap under the card
-   (card bottom 614 x 1333/1280 = 639.4 on the stage; the pill 198x90 at 567.5,650) */
-.stage.tut:has(.sfig-recap) .nav-btn{bottom:10px;}
+.rcf-sign.in, .rcf-ebox.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as its text rises */
+/* the sign: node 764:329 "। " (a trailing space), Baloo 2 SemiBold 128px — here the family's 600 (the embedded 700 face, as T0's
+   text); placed by INK: the render's danda is 16x84 centred on 286,144 of the card = 87,79 of the box's padding box. It lights as
+   a word does (.sfig-w.hot: the orange + p2WordPop) while the name's clip says the name */
+.rcf-mark{position:absolute;left:87.5px;top:85.5px;transform:translate(-50%,-50%);}   /* the line box 0.5 right / 6.5 lower: the 700 face's danda sits high in it (measured in Chrome) */
+.rcf-mark p{margin:0;font-family:var(--font-hi);font-weight:600;font-size:128px;line-height:normal;color:#002F76;white-space:pre;}
+/* the name: node 764:334, Baloo 2 ExtraBold 64px #012F76, 1075 wide centred on x 580.5, top 98 (card px); its ink in the render
+   253x80 centred on 580.5,148 -> 568.5,136 here. The sentence: node 764:340 " पिंकी स्कूल गई ।" (its leading space counted),
+   ExtraBold 40px, centred on x 487.5, top 289; its ink 249x51 centred on 488.5,319.5 -> 476.5,307.5 here (3.5 px below its box's
+   centre, as the frame has it). Both centred by transform, so the rise ([word-sync], on the p's own translate / scale) keeps it */
+.rcf-name, .rcf-eg{position:absolute;transform:translate(-50%,-50%);width:max-content;white-space:nowrap;
+  font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#012F76;text-align:center;}
+.rcf-name{left:569.5px;top:141px;font-size:64px;line-height:normal;}      /* line boxes centred where Chrome's ink lands on the render's (measured): */
+.rcf-eg{left:480px;top:310.5px;font-size:40px;line-height:normal;}        /* the name 1 / 5 px, the sentence 3.5 / 3 px past the ink targets above */
+.rcf-name p, .rcf-eg p{margin:0;}
+/* the sentence's white box: node 764:752, 578x84 at 199,274 (card px), 20px corners, no stroke; the frame's shadow (0 4 19.7
+   rgba(177,177,177,.25)) replaced by page 1 T0's ([textbox-shadow]: a 5 px lip + a 10 / 26 px glow, stage px / --fig-s), as asked */
+.rcf-ebox{position:absolute;left:187px;top:262px;width:578px;height:84px;background:#FFFFFF;border-radius:20px;opacity:0;transform:scale(.9);
+  box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);}
+/* the picture: node 764:753, 176x264 at 835,91 (card px) with the frame's 0 2 2 rgba(0,0,0,.25) drop shadow; it pops in as the
+   example's clip reaches the sentence's first word */
+.rcf-pic{position:absolute;left:823px;top:79px;width:176px;height:264px;opacity:0;transform:scale(.7);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+.rcf-pic img{display:block;width:100%;height:100%;}
+.rcf-pic.in{animation:rcfPicIn .5s cubic-bezier(.2,.9,.3,1.3) both;}
+@keyframes rcfPicIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:none;}}
+/* the mark at the sentence's end keeps the words' orange once its clip has lit it */
+.rcf-eg .sfig-w.keep{color:#E86A00;}
 
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial
