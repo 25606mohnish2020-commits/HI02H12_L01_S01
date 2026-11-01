@@ -7,13 +7,14 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    and the 🔊 chip there from the first frame, the girl in her place (no animation, [t2-scene2]); no sentence word, no slot, no tile
    before it has ended; 0.5 s after it the slot pops in and the sentence rises in whole in the same frame, with T1's text pop (the
    reference's sfxPopSoft: _tone 720 sine 0.10 / 0.07) in that frame.
-   T3: no intro line — the picture, T2's girl, the Swiftie and the chip alone for data.open_ms (1 s), nothing else; then the speech
+   T3: no intro line — the picture, the frame's girl ([t3-girl]), the Swiftie and the chip alone for data.open_ms (1 s), nothing else; then the speech
    bubble (.dsc-bubble, dscBubbleIn from half its size) pops in with the slot and the rising sentence in the same frame, to the user's
    sharp pop (sfx_demo2_sharp_pop.mp3 at .8) in that frame; the sentence's clip (the recording) is the first clip.
-   Then, on both: the sentence's clip 0.45 s after the rise, each word lit as it is read ([word-sync]); 0.3 s after the clip the school
-   sound (sfx_demo1_school.mp3 at .5) for data.pic_sfx_ms, full until its last 0.4 s, faded then and paused at its end, the girl giving
-   her small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and after; 0.3 s
-   after the sound the slot blinks (data.blink_ms = 7 s in data.blink_cycle_ms = 1.75 s cycles, [t2-scene5]: the WHOLE box, in its
+   Then, on both: the sentence's clip 0.45 s after the rise, each word lit as it is read ([word-sync]); T2: 0.3 s after the clip the
+   school sound (sfx_demo1_school.mp3 at .5) for data.pic_sfx_ms, full until its last 0.4 s, faded then and paused at its end, the girl
+   giving her small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and
+   after; T3 ([t3-girl]): no school sound and no pop at all, the girl still (opacity 1, transform none) in every frame; 0.3 s after
+   the sound (T3: after the sentence's clip) the slot blinks (data.blink_ms = 7 s in data.blink_cycle_ms = 1.75 s cycles, [t2-scene5]: the WHOLE box, in its
    orange look — the ring the words' orange, the fill the slot's own colour warmed by the orange (#FAE1CC on T2's white, #FAD692 on
    T3's yellow), the glow the pulsing tile's rgba(232,106,0,.6) 5px in every frame from 0.45 s in to the end — APPEARS and
    DISAPPEARS: its opacity 1 -> 0 -> 1 each cycle, four unseen troughs 1.75 s apart, no frame-to-frame jump over .12, fully seen
@@ -33,12 +34,12 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    190; the chip 202,606 58).
 3. 1280x720 (= frame px), the tiles landed and the blink frozen: every box vs the frame's nodes (T2: the picture 0,-113 1088x613 of
    the card, the slot 1013,187 53x90, the tiles 564.09 / 791 / 1021.818 at 397; T3: the picture 0,-4 1088x519, the bubble's SVG
-   397.306,160.61 651.745x135.269, the slot 907,174 59x100, the tiles 465.09 / 692 / 922.818 at 453; both: the girl 264,215 239x358,
-   her shadow 307,520 160x36, the tiles 117.819x116.498 with their faces and shadows); the sentence's and the three marks' ink vs the
+   397.306,160.61 651.745x135.269, the slot 907,174 59x100, the tiles 465.09 / 692 / 922.818 at 453, the girl 213,212 257x385 and her
+   shadow 277,558 118x37 ([t3-girl]); T2: the girl 264,215 239x358, her shadow 307,520 160x36; both: the tiles 117.819x116.498 with their faces and shadows); the sentence's and the three marks' ink vs the
    Figma render (centres within 1.5 px, sizes within 2 px: the marks are the frame's own Noto face, 'Story Noto Marks'); the type;
    the slot's interior (T2 white, T3 the frame's #FFF1B6); per-pixel diffs vs the render over the card less Swiftie / chip (T1's, not
-   the frame's), the slot (its dashes' phase is not the render's), the text ink bands and the girl (T3's frame draws none); on T2 the
-   girl's region compared on its own (the same bitmap, resampled).
+   the frame's), the slot (its dashes' phase is not the render's), the text ink bands and the girl; the girl's region compared on its
+   own (the frame's bitmap, resampled).
 """
 import sys, re, json, pathlib
 import numpy as np
@@ -58,7 +59,7 @@ AS_T0 = {".tut-card.sfig-card": (96 * FS, 106 * FS, 1088 * FS, 508 * FS), ".sfig
 CX, CY = 96, 106
 TILE = (117.819, 116.498); FACE = (115.743, 110.983)
 C = {
-  "T2": dict(prefix="demo1", intro=True, open_ms=500, bg="img_demo1_hall", girl="img_demo1_girl_walk", bubble=None, box_sfx=None, slot=(53, 90),
+  "T2": dict(prefix="demo1", intro=True, open_ms=500, bg="img_demo1_hall", girl="img_demo1_girl_walk", beat=True, GIRL=(264, 215, 503, 573), bubble=None, box_sfx=None, slot=(53, 90),
              sent="पिंकी स्कूल जा रही है", sent_clip="vo_demo1_sent", nwords=5, explain_clip="vo_demo1_explain", cue="पूर्णविराम", opts=["।", ",", "?"], mark="।", pick=0,
              next="T3", next_ok="CARD.slides[state.idx].id === 'T3' && CARD.slides[state.idx].type === 'PUNCT_SCENE' && !!document.querySelector('.tut-card.sfig-round .dsc-bg')", next_what="T3, the classroom scene",
              FRAME={".dsc-bg > img": (CX + 0, CY - 113, 1088, 613), ".dsc-slot": (1013, 187, 53, 90), ".dsc-girl": (264, 215, 239, 358), ".dsc-shade": (307, 520, 160, 36),
@@ -68,21 +69,21 @@ C = {
              BY_DESIGN=[(1008, 182, 1071, 282), (570, 186, 1015, 268), (600, 420, 645, 480), (830, 440, 870, 470), (1055, 418, 1105, 478)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=dict(rgb=(255, 255, 255), row_y=232, xs=(1000, 1080), col_x=1040, ys=(175, 290), want=(1015, 1064, 189, 275)), first_word="पिंकी"),
-  "T3": dict(prefix="demo2", intro=False, open_ms=1000, bg="img_demo2_room", girl="img_demo1_girl_walk", bubble="img_demo2_bubble", box_sfx="sfx_demo2_sharp_pop.mp3", slot=(59, 100),
+  "T3": dict(prefix="demo2", intro=False, open_ms=1000, bg="img_demo2_room", girl="img_demo2_girl_ask", beat=False, GIRL=(213, 212, 470, 597), bubble="img_demo2_bubble", box_sfx="sfx_demo2_sharp_pop.mp3", slot=(59, 100),
              sent="तुम्हारा नाम क्या है", sent_clip="vo_demo2_sent", nwords=4, explain_clip="vo_demo2_explain", cue="प्रश्नवाचक", opts=["।", "?", ","], mark="?", pick=1,
              next="T4", next_ok="CARD.slides[state.idx].id === 'T4' && CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')", next_what="T4, the third demo (PUNCT_DEMO)",
-             FRAME={".dsc-bg > img": (CX + 0, CY - 4, 1088, 519), ".dsc-bubble": (397.306, 160.61, 651.745, 135.269), ".dsc-slot": (907, 174, 59, 100), ".dsc-girl": (264, 215, 239, 358), ".dsc-shade": (307, 520, 160, 36),
+             FRAME={".dsc-bg > img": (CX + 0, CY - 4, 1088, 519), ".dsc-bubble": (397.306, 160.61, 651.745, 135.269), ".dsc-slot": (907, 174, 59, 100), ".dsc-girl": (213, 212, 257, 385), ".dsc-shade": (277, 558, 118, 37),
                     ".dsc-tile.t1": (465.09, 453) + TILE, ".dsc-tile.t2": (692, 453) + TILE, ".dsc-tile.t3": (922.818, 453) + TILE,
                     ".t1 .dsc-face": (466.13, 454.38) + FACE, ".t1 .dsc-tshade": (464, 552, 118, 26), ".t3 .dsc-tshade": (922.818, 552.498, 118, 26)},
              INK={"sentence": (470, 172, 900, 280), "mark1": (475, 461, 573, 561), "mark2": (702, 461, 800, 561), "mark3": (933, 461, 1031, 561)},
              BY_DESIGN=[(902, 169, 971, 279), (472, 184, 904, 266), (501, 476, 546, 536), (725, 474, 775, 534), (962, 496, 1002, 526)],   # the slot, the ink bands
-             girl_in_render=False, slot_fill="rgb(255, 241, 182)", blink_fill="rgb(250, 214, 146)",
+             girl_in_render=True, slot_fill="rgb(255, 241, 182)", blink_fill="rgb(250, 214, 146)",
              slot_in=dict(rgb=(255, 241, 182), row_y=224, xs=(895, 980), col_x=936, ys=(165, 285), want=(909, 964, 176, 272)), first_word="तुम्हारा"),
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
 WHOLE = (80, 90, 1200, 640)
 OWN_T0 = [(25, 400, 290, 720)]                                   # Swiftie + the chip (T1's, not the frame's)
-GIRL = (264, 215, 503, 573)
+GIRL = C["GIRL"]
 GOTO = """(id) => { const sg = document.getElementById('startGate'); if (sg) sg.classList.add('hidden');
   document.body.classList.remove('is-start'); document.body.classList.add('loaded');
   const bl = document.getElementById('bootLoader'); if (bl) bl.remove(); mountSlide(CARD.slides.findIndex(s => s.id === id)); }"""
@@ -162,13 +163,13 @@ with sync_playwright() as p:
           and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"] and d.get("bubble_id") == C["bubble"] and d.get("box_sfx") == C["box_sfx"] and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"]
           and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and d["explain"]["audio"] == C["explain_clip"]
           and d["explain"]["text_hi"].split()[d["explain"]["cue_word"]] == C["cue"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
-          and d["pic_sfx_ms"] == 2000 and d["pic_sfx"] == "sfx_demo1_school.mp3" and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
+          and ((d.get("pic_sfx_ms"), d.get("pic_sfx"), d.get("girl_pop", True)) == ((2000, "sfx_demo1_school.mp3", True) if C["beat"] else (None, None, False))) and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
           {k: d.get(k) for k in ("intro_audio", "open_ms", "bg_id", "image_id", "bubble_id", "box_sfx", "slot_w", "slot_h", "mark", "pic_sfx_ms", "blink_ms", "blink_cycle_ms", "tiles_gap_ms")})
     if C["intro"]:
         pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_demo1_intro.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
     else: pg.wait_for_timeout(600)
     pg.screenshot(path=str(out / "a_open_1333.png"))
-    pg.wait_for_function("!!document.querySelector('.dsc-girl.pop')", timeout=30000, polling=20); pg.wait_for_timeout(180); pg.screenshot(path=str(out / "b_pop_1333.png"))
+    pg.wait_for_function("!!document.querySelector('.dsc-girl.pop')" if C["beat"] else "!!document.querySelector('.dsc-slot.blink')", timeout=30000, polling=20); pg.wait_for_timeout(180); pg.screenshot(path=str(out / "b_beat_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=30000, polling=20); pg.wait_for_timeout(600); pg.screenshot(path=str(out / "c_tiles_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-tile.lit')", timeout=30000, polling=20); pg.wait_for_timeout(250); pg.screenshot(path=str(out / "d_lit_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-tile.pulse')", timeout=30000, polling=20); pg.wait_for_timeout(500); pg.screenshot(path=str(out / "e_pulse_1333.png"))
@@ -214,17 +215,22 @@ with sync_playwright() as p:
     off = [s for s in timed if s["hot"] not in (lit_want(ST, SE, s["t"]), lit_want(ST, SE, s["t"] - 0.05))]
     check("each word lit as the clip reaches it, one at a time, none after the last word's end", len(timed) > 20 and not off and len({tuple(s["hot"]) for s in timed if s["hot"]}) >= len(set(ST)) - 1,
           f"{len(timed)} samples, {len(off)} off")
-    i_pop = first(lambda s: s["pop"], i_sente)
     sfx = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_school.mp3"]
-    peak = max((scale_of(s["gTf"]) for s in samples[i_pop:] if s["ms"] - ms(i_pop) <= 600), default=1.0)
-    still = all(s["gTf"] == "none" for s in samples[:i_pop]) and all(s["gTf"] == "none" for s in samples if s["ms"] - ms(i_pop) > 700)
-    check("0.3 s after the sentence's clip the school sound (sfx_demo1_school.mp3 at .5) starts and the girl gives her small pop in that frame (dscPop: ~1.045 about her feet, back within 0.7 s), still before and after",
-          200 <= ms(i_pop) - ms(i_sente) <= 650 and len(sfx) == 1 and abs(sfx[0]["ms"] - ms(i_pop)) <= 50 and sfx[0]["vol"] == 0.5 and 1.03 <= peak <= 1.05 and still,
-          (round(ms(i_pop) - ms(i_sente)), [(round(e["ms"] - ms(i_pop)), e["vol"]) for e in sfx], round(peak, 4), still))
-    t_sfx_end = ms(i_pop) + d["pic_sfx_ms"]
-    vol_mid = next((s["sfxVol"] for s in samples[i_pop:] if s["ms"] - ms(i_pop) > 1000), None); vol_end = next((s["sfxVol"] for s in samples[i_pop:] if s["ms"] - ms(i_pop) > d["pic_sfx_ms"] - 120), None)
-    paused_after = next((s["sfxPaused"] for s in samples[i_pop:] if s["ms"] - t_sfx_end > 120), None)
-    check("the sound plays for pic_sfx_ms (2 s): full until its last 0.4 s, faded then, paused at its end", vol_mid == 0.5 and vol_end is not None and vol_end < 0.2 and paused_after is True, (vol_mid, vol_end, paused_after))
+    if C["beat"]:
+        i_pop = first(lambda s: s["pop"], i_sente)
+        peak = max((scale_of(s["gTf"]) for s in samples[i_pop:] if s["ms"] - ms(i_pop) <= 600), default=1.0)
+        still = all(s["gTf"] == "none" for s in samples[:i_pop]) and all(s["gTf"] == "none" for s in samples if s["ms"] - ms(i_pop) > 700)
+        check("0.3 s after the sentence's clip the school sound (sfx_demo1_school.mp3 at .5) starts and the girl gives her small pop in that frame (dscPop: ~1.045 about her feet, back within 0.7 s), still before and after",
+              200 <= ms(i_pop) - ms(i_sente) <= 650 and len(sfx) == 1 and abs(sfx[0]["ms"] - ms(i_pop)) <= 50 and sfx[0]["vol"] == 0.5 and 1.03 <= peak <= 1.05 and still,
+              (round(ms(i_pop) - ms(i_sente)), [(round(e["ms"] - ms(i_pop)), e["vol"]) for e in sfx], round(peak, 4), still))
+        t_sfx_end = ms(i_pop) + d["pic_sfx_ms"]
+        vol_mid = next((s["sfxVol"] for s in samples[i_pop:] if s["ms"] - ms(i_pop) > 1000), None); vol_end = next((s["sfxVol"] for s in samples[i_pop:] if s["ms"] - ms(i_pop) > d["pic_sfx_ms"] - 120), None)
+        paused_after = next((s["sfxPaused"] for s in samples[i_pop:] if s["ms"] - t_sfx_end > 120), None)
+        check("the sound plays for pic_sfx_ms (2 s): full until its last 0.4 s, faded then, paused at its end", vol_mid == 0.5 and vol_end is not None and vol_end < 0.2 and paused_after is True, (vol_mid, vol_end, paused_after))
+    else:
+        i_pop = i_sente; t_sfx_end = ms(i_sente)   # [t3-girl] no beat: the blink follows the sentence's clip
+        check("[t3-girl] no school sound and no pop: the girl stands still (opacity 1, transform none, never .pop) in every frame of the page",
+              not sfx and all(s["gOp"] == 1 and s["gTf"] == "none" and not s["pop"] for s in samples), (len(sfx), sorted({(s["gOp"], s["gTf"], s["pop"]) for s in samples})[:3]))
     i_bl = first(lambda s: s["blink"], i_pop); i_ble = first(lambda s: not s["blink"], i_bl)
     # [t2-scene5] the box APPEARS and DISAPPEARS: its computed opacity 1 -> 0 -> 1 per blink_cycle_ms; a "trough" = a run of frames
     # under .05, blink_ms / blink_cycle_ms of them (the module rounds); its orange look (ring, fill, glow) is static through the blink
@@ -235,7 +241,7 @@ with sync_playwright() as p:
     jumps = max((abs(samples[k]["slotOp"] - samples[k - 1]["slotOp"]) for k in range(i_bl + 1, i_ble) if samples[k]["slotOp"] is not None and samples[k - 1]["slotOp"] is not None), default=0)
     seen_between = all(any(samples[k]["slotOp"] >= 0.99 for k in range(i_bl, i_ble) if a_ < ms(k) < b_) for a_, b_ in zip(tr_ms, tr_ms[1:]))
     after_bl = next(s_ for s_ in samples[i_ble:] if s_["ms"] - ms(i_ble) > 450)
-    check(f"0.3 s after the sound the slot blinks for blink_ms ({d['blink_ms']} ms): the box fades out and in {n_bl} times, its troughs {cyc} ms apart ([t2-scene5] slow: no frame-to-frame opacity jump over .12), fully seen between them and at the end, plain 0.45 s after",
+    check(f"0.3 s after the {'sound' if C['beat'] else 'sentence (no beat, [t3-girl])'} the slot blinks for blink_ms ({d['blink_ms']} ms): the box fades out and in {n_bl} times, its troughs {cyc} ms apart ([t2-scene5] slow: no frame-to-frame opacity jump over .12), fully seen between them and at the end, plain 0.45 s after",
           200 <= ms(i_bl) - t_sfx_end <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and len(tr_ms) == n_bl and all(abs(g - cyc) <= 60 for g in gaps_bl)
           and jumps <= 0.12 and seen_between and samples[i_ble]["slotOp"] >= 0.97 and nil(after_bl["glow"]) and after_bl["slotBg"] == C["slot_fill"] and "232, 106, 0" not in (after_bl["ringStroke"] or ""),
           (round(ms(i_bl) - t_sfx_end), round(ms(i_ble) - ms(i_bl)), len(tr_ms), gaps_bl, round(jumps, 3), samples[i_ble]["slotOp"], (after_bl["slotBg"], after_bl["glow"], after_bl["ringStroke"])))

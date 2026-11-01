@@ -3225,6 +3225,9 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-v-ask .dsc-slot.gone{background:transparent;}
 .dsc-v-ask .dsc-tile{top:335px;} .dsc-v-ask .dsc-tile.t1{left:357.09px;} .dsc-v-ask .dsc-tile.t2{left:584px;} .dsc-v-ask .dsc-tile.t3{left:814.818px;}
 .dsc-v-ask .t2 .dsc-sym{left:59.5px;top:56.5px;} .dsc-v-ask .t3 .dsc-sym{left:58.5px;top:41px;}   /* "?" on the middle tile, "," on the right one */
+.dsc-v-ask .dsc-girl{left:105px;top:94px;width:257px;height:385px;z-index:1;}   /* [t3-girl] the frame's girl, above the tiles and the bubble */
+.dsc-v-ask .dsc-girl > img{width:257px;height:385px;}
+.dsc-v-ask .dsc-shade{left:64px;top:346px;width:118px;height:37px;background:rgba(211,160,111,.4);}   /* her own shadow, Ellipse 3767 */
 
 /* ===== [sent-fig] G4, P1 + P2 = the reference game's Page 11 (P4, https://hi-02-h04-l01-s01-dun.vercel.app/), SENT_PICK: its rules,
    read from the live page (CSSOM) and scoped to .stage.sent-page, so no other page changes. The picture bare at 315px high

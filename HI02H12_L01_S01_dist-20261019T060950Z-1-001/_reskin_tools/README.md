@@ -2167,6 +2167,28 @@ Page 7 T3: the classroom scene from Figma 724:2016 on T2's module ([t3-scene], 2
   pulsing middle tile moves on to T4). smoke.py 51/51 passed on the new build.
   `../_before_t3_scene/` holds the [t2-scene5] dist, build.py, README, scene_check.py, smoke.py and demo_check.py.
 
+Page 7 T3: the frame's own girl, still, no sound ([t3-girl], 2026-11-01)
+- Asked: "remove the existing girl and the sound effect synced with her in page 7 T3 and make the exact same girl as shown in this
+  Figma reference (724:2016) with any animation and the sound effect synced with her; rest exactly the same." Read as WITHOUT any
+  animation and WITHOUT the sound: the message removes the girl's sound and names no new sound file (every sound so far was a file
+  the user gave). If an animation + sound were meant, it is one data change (girl_pop / pic_sfx) away.
+- The frame now has a girl: "image 272" (its fill 1024x1535, drawn 213,212 257x385 — the frame's LAST node, so above the tiles and
+  the bubble) and her shadow "Ellipse 3767" (277,558 118x37, #D3A06F at .4). The frame's render was re-taken
+  (demo2b_figma_render_1280x720.png; the old one, without her, is in `../_before_t3_girl/`).
+- Built (build.py [t3-girl]): T3's data.image_id = img_demo2_girl_ask (demo2_assets/img_demo2_girl_ask.webp: the fill at 1024x1535,
+  q90, alpha exact, 174 KB), data.girl_pop false, no pic_sfx / pic_sfx_ms; the module skips stage 3 (the 2 s school sound + the
+  girl's pop) when a page has neither (`beat`), so T3's blink follows the sentence's clip by 0.3 s — T2 keeps its beat. CSS
+  .dsc-v-ask: the girl's box 105,94 257x385 of the padding box, z-index 1 (above the tiles and the bubble, as the frame), her shadow
+  64,346 118x37 rgba(211,160,111,.4). T2's girl bitmap stays in the dist (T2 uses it). Nothing else changed (app.js: the beat line,
+  stage 2's next stage, a comment; style.css: three .dsc-v-ask rules; the card: T3's image_id / girl_pop / pic_sfx(_ms), the new
+  image asset).
+- Checked: scene_check.py per-page config gained `beat` and the girl's box / region; T3: the data check wants no pic_sfx and
+  girl_pop false, a new check that there is no school sound and the girl is still (opacity 1, transform none, never .pop) in every
+  frame, the blink timed from the sentence's clip, the girl compared with the render on her own. T3 37/37 ALL PASS: the girl's box
+  within 0.10 px and her shadow within 0.17 px of the frame, her pixels mean 3.97 levels off the render (1.21% over 48), the blink
+  317 ms after the sentence, solid pixel diffs 0.001%. T2 38/38 ALL PASS on the shared module. SMOKE_T3G
+  `../_before_t3_girl/` holds the [t3-scene] dist, build.py, README, scene_check.py and the old T3 render.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

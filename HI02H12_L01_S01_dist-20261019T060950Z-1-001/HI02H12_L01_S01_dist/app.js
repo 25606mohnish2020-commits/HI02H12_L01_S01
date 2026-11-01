@@ -6405,7 +6405,9 @@ const SlideModules = {
      [t3-scene] T3 (frame 724:2016 "7 T3") runs on this module too, as data.variant "ask" (the card gets dsc-v-ask; its geometry is
         CSS): no intro line (data.intro_audio null — the scene stands for data.open_ms), a speech bubble (data.bubble_id, an SVG)
         popping in with the sentence and the slot in stage 2 to data.box_sfx (the user's sharp pop) instead of T1's tone, the slot's
-        box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2. ===== */
+        box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2.
+     [t3-girl] T3's girl is the frame's own (data.image_id), still from the first frame: data.girl_pop false and no data.pic_sfx skip
+        stage 3, so the blink starts 0.3 s after the sentence's clip. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -6424,6 +6426,7 @@ const SlideModules = {
       mark.textContent = d.mark || "";
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
+      const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
@@ -6476,7 +6479,7 @@ const SlideModules = {
       const stage2 = ()=>{
         if(bubble) bubble.classList.add("in");
         slot.classList.add("in"); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
-        sfigNarrate(L, alive, ()=> after(300, stage3)); };
+        sfigNarrate(L, alive, ()=> after(300, beat ? stage3 : stage4)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
         const ms = d.pic_sfx_ms || 2000, FADE = 400;

@@ -323,22 +323,28 @@ card["_emoji_fallback"]["img_demo2_girl"] = "✏️"
 # (vo_demo2_explain — the [vo-rec] take, its whisper word times from vo_rec/transcripts.json) lighting the "?" tile at "प्रश्नवाचक",
 # the other two dim, the "?" pulsing until the child taps it, its border green, the "?" in the slot, the box gone, on to T4 by
 # itself. The frame orders its tiles । ? , (T2's are । , ?), so the "?" is the MIDDLE tile here. PUNCT_DEMO stays for T4 only.
+# [t3-girl] (asked the same day): "remove the existing girl and the sound effect synced with her; make the exact same girl as in the
+# frame" — the frame now has her: "image 272" (its fill 1024x1535, drawn 213,212 257x385, ABOVE the tiles and the bubble — the
+# frame's last node) with her own shadow "Ellipse 3767" (277,558 118x37, #D3A06F at .4). She stands there from the first frame with
+# NO animation and NO sound: T2's girl, its 2 s of the school sound and her small pop are gone from T3 (data.girl_pop false and no
+# pic_sfx: the module skips that beat — the blink follows the sentence's clip by 0.3 s). Read as "without any animation and [without]
+# the sound effect": the message removes the sound and names no new one.
 _vr_t3 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))   # vo_rec.py's whisper word times per recording
 _x3 = _vr_t3["vo_demo2_explain.wav"]; _x3_words = [w[0] for w in _x3["words"]]
 assert " ".join(_x3_words) == _x3["text"] == "यह एक सवाल है, सवाल के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।", _x3["text"]
 assert dl2["sent"]["shown"] == "तुम्हारा नाम क्या है" and len(dl2["sent"]["word_times"]) == 4, dl2["sent"]
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
     "prompt_hi": dl2["sent"]["text"], "audio": {},
-    "data": {"variant": "ask", "intro_audio": None, "open_ms": 1000, "bg_id": "img_demo2_room", "image_id": "img_demo1_girl_walk",
+    "data": {"variant": "ask", "intro_audio": None, "open_ms": 1000, "bg_id": "img_demo2_room", "image_id": "img_demo2_girl_ask", "girl_pop": False,   # [t3-girl] the frame's girl, still
              "bubble_id": "img_demo2_bubble", "box_sfx": "sfx_demo2_sharp_pop.mp3", "slot_w": 59, "slot_h": 100,   # the frame's slot (T2's is 53x90)
              "sentence": dpart2("sent"), "mark": "?",
              "explain": {"text_hi": _x3["text"], "audio": "vo_demo2_explain", "word_times": [w[1] for w in _x3["words"]], "word_end": _x3["words"][-1][2], "cue_word": _x3_words.index("प्रश्नवाचक")},
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}, {"mark": ",", "name_hi": "अल्प विराम"}],   # the frame's order
-             "pic_sfx": "sfx_demo1_school.mp3", "pic_sfx_ms": 2000,   # T2's: 2 s of the school sound after the sentence, the girl's small pop with it
              "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
     "signals": {"on_complete": []}}
 card["assets"]["image"]["img_demo2_room"] = "assets/Images/img_demo2_room.webp"
 card["assets"]["image"]["img_demo2_bubble"] = "assets/Images/img_demo2_bubble.svg"
+card["assets"]["image"]["img_demo2_girl_ask"] = "assets/Images/img_demo2_girl_ask.webp"   # [t3-girl] the frame's "image 272" fill (1024x1535, q90, alpha exact)
 del card["assets"]["image"]["img_demo2_girl"]; del card["_emoji_fallback"]["img_demo2_girl"]   # [demo2-girl]'s cut-out: no page shows it now
 # [demo-fig] T4 = the Figma frame 523:320 "6 T4", the third run-on sentence demo, in place of the ported BUILD_PUNCT auto
 # demo ("मेरे पास आम केला और सेब हैं"): T2's flow with अल्प विराम as the tapped tile and a sentence that needs TWO commas.
@@ -1143,7 +1149,9 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
      [t3-scene] T3 (frame 724:2016 "7 T3") runs on this module too, as data.variant "ask" (the card gets dsc-v-ask; its geometry is
         CSS): no intro line (data.intro_audio null — the scene stands for data.open_ms), a speech bubble (data.bubble_id, an SVG)
         popping in with the sentence and the slot in stage 2 to data.box_sfx (the user's sharp pop) instead of T1's tone, the slot's
-        box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2. ===== */
+        box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2.
+     [t3-girl] T3's girl is the frame's own (data.image_id), still from the first frame: data.girl_pop false and no data.pic_sfx skip
+        stage 3, so the blink starts 0.3 s after the sentence's clip. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -1162,6 +1170,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       mark.textContent = d.mark || "";
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
+      const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
@@ -1214,7 +1223,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       const stage2 = ()=>{
         if(bubble) bubble.classList.add("in");
         slot.classList.add("in"); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
-        sfigNarrate(L, alive, ()=> after(300, stage3)); };
+        sfigNarrate(L, alive, ()=> after(300, beat ? stage3 : stage4)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
         const ms = d.pic_sfx_ms || 2000, FADE = 400;
@@ -2664,7 +2673,9 @@ scene_css += ("@font-face{font-family:'Story Noto Marks';font-style:normal;font-
 # card; the speech bubble's group 402.995,163 639.666x122.489 — the SVG carries its shadows, 651.745x135.269 from 397.306,160.610
 # (the body rect at 29.7686,2.39 inside it = the frame's 427.074,163); the sentence's box 477,180 479x88 (centre 716.5,224); the slot
 # 907,174 59x100, #FFF1B6 with the same dashes; the tiles 465.09 / 692 / 922.818 at 453 with T2's shadows; the "?" and "," swap
-# tiles, so their measured line boxes go with the MARK. The girl is T2's, in T2's place (not in the frame).
+# tiles, so their measured line boxes go with the MARK. [t3-girl] The girl is the frame's "image 272" 213,212 257x385 (105,94 of the
+# padding box) with her shadow 277,558 118x37 (64,346 of her box), painted above the tiles and the bubble (z-index 1) as the frame's
+# last nodes are.
 scene_css += r"""
 /* ===== [t3-scene] T3 = frame 724:2016 "7 T3" on the scene module: the "ask" variant (.dsc-v-ask) ===== */
 .dsc-v-ask .dsc-bg > img{left:-12px;top:-16px;width:1088px;height:519px;object-fit:cover;}
@@ -2677,6 +2688,9 @@ scene_css += r"""
 .dsc-v-ask .dsc-slot.gone{background:transparent;}
 .dsc-v-ask .dsc-tile{top:335px;} .dsc-v-ask .dsc-tile.t1{left:357.09px;} .dsc-v-ask .dsc-tile.t2{left:584px;} .dsc-v-ask .dsc-tile.t3{left:814.818px;}
 .dsc-v-ask .t2 .dsc-sym{left:59.5px;top:56.5px;} .dsc-v-ask .t3 .dsc-sym{left:58.5px;top:41px;}   /* "?" on the middle tile, "," on the right one */
+.dsc-v-ask .dsc-girl{left:105px;top:94px;width:257px;height:385px;z-index:1;}   /* [t3-girl] the frame's girl, above the tiles and the bubble */
+.dsc-v-ask .dsc-girl > img{width:257px;height:385px;}
+.dsc-v-ask .dsc-shade{left:64px;top:346px;width:118px;height:37px;background:rgba(211,160,111,.4);}   /* her own shadow, Ellipse 3767 */
 """
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
@@ -3680,7 +3694,7 @@ for name, sub in (("img_demo1_girl.webp", "Images"),):   # [t2-scene] T2's old c
 # ---------- 7e. [demo-fig] T3's clips and picture (demo2_assets/: recap_vo.py demo2; the frame's "image 229"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------
 DEMO2_SRC = SCR / "demo2_assets"
-for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_CLIPS] + [("img_demo2_room.webp", "Images"), ("img_demo2_bubble.svg", "Images"), ("sfx_demo2_sharp_pop.mp3", "Audio")]:   # [t3-scene] the frame's room (image 261, 1816x866 q90) and bubble (its vector group, as exported), the user's sharp pop (bytes as given)
+for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_CLIPS] + [("img_demo2_room.webp", "Images"), ("img_demo2_bubble.svg", "Images"), ("img_demo2_girl_ask.webp", "Images"), ("sfx_demo2_sharp_pop.mp3", "Audio")]:   # [t3-scene] the frame's room (image 261, 1816x866 q90) and bubble (its vector group, as exported), the user's sharp pop (bytes as given)
     f, dst = DEMO2_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing demo asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
