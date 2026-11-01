@@ -2041,6 +2041,28 @@ Page 6 T2: the hallway scene ([t2-scene], 2026-11-01)
   `../_before_t2_scene/` holds the [relisten-sfx] dist, build.py, README, recap_vo.py, recap_check.py, smoke.py, word_sync_check.py
   and demo_check.py.
 
+Page 6 T2: the girl in place, the blink, the highlights, the green border ([t2-scene2], 2026-11-01)
+- Asked: "remove the girl's animation — she appears with the frame image at the beginning, no animation, at her exact Figma position;
+  when the sentence's VO is over the sound effect comes in the background for 2 seconds and the girl shows a very little pop synced
+  with it; the blank box should blink for two seconds; the correct option's highlight and the disabled options should not show this
+  much low opacity; when the correct option is selected only its boundary gets green, not the whole option; rest exactly the same."
+- Built (build.py [t2-scene2], PUNCT_SCENE): the girl's box is there from the first frame (no opacity 0, no dscWalk / dscStep — the
+  3.4 s walk in from the doorway is gone); stage 3 is now the school sound (data.pic_sfx) for data.pic_sfx_ms = 2000 at .5, faded
+  over its last 0.4 s and paused (its "ended" dispatched, as before), with dscPop on the girl as it starts (0.5 s, scale 1 -> 1.045
+  -> 1 about her feet); the blink stays 2 s (three blinks) but each blink now HOLDS the orange ring + glow for half its cycle (the
+  old one passed through the orange at the midpoint only — hard to see) and the glow is a solid rgba(232,106,0,.45) 5px (was .22);
+  the lit / pulsing tile's face has a 3px orange border (was 2.386) with that glow (the pulse breathes it to 10px .55); the dim
+  tiles sit at opacity .6, saturate .7 (was the demos' .35 / .6); the tapped tile: only its BORDER green (--correct #00B132, 3px),
+  the face white, no glow, the mark back to its blue (was the face --correct-bg with a green glow and a green mark). Data:
+  pic_sfx / pic_sfx_ms replace walk_sfx / walk_ms; nothing else changed in the dist (app.js: the module's stage 3 + comments;
+  style.css: the girl's, the blink's, the tiles' state rules; the card: T2's two data keys).
+- Checked: scene_check.py updated for the flow (the girl still — computed transform none — before and after a pop peaking at
+  1.03-1.05 within 0.6 s of the sound's first frame; the sound full to its last 0.4 s, faded, paused; the blink's three holds; the
+  pulse's 3px orange border and the dim tiles at .6; the tapped face: border rgb(0,177,50) 3px, white, no shadow, the mark
+  rgb(0,47,118)): 33/33 ALL PASS — the pop 300 ms after the clip with the sound 6 ms before its frame, peak 1.045; the sound .5 at
+  1 s, .158 at 1.9 s, paused after; the blink 334 ms after the sound, 2016 ms, 3 holds. SMOKE_T2B
+  `../_before_t2_scene2/` holds the [t2-scene] dist, build.py, README and scene_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

@@ -6384,17 +6384,18 @@ const SlideModules = {
      1. the intro line (data.intro_audio) over the picture alone — no sentence, no girl, no tiles;
      2. 0.5 s after it the sentence rises in whole and the slot pops in, with T1's text pop ([recap-sfx] popSoft); 0.45 s later
         the sentence's clip, each word lit as it is read ([word-sync]);
-     3. 0.3 s after the clip the girl appears at the doorway and walks down the steps to her place (data.walk_ms; CSS dscWalk
-        for the path, dscStep for her steps) with data.walk_sfx (the user's school sound) under her, faded out as she arrives;
-     4. 0.3 s after she has arrived the slot blinks orange (data.blink_ms: three blinks of the words' orange on its ring + the
-        demos' glow) and, as the blink starts, the three tiles pop in (90 ms apart) with data.tiles_sfx (the user's pop);
+     3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
+        the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
+        (CSS dscPop) as it starts;
+     4. 0.3 s after the sound the slot blinks orange (data.blink_ms: three clear blinks of the words' orange on its ring + glow)
+        and, as the blink starts, the three tiles pop in (90 ms apart) with data.tiles_sfx (the user's pop);
      5. 0.3 s after the blink the explanation (data.explain): as it reaches its cue word (data.explain.cue_word, "पूर्णविराम") the
-        danda's tile lights — the words' orange on its mark (+ p2WordPop) and an orange ring + glow on its face; 0.3 s after
-        the clip the other two tiles go dim and dead; 0.3 s later the lit tile pulses (dscPulse) and is the CHILD's: the page
-        waits for the tap (the 🔊 chip reads the sentence again meanwhile);
-     6. the tap: the tile turns green (the engine's --correct / --correct-bg), the kit's correct sound (sfxCorrect), the mark
-        lands in the slot (its INK centred, the demos' centreInk), 0.45 s later the slot's box goes (the mark stays) and 1.2 s
-        after that the page moves on by itself: no आगे here. ===== */
+        danda's tile lights — the words' orange on its mark (+ p2WordPop) and an orange border + glow on its face; 0.3 s after
+        the clip the other two tiles go dim (.off, [t2-scene2]: .6, not the demos' .35) and dead; 0.3 s later the lit tile
+        pulses (dscPulse) and is the CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
+     6. the tap: the tile's BORDER turns green ([t2-scene2]: the face stays white, the mark its blue), the kit's correct sound
+        (sfxCorrect), the mark lands in the slot (its INK centred, the demos' centreInk), 0.45 s later the slot's box goes (the
+        mark stays) and 1.2 s after that the page moves on by itself: no आगे here. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -6421,7 +6422,7 @@ const SlideModules = {
       const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);   // [recap-sfx] T1's text pop (the reference's sfxPopSoft)
       // the user's two sounds, fetched now (heard seconds later): the school under the walk, the pop with the tiles
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
-      kit("sceneWalk", d.walk_sfx); kit("scenePop", d.tiles_sfx);
+      kit("scenePic", d.pic_sfx); kit("scenePop", d.tiles_sfx);
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -6459,22 +6460,22 @@ const SlideModules = {
       }
       // 2. the sentence rises in whole and the slot pops in, with T1's pop; the clip 0.45 s after the rise, each word lit
       const stage2 = ()=>{ slot.classList.add("in"); popSoft(); sfigNarrate(L, alive, ()=> after(300, stage3)); };
-      // 3. the girl walks in from the doorway, down the steps, to her place; the school sound under her, faded out as she arrives
+      // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
-        const ms = d.walk_ms || 3400, FADE = 700;
-        girl.style.setProperty("--walk-ms", ms + "ms"); girl.classList.add("walk");
-        if(d.walk_sfx){
-          playKitSfx("sceneWalk", d.walk_sfx, .5);
+        const ms = d.pic_sfx_ms || 2000, FADE = 400;
+        girl.classList.remove("pop"); void girl.offsetWidth; girl.classList.add("pop");
+        if(d.pic_sfx){
+          playKitSfx("scenePic", d.pic_sfx, .5);
           const t0 = performance.now() + ms - FADE;
-          const step = ()=>{ const a = _kitSfx.sceneWalk; if(!a) return;
+          const step = ()=>{ const a = _kitSfx.scenePic; if(!a) return;
             if(!alive()){ a.pause(); a.dispatchEvent(new Event("ended")); return; }
             const k = Math.max(0, Math.min(1, (performance.now() - t0) / FADE)); a.volume = .5 * (1 - k);
             if(k < 1) nextFrame(step); else { a.pause(); a.currentTime = 0; a.dispatchEvent(new Event("ended")); } };   // "ended": the engine's sfx hold ([tap-lock] sfxTrack) ends with it
           nextFrame(step);
         }
-        after(ms, ()=>{ girl.classList.remove("walk"); girl.classList.add("here"); after(300, stage4); });
+        after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks orange (three blinks over blink_ms) and the tiles pop in as it starts, with the user's pop
+      // 4. the slot blinks orange (three clear blinks over blink_ms) and the tiles pop in as it starts, with the user's pop
       const stage4 = ()=>{
         const ms = d.blink_ms || 2000;
         slot.style.setProperty("--blink-ms", (ms / 3) + "ms"); slot.classList.add("blink");
@@ -6497,7 +6498,7 @@ const SlideModules = {
       };
       // the 🔊 chip: ignored while the page drives itself (state.demoRunning); once the tile is the child's it reads the sentence again
       state.replayAudio = ()=>{ if(!armed || isPlaying || !alive()) return; sfigNarrate(L, alive, ()=>{}); };
-      // 6. the tap: green, the kit's correct sound, the mark lands in the slot, the slot's box goes, the page moves on
+      // 6. the tap: the border green, the kit's correct sound, the mark lands in the slot, the slot's box goes, the page moves on
       function tap(){
         if(!armed || !alive()) return;
         armed = false; state.locked = true; state.demoRunning = true;
