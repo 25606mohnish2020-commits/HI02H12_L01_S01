@@ -88,7 +88,7 @@ TIMELINE = "(sample) => { window._tl = []; window._taps = []; const S = eval(sam
     " if (window._taps.includes('chip') && s.clip === 'sent' && s.playing) rereadSeen = true;" \
     " if (rereadSeen && !rereadEnded && !(s.clip === 'sent' && s.playing)) rereadEnded = s.ms;" \
     " if (tile && rereadEnded && !window._taps.includes('tap') && s.ms - rereadEnded > 300) { window._taps.push('tap'); tile.click(); }" \
-    " if (s.slide === 'T2' && (s.ms - (window._t0 || (window._t0 = s.ms))) < 120000) requestAnimationFrame(step); }; requestAnimationFrame(step); }"
+    " if (s.slide !== 'T3' && (s.ms - (window._t0 || (window._t0 = s.ms))) < 120000) requestAnimationFrame(step); }; requestAnimationFrame(step); }"   # runs until T3 (the first frame may come before T2 has mounted)
 
 def lit_want(times, wend, t):
     if t is None or (wend is not None and t >= wend): return []
@@ -123,7 +123,11 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=30000, polling=20); pg.wait_for_timeout(600); pg.screenshot(path=str(out / "c_tiles_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-tile.lit')", timeout=30000, polling=20); pg.wait_for_timeout(250); pg.screenshot(path=str(out / "d_lit_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-tile.pulse')", timeout=30000, polling=20); pg.wait_for_timeout(500); pg.screenshot(path=str(out / "e_pulse_1333.png"))
-    pg.wait_for_function("!!document.querySelector('.dsc-tile.done')", timeout=40000, polling=20); pg.wait_for_timeout(500); pg.screenshot(path=str(out / "f_done_1333.png"))
+    look = pg.evaluate("""() => { const t = document.querySelector('.dsc-tile.t1'), f = t.querySelector('.dsc-face'), s = t.querySelector('.dsc-sym'); return [getComputedStyle(t).animationName, getComputedStyle(t).animationIterationCount, getComputedStyle(f).animationName, getComputedStyle(s).color]; }""")
+    try: pg.wait_for_function("!!document.querySelector('.dsc-tile.done')", timeout=40000, polling=20)
+    except Exception:
+        print("DIAG taps", pg.evaluate("window._taps"), "samples", pg.evaluate("window._tl.length"), "last", pg.evaluate("window._tl[window._tl.length - 1]"), "errors", errs[:3]); raise
+    pg.wait_for_timeout(500); pg.screenshot(path=str(out / "f_done_1333.png"))
     pg.wait_for_function("CARD.slides[state.idx].id === 'T3'", timeout=10000)
     samples, taps, snd = pg.evaluate("window._tl"), pg.evaluate("window._taps"), pg.evaluate("window._snd")
     samples = [s for s in samples if s["ready"] and s["slide"] == "T2"]
@@ -166,10 +170,13 @@ with sync_playwright() as p:
           len(school) == 1 and abs(school[0]["ms"] - ms(i_walk)) <= 50 and school[0]["vol"] == 0.5 and vol_mid == 0.5 and vol_end is not None and vol_end < 0.15 and paused_after is True,
           [(round(e["ms"] - ms(i_walk)), e["vol"]) for e in school] + [vol_mid, vol_end, paused_after])
     i_bl = first(lambda s: s["blink"], i_walke); i_ble = first(lambda s: not s["blink"], i_bl)
-    peaks = sum(1 for k in range(i_bl + 1, i_ble - 1) if "rgb(232, 106, 0)" in (samples[k]["ringStroke"] or "") and not ("rgb(232, 106, 0)" in (samples[k - 1]["ringStroke"] or "")))
+    # the ring's colour animates grey -> orange -> grey: a "peak" = a run of frames near the orange (r >= 200, b <= 60); three expected
+    def orange(s_):
+        m_ = re.findall(r"\d+", s_["ringStroke"] or ""); return len(m_) >= 3 and int(m_[0]) >= 200 and int(m_[2]) <= 60
+    peaks = sum(1 for k in range(i_bl + 1, i_ble) if orange(samples[k]) and not orange(samples[k - 1]))
     glow = any(s["glow"] not in (None, "none") and "232, 106, 0" in s["glow"] for s in samples[i_bl:i_ble])
     check("0.3 s after she has arrived the slot blinks for blink_ms: its ring reaches the words' orange three times with the glow, plain again after",
-          200 <= ms(i_bl) - ms(i_here) <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and 2 <= peaks <= 3 and glow
+          200 <= ms(i_bl) - ms(i_here) <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and peaks == 3 and glow
           and samples[i_ble + 3]["glow"] == "none" and "232, 106, 0" not in (samples[i_ble + 3]["ringStroke"] or ""), (round(ms(i_bl) - ms(i_here)), round(ms(i_ble) - ms(i_bl)), peaks))
     i_t1 = first(lambda s: s["tilesIn"] >= 1); i_t3 = first(lambda s: s["tilesIn"] >= 3)
     pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.mp3"]
@@ -184,7 +191,6 @@ with sync_playwright() as p:
     check("0.3 s after the clip the other two tiles are dim and dead; 0.3 s later the lit tile pulses and is live; the lit tile never dims",
           200 <= ms(i_off) - ms(i_xe) <= 650 and 200 <= ms(i_pulse) - ms(i_off) <= 650 and abs(ms(i_live) - ms(i_pulse)) <= 34 and all(s["off"] <= 2 for s in samples) and all(s["lit"] == 0 for s in samples[i_lit:]),
           (round(ms(i_off) - ms(i_xe)), round(ms(i_pulse) - ms(i_off))))
-    look = pg.evaluate("""() => { const t = document.querySelector('.dsc-tile.t1'), f = t.querySelector('.dsc-face'), s = t.querySelector('.dsc-sym'); return [getComputedStyle(t).animationName, getComputedStyle(t).animationIterationCount, getComputedStyle(f).animationName, getComputedStyle(s).color]; }""")
     starts = lambda c: sum(1 for i, s in enumerate(samples) if s["clip"] == c and s["playing"] and (i == 0 or not (samples[i - 1]["clip"] == c and samples[i - 1]["playing"])))
     check("🔊 during the intro and the tile before it is live were ignored (the intro, the explanation once each; no .done before the live tile)",
           "intro" in taps and "early" in taps and starts("intro") == 1 and starts("explain") == 1 and not any(s["done"] for s in samples[:i_live]), (taps, starts("intro"), starts("explain")))

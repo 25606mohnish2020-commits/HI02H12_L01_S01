@@ -2025,7 +2025,19 @@ Page 6 T2: the hallway scene ([t2-scene], 2026-11-01)
   live, then the tile), the sounds logged in the page, the walk's translate / scale / opacity per frame, the blink's ring colour,
   the boxes vs the frame's nodes, the inks vs the render, the type, pixel diffs. smoke.py now taps T2's pulsing tile; recap_check
   T1C's landing test and demo_check (T2 refused, T3 default) updated; word_sync_check T2 12 s.
-  TALLIES_T2
+  Tallies on the final build: scene_check 33/33 ALL PASS (the intro 3.9 s over the picture alone; slot + sentence 499 ms after it in
+  one frame, the pop in that frame; the clip 500 ms after the rise, 152 samples 0 off; the walk 317 ms after the clip, 3400 ms,
+  monotonic from (-158,-159) x .6 to (-2.4,-2.7) x .994 at its last sample; the school sound 16 ms before her first frame at .5,
+  .108 at her last, paused after; the blink 317 ms after her, 2016 ms, three orange peaks; the tiles 0 / 183 ms into it, the pop
+  10 ms before the first; the explanation 333 ms after the blink, the tile lit 20 ms before its cue; dim 316 ms after the clip,
+  the pulse 300 ms later; the chip's re-read and the tap as described; every box within 0.3 px of the frame, all four inks on the
+  render's, the girl's region mean diff 2.55 levels, 0 solid diffs over the card); smoke 50/50; word_sync_check T2 OK (shown at
+  4985 ms, clip 527 ms after the rise); recap_check T1C 43/43. demo_check T3: 40 PASS + the same 2 FAILs as on the pre-change
+  build (../_before_t2_scene/dist over the current assets): its bar line's ink 11 px wider / 4.5 px off its render and its danda
+  tile's mark 4x3 px larger — the lesson's Baloo face vs the renders' Noto ([baloo-font] / [band-title], by design, predating this
+  change; not touched). scene_check.py fixes along the way: its sampler must run until T3 (its first frame can come before T2 has
+  mounted), the blink's peaks are read as runs of near-orange frames (the exact keyframe colour is rarely sampled), and the pulse's
+  styles are read while the tile pulses (the page has moved on by the end).
   `../_before_t2_scene/` holds the [relisten-sfx] dist, build.py, README, recap_vo.py, recap_check.py, smoke.py, word_sync_check.py
   and demo_check.py.
 
