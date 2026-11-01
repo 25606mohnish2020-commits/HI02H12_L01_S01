@@ -6387,8 +6387,10 @@ const SlideModules = {
      3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
         the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
         (CSS dscPop) as it starts;
-     4. 0.3 s after the sound the slot blinks orange for data.blink_ms ([t2-scene3]: 4 s — the words' orange HELD on its ring +
-        glow every 2/3 s, six times; was 2 s / three) and, as the blink starts, the three tiles pop in ONE BY ONE (data.tiles_gap_ms
+     4. 0.3 s after the sound the slot blinks orange for data.blink_ms ([t2-scene4]: 6 s in SLOW data.blink_cycle_ms = 1.2 s
+        cycles — five blinks; the WHOLE box at once: its fill warms to the orange's tint, its ring goes the words' orange and its
+        glow the pulsing tile's rgba(232,106,0,.6) 5px, all held together for ~0.46 s, then all plain for ~0.46 s; before: 4 s of
+        ~0.67 s cycles, the ring + a .45 glow only) and, as the blink starts, the three tiles pop in ONE BY ONE (data.tiles_gap_ms
         = 350 ms apart, each from small past its size — dscTileIn) each with its own data.tiles_sfx (the user's pop) in its frame
         ([t2-scene3]; before, all three came in 90 ms apart under a single pop);
      5. 0.3 s after the blink the explanation (data.explain): as it reaches its cue word (data.explain.cue_word, "पूर्णविराम") the
@@ -6479,11 +6481,11 @@ const SlideModules = {
         }
         after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks orange over blink_ms — a hold of the orange every ~2/3 s ([t2-scene3]: 4 s = six holds; the cycle stays
-      //    the [t2-scene2] one, the count grows with the time) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms apart,
-      //    each with its own pop in the frame its pop (dscTileIn) begins
+      // 4. the slot blinks orange over blink_ms in blink_cycle_ms cycles ([t2-scene4]: 6 s of slow 1.2 s cycles = five whole-box
+      //    blinks; the CSS gets the cycle and the count) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms apart, each
+      //    with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
-        const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / 667)), gap = d.tiles_gap_ms || 350;
+        const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
         slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
         tiles.forEach((t, k)=>{
           const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); };

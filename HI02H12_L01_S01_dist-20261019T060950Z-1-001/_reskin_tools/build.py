@@ -257,7 +257,8 @@ dpart = lambda k: {"text_hi": dl[k]["shown"], "audio": f"vo_demo1_{k}", "word_ti
 # alone; the sentence + the empty slot (T1's text pop); the sentence's clip, word by word; then 2 s of the user's school sound with a
 # small pop of the girl ([t2-scene2] 2026-11-01: she stands in her place from the first frame — was a walk in from the doorway under
 # the sound); the slot blinking orange 2 s while the three mark tiles pop in
-# (the user's pop) — [t2-scene3] 2026-11-01: the blink 4 s and the tiles one by one, 350 ms apart, each with its own pop; the
+# (the user's pop) — [t2-scene3] 2026-11-01: the blink 4 s and the tiles one by one, 350 ms apart, each with its own pop;
+# [t2-scene4] the same day: the blink 6 s, SLOW (1.2 s cycles) and the WHOLE box at once (fill + ring + the pulse's glow); the
 # explanation "सरल वाक्य में बात पूरी होने पर हम पूर्णविराम का प्रयोग करते हैं ।" lighting the danda's tile at
 # "पूर्णविराम"; the other two dim; the lit tile pulsing until the CHILD taps it; then green, the kit's correct sound, the mark in
 # the slot, the slot's box gone, on to T3. The explanation is a placeholder take (recap_vo.py demo1 explain: edge-tts, no recording
@@ -269,7 +270,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
              "sentence": dpart("sent"), "mark": "।", "explain": dict(dpart("explain"), cue_word=_cue),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "pic_sfx": "sfx_demo1_school.mp3", "pic_sfx_ms": 2000,   # the user's freesound_community-school-104993.mp3 (8.4 s): 2 s of it after the sentence, faded out, the girl's small pop with it ([t2-scene2]; was a 3.4 s walk under it)
-             "blink_ms": 4000, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # [t2-scene3] the blink 4 s (was 2: "two more seconds"), six holds of the orange; the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) ONCE PER TILE as the tiles pop in one by one, 350 ms apart (was all three 90 ms apart under one pop)
+             "blink_ms": 6000, "blink_cycle_ms": 1200, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # [t2-scene4] the blink 6 s (2 -> 4 -> 6: "two more seconds" twice) in SLOW 1.2 s cycles = five blinks (the module rounds blink_ms / blink_cycle_ms; was ~667 ms cycles); the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) ONCE PER TILE as the tiles pop in one by one, 350 ms apart ([t2-scene3]; was all three 90 ms apart under one pop)
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
@@ -1093,8 +1094,10 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
      3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
         the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
         (CSS dscPop) as it starts;
-     4. 0.3 s after the sound the slot blinks orange for data.blink_ms ([t2-scene3]: 4 s — the words' orange HELD on its ring +
-        glow every 2/3 s, six times; was 2 s / three) and, as the blink starts, the three tiles pop in ONE BY ONE (data.tiles_gap_ms
+     4. 0.3 s after the sound the slot blinks orange for data.blink_ms ([t2-scene4]: 6 s in SLOW data.blink_cycle_ms = 1.2 s
+        cycles — five blinks; the WHOLE box at once: its fill warms to the orange's tint, its ring goes the words' orange and its
+        glow the pulsing tile's rgba(232,106,0,.6) 5px, all held together for ~0.46 s, then all plain for ~0.46 s; before: 4 s of
+        ~0.67 s cycles, the ring + a .45 glow only) and, as the blink starts, the three tiles pop in ONE BY ONE (data.tiles_gap_ms
         = 350 ms apart, each from small past its size — dscTileIn) each with its own data.tiles_sfx (the user's pop) in its frame
         ([t2-scene3]; before, all three came in 90 ms apart under a single pop);
      5. 0.3 s after the blink the explanation (data.explain): as it reaches its cue word (data.explain.cue_word, "पूर्णविराम") the
@@ -1185,11 +1188,11 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         }
         after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks orange over blink_ms — a hold of the orange every ~2/3 s ([t2-scene3]: 4 s = six holds; the cycle stays
-      //    the [t2-scene2] one, the count grows with the time) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms apart,
-      //    each with its own pop in the frame its pop (dscTileIn) begins
+      // 4. the slot blinks orange over blink_ms in blink_cycle_ms cycles ([t2-scene4]: 6 s of slow 1.2 s cycles = five whole-box
+      //    blinks; the CSS gets the cycle and the count) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms apart, each
+      //    with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
-        const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / 667)), gap = d.tiles_gap_ms || 350;
+        const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
         slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
         tiles.forEach((t, k)=>{
           const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); };
@@ -2550,12 +2553,15 @@ scene_css = """
 .dsc-slot{position:absolute;left:905px;top:69px;width:53px;height:90px;background:#FFFFFF;border-radius:8px;opacity:0;transform:scale(.9);transition:background-color .4s,box-shadow .25s;}
 .dsc-slot.in{opacity:1;transform:none;animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as the sentence rises */
 .dsc-dash{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;stroke-dasharray:10 5;transition:opacity .4s,stroke .25s;}
-/* the blink: the words' orange on the ring + a glow, three times over data.blink_ms — [t2-scene2] each blink HOLDS the orange for
-   half its cycle (was a pass through it at the midpoint, hard to see) and the glow is a solid .45 (was .22) */
-.dsc-slot.in.blink{animation:dscBlink var(--blink-ms,666.667ms) ease-in-out var(--blink-n,3);}   /* [t2-scene3] the count from the module: blink_ms / ~667 ms (4 s -> 6) */
-.dsc-slot.blink .dsc-dash{animation:dscBlinkRing var(--blink-ms,666.667ms) ease-in-out var(--blink-n,3);}
-@keyframes dscBlink{0%,100%{box-shadow:0 0 0 0 rgba(232,106,0,0);}25%,75%{box-shadow:0 0 0 5px rgba(232,106,0,.45);}}
-@keyframes dscBlinkRing{0%,100%{stroke:rgba(86,86,86,.85);}25%,75%{stroke:#E86A00;}}
+/* the blink — [t2-scene4]: SLOW (the module's --blink-ms = data.blink_cycle_ms 1.2 s, --blink-n = blink_ms / that = 5) and the WHOLE
+   box at once: on the same keyframes its fill warms from white to the orange's .2 tint (#FAE1CC — an OPAQUE colour: an rgba fill
+   would show the hallway through the box), its ring goes the words' orange and its glow is the pulsing tile's rgba(232,106,0,.6)
+   5px (dscGlow's rest look; the blink's was .45); on for 12%-50% of the cycle (~0.46 s), plain for 62%-100% (~0.46 s), 0.14 s
+   ramps between — a true on / off, ending plain. [t2-scene2] had held the orange for half of a ~0.67 s cycle, ring + glow only. */
+.dsc-slot.in.blink{animation:dscBlink var(--blink-ms,1200ms) ease-in-out var(--blink-n,5);}
+.dsc-slot.blink .dsc-dash{animation:dscBlinkRing var(--blink-ms,1200ms) ease-in-out var(--blink-n,5);}
+@keyframes dscBlink{0%,62%,100%{background-color:#FFFFFF;box-shadow:0 0 0 0 rgba(232,106,0,0);}12%,50%{background-color:#FAE1CC;box-shadow:0 0 0 5px rgba(232,106,0,.6);}}
+@keyframes dscBlinkRing{0%,62%,100%{stroke:rgba(86,86,86,.85);}12%,50%{stroke:#E86A00;}}
 /* the mark, in the sentence's face, its INK centred on the slot (--ix / --iy measured by the module from the font) */
 .dsc-slot .dsc-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(.4);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));

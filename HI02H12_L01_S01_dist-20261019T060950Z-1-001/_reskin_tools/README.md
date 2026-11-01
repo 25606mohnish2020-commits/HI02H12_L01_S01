@@ -2082,6 +2082,27 @@ Page 6 T2: the blink two seconds longer, the tiles one by one with a pop each, a
   6 holds; the tiles at 0 / 383 / 717 ms with pops at -4 / 367 / 712 ms; each tile .4 -> 1.08 -> settled; the glow .6 -> .7. smoke.py 50/50 passed on the new build.
   `../_before_t2_scene3/` holds the [t2-scene2] dist, build.py, README and scene_check.py.
 
+Page 6 T2: the blank box blinks slowly, as a whole, for 6 s, with the pulse's glow ([t2-scene4], 2026-11-01)
+- Asked: "the empty box at the end of the sentence should blink slowly and the whole empty box should blink at once; increase the
+  duration of the blank box blink by two more seconds; match the opacity of the orange boundary at the time of the blink with that
+  of the pulsating option; rest exactly the same."
+- Built (build.py [t2-scene4], PUNCT_SCENE): data.blink_ms 4000 -> 6000 and a new data.blink_cycle_ms = 1200 — the module now sets
+  --blink-ms = the cycle and --blink-n = round(blink_ms / blink_cycle_ms) = 5 (the cycle had been a constant ~667 ms: six quick
+  holds in 4 s); the keyframes animate the WHOLE box on one timeline — its fill from white to the orange's .2 tint #FAE1CC (an
+  OPAQUE colour: an rgba fill would have shown the hallway through the box), its dashed ring to the words' orange and its glow to
+  the pulsing tile's rgba(232,106,0,.6) 5px (dscGlow's rest look; the blink's glow was .45) — ON for 12%-50% of the cycle (~0.46 s)
+  and PLAIN for 62%-100% (~0.46 s) with 0.14 s ramps, so each blink is a true on / off and the last ends plain; the ring stays the
+  frame's 2px dashes. Nothing else changed in the dist (app.js: stage 4's cycle line + comments; style.css: the blink's two rules
+  and two keyframes; the card: T2's blink_ms and the new blink_cycle_ms).
+- Checked: scene_check.py updated (the holds = round(blink_ms / blink_cycle_ms), their starts blink_cycle_ms +-60 apart; a new
+  whole-box check: in every frame the ring is fully orange the fill is rgb(250,225,204) and the glow rgba(232,106,0,.6) 5px, in
+  every frame it is grey the fill is white and the glow nil — Chrome writes a nil shadow as none, a transparent 0-spread shadow or
+  one with a 3e-5px float residue, all accepted; the 1280 frame waits 600 ms after cutting the blink for the fill's .4 s transition;
+  the intro check tolerates the picture's `complete` flipping within the first 50 ms — seen once, a decode race): 36/36 ALL PASS —
+  the blink 317 ms after the sound, 6016 ms, 5 holds 1200 / 1200 / 1200 / 1200 ms apart, 136 held-on and 141 held-off frames all in
+  the two states. SMOKE_T2D
+  `../_before_t2_scene4/` holds the [t2-scene3] dist, build.py, README and scene_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
