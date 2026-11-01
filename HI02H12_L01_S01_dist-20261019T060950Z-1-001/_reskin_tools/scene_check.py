@@ -7,9 +7,12 @@ usage: python -I -X utf8 scene_check.py <index.html> <demo1b_figma_render_1280x7
    frame; the sentence's clip 0.45 s after the rise, each word lit as it is read ([word-sync]); 0.3 s after the clip the school sound
    (sfx_demo1_school.mp3 at .5) for data.pic_sfx_ms, full until its last 0.4 s, faded then and paused at its end, the girl giving her
    small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and after; 0.3 s
-   after the sound the slot blinks (data.blink_ms = 6 s in data.blink_cycle_ms = 1.2 s cycles, [t2-scene4]: the WHOLE box at once —
-   in every frame its ring is fully orange its fill is #FAE1CC and its glow the pulsing tile's rgba(232,106,0,.6) 5px, in every frame
-   its ring is grey its fill is white and its glow nil — five such holds, 1.2 s apart) and as the blink starts the three tiles pop in ONE BY ONE (data.tiles_gap_ms = 350 ms apart, each dscTileIn: from under .6 of its size past
+   after the sound the slot blinks (data.blink_ms = 7 s in data.blink_cycle_ms = 1.75 s cycles, [t2-scene5]: the WHOLE box, in its
+   orange look — the ring the words' orange, the fill #FAE1CC, the glow the pulsing tile's rgba(232,106,0,.6) 5px in every frame from
+   0.45 s in to the end — APPEARS and DISAPPEARS: its opacity 1 -> 0 -> 1 each cycle, four unseen troughs 1.75 s apart, no
+   frame-to-frame jump over .12, fully seen between them and at the end; 0.45 s after the blink the box is plain — grey ring, white
+   fill, no glow — and its pop-in (sfigBoxIn) has NOT run again: opacity 1 and transform none through the 0.7 s after) and as the
+   blink starts the three tiles pop in ONE BY ONE (data.tiles_gap_ms = 350 ms apart, each dscTileIn: from under .6 of its size past
    1.04, at its size within 0.7 s) with the pop (sfx_demo1_pop.mp3 at .8) in EACH tile's frame; 0.3 s after the blink the explanation (vo_demo1_explain) — the danda's tile lights (.lit) as the clip reaches
    its cue word, not before; 0.3 s after the clip the other two tiles are dim and dead (.off, at .6); 0.3 s later the lit tile pulses
    (dscPulse, infinite; its face a 3px orange border with a glow breathing .6 -> .7, [t2-scene3]) and is live. Taps: the 🔊 chip during the intro is ignored (every clip plays once), the danda's tile before it
@@ -71,7 +74,7 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
   return { ms: performance.now(), slide: CARD.slides[state.idx] ? CARD.slides[state.idx].id : null, clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying,
     ready: !!q('.dsc-bg'), bgLoaded: !!q('.dsc-bg > img') && q('.dsc-bg > img').complete && q('.dsc-bg > img').naturalWidth > 0,
     shown: qa('.dsc-sent .sfig-w.on').length, hot: [...qa('.dsc-sent .sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0), rise: !!q('.dsc-sent.sfig-rise'),
-    slotIn: !!slot && slot.classList.contains('in'), blink: !!slot && slot.classList.contains('blink'), glow: slot ? getComputedStyle(slot).boxShadow : null, slotBg: slot ? getComputedStyle(slot).backgroundColor : null, ringStroke: ring ? getComputedStyle(ring).stroke : null,
+    slotIn: !!slot && slot.classList.contains('in'), blink: !!slot && slot.classList.contains('blink'), glow: slot ? getComputedStyle(slot).boxShadow : null, slotBg: slot ? getComputedStyle(slot).backgroundColor : null, slotOp: slot ? +(+getComputedStyle(slot).opacity).toFixed(3) : null, slotTf: slot ? getComputedStyle(slot).transform : null, ringStroke: ring ? getComputedStyle(ring).stroke : null,
     gone: !!slot && slot.classList.contains('gone'), markIn: !!q('.dsc-mark.in'),
     pop: !!g && g.classList.contains('pop'), gOp: gc ? +(+gc.opacity).toFixed(3) : null, gTf: gc ? gc.transform : null,
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
@@ -119,7 +122,7 @@ with sync_playwright() as p:
           pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_SCENE" and d["intro_audio"] == "vo_demo1_intro" and d["bg_id"] == "img_demo1_hall" and d["image_id"] == "img_demo1_girl_walk"
           and d["sentence"]["text_hi"] == "पिंकी स्कूल जा रही है" and d["sentence"]["audio"] == "vo_demo1_sent" and len(ST) == 5 and d["explain"]["audio"] == "vo_demo1_explain"
           and d["explain"]["text_hi"].split()[d["explain"]["cue_word"]] == "पूर्णविराम" and [o["mark"] for o in d["options"]] == ["।", ",", "?"] and d["mark"] == "।"
-          and d["pic_sfx_ms"] == 2000 and d["pic_sfx"] == "sfx_demo1_school.mp3" and d["blink_ms"] == 6000 and d["blink_cycle_ms"] == 1200 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
+          and d["pic_sfx_ms"] == 2000 and d["pic_sfx"] == "sfx_demo1_school.mp3" and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
           {k: d.get(k) for k in ("bg_id", "image_id", "mark", "pic_sfx_ms", "blink_ms", "blink_cycle_ms", "tiles_gap_ms")})
     pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_demo1_intro.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
     pg.screenshot(path=str(out / "a_intro_1333.png"))
@@ -172,27 +175,30 @@ with sync_playwright() as p:
     paused_after = next((s["sfxPaused"] for s in samples[i_pop:] if s["ms"] - t_sfx_end > 120), None)
     check("the sound plays for pic_sfx_ms (2 s): full until its last 0.4 s, faded then, paused at its end", vol_mid == 0.5 and vol_end is not None and vol_end < 0.2 and paused_after is True, (vol_mid, vol_end, paused_after))
     i_bl = first(lambda s: s["blink"], i_pop); i_ble = first(lambda s: not s["blink"], i_bl)
-    # the ring's colour animates grey -> orange -> grey: a "peak" = a run of frames near the orange (r >= 200, b <= 60); one per
-    # blink_cycle_ms of blink_ms ([t2-scene4]: 6 s / 1.2 s -> five; the module rounds blink_ms / blink_cycle_ms)
-    def orange(s_):
-        m_ = re.findall(r"\d+", s_["ringStroke"] or ""); return len(m_) >= 3 and int(m_[0]) >= 200 and int(m_[2]) <= 60
-    peaks = sum(1 for k in range(i_bl + 1, i_ble) if orange(samples[k]) and not orange(samples[k - 1]))
-    glow = any(s["glow"] not in (None, "none") and "232, 106, 0" in s["glow"] for s in samples[i_bl:i_ble])
-    cyc = d["blink_cycle_ms"]; n_bl = max(1, round(d["blink_ms"] / cyc))
-    pk_ms = [ms(k) for k in range(i_bl + 1, i_ble) if orange(samples[k]) and not orange(samples[k - 1])]
-    slow = all(abs(b_ - a_ - cyc) <= 60 for a_, b_ in zip(pk_ms, pk_ms[1:]))
-    check(f"0.3 s after the sound the slot blinks for blink_ms ({d['blink_ms']} ms): its ring holds the words' orange {n_bl} times, {cyc} ms apart ([t2-scene4] slow), with the glow, plain again after",
-          200 <= ms(i_bl) - t_sfx_end <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and peaks == n_bl and slow and glow
-          and samples[i_ble + 3]["glow"] == "none" and "232, 106, 0" not in (samples[i_ble + 3]["ringStroke"] or ""), (round(ms(i_bl) - t_sfx_end), round(ms(i_ble) - ms(i_bl)), peaks, [round(b_ - a_) for a_, b_ in zip(pk_ms, pk_ms[1:])]))
-    hold = [s_ for s_ in samples[i_bl:i_ble] if s_["ringStroke"] == "rgb(232, 106, 0)"]
-    rest = [s_ for s_ in samples[i_bl:i_ble] if s_["ringStroke"] == "rgba(86, 86, 86, 0.85)"]
-    ON = ("rgb(250, 225, 204)", "rgba(232, 106, 0, 0.6) 0px 0px 0px 5px")
+    # [t2-scene5] the box APPEARS and DISAPPEARS: its computed opacity 1 -> 0 -> 1 per blink_cycle_ms; a "trough" = a run of frames
+    # under .05, blink_ms / blink_cycle_ms of them (the module rounds); its orange look (ring, fill, glow) is static through the blink
     def nil(g):   # Chrome writes a nil shadow several ways: none, a transparent black or orange 0-spread shadow, the spread a float residue
         if g in (None, "none"): return True
         m_ = re.fullmatch(r"rgba\(\d+, \d+, \d+, 0\) 0px 0px 0px ([\d.e+-]+)px", g); return bool(m_) and float(m_.group(1)) < 0.01
-    check("[t2-scene4] the WHOLE box blinks at once: in every frame the ring is fully orange the fill is #FAE1CC and the glow the pulsing tile's rgba(232,106,0,.6) 5px (dscGlow's rest); in every frame it is grey the fill is white and the glow nil; each state held for frames on end",
-          len(hold) >= 5 * 20 and all((s_["slotBg"], s_["glow"]) == ON for s_ in hold) and len(rest) >= 4 * 20 and all(s_["slotBg"] == "rgb(255, 255, 255)" and nil(s_["glow"]) for s_ in rest),
-          (len(hold), len(rest), sorted({(s_["slotBg"], s_["glow"]) for s_ in hold}), sorted({(s_["slotBg"], s_["glow"]) for s_ in rest})))
+    cyc = d["blink_cycle_ms"]; n_bl = max(1, round(d["blink_ms"] / cyc))
+    unseen = lambda s_: s_["slotOp"] is not None and s_["slotOp"] < 0.05
+    tr_ms = [ms(k) for k in range(i_bl + 1, i_ble) if unseen(samples[k]) and not unseen(samples[k - 1])]
+    gaps_bl = [round(b_ - a_) for a_, b_ in zip(tr_ms, tr_ms[1:])]
+    jumps = max((abs(samples[k]["slotOp"] - samples[k - 1]["slotOp"]) for k in range(i_bl + 1, i_ble) if samples[k]["slotOp"] is not None and samples[k - 1]["slotOp"] is not None), default=0)
+    seen_between = all(any(samples[k]["slotOp"] >= 0.99 for k in range(i_bl, i_ble) if a_ < ms(k) < b_) for a_, b_ in zip(tr_ms, tr_ms[1:]))
+    after_bl = next(s_ for s_ in samples[i_ble:] if s_["ms"] - ms(i_ble) > 450)
+    check(f"0.3 s after the sound the slot blinks for blink_ms ({d['blink_ms']} ms): the box fades out and in {n_bl} times, its troughs {cyc} ms apart ([t2-scene5] slow: no frame-to-frame opacity jump over .12), fully seen between them and at the end, plain 0.45 s after",
+          200 <= ms(i_bl) - t_sfx_end <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and len(tr_ms) == n_bl and all(abs(g - cyc) <= 60 for g in gaps_bl)
+          and jumps <= 0.12 and seen_between and samples[i_ble]["slotOp"] >= 0.97 and nil(after_bl["glow"]) and after_bl["slotBg"] == "rgb(255, 255, 255)" and "232, 106, 0" not in (after_bl["ringStroke"] or ""),
+          (round(ms(i_bl) - t_sfx_end), round(ms(i_ble) - ms(i_bl)), len(tr_ms), gaps_bl, round(jumps, 3), samples[i_ble]["slotOp"], (after_bl["slotBg"], after_bl["glow"], after_bl["ringStroke"])))
+    look_bl = [s_ for s_ in samples[i_bl:i_ble] if s_["ms"] - ms(i_bl) >= 450]   # the look eases in over the slot's .25 / .4 s transitions
+    ON = ("rgb(232, 106, 0)", "rgb(250, 225, 204)", "rgba(232, 106, 0, 0.6) 0px 0px 0px 5px")
+    check("[t2-scene5] the WHOLE box fades as one in its orange look: from 0.45 s into the blink to its end every frame has the ring the words' orange, the fill #FAE1CC and the glow the pulsing tile's rgba(232,106,0,.6) 5px (the opacity alone moving)",
+          len(look_bl) > 200 and all((s_["ringStroke"], s_["slotBg"], s_["glow"]) == ON for s_ in look_bl), (len(look_bl), sorted({(s_["ringStroke"], s_["slotBg"], s_["glow"]) for s_ in look_bl})[:3]))
+    tail = [s_ for s_ in samples[i_ble:] if s_["ms"] - ms(i_ble) <= 700]
+    ident = ("none", "matrix(1, 0, 0, 1, 0, 0)")   # sfigBoxIn's fill holds its `to` (transform:none), which Chrome writes as the identity matrix
+    check("[t2-scene5] the slot's pop-in (sfigBoxIn) does not run again when the blink ends: opacity 1 and the identity transform through the 0.7 s after (before: opacity 0 and scale .9 -> 1 over 0.5 s)",
+          all(s_["slotOp"] >= 0.99 and s_["slotTf"] in ident for s_ in tail), [(round(s_["ms"] - ms(i_ble)), s_["slotOp"], s_["slotTf"]) for s_ in tail if not (s_["slotOp"] >= 0.99 and s_["slotTf"] in ident)][:5])
     i_tk = [first(lambda s, k=k: s["tilesIn"] >= k) for k in (1, 2, 3)]; i_t1 = i_tk[0]; gap = d["tiles_gap_ms"]
     pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.mp3"]
     gaps = [round(ms(i_tk[k]) - ms(i_tk[k - 1])) for k in (1, 2)]

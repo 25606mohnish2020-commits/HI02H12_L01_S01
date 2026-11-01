@@ -3155,15 +3155,18 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-slot{position:absolute;left:905px;top:69px;width:53px;height:90px;background:#FFFFFF;border-radius:8px;opacity:0;transform:scale(.9);transition:background-color .4s,box-shadow .25s;}
 .dsc-slot.in{opacity:1;transform:none;animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as the sentence rises */
 .dsc-dash{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;stroke-dasharray:10 5;transition:opacity .4s,stroke .25s;}
-/* the blink — [t2-scene4]: SLOW (the module's --blink-ms = data.blink_cycle_ms 1.2 s, --blink-n = blink_ms / that = 5) and the WHOLE
-   box at once: on the same keyframes its fill warms from white to the orange's .2 tint (#FAE1CC — an OPAQUE colour: an rgba fill
-   would show the hallway through the box), its ring goes the words' orange and its glow is the pulsing tile's rgba(232,106,0,.6)
-   5px (dscGlow's rest look; the blink's was .45); on for 12%-50% of the cycle (~0.46 s), plain for 62%-100% (~0.46 s), 0.14 s
-   ramps between — a true on / off, ending plain. [t2-scene2] had held the orange for half of a ~0.67 s cycle, ring + glow only. */
-.dsc-slot.in.blink{animation:dscBlink var(--blink-ms,1200ms) ease-in-out var(--blink-n,5);}
-.dsc-slot.blink .dsc-dash{animation:dscBlinkRing var(--blink-ms,1200ms) ease-in-out var(--blink-n,5);}
-@keyframes dscBlink{0%,62%,100%{background-color:#FFFFFF;box-shadow:0 0 0 0 rgba(232,106,0,0);}12%,50%{background-color:#FAE1CC;box-shadow:0 0 0 5px rgba(232,106,0,.6);}}
-@keyframes dscBlinkRing{0%,62%,100%{stroke:rgba(86,86,86,.85);}12%,50%{stroke:#E86A00;}}
+/* the blink — [t2-scene5]: the WHOLE box APPEARS and DISAPPEARS, slowly (the module's --blink-ms = data.blink_cycle_ms 1.75 s,
+   --blink-n = blink_ms / that = 4). While it blinks the box wears its orange look — the fill the orange's .2 tint (#FAE1CC, an OPAQUE
+   colour: an rgba fill would show the hallway through the box), the ring the words' orange, the glow the pulsing tile's
+   rgba(232,106,0,.6) 5px (dscGlow's rest look) — eased in and out by the slot's own .4 / .25 s transitions, and its OPACITY fades
+   1 -> 0 -> 1 over each cycle (0.56 s fades, 0.21 s unseen, 0.42 s seen), the last cycle ending seen. sfigBoxIn (the slot's pop-in)
+   stays FIRST in the animation list: a list that dropped it would cancel it as the blink starts and run it again as the blink
+   ends (a second pop of the box). [t2-scene4] switched the look on / off on 1.2 s cycles; [t2-scene2] held the orange for half of
+   a ~0.67 s cycle, ring + glow only. */
+.dsc-slot.in.blink{background-color:#FAE1CC;box-shadow:0 0 0 5px rgba(232,106,0,.6);
+  animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both,dscBlink var(--blink-ms,1750ms) ease-in-out var(--blink-n,4);}
+.dsc-slot.blink .dsc-dash{stroke:#E86A00;}
+@keyframes dscBlink{0%,12%,88%,100%{opacity:1;}44%,56%{opacity:0;}}
 /* the mark, in the sentence's face, its INK centred on the slot (--ix / --iy measured by the module from the font) */
 .dsc-slot .dsc-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(.4);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));

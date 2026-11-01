@@ -2100,8 +2100,31 @@ Page 6 T2: the blank box blinks slowly, as a whole, for 6 s, with the pulse's gl
   one with a 3e-5px float residue, all accepted; the 1280 frame waits 600 ms after cutting the blink for the fill's .4 s transition;
   the intro check tolerates the picture's `complete` flipping within the first 50 ms — seen once, a decode race): 36/36 ALL PASS —
   the blink 317 ms after the sound, 6016 ms, 5 holds 1200 / 1200 / 1200 / 1200 ms apart, 136 held-on and 141 held-off frames all in
-  the two states. SMOKE_T2D
+  the two states. smoke.py 50/50 passed on that build.
   `../_before_t2_scene4/` holds the [t2-scene3] dist, build.py, README and scene_check.py.
+
+Page 6 T2: the blank box fades out and in slowly, as a whole, for 7 s ([t2-scene5], 2026-11-01)
+- Asked: "the empty block at the end of the sentence should blink slowly and the whole empty box should show an appear-and-disappear
+  animation, slower than this (too fast), and for one more second; rest exactly the same."
+- Built (build.py [t2-scene5], PUNCT_SCENE): data.blink_ms 6000 -> 7000, data.blink_cycle_ms 1200 -> 1750 (four cycles); the blink
+  is now the box's OPACITY — 1 -> 0 -> 1 per cycle (keyframes 0/12% 1, 44/56% 0, 88/100% 1: 0.56 s fades, 0.21 s unseen, 0.42 s
+  seen; ease-in-out), the last cycle ending seen — while the box wears its orange look STATICALLY through the blink (the .blink rule
+  sets the fill #FAE1CC, the glow rgba(232,106,0,.6) 5px and the ring #E86A00; the slot's own .4 / .25 s transitions ease the look in
+  at the start and back to plain at the end). [t2-scene4] had switched the look on / off on the keyframes.
+  A hidden glitch fixed on the way: since [t2-scene] the .blink rule's `animation` had REPLACED the slot's pop-in (sfigBoxIn, on
+  .dsc-slot.in with fill both), so when the blink class came off the pop-in was a new animation and RAN AGAIN — the box dropped to
+  opacity 0 / scale .9 and popped back over 0.5 s at the end of every blink (blink_end_probe.py showed it on the [t2-scene4] build).
+  The blink's animation list now keeps sfigBoxIn first (unchanged name and position: not cancelled, not re-run) with dscBlink after
+  it (the later animation wins the opacity while it runs). Nothing else changed in the dist (app.js: comments only; style.css: the
+  blink's rules — the ring's keyframes gone, its stroke set by .blink; the card: T2's blink_ms and blink_cycle_ms).
+- Checked: scene_check.py updated — the blink check reads the slot's opacity: round(blink_ms / blink_cycle_ms) troughs (< .05) spaced
+  blink_cycle_ms +-60, no frame-to-frame jump over .12 (slow), fully seen between the troughs and at the end, plain 0.45 s after
+  (white, no glow, grey ring); the whole-box check: from 0.45 s in to the end every frame has the orange ring, the #FAE1CC fill and
+  the .6 glow (the opacity alone moving); a new check that the pop-in does not run again (opacity 1 and the identity transform —
+  Chrome writes sfigBoxIn's held `transform:none` as matrix(1,0,0,1,0,0) — through the 0.7 s after). 37/37 ALL PASS: the blink
+  320 ms after the sound, 7013 ms, 4 troughs 1749 / 1750 / 1750 ms apart, the largest opacity step .052, seen (1) at the end; 393
+  look frames all orange / tint / .6 glow; the tail flat. SMOKE_T2E
+  `../_before_t2_scene5/` holds the [t2-scene4] dist, build.py, README and scene_check.py.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
