@@ -1946,8 +1946,27 @@ Page 5 T1C: the प्रश्नवाचक चिह्न page ([recap-pras
   frame's own face; the type check expects 'Story Noto Q' on the sign and sentence, and the face loaded): 43/43 ALL PASS — the
   ?, name and sentence inks 53x95 / 365x72 / 287x52 at d (0,0) / (0,0) / (0,-0.5) px. smoke.py walks T1 -> T1B -> T1C -> T2 and
   expects 17 pages; word_sync_check.py knows T1C.
-  TALLIES
+  Tallies on the final build: recap_check T1 43/43, T1B 43/43, T1C 43/43 ALL PASS (pops 15 / 14 ms before their frames; the
+  house's entrance on the reference trace, d .005 / .001); smoke 49/49; word_sync_check T1 / T1B / T1C every line OK. One
+  earlier T1C run failed the horse trace (its transition began ~65 ms after the class during a 50 ms stalled frame); pic_probe
+  (scratchpad) over 4 mounts: 17-34 ms after the class, as T1's girl (33 ms) — the picture's first decode; img.decode() at mount
+  would make it 0 (not applied: the module is T1's). recap_check / relisten_check now warm the AudioContext before mounting
+  (the engine makes it on the first sound; a page mounted on its own made it on the sign's pop, holding that frame 30-60 ms).
   `../_before_recap_prashn/` holds the [recap-alp] dist, build.py, README, recap_check.py, smoke.py and word_sync_check.py.
+
+Page 2 T0B: T1's text sounds ([relisten-sfx], 2026-11-01)
+- Asked: "apply the exact same sound effects of the texts as of page 3 T1 on page 2 T0B of this file; rest exactly the same."
+- T1's text sound ([recap-sfx]) is the reference's sfxPopSoft, _tone([720], "sine", 0.10, 0.07), played as a text appears and
+  only on a real appearance (the 🔊 replay, everything already on screen, is silent). On T0B the texts that appear are the two
+  sentences, each rising in whole just before its clip (sfigNarrate); the white box comes in alone 0.65 s before the first one
+  and the title is empty since [t0b-fig], so neither is a text appearing. The comma / sentence highlights are not appearances.
+- Built (build.py [relisten-sfx], STORY_RELISTEN only): a local popSoft (T1's exact call) fired in readLine as a sentence that
+  is not yet shown is handed to sfigNarrate (which raises it in that same call) — so one pop per sentence, the replay none.
+  The rebuilt dist differs from the backup in those app.js lines only (index.html and style.css byte-identical).
+- Checked: relisten_check.py +3 checks (the sounds logged in the page as recap_check does, after warming the AudioContext the
+  start tap would have made): two pops, each within 50 ms of its sentence's rise frame; no other effect; the replay silent.
+  Tallies on that build: relisten_check 42/42 ALL PASS (pops 16 / 16 ms before their rise frames, the replay silent).
+  `../_before_relisten_sfx/` holds the [recap-prashn] dist (app.js, index.html, style.css), build.py, README and relisten_check.py.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

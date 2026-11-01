@@ -6200,6 +6200,10 @@ const SlideModules = {
       let run = 0;
       const armNav = ()=>{ if(!alive()) return; setNavActive(true); setSwMood("point"); };
       const reset = ()=>{ sents.forEach(s=> s.classList.remove("hl")); marks.forEach(m=> m.classList.remove("on")); };
+      /* [relisten-sfx] (2026-11-01) T1's text sounds ([recap-sfx]: the reference hi02h11l02s04-file5 page 2's sfxPopSoft, the
+         engine's own _tone): each sentence gets the soft pop as it rises in — only on a real appearance, so the 🔊 replay (the
+         sentences already on screen) is silent, as T1's is */
+      const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);
       // a clip with cues (seconds on its own clock): onCue(i) as each is reached, onEnd once it has ended (a watchdog stops a
       // stalled clip; the cues not yet reached fire at the end, so nothing is skipped)
       const speak = (src, cues, onCue, onEnd, live)=>{
@@ -6234,7 +6238,10 @@ const SlideModules = {
             speak(A(d.explain_audio), d.explain_cues || [], (i)=> sents.forEach((s, k)=> s.classList.toggle("hl", k === i)),
                   ()=> setTimeout(()=>{ if(!live()) return; sents.forEach(s=> s.classList.remove("hl")); moral(); }, 400), live); }, 500);
         };
-        const readLine = (k)=> sfigNarrate(Ls[k], live, ()=>{ if(k + 1 < Ls.length) setTimeout(()=>{ if(live()) readLine(k + 1); }, 600); else explain(); });
+        const readLine = (k)=>{
+          if(!Ls[k].shown) popSoft();   // [relisten-sfx] the sentence rises in now (sfigNarrate); a replay's, already there, is silent
+          sfigNarrate(Ls[k], live, ()=>{ if(k + 1 < Ls.length) setTimeout(()=>{ if(live()) readLine(k + 1); }, 600); else explain(); });
+        };
         readLine(0);
       };
       // 1. the intro line, with the title appearing the moment it starts to sound
