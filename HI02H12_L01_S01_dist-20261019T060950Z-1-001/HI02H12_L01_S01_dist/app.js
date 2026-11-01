@@ -6326,21 +6326,29 @@ const SlideModules = {
           tick(); };
         wait();
       };
+      /* [recap-sfx] (2026-11-01) the sounds of the reference hi02h11l02s04-file5's page 2 (T2, MATRA_BUILD), read live: each thing
+         that APPEARS gets its sfxPopSoft — _tone([720], "sine", 0.10, 0.07), the engine's own _tone — and the picture gets the
+         horse's: its fbCorrect = the file sfx_fb_correct (data.pic_sfx, the reference's bytes) at .55. Only on a real appearance:
+         a replay, with everything already on screen, is silent, as the reference's showPic() is */
+      const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);
+      const appear = (el)=>{ if(el.classList.contains("in")) return false; el.classList.add("in"); return true; };
+      if(d.pic_sfx && !_kitSfx.recapPic){ const a = _kitSfx.recapPic = new Audio("assets/Audio/" + d.pic_sfx); a.preload = "auto"; }   // fetched now, heard ~15 s later
       const readAll = ()=>{
         const mine = ++run, live = ()=> mine === run && alive();
         state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
         setNavActive(false);
         keeps.forEach(w=> w.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
         // 1. the box + sign pop in as the name rises; the name's clip lights the sign
-        sign.classList.add("in");
+        if(appear(sign)) popSoft();
         sfigNarrate(Lname, live, ()=>{
           // 2. the use's clip, nothing new on screen
           setTimeout(()=>{ if(!live()) return; say(A(wh.audio), live, ()=>{
             // 3. the sentence's box pops in as the sentence rises; its clip: the picture pops in at the first word, the words
             //    light one by one, the mark at the end keeps its light
             setTimeout(()=>{ if(!live()) return;
-              ebox.classList.add("in");
-              const onCue = (i)=>{ if(i === 0) pic.classList.add("in"); else keeps.forEach(w=> w.classList.add("keep")); };
+              if(appear(ebox)) popSoft();
+              const onCue = (i)=>{ if(i === 0){ if(appear(pic) && d.pic_sfx) playKitSfx("recapPic", d.pic_sfx, .55); }
+                                   else keeps.forEach(w=> w.classList.add("keep")); };
               sfigNarrate(Leg, live, ()=>{ cues.forEach((_, i)=> onCue(i)); armNav(); });
               cueOn(Leg.file, onCue, live);
             }, GAP); }); }, GAP);

@@ -3001,12 +3001,13 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .rcf-ebox{position:absolute;left:187px;top:262px;width:578px;height:84px;background:#FFFFFF;border-radius:20px;opacity:0;transform:scale(.9);
   box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);}
 /* the picture: node 764:753, 176x264 at 835,91 (card px) with the frame's 0 2 2 rgba(0,0,0,.25) drop shadow; it pops in as the
-   example's clip reaches the sentence's first word */
-.rcf-pic{position:absolute;left:823px;top:79px;width:176px;height:264px;opacity:0;transform:scale(.7);
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+   example's clip reaches the sentence's first word. [recap-sfx] (2026-11-01) the way the horse comes in on the reference
+   hi02h11l02s04-file5's page 2 (.mb-v2 .mb-pic, read as computed): waiting at opacity 0 / scale .82, then a TRANSITION —
+   opacity .4s ease, transform .45s cubic-bezier(.34,1.4,.6,1), i.e. up through 1.009 and back (was rcfPicIn, .7 -> 1 in .5 s) */
+.rcf-pic{position:absolute;left:823px;top:79px;width:176px;height:264px;opacity:0;transform:scale(.82);
+  transition:opacity .4s ease,transform .45s cubic-bezier(.34,1.4,.6,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
 .rcf-pic img{display:block;width:100%;height:100%;}
-.rcf-pic.in{animation:rcfPicIn .5s cubic-bezier(.2,.9,.3,1.3) both;}
-@keyframes rcfPicIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:none;}}
+.rcf-pic.in{opacity:1;transform:none;}
 /* the mark at the sentence's end keeps the words' orange once its clip has lit it */
 .rcf-eg .sfig-w.keep{color:#E86A00;}
 

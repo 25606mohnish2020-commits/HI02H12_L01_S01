@@ -1865,7 +1865,7 @@ Page 3 T1 laid out as Figma frame 764:144, one mark ([recap-fig2], 2026-11-01)
   the line to light on the clip (the sign as a one-word line: its first word's start to its last word's end, .sfig-w.hot = the
   words' #E86A00 + p2WordPop) — the name's own words stay plain; 0.3 s: the use's clip, nothing new; 0.3 s: the sentence's box
   pops in as the sentence rises, its clip 0.45 s later with the words lit one by one; a rAF cue tick on that clip (cueOn, as
-  T0B's speak) pops the picture in (rcfPicIn: .7 -> 1 with overshoot, 0.5 s) at the sentence's first word and gives the "।"
+  T0B's speak) pops the picture in (rcfPicIn: .7 -> 1 with overshoot, 0.5 s; [recap-sfx]: the reference horse's transition) at the sentence's first word and gives the "।"
   (a punctuation-only token) .keep = the orange that stays, at its own word; आगे arms as the clip ends. The 🔊 replay reads from
   the name again with everything staying (the kept "।" cleared first, lit again at its word). CSS: .sfig-recap's title rule and
   the आगे override (bottom:10px, under the card) are gone, so आगे is at T0's place (the engine's bottom:138px for these cards:
@@ -1880,7 +1880,30 @@ Page 3 T1 laid out as Figma frame 764:144, one mark ([recap-fig2], 2026-11-01)
 - Checked: recap_check.py rewritten for the page (usage: recap2_figma_render_1280x720.png, the 1:1 render of 764:144) — see the
   tallies below; smoke 47/47. `../_before_recap_fig2/` holds the [t0b-fig] dist, build.py, README, recap_check.py,
   word_sync_check.py and the old frame's render (recap_figma_render_1280x720.png stays in place for the record).
-  Tallies: (filled in below)
+  Tallies on that build: recap_check 36/36 ALL PASS, relisten_check 39/39, word_sync_check (all 14 pages) every line OK,
+  story_check 75/75, smoke 47/47.
+
+Page 3 T1: the reference's appearance sounds and the horse's entrance ([recap-sfx], 2026-11-01)
+- Asked: "take the reference of page 2 T2 of https://hi02h11l02s04-file5.vercel.app/ and apply the exact same sound effects to
+  the appearance of signs and texts at page 3 T1, such that when the image of the girl comes the exact same animation and sound
+  of the horse's appearance there come here; rest exactly the same."
+- The reference (one 1.7 MB file; its T2 = MATRA_BUILD, घड़ा -> घोड़ा), read in its code and traced live (scratchpad
+  ref_f5_probe.py: _tone / AudioBufferSourceNode.start / <audio> play hooked, the horse's computed style every frame): each panel
+  that APPEARS (the left word + picture, the right word), the flying matra and the joining tail get sfxPopSoft = _tone([720],
+  "sine", 0.10, 0.07) — the same _tone formula as this engine's; the horse (.mb-v2 .mb-pic) waits at opacity 0 / scale(.82) and
+  comes in by TRANSITION — opacity .4s ease, transform .45s cubic-bezier(.34,1.4,.6,1), peaking at 1.0095 — with fbCorrect =
+  sfx_fb_correct (Ogg Vorbis, 48 kHz stereo, 1.32 s) at gain .55. (Its sfxSparkle, 1180/1560 Hz, belongs to the matra HIGHLIGHT,
+  not to an appearance: not taken.)
+- Here (build.py [recap-sfx], T1 only): the module pops (_tone 720 / sine / 0.10 / 0.07) as the sign's box + sign + name appear
+  and as the sentence's box + sentence appear; the picture's appearance plays data.pic_sfx = sfx_fb_correct.ogg (the reference's
+  bytes, recap_assets/ -> assets/Audio/, md5 0b3d988a...) at .55 through playKitSfx (preloaded at mount); each only on a REAL
+  appearance, so the 🔊 replay (everything already on screen) is silent, as the reference's showPic() is. .rcf-pic: the
+  reference's waiting state and transition (was rcfPicIn, .7 -> 1 in .5 s). The rebuilt dist differs from the backup in those
+  module lines, that CSS rule and data.pic_sfx only.
+- Checked: recap_check.py +6 checks (sounds logged in the page on the samples' clock: two pops within 50 ms of their frames, the
+  horse sound once at .55 within 50 ms of the picture's frame, no other effect, the replay silent; the picture's opacity / scale
+  every frame vs the reference's own trace — max d .005 / .0012, peak 1.0095 — and its computed transition): 42/42 ALL PASS;
+  smoke 47/47. `../_before_recap_sfx/` holds the [recap-fig2] dist, build.py, README and recap_check.py.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

@@ -11,6 +11,11 @@ usage: python -I -X utf8 recap_check.py <index.html> <recap2_figma_render_1280x7
    breathing, at T0's place; a 🔊 tap during the intro or in the breath after the name is ignored (every clip plays once); a 🔊 tap
    afterwards reads the page again from the name (everything staying; the kept "।" cleared, the sign and the words lit again, the "।"
    kept again at the end) with आगे hidden meanwhile; आगे leads to T2 (no gate); past the Figma pages (G4) no story styling is left.
+   [recap-sfx] The sounds of the reference hi02h11l02s04-file5's page 2 (T2), logged in the page (the engine's _tone and every
+   <audio> play, on the samples' clock): the soft pop (_tone [720] sine 0.10 / 0.07, its sfxPopSoft) as the sign's box + name appear
+   and as the sentence's box + sentence appear, the horse's sound (sfx_fb_correct.ogg at .55) as the picture appears — each once,
+   in the frame it appears, and nothing else; the replay silent (nothing appears again). The picture comes in as the horse does: the
+   computed transition is the reference's, and its opacity / scale every frame follow the reference's own trace.
 2. The card is the frame's (96,106 1088x508 x 1333/1280, 64px corners); Swiftie, the 🔊 chip and आगे are exactly page 1 T0's
    (stage px: 76,472 190; 202,606 58; 581.5,550 170x62) — the frame's own Swiftie (35,415 245) is not used, as asked.
 3. 1280x720 viewport (stage px x 1333/1280 = frame px): the sign's box, the sentence's box and the picture vs the frame's nodes
@@ -81,7 +86,21 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
   return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying, ready: !!q('.rcf-row'),
     signIn: !!q('.rcf-sign.in'), signHot: !!q('.rcf-mark .sfig-w.hot'), nameShown: document.querySelectorAll('.rcf-name .sfig-w.on').length, nameHot: hot('.rcf-name'),
     eboxIn: !!q('.rcf-ebox.in'), egShown: document.querySelectorAll('.rcf-eg .sfig-w.on').length, egHot: hot('.rcf-eg'), keep: document.querySelectorAll('.rcf-eg .sfig-w.keep').length,
-    picIn: !!q('.rcf-pic.in'), navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now() }; }"""
+    picIn: !!q('.rcf-pic.in'), picOp: q('.rcf-pic') ? +(+getComputedStyle(q('.rcf-pic')).opacity).toFixed(3) : null,
+    picTr: q('.rcf-pic') ? getComputedStyle(q('.rcf-pic')).transform : null,
+    navVisible: nav.classList.contains('visible'), nav: nav.classList.contains('active'), ms: performance.now() }; }"""
+# [recap-sfx] every sound the page makes: the engine's procedural _tone and every <audio> play, on the samples' clock
+SOUNDS = """() => { window._snd = []; const T = window._tone;
+  window._tone = function(f, ty, d, v){ window._snd.push({ ms: performance.now(), kind: 'tone', f: f.join('/'), ty, d, v }); return T.apply(this, arguments); };
+  const P = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function(){ window._snd.push({ ms: performance.now(), kind: 'media', src: decodeURIComponent(String(this.currentSrc || this.src).split('/').pop()), vol: +this.volume.toFixed(3) });
+    return P.apply(this, arguments); }; }"""
+# [recap-sfx] the reference's horse coming in (hi02h11l02s04-file5 T2, .mb-p3 .mb-pic, traced every frame at 1333x750): ms after the
+# frame its waiting class went -> opacity, scale
+REF_PIC = [(16, .025, .8461), (33, .07, .8704), (50, .136, .8926), (66, .22, .9125), (83, .314, .9305), (100, .407, .9461), (117, .497, .9601),
+           (133, .575, .9717), (150, .645, .9816), (166, .705, .9896), (183, .757, .9961), (200, .802, 1.0011), (216, .84, 1.0048), (233, .873, 1.0073),
+           (250, .901, 1.0088), (266, .925, 1.0095), (283, .944, 1.0094), (300, .96, 1.0089), (316, .973, 1.0079), (333, .983, 1.0067),
+           (350, .991, 1.0054), (366, .996, 1.004), (383, .999, 1.0027), (400, 1, 1.0016), (416, 1, 1.0008), (433, 1, 1.0002), (450, 1, 1.0)]
 # the timeline is sampled IN the page, every frame; the two 🔊 taps (1 s into the intro, and in the breath after the name) are
 # made in the page too, at those exact moments
 TIMELINE = "(sample) => { window._tl = []; window._taps = []; const S = eval(sample); const step = () => { const s = S(); window._tl.push(s);" \
@@ -117,7 +136,7 @@ with sync_playwright() as p:
     pg = b.new_page(viewport={"width": 1333, "height": 750})
     pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("requestfailed", lambda r: bad.append(r.url))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500)
-    pg.evaluate(NAVLOG); pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, "T1")
+    pg.evaluate(NAVLOG); pg.evaluate(SOUNDS); pg.evaluate(TIMELINE, SAMPLE); pg.evaluate(GOTO, "T1")
     d = pg.evaluate("CARD.slides[state.idx].data")
     NT, NE = d["name"]["word_times"], d["name"].get("word_end"); ET, EE = d["example"]["word_times"], d["example"].get("word_end")
     i_mark = next(i for i, w in enumerate(SENT.split()) if w == "।")
@@ -188,6 +207,37 @@ with sync_playwright() as p:
           round(samples[i_keep]["t"] - ET[i_mark], 2) if i_keep >= i_eg else None)
     kcol = pg.evaluate("getComputedStyle(document.querySelector('.rcf-eg .sfig-w.keep')).color")
     check("the kept mark is the words' orange", kcol == "rgb(232, 106, 0)", kcol)
+    # [recap-sfx] the reference's sounds, each in the frame its thing appears, and nothing else during the reading
+    snd = [e for e in pg.evaluate("window._snd") if samples[0]["ms"] - 50 <= e["ms"] <= ms(i_ege) + 500]
+    pops = [e for e in snd if e["kind"] == "tone" and e["f"] == "720" and e["ty"] == "sine" and e["d"] == 0.1 and e["v"] == 0.07]
+    horse = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_fb_correct.ogg"]
+    others = [e for e in snd if e not in pops and e not in horse and not (e["kind"] == "media" and e["src"].startswith("vo_"))]
+    check("the soft pop (the reference's sfxPopSoft: _tone 720 Hz sine, 0.10 s, 0.07) sounds as the sign's box + name appear and as the sentence's box + sentence appear — twice, each within 50 ms of its frame",
+          len(pops) == 2 and abs(pops[0]["ms"] - ms(i_sign)) <= 50 and abs(pops[1]["ms"] - ms(i_ebox)) <= 50,
+          [round(e["ms"] - ms(i_sign)) for e in pops[:1]] + [round(e["ms"] - ms(i_ebox)) for e in pops[1:2]] + [len(pops)])
+    check("the horse's sound (the reference's fbCorrect: sfx_fb_correct.ogg at .55) as the picture appears — once, within 50 ms of its frame",
+          len(horse) == 1 and abs(horse[0]["ms"] - ms(i_pic)) <= 50 and horse[0]["vol"] == 0.55, [(round(e["ms"] - ms(i_pic)), e["vol"]) for e in horse])
+    check("no other sound effect during the reading (only the voice clips besides)", not others, others[:4])
+    pi = [s for s in samples if s["picOp"] is not None]
+    j0 = next(k for k, s in enumerate(pi) if s["picIn"])
+    def sc(tr): return 1.0 if tr in (None, "none") else float(tr.split("(")[1].split(",")[0])
+    t_in = pi[j0]["ms"]; curve = [(s["ms"] - t_in, s["picOp"], sc(s["picTr"])) for s in pi[j0:] if s["ms"] - t_in <= 600]
+    def at(t, k):   # our curve at t ms after the class went on (k 0 = opacity, 1 = scale), linearly interpolated
+        for (a, *va), (b2, *vb) in zip(curve, curve[1:]):
+            if a <= t <= b2: return va[k] + (vb[k] - va[k]) * ((t - a) / (b2 - a) if b2 > a else 0)
+        return curve[-1][k + 1]
+    # the two traces are sampled on different frames, so a frame's worth of slack: each reference point is compared with ours
+    # anywhere within ±17 ms of it
+    def near(t, k, want): return min(abs(at(t + dt, k) - want) for dt in (-17, -8, 0, 8, 17))
+    d_op = max(near(t, 0, o) for t, o, _ in REF_PIC); d_sc = max(near(t, 1, v) for t, _, v in REF_PIC)
+    before = [s for s in pi[:j0] if s["ms"] > t_in - 200]
+    check("the picture comes in as the reference's horse: from opacity 0 / scale .82, its opacity and scale every frame on the reference's trace (within .05 / .006), up through ~1.009 and settled by 0.5 s",
+          before and all(s["picOp"] == 0 and abs(sc(s["picTr"]) - .82) < 1e-3 for s in before) and d_op <= .05 and d_sc <= .006
+          and 1.007 <= max(v for _, _, v in curve) <= 1.011 and all(o == 1 and abs(v - 1) < 1e-3 for t, o, v in curve if t >= 500),
+          f"max d opacity {d_op:.3f}, max d scale {d_sc:.4f}, peak {max(v for _, _, v in curve):.4f}")
+    tr = pg.evaluate("() => { const c = getComputedStyle(document.querySelector('.rcf-pic')); return [c.transitionProperty, c.transitionDuration, c.transitionTimingFunction, c.transitionDelay, c.animationName]; }")
+    check("the picture's computed transition is the reference horse's (opacity .4s ease, transform .45s cubic-bezier(.34,1.4,.6,1), no animation)",
+          tr == ["opacity, transform", "0.4s, 0.45s", "ease, cubic-bezier(0.34, 1.4, 0.6, 1)", "0s, 0s", "none"], tr)
     check("आगे stays away (not live) until the sentence's clip has ended", not any(s["nav"] for s in samples[:i_ege]))
     check("आगे opens (live, breathing) within 0.5 s of the clip's end", samples[-1]["nav"] and 0 <= ms(len(samples) - 1) - ms(i_ege) <= 500 and pg.evaluate(PULSING) == "navBreathe",
           f"{ms(len(samples) - 1) - ms(i_ege):.0f} ms after the clip ended")
@@ -209,10 +259,13 @@ with sync_playwright() as p:
           r["clip"] == "purn_name" and r["playing"] and r["signIn"] and r["nameShown"] == len(NT) and r["eboxIn"] and r["egShown"] == len(ET) and r["picIn"]
           and r["keep"] == 0 and r["signHot"] in (want_sign(r["t"]), want_sign(r["t"] - 0.05)), r)
     check("आगे is hidden while the replay sounds", not r["navVisible"])
+    t_rep = pg.evaluate("performance.now()") - 400
     pg.wait_for_function("document.querySelectorAll('.rcf-eg .sfig-w.keep').length === 1", timeout=30000, polling=20)
     pg.wait_for_function("!isPlaying && document.getElementById('navBtn').classList.contains('active')", timeout=30000)
     pg.wait_for_timeout(300)
     check("...the replay runs the whole reading again (the \"।\" kept once more) and आगे comes back live, breathing", pg.evaluate(PULSING) == "navBreathe")
+    rep = [e for e in pg.evaluate("window._snd") if e["ms"] >= t_rep and not (e["kind"] == "media" and e["src"].startswith("vo_"))]
+    check("[recap-sfx] the replay makes no pop and no horse sound (nothing appears again)", not rep, rep[:4])
     log = [e for e in pg.evaluate("window._navLog") if e["slide"] == "T1"]
     first_on = next((e for e in log if e["img"] == "ON"), None)   # [dun-chrome] the reference's pill: disabled art through the clips, live once the last has ended
     check("आगे shows the reference's disabled pill from the start, through every clip (frame by frame, incl. the replay), and goes live only once the sentence's clip has ended",

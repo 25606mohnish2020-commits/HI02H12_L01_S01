@@ -208,7 +208,8 @@ part = lambda k: {"text_hi": rl[k]["shown"], "audio": f"vo_recap_{k}", "word_tim
 card["slides"][i_t1] = {"id": "T1", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
     "prompt_hi": rl["purn_name"]["shown"], "audio": {"prompt": "vo_recap_intro"},
     "data": {"intro_audio": "vo_recap_intro", "mark": "।", "image_id": "img_recap_girl",
-             "name": part("purn_name"), "when": part("purn_when"), "example": part("purn_eg")}}
+             "name": part("purn_name"), "when": part("purn_when"), "example": part("purn_eg"),
+             "pic_sfx": "sfx_fb_correct.ogg"}}   # [recap-sfx] the reference's horse sound (hi02h11l02s04-file5 T2's fbCorrect), bytes as given
 card["assets"]["image"]["img_recap_girl"] = "assets/Images/img_recap_girl.webp"   # node 764:753's source bitmap (1024x1536, WebP q90, alpha exact)
 for k in RECAP_KEYS:
     card["assets"]["audio"][f"vo_recap_{k}"] = f"assets/Audio/vo_recap_{k}.ogg"
@@ -997,21 +998,29 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
           tick(); };
         wait();
       };
+      /* [recap-sfx] (2026-11-01) the sounds of the reference hi02h11l02s04-file5's page 2 (T2, MATRA_BUILD), read live: each thing
+         that APPEARS gets its sfxPopSoft — _tone([720], "sine", 0.10, 0.07), the engine's own _tone — and the picture gets the
+         horse's: its fbCorrect = the file sfx_fb_correct (data.pic_sfx, the reference's bytes) at .55. Only on a real appearance:
+         a replay, with everything already on screen, is silent, as the reference's showPic() is */
+      const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);
+      const appear = (el)=>{ if(el.classList.contains("in")) return false; el.classList.add("in"); return true; };
+      if(d.pic_sfx && !_kitSfx.recapPic){ const a = _kitSfx.recapPic = new Audio("assets/Audio/" + d.pic_sfx); a.preload = "auto"; }   // fetched now, heard ~15 s later
       const readAll = ()=>{
         const mine = ++run, live = ()=> mine === run && alive();
         state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
         setNavActive(false);
         keeps.forEach(w=> w.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
         // 1. the box + sign pop in as the name rises; the name's clip lights the sign
-        sign.classList.add("in");
+        if(appear(sign)) popSoft();
         sfigNarrate(Lname, live, ()=>{
           // 2. the use's clip, nothing new on screen
           setTimeout(()=>{ if(!live()) return; say(A(wh.audio), live, ()=>{
             // 3. the sentence's box pops in as the sentence rises; its clip: the picture pops in at the first word, the words
             //    light one by one, the mark at the end keeps its light
             setTimeout(()=>{ if(!live()) return;
-              ebox.classList.add("in");
-              const onCue = (i)=>{ if(i === 0) pic.classList.add("in"); else keeps.forEach(w=> w.classList.add("keep")); };
+              if(appear(ebox)) popSoft();
+              const onCue = (i)=>{ if(i === 0){ if(appear(pic) && d.pic_sfx) playKitSfx("recapPic", d.pic_sfx, .55); }
+                                   else keeps.forEach(w=> w.classList.add("keep")); };
               sfigNarrate(Leg, live, ()=>{ cues.forEach((_, i)=> onCue(i)); armNav(); });
               cueOn(Leg.file, onCue, live);
             }, GAP); }); }, GAP);
@@ -2286,12 +2295,13 @@ recap_css = """
 .rcf-ebox{position:absolute;left:187px;top:262px;width:578px;height:84px;background:#FFFFFF;border-radius:20px;opacity:0;transform:scale(.9);
   box-shadow:0 calc(5px / var(--fig-s)) 0 rgba(11,42,90,.10),0 calc(10px / var(--fig-s)) calc(26px / var(--fig-s)) rgba(11,42,90,.12);}
 /* the picture: node 764:753, 176x264 at 835,91 (card px) with the frame's 0 2 2 rgba(0,0,0,.25) drop shadow; it pops in as the
-   example's clip reaches the sentence's first word */
-.rcf-pic{position:absolute;left:823px;top:79px;width:176px;height:264px;opacity:0;transform:scale(.7);
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+   example's clip reaches the sentence's first word. [recap-sfx] (2026-11-01) the way the horse comes in on the reference
+   hi02h11l02s04-file5's page 2 (.mb-v2 .mb-pic, read as computed): waiting at opacity 0 / scale .82, then a TRANSITION —
+   opacity .4s ease, transform .45s cubic-bezier(.34,1.4,.6,1), i.e. up through 1.009 and back (was rcfPicIn, .7 -> 1 in .5 s) */
+.rcf-pic{position:absolute;left:823px;top:79px;width:176px;height:264px;opacity:0;transform:scale(.82);
+  transition:opacity .4s ease,transform .45s cubic-bezier(.34,1.4,.6,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
 .rcf-pic img{display:block;width:100%;height:100%;}
-.rcf-pic.in{animation:rcfPicIn .5s cubic-bezier(.2,.9,.3,1.3) both;}
-@keyframes rcfPicIn{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:none;}}
+.rcf-pic.in{opacity:1;transform:none;}
 /* the mark at the sentence's end keeps the words' orange once its clip has lit it */
 .rcf-eg .sfig-w.keep{color:#E86A00;}
 """
@@ -3273,7 +3283,7 @@ for name in ("story_font_nsd600_deva.woff2", "story_font_nsd600_latin.woff2"):  
 for name, sub in (("img_story_chintu.webp", "Images"), ("img_story_chintu_2.webp", "Images"), ("vo_story_s1.ogg", "Audio"), ("vo_story_s2.ogg", "Audio")):
     (DIST / "assets" / sub / name).unlink(missing_ok=True)   # [story-pinki] the Chintu beats' files: no page uses them now
 # [recap-fig2] T1's picture (frame 764:144's node 764:753, its source bitmap as WebP), kept in recap_assets/
-for name, sub in (("img_recap_girl.webp", "Images"),):
+for name, sub in (("img_recap_girl.webp", "Images"), ("sfx_fb_correct.ogg", "Audio")):   # [recap-sfx] the picture's sound
     f, dst = SCR / "recap_assets" / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing recap asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
