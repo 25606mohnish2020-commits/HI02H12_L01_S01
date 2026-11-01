@@ -2164,7 +2164,7 @@ Page 7 T3: the classroom scene from Figma 724:2016 on T2's module ([t3-scene], 2
   refuses T3 as well (default page T4): T4 on this build 41 PASS with the same two FAILs as on the previous build (the bar
   line's ink 8 px / 11 px off the render and the pixel diff — Baloo vs the render's Noto, by design since [baloo-font]; verified
   identical on `_before_t3_scene`'s files). smoke.py's T3 step is now the scene (the tap on the
-  pulsing middle tile moves on to T4). SMOKE_T3
+  pulsing middle tile moves on to T4). smoke.py 51/51 passed on the new build.
   `../_before_t3_scene/` holds the [t2-scene5] dist, build.py, README, scene_check.py, smoke.py and demo_check.py.
 
 Rebuilding after a card/content change
