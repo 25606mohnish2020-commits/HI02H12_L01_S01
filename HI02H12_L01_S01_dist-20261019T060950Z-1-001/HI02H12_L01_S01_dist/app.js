@@ -6387,12 +6387,15 @@ const SlideModules = {
      3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
         the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
         (CSS dscPop) as it starts;
-     4. 0.3 s after the sound the slot blinks orange (data.blink_ms: three clear blinks of the words' orange on its ring + glow)
-        and, as the blink starts, the three tiles pop in (90 ms apart) with data.tiles_sfx (the user's pop);
+     4. 0.3 s after the sound the slot blinks orange for data.blink_ms ([t2-scene3]: 4 s — the words' orange HELD on its ring +
+        glow every 2/3 s, six times; was 2 s / three) and, as the blink starts, the three tiles pop in ONE BY ONE (data.tiles_gap_ms
+        = 350 ms apart, each from small past its size — dscTileIn) each with its own data.tiles_sfx (the user's pop) in its frame
+        ([t2-scene3]; before, all three came in 90 ms apart under a single pop);
      5. 0.3 s after the blink the explanation (data.explain): as it reaches its cue word (data.explain.cue_word, "पूर्णविराम") the
         danda's tile lights — the words' orange on its mark (+ p2WordPop) and an orange border + glow on its face; 0.3 s after
         the clip the other two tiles go dim (.off, [t2-scene2]: .6, not the demos' .35) and dead; 0.3 s later the lit tile
-        pulses (dscPulse) and is the CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
+        pulses (dscPulse; its orange glow breathing .6 -> .7, [t2-scene3]: a little stronger than the .45 / .55 before) and is the
+        CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
      6. the tap: the tile's BORDER turns green ([t2-scene2]: the face stays white, the mark its blue), the kit's correct sound
         (sfxCorrect), the mark lands in the slot (its INK centred, the demos' centreInk), 0.45 s later the slot's box goes (the
         mark stays) and 1.2 s after that the page moves on by itself: no आगे here. ===== */
@@ -6420,9 +6423,10 @@ const SlideModules = {
       const alive = ()=> fig.isConnected;
       const after = (ms, fn)=> setTimeout(()=>{ if(alive()) fn(); }, ms);
       const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);   // [recap-sfx] T1's text pop (the reference's sfxPopSoft)
-      // the user's two sounds, fetched now (heard seconds later): the school under the walk, the pop with the tiles
+      // the user's two sounds, fetched now (heard seconds later): the school after the sentence, the pop with EACH tile — one
+      // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
-      kit("scenePic", d.pic_sfx); kit("scenePop", d.tiles_sfx);
+      kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx));
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -6475,12 +6479,16 @@ const SlideModules = {
         }
         after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks orange (three clear blinks over blink_ms) and the tiles pop in as it starts, with the user's pop
+      // 4. the slot blinks orange over blink_ms — a hold of the orange every ~2/3 s ([t2-scene3]: 4 s = six holds; the cycle stays
+      //    the [t2-scene2] one, the count grows with the time) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms apart,
+      //    each with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
-        const ms = d.blink_ms || 2000;
-        slot.style.setProperty("--blink-ms", (ms / 3) + "ms"); slot.classList.add("blink");
-        tiles.forEach((t, k)=> after(k * 90, ()=> t.classList.add("in")));
-        if(d.tiles_sfx) playKitSfx("scenePop", d.tiles_sfx, .8);
+        const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / 667)), gap = d.tiles_gap_ms || 350;
+        slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
+        tiles.forEach((t, k)=>{
+          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); };
+          if(k) after(k * gap, go); else go();
+        });
         after(ms, ()=>{ slot.classList.remove("blink"); after(300, stage5); });
       };
       // 5. the explanation: the danda's tile lights as the clip says its cue word; after the clip the other two go dim and dead,

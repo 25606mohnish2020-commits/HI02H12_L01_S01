@@ -2060,8 +2060,27 @@ Page 6 T2: the girl in place, the blink, the highlights, the green border ([t2-s
   1.03-1.05 within 0.6 s of the sound's first frame; the sound full to its last 0.4 s, faded, paused; the blink's three holds; the
   pulse's 3px orange border and the dim tiles at .6; the tapped face: border rgb(0,177,50) 3px, white, no shadow, the mark
   rgb(0,47,118)): 33/33 ALL PASS — the pop 300 ms after the clip with the sound 6 ms before its frame, peak 1.045; the sound .5 at
-  1 s, .158 at 1.9 s, paused after; the blink 334 ms after the sound, 2016 ms, 3 holds. SMOKE_T2B
+  1 s, .158 at 1.9 s, paused after; the blink 334 ms after the sound, 2016 ms, 3 holds. smoke.py 50/50 on the revised build.
   `../_before_t2_scene2/` holds the [t2-scene] dist, build.py, README and scene_check.py.
+
+Page 6 T2: the blink two seconds longer, the tiles one by one with a pop each, a stronger pulse glow ([t2-scene3], 2026-11-01)
+- Asked: "increase the duration of the empty box blinking by two more seconds; the options should appear with a pop animation one by
+  one, the pop sound effect synced with each pop; when the correct option pulsates, increase the opacity of its orange boundary
+  highlight a little bit more; rest exactly the same."
+- Built (build.py [t2-scene3], PUNCT_SCENE): data.blink_ms 2000 -> 4000 — the blink's cycle stays the [t2-scene2] one (the orange held
+  on the ring + glow for half of each ~667 ms cycle), the module now sets the COUNT too (--blink-n = round(blink_ms / 667) = 6; the
+  CSS's `3` became var(--blink-n,3)); the tiles come in ONE BY ONE, data.tiles_gap_ms = 350 apart (was all three 90 ms apart), each
+  popping (dscTileIn: scale .4 -> 1.08 at 60% -> 1 over .45 s, ease-out, NO fill — the [t2-scene] gotcha: the dim .off state after
+  must not be fought by the animation's end; the opacity still by a .22 s transition) with the user's pop (sfx_demo1_pop.mp3 at .8)
+  in its first frame — one Audio per tile (_kitSfx scenePop0/1/2: playKitSfx restarts a shared element, which would have cut each
+  pop's tail as the next tile came); the pulse's glow (dscGlow) .6 -> .7 (was .45 -> .55; the .lit glow before the pulse stays .45,
+  the 3px orange border is already solid). Nothing else changed in the dist (app.js: the module's kit line, stage 4 and comments;
+  style.css: the blink count, the tiles' rules + dscTileIn, dscGlow; the card: T2's blink_ms and the new tiles_gap_ms).
+- Checked: scene_check.py updated (the blink's holds = round(blink_ms / 667); the three tiles' gaps 350 +-60 with a pop within 50 ms of
+  EACH tile's first frame, three pops at .8; each tile's computed scale <= .6 in its first frame, 1.04-1.09 within 0.6 s, none from
+  0.7 s; the pulsing face's sampled glow alpha min .58-.62 / max .68-.72): 35/35 ALL PASS — the blink 317 ms after the sound, 4016 ms,
+  6 holds; the tiles at 0 / 383 / 717 ms with pops at -4 / 367 / 712 ms; each tile .4 -> 1.08 -> settled; the glow .6 -> .7. smoke.py 50/50 passed on the new build.
+  `../_before_t2_scene3/` holds the [t2-scene2] dist, build.py, README and scene_check.py.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

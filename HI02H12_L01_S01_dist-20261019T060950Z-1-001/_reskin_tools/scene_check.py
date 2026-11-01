@@ -7,14 +7,15 @@ usage: python -I -X utf8 scene_check.py <index.html> <demo1b_figma_render_1280x7
    frame; the sentence's clip 0.45 s after the rise, each word lit as it is read ([word-sync]); 0.3 s after the clip the school sound
    (sfx_demo1_school.mp3 at .5) for data.pic_sfx_ms, full until its last 0.4 s, faded then and paused at its end, the girl giving her
    small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and after; 0.3 s
-   after the sound the slot blinks (data.blink_ms: its ring and glow HOLD the words' orange three times) and as the blink starts the
-   three tiles pop in (90 ms apart) with the pop (sfx_demo1_pop.mp3) in the first tile's frame; 0.3 s after the blink the explanation (vo_demo1_explain) — the danda's tile lights (.lit) as the clip reaches
+   after the sound the slot blinks (data.blink_ms = 4 s, [t2-scene3]: its ring and glow HOLD the words' orange six times) and as the
+   blink starts the three tiles pop in ONE BY ONE (data.tiles_gap_ms = 350 ms apart, each dscTileIn: from under .6 of its size past
+   1.04, at its size within 0.7 s) with the pop (sfx_demo1_pop.mp3 at .8) in EACH tile's frame; 0.3 s after the blink the explanation (vo_demo1_explain) — the danda's tile lights (.lit) as the clip reaches
    its cue word, not before; 0.3 s after the clip the other two tiles are dim and dead (.off, at .6); 0.3 s later the lit tile pulses
-   (dscPulse, infinite; its face a 3px orange border with a solid glow) and is live. Taps: the 🔊 chip during the intro is ignored (every clip plays once), the danda's tile before it
+   (dscPulse, infinite; its face a 3px orange border with a glow breathing .6 -> .7, [t2-scene3]) and is live. Taps: the 🔊 chip during the intro is ignored (every clip plays once), the danda's tile before it
    is live is ignored, the chip once it is live reads the sentence again (words lit, the tile still pulsing), the tap on the pulsing
    tile: its BORDER green at once (.done: the face white, the mark its blue), the kit's correct sound (sfx_correct_new.ogg at .85) in that
-   frame, the mark in the slot (its ink centred), the slot's box gone 0.45 s later, T3 mounted ~1.2 s after that, no gate. Only those sounds (the pop, the school, the
-   pop, the correct) besides the voice clips; आगे never shows.
+   frame, the mark in the slot (its ink centred), the slot's box gone 0.45 s later, T3 mounted ~1.2 s after that, no gate. Only those sounds (the text pop, the school, the
+   three pops, the correct) besides the voice clips; आगे never shows.
 2. The card, Swiftie, the 🔊 chip = page 3 T1's (stage px: the card 96,106 1088x508 x 1333/1280 with 64px corners; Swiftie 76,472
    190; the chip 202,606 58).
 3. 1280x720 (= frame px), the tiles landed and the blink frozen: every box vs the frame's nodes (the picture 0,-113 1088x613 of the
@@ -73,6 +74,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     gone: !!slot && slot.classList.contains('gone'), markIn: !!q('.dsc-mark.in'),
     pop: !!g && g.classList.contains('pop'), gOp: gc ? +(+gc.opacity).toFixed(3) : null, gTf: gc ? gc.transform : null,
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
+    tTf: [...qa('.dsc-tile')].map(t => getComputedStyle(t).transform), tAn: [...qa('.dsc-tile')].map(t => getComputedStyle(t).animationName),
+    faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
     tilesIn: qa('.dsc-tile.in').length, lit, off: qa('.dsc-tile.off').length, pulse: !!q('.dsc-tile.pulse'), live: !!q('.dsc-tile.live'), done: !!q('.dsc-tile.done'),
     nav: getComputedStyle(document.getElementById('navBtn')).display }; }"""
 # the timeline sampled in the page every frame; the taps made in the page at their moments: the chip 1 s into the intro (ignored),
@@ -115,7 +118,8 @@ with sync_playwright() as p:
           pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_SCENE" and d["intro_audio"] == "vo_demo1_intro" and d["bg_id"] == "img_demo1_hall" and d["image_id"] == "img_demo1_girl_walk"
           and d["sentence"]["text_hi"] == "पिंकी स्कूल जा रही है" and d["sentence"]["audio"] == "vo_demo1_sent" and len(ST) == 5 and d["explain"]["audio"] == "vo_demo1_explain"
           and d["explain"]["text_hi"].split()[d["explain"]["cue_word"]] == "पूर्णविराम" and [o["mark"] for o in d["options"]] == ["।", ",", "?"] and d["mark"] == "।"
-          and d["pic_sfx_ms"] == 2000 and d["pic_sfx"] == "sfx_demo1_school.mp3" and d["blink_ms"] == 2000 and d["tiles_sfx"] == "sfx_demo1_pop.mp3", {k: d.get(k) for k in ("bg_id", "image_id", "mark", "pic_sfx_ms", "blink_ms")})
+          and d["pic_sfx_ms"] == 2000 and d["pic_sfx"] == "sfx_demo1_school.mp3" and d["blink_ms"] == 4000 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
+          {k: d.get(k) for k in ("bg_id", "image_id", "mark", "pic_sfx_ms", "blink_ms", "tiles_gap_ms")})
     pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_demo1_intro.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
     pg.screenshot(path=str(out / "a_intro_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-girl.pop')", timeout=30000, polling=20); pg.wait_for_timeout(180); pg.screenshot(path=str(out / "b_pop_1333.png"))
@@ -166,19 +170,33 @@ with sync_playwright() as p:
     paused_after = next((s["sfxPaused"] for s in samples[i_pop:] if s["ms"] - t_sfx_end > 120), None)
     check("the sound plays for pic_sfx_ms (2 s): full until its last 0.4 s, faded then, paused at its end", vol_mid == 0.5 and vol_end is not None and vol_end < 0.2 and paused_after is True, (vol_mid, vol_end, paused_after))
     i_bl = first(lambda s: s["blink"], i_pop); i_ble = first(lambda s: not s["blink"], i_bl)
-    # the ring's colour animates grey -> orange -> grey: a "peak" = a run of frames near the orange (r >= 200, b <= 60); three expected
+    # the ring's colour animates grey -> orange -> grey: a "peak" = a run of frames near the orange (r >= 200, b <= 60); one per ~667 ms
+    # of blink_ms ([t2-scene3]: 4 s -> six; the module rounds blink_ms / 667)
     def orange(s_):
         m_ = re.findall(r"\d+", s_["ringStroke"] or ""); return len(m_) >= 3 and int(m_[0]) >= 200 and int(m_[2]) <= 60
     peaks = sum(1 for k in range(i_bl + 1, i_ble) if orange(samples[k]) and not orange(samples[k - 1]))
     glow = any(s["glow"] not in (None, "none") and "232, 106, 0" in s["glow"] for s in samples[i_bl:i_ble])
-    check("0.3 s after the sound the slot blinks for blink_ms: its ring holds the words' orange three times with the glow, plain again after",
-          200 <= ms(i_bl) - t_sfx_end <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and peaks == 3 and glow
+    n_bl = max(1, round(d["blink_ms"] / 667))
+    check(f"0.3 s after the sound the slot blinks for blink_ms ({d['blink_ms']} ms): its ring holds the words' orange {n_bl} times with the glow, plain again after",
+          200 <= ms(i_bl) - t_sfx_end <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and peaks == n_bl and glow
           and samples[i_ble + 3]["glow"] == "none" and "232, 106, 0" not in (samples[i_ble + 3]["ringStroke"] or ""), (round(ms(i_bl) - t_sfx_end), round(ms(i_ble) - ms(i_bl)), peaks))
-    i_t1 = first(lambda s: s["tilesIn"] >= 1); i_t3 = first(lambda s: s["tilesIn"] >= 3)
+    i_tk = [first(lambda s, k=k: s["tilesIn"] >= k) for k in (1, 2, 3)]; i_t1 = i_tk[0]; gap = d["tiles_gap_ms"]
     pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.mp3"]
-    check("the three tiles pop in as the blink starts (90 ms apart) with the pop (sfx_demo1_pop.mp3) in the first tile's frame",
-          abs(ms(i_t1) - ms(i_bl)) <= 50 and 120 <= ms(i_t3) - ms(i_t1) <= 300 and len(pop) == 1 and abs(pop[0]["ms"] - ms(i_t1)) <= 50 and pop[0]["vol"] == 0.8,
-          (round(ms(i_t1) - ms(i_bl)), round(ms(i_t3) - ms(i_t1)), [(round(e["ms"] - ms(i_t1)), e["vol"]) for e in pop]))
+    gaps = [round(ms(i_tk[k]) - ms(i_tk[k - 1])) for k in (1, 2)]
+    pop_dt = [round(min(abs(e["ms"] - ms(i)) for e in pop), 1) if pop else 999 for i in i_tk]   # each tile's first frame to its nearest pop
+    check(f"[t2-scene3] the three tiles come in ONE BY ONE as the blink starts ({gap} ms apart), the pop (sfx_demo1_pop.mp3 at .8) in EACH tile's first frame — three pops",
+          abs(ms(i_t1) - ms(i_bl)) <= 50 and all(gap - 60 <= g <= gap + 60 for g in gaps) and len(pop) == 3 and all(dt <= 50 for dt in pop_dt) and all(e["vol"] == 0.8 for e in pop),
+          (round(ms(i_t1) - ms(i_bl)), gaps, [(round(e["ms"] - ms(i_t1)), e["vol"]) for e in pop]))
+    # each tile's pop: dscTileIn from under .6 of its size past 1.04, at its size (transform none) from 0.7 s on
+    def tscl(s_, k):
+        tf = s_["tTf"][k]; m_ = re.findall(r"-?[\d.]+", tf or ""); return float(m_[0]) if tf not in (None, "none") and m_ else 1.0
+    tpop = []
+    for k, i in enumerate(i_tk):
+        run = [s_ for s_ in samples[i:] if s_["ms"] - ms(i) <= 600]
+        settled = all(s_["tTf"][k] == "none" for s_ in samples if 700 < s_["ms"] - ms(i) < 1500 and not s_["pulse"] and not s_["done"])
+        tpop.append((samples[i]["tAn"][k], round(tscl(samples[i], k), 3), round(max(tscl(s_, k) for s_ in run), 3), settled))
+    check("[t2-scene3] each tile POPS in (dscTileIn): under .6 of its size in its first frame, past 1.04 within 0.6 s, at its size from 0.7 s on",
+          all(a == "dscTileIn" and s0 <= 0.6 and 1.04 <= pk <= 1.09 and st for a, s0, pk, st in tpop), tpop)
     i_x = start_of("explain", i_ble); i_xe = end_of("explain", i_x); i_lit = first(lambda s: s["lit"] >= 0)
     check(f"0.3 s after the blink the explanation sounds; the danda's tile lights as it reaches \"पूर्णविराम\" ({CUE} s on its clock, within -0.05/+0.15 s), none before",
           200 <= ms(i_x) - ms(i_ble) <= 650 and i_x <= i_lit < i_xe and samples[i_lit]["lit"] == 0 and -0.05 <= samples[i_lit]["t"] - CUE <= 0.15 and not any(s["lit"] >= 0 for s in samples[:i_lit]),
@@ -206,6 +224,9 @@ with sync_playwright() as p:
           and all(s["nav"] == "none" for s in samples), round(t_end - ms(i_gone)))
     check("the pulse: dscPulse, infinite, on the whole tile, its face glowing (dscGlow) with a 3px orange border, its mark the words' orange; the dim tiles at .6 ([t2-scene2])",
           look[0] == "dscPulse" and look[1] == "infinite" and look[2] == "dscGlow" and look[3] == "rgb(232, 106, 0)" and look[4] == "3px" and look[5] == "rgb(232, 106, 0)" and look[6] == "0.6", look)
+    ga = [float(m.group(1)) for s_ in samples[i_pulse:i_done] if s_["faceGlow"] for m in [re.search(r"rgba\(232, 106, 0, ([\d.]+)\)", s_["faceGlow"])] if m]
+    check("[t2-scene3] the pulsing tile's orange glow breathes between .6 and .7 (was .45 / .55)",
+          bool(ga) and 0.58 <= min(ga) <= 0.62 and 0.68 <= max(ga) <= 0.72, (round(min(ga), 3) if ga else None, round(max(ga), 3) if ga else None, len(ga)))
     pops = [e for e in snd if e["kind"] == "tone" and e["f"] == "720" and e["ty"] == "sine" and e["d"] == 0.1 and e["v"] == 0.07]
     others = [e for e in snd if samples[0]["ms"] - 50 <= e["ms"] <= t_end and e not in pops and e not in sfx and e not in pop and e not in corr and not (e["kind"] == "media" and e["src"].startswith("vo_"))]
     check("T1's text pop (the reference's sfxPopSoft) once, in the sentence's frame, and no other sound effect through the page", len(pops) == 1 and abs(pops[0]["ms"] - ms(i_rise)) <= 50 and not others,

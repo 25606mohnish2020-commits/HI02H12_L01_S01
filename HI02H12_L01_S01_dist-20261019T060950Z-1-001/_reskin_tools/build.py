@@ -257,7 +257,8 @@ dpart = lambda k: {"text_hi": dl[k]["shown"], "audio": f"vo_demo1_{k}", "word_ti
 # alone; the sentence + the empty slot (T1's text pop); the sentence's clip, word by word; then 2 s of the user's school sound with a
 # small pop of the girl ([t2-scene2] 2026-11-01: she stands in her place from the first frame — was a walk in from the doorway under
 # the sound); the slot blinking orange 2 s while the three mark tiles pop in
-# (the user's pop); the explanation "सरल वाक्य में बात पूरी होने पर हम पूर्णविराम का प्रयोग करते हैं ।" lighting the danda's tile at
+# (the user's pop) — [t2-scene3] 2026-11-01: the blink 4 s and the tiles one by one, 350 ms apart, each with its own pop; the
+# explanation "सरल वाक्य में बात पूरी होने पर हम पूर्णविराम का प्रयोग करते हैं ।" lighting the danda's tile at
 # "पूर्णविराम"; the other two dim; the lit tile pulsing until the CHILD taps it; then green, the kit's correct sound, the mark in
 # the slot, the slot's box gone, on to T3. The explanation is a placeholder take (recap_vo.py demo1 explain: edge-tts, no recording
 # of it yet); its word times are the synthesiser's own.
@@ -268,7 +269,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
              "sentence": dpart("sent"), "mark": "।", "explain": dict(dpart("explain"), cue_word=_cue),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "pic_sfx": "sfx_demo1_school.mp3", "pic_sfx_ms": 2000,   # the user's freesound_community-school-104993.mp3 (8.4 s): 2 s of it after the sentence, faded out, the girl's small pop with it ([t2-scene2]; was a 3.4 s walk under it)
-             "blink_ms": 2000, "tiles_sfx": "sfx_demo1_pop.mp3"},   # the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) as the tiles pop in
+             "blink_ms": 4000, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # [t2-scene3] the blink 4 s (was 2: "two more seconds"), six holds of the orange; the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) ONCE PER TILE as the tiles pop in one by one, 350 ms apart (was all three 90 ms apart under one pop)
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
@@ -1092,12 +1093,15 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
      3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
         the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
         (CSS dscPop) as it starts;
-     4. 0.3 s after the sound the slot blinks orange (data.blink_ms: three clear blinks of the words' orange on its ring + glow)
-        and, as the blink starts, the three tiles pop in (90 ms apart) with data.tiles_sfx (the user's pop);
+     4. 0.3 s after the sound the slot blinks orange for data.blink_ms ([t2-scene3]: 4 s — the words' orange HELD on its ring +
+        glow every 2/3 s, six times; was 2 s / three) and, as the blink starts, the three tiles pop in ONE BY ONE (data.tiles_gap_ms
+        = 350 ms apart, each from small past its size — dscTileIn) each with its own data.tiles_sfx (the user's pop) in its frame
+        ([t2-scene3]; before, all three came in 90 ms apart under a single pop);
      5. 0.3 s after the blink the explanation (data.explain): as it reaches its cue word (data.explain.cue_word, "पूर्णविराम") the
         danda's tile lights — the words' orange on its mark (+ p2WordPop) and an orange border + glow on its face; 0.3 s after
         the clip the other two tiles go dim (.off, [t2-scene2]: .6, not the demos' .35) and dead; 0.3 s later the lit tile
-        pulses (dscPulse) and is the CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
+        pulses (dscPulse; its orange glow breathing .6 -> .7, [t2-scene3]: a little stronger than the .45 / .55 before) and is the
+        CHILD's: the page waits for the tap (the 🔊 chip reads the sentence again meanwhile);
      6. the tap: the tile's BORDER turns green ([t2-scene2]: the face stays white, the mark its blue), the kit's correct sound
         (sfxCorrect), the mark lands in the slot (its INK centred, the demos' centreInk), 0.45 s later the slot's box goes (the
         mark stays) and 1.2 s after that the page moves on by itself: no आगे here. ===== */
@@ -1125,9 +1129,10 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       const alive = ()=> fig.isConnected;
       const after = (ms, fn)=> setTimeout(()=>{ if(alive()) fn(); }, ms);
       const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);   // [recap-sfx] T1's text pop (the reference's sfxPopSoft)
-      // the user's two sounds, fetched now (heard seconds later): the school under the walk, the pop with the tiles
+      // the user's two sounds, fetched now (heard seconds later): the school after the sentence, the pop with EACH tile — one
+      // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
-      kit("scenePic", d.pic_sfx); kit("scenePop", d.tiles_sfx);
+      kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx));
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -1180,12 +1185,16 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         }
         after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks orange (three clear blinks over blink_ms) and the tiles pop in as it starts, with the user's pop
+      // 4. the slot blinks orange over blink_ms — a hold of the orange every ~2/3 s ([t2-scene3]: 4 s = six holds; the cycle stays
+      //    the [t2-scene2] one, the count grows with the time) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms apart,
+      //    each with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
-        const ms = d.blink_ms || 2000;
-        slot.style.setProperty("--blink-ms", (ms / 3) + "ms"); slot.classList.add("blink");
-        tiles.forEach((t, k)=> after(k * 90, ()=> t.classList.add("in")));
-        if(d.tiles_sfx) playKitSfx("scenePop", d.tiles_sfx, .8);
+        const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / 667)), gap = d.tiles_gap_ms || 350;
+        slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
+        tiles.forEach((t, k)=>{
+          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); };
+          if(k) after(k * gap, go); else go();
+        });
         after(ms, ()=>{ slot.classList.remove("blink"); after(300, stage5); });
       };
       // 5. the explanation: the danda's tile lights as the clip says its cue word; after the clip the other two go dim and dead,
@@ -2543,8 +2552,8 @@ scene_css = """
 .dsc-dash{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;stroke-dasharray:10 5;transition:opacity .4s,stroke .25s;}
 /* the blink: the words' orange on the ring + a glow, three times over data.blink_ms — [t2-scene2] each blink HOLDS the orange for
    half its cycle (was a pass through it at the midpoint, hard to see) and the glow is a solid .45 (was .22) */
-.dsc-slot.in.blink{animation:dscBlink var(--blink-ms,666.667ms) ease-in-out 3;}
-.dsc-slot.blink .dsc-dash{animation:dscBlinkRing var(--blink-ms,666.667ms) ease-in-out 3;}
+.dsc-slot.in.blink{animation:dscBlink var(--blink-ms,666.667ms) ease-in-out var(--blink-n,3);}   /* [t2-scene3] the count from the module: blink_ms / ~667 ms (4 s -> 6) */
+.dsc-slot.blink .dsc-dash{animation:dscBlinkRing var(--blink-ms,666.667ms) ease-in-out var(--blink-n,3);}
 @keyframes dscBlink{0%,100%{box-shadow:0 0 0 0 rgba(232,106,0,0);}25%,75%{box-shadow:0 0 0 5px rgba(232,106,0,.45);}}
 @keyframes dscBlinkRing{0%,100%{stroke:rgba(86,86,86,.85);}25%,75%{stroke:#E86A00;}}
 /* the mark, in the sentence's face, its INK centred on the slot (--ix / --iy measured by the module from the font) */
@@ -2562,10 +2571,13 @@ scene_css = """
 .dsc-shade{position:absolute;left:43px;top:305px;width:160px;height:36px;border-radius:50%;background:rgba(180,171,162,.145);}
 .dsc-girl.pop{animation:dscPop .5s ease-out;}
 @keyframes dscPop{0%,100%{transform:scale(1);}40%{transform:scale(1.045);}}
-/* the tiles: in by transition (as the demos' .dmf-tile), so the dim state after is not fought by an animation's fill */
-.dsc-tile{position:absolute;top:279px;width:117.819px;height:116.498px;opacity:0;transform:scale(.9);transition:opacity .45s ease-out,transform .5s cubic-bezier(.2,.9,.3,1.2);}
+/* the tiles: [t2-scene3] each POPS in on its own (dscTileIn: from .4 of its size past 1.08 to 1 over .45 s, with the user's pop) —
+   the opacity by transition and the pop with NO fill, so the dim state after is not fought by the animation's end (the [t2-scene]
+   gotcha); before, all three eased in (scale .9 -> 1) 90 ms apart */
+.dsc-tile{position:absolute;top:279px;width:117.819px;height:116.498px;opacity:0;transform:scale(.4);transform-origin:50% 50%;transition:opacity .22s ease-out;}
 .dsc-tile.t1{left:456.09px;} .dsc-tile.t2{left:683px;} .dsc-tile.t3{left:913.818px;}
-.dsc-tile.in{opacity:1;transform:none;}
+.dsc-tile.in{opacity:1;transform:none;animation:dscTileIn .45s ease-out;}
+@keyframes dscTileIn{0%{transform:scale(.4);}60%{transform:scale(1.08);}100%{transform:scale(1);}}
 .dsc-tshade{position:absolute;left:0;top:99px;width:118px;height:26px;border-radius:50%;background:rgba(143,143,143,.6);}
 .t1 .dsc-tshade{left:-1.09px;} .t3 .dsc-tshade{top:99.498px;}
 .dsc-base{position:absolute;left:0;top:0;width:117.819px;height:116.498px;background:#D9D9D9;border-radius:18px;box-shadow:0 4px 4px rgba(0,0,0,.25);}
@@ -2583,7 +2595,7 @@ scene_css = """
 .dsc-tile.pulse{animation:dscPulse 1.1s ease-in-out infinite;transform-origin:50% 50%;}
 .dsc-tile.pulse .dsc-face{animation:dscGlow 1.1s ease-in-out infinite;}
 @keyframes dscPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
-@keyframes dscGlow{0%,100%{box-shadow:0 0 0 5px rgba(232,106,0,.45);}50%{box-shadow:0 0 0 10px rgba(232,106,0,.55);}}
+@keyframes dscGlow{0%,100%{box-shadow:0 0 0 5px rgba(232,106,0,.6);}50%{box-shadow:0 0 0 10px rgba(232,106,0,.7);}}   /* [t2-scene3] the glow a little stronger while the tile is the child's (.6 / .7, was .45 / .55) */
 /* tapped: the press (the demos' dmfTap), then the BORDER green (the engine's --correct) — [t2-scene2]: the face stays white and the
    mark its blue (was the face --correct-bg with a green glow and the mark green) */
 .dsc-tile.done{animation:dmfTap .45s ease-out;}
