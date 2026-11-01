@@ -3008,8 +3008,20 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
   transition:opacity .4s ease,transform .45s cubic-bezier(.34,1.4,.6,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
 .rcf-pic img{display:block;width:100%;height:100%;}
 .rcf-pic.in{opacity:1;transform:none;}
-/* the mark at the sentence's end keeps the words' orange once its clip has lit it */
-.rcf-eg .sfig-w.keep{color:#E86A00;}
+/* the mark at the sentence's end keeps the words' orange once its clip has lit it ([recap-alp]: or a mark ending a word, .rcf-mk) */
+.rcf-eg .sfig-w.keep, .rcf-eg .rcf-mk.keep{color:#E86A00;}
+/* [recap-alp] (2026-11-01) T1B, the अल्प विराम page = frame 764:755 (variant "alp"), T1's design with the frame's own placements (card
+   px - 12, as above): the sign's box 764:937 175x169.355 at 209,65 (stroke OUTSIDE: 193,49 here) and the sentence's box 764:940
+   578x84 at 209,274 — both 10 px right of T1's; the ",", the name and the sentence by their INK in the frame's render (centres, card
+   px: the comma 294.5,157.5 = 85.5,92.5 of its box's padding box; अल्प विराम 592.5,139; आम, केला, संतरा और सेब 498.5,311) with the
+   line boxes placed where Chrome's ink lands on them (measured, as T1's); the picture 524:350 219x146 at 816,143 — the frame's
+   bitmap is T4's img_demo3_fruits (the same image) — with no shadow (the node has none; T1's girl has one) */
+.rcf-v-alp .rcf-sign{left:193px;}
+.rcf-v-alp .rcf-mark{left:88px;top:61px;}            /* the comma's line box: its ink sits 31.5 px below the box's centre */
+.rcf-v-alp .rcf-name{left:579px;top:141px;}
+.rcf-v-alp .rcf-ebox{left:197px;}
+.rcf-v-alp .rcf-eg{left:485.5px;top:306px;}
+.rcf-v-alp .rcf-pic{left:804px;top:131px;width:219px;height:146px;filter:none;}
 
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial

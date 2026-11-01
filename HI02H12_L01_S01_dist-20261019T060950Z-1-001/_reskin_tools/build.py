@@ -211,6 +211,15 @@ card["slides"][i_t1] = {"id": "T1", "phase": "tutorial", "eis": "symbolic", "typ
              "name": part("purn_name"), "when": part("purn_when"), "example": part("purn_eg"),
              "pic_sfx": "sfx_fb_correct.ogg"}}   # [recap-sfx] the reference's horse sound (hi02h11l02s04-file5 T2's fbCorrect), bytes as given
 card["assets"]["image"]["img_recap_girl"] = "assets/Images/img_recap_girl.webp"   # node 764:753's source bitmap (1024x1536, WebP q90, alpha exact)
+# [recap-alp] (2026-11-01) frame 764:755: the same page for अल्प विराम, right after T1 (T1B) — the sign ",", its name, the example
+# "आम, केला, संतरा और सेब" (both commas kept lit, each from its word), the fruit picture (node 524:350's bitmap = T4's img_demo3_fruits)
+# with T1's sounds; the recorded अल्प-विराम lines (the use is said, not shown). No lead / intro line — those open T1 only — so its
+# name beat starts 0.7 s after the page appears.
+card["slides"].insert(i_t1 + 1, {"id": "T1B", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
+    "prompt_hi": rl["alp_name"]["shown"], "audio": {"prompt": "vo_recap_alp_name"},
+    "data": {"variant": "alp", "mark": ",", "image_id": "img_demo3_fruits",
+             "name": part("alp_name"), "when": part("alp_when"), "example": part("alp_eg"),
+             "pic_sfx": "sfx_fb_correct.ogg"}})
 for k in RECAP_KEYS:
     card["assets"]["audio"][f"vo_recap_{k}"] = f"assets/Audio/vo_recap_{k}.ogg"
     card["assets"]["audio_text"][f"vo_recap_{k}"] = rl[k]["text"]
@@ -495,7 +504,7 @@ _rm = [s for s in card["slides"] if s["id"] in RM_PAGES]
 assert [s["id"] for s in _rm] == RM_PAGES and [s["type"] for s in _rm] == ["EVIDENCE_QA", "BUILD_PUNCT", "BUILD_PUNCT", "SORT_WORDS"], "pages 13-16 are not the ported P3-P6"
 assert all(s["phase"] == "practice" and s["data"].get("mastery") is True for s in _rm)
 card["slides"] = [s for s in card["slides"] if s["id"] not in RM_PAGES]
-assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "CEL"], "unexpected page list after the removal"
+assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T1B", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "CEL"], "unexpected page list after the removal"   # [recap-alp] + T1B
 assert "qtype_sort_done" in card["signals_expected"]
 card["signals_expected"] = [x for x in card["signals_expected"] if x != "qtype_sort_done"]
 assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.get("signals") or {}).get("on_complete", [])), "a remaining page still fires qtype_sort_done"
@@ -660,7 +669,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                       # glitter's start and length (with its 1.3 s chime), its sparks, and the hand-over to the end screen
                       "fin_fade": 3000, "fin_glitter_at": 3400, "fin_glitter_ms": 1300, "fin_sparks": 16, "fin_done": 5400}},
     "signals": {"on_complete": []}})
-assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]
+assert [s["id"] for s in card["slides"]] == ["T0", "T0B", "T1", "T1B", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"]   # [recap-alp] + T1B
 pd = {}
 for s in card["slides"]: pd[s["phase"]] = pd.get(s["phase"], 0) + 1
 card["phase_distribution"] = pd
@@ -951,7 +960,7 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
       const d = slide.data || {}, GAP = 300, GAP_MARK = 700;
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const fig = sfigMount(host,
-        '<div class="rcf-row"><div class="rcf-sign"><div class="rcf-mark"><p><span class="sfig-w on"></span></p></div></div>' +
+        '<div class="rcf-row' + (d.variant ? ' rcf-v-' + d.variant : '') + '"><div class="rcf-sign"><div class="rcf-mark"><p><span class="sfig-w on"></span></p></div></div>' +   // [recap-alp] a frame's own placements: .rcf-v-<variant>
         '<div class="rcf-name"><p></p></div><div class="rcf-ebox"></div><div class="rcf-eg"><p></p></div>' +
         '<div class="rcf-pic"><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round", "sfig-recap");
@@ -964,11 +973,18 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
       // the sign reads as a one-word line on the name's clip (sfigSync): lit from the clip's first word to its last word's end
       const Lsign = { p: glyph.parentElement, words: [glyph], share: [0], times: [Lname.times ? Lname.times[0] : 0],
                       end: Lname.end, src: Lname.src, file: Lname.file, shown: true };
-      // the mark(s) at the sentence's end — a token of punctuation alone — keep their orange once the clip has lit them
-      const keeps = Leg.words.filter(w=> /^[।?,!]+$/.test(w.textContent));
+      // the sentence's marks keep their orange once the clip has lit them: a token of punctuation alone (T1's "।") whole; a mark
+      // ending a word ([recap-alp] T1B's "आम," / "केला,") split off into its own span, so the word lights and goes as the others
+      // do and only its mark stays lit
+      const keeps = [];
+      Leg.words.forEach((w, i)=>{
+        if(/^[।?,!]+$/.test(w.textContent)){ keeps.push({ el: w, i }); return; }
+        const m = w.textContent.match(/^(.+?)([।?,!]+)$/);
+        if(m){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "rcf-mk"; s.textContent = m[2]; w.appendChild(s); keeps.push({ el: s, i }); }
+      });
       const egTimes = Leg.times || [];
-      const cues = [egTimes[0] || 0];   // the picture, at the sentence's first word
-      if(keeps.length && egTimes.length) cues.push(egTimes[Math.max(0, Leg.words.indexOf(keeps[0]))]);   // the kept mark, at its word
+      // the picture at the sentence's first word; each kept mark at its own word's start
+      const cues = [egTimes[0] || 0].concat(egTimes.length ? keeps.map(k=> egTimes[k.i]) : []);
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -1009,7 +1025,7 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
         const mine = ++run, live = ()=> mine === run && alive();
         state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
         setNavActive(false);
-        keeps.forEach(w=> w.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
+        keeps.forEach(k=> k.el.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
         // 1. the box + sign pop in as the name rises; the name's clip lights the sign
         if(appear(sign)) popSoft();
         sfigNarrate(Lname, live, ()=>{
@@ -1020,7 +1036,7 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
             setTimeout(()=>{ if(!live()) return;
               if(appear(ebox)) popSoft();
               const onCue = (i)=>{ if(i === 0){ if(appear(pic) && d.pic_sfx) playKitSfx("recapPic", d.pic_sfx, .55); }
-                                   else keeps.forEach(w=> w.classList.add("keep")); };
+                                   else if(keeps[i - 1]) keeps[i - 1].el.classList.add("keep"); };
               sfigNarrate(Leg, live, ()=>{ cues.forEach((_, i)=> onCue(i)); armNav(); });
               cueOn(Leg.file, onCue, live);
             }, GAP); }); }, GAP);
@@ -2302,8 +2318,20 @@ recap_css = """
   transition:opacity .4s ease,transform .45s cubic-bezier(.34,1.4,.6,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
 .rcf-pic img{display:block;width:100%;height:100%;}
 .rcf-pic.in{opacity:1;transform:none;}
-/* the mark at the sentence's end keeps the words' orange once its clip has lit it */
-.rcf-eg .sfig-w.keep{color:#E86A00;}
+/* the mark at the sentence's end keeps the words' orange once its clip has lit it ([recap-alp]: or a mark ending a word, .rcf-mk) */
+.rcf-eg .sfig-w.keep, .rcf-eg .rcf-mk.keep{color:#E86A00;}
+/* [recap-alp] (2026-11-01) T1B, the अल्प विराम page = frame 764:755 (variant "alp"), T1's design with the frame's own placements (card
+   px - 12, as above): the sign's box 764:937 175x169.355 at 209,65 (stroke OUTSIDE: 193,49 here) and the sentence's box 764:940
+   578x84 at 209,274 — both 10 px right of T1's; the ",", the name and the sentence by their INK in the frame's render (centres, card
+   px: the comma 294.5,157.5 = 85.5,92.5 of its box's padding box; अल्प विराम 592.5,139; आम, केला, संतरा और सेब 498.5,311) with the
+   line boxes placed where Chrome's ink lands on them (measured, as T1's); the picture 524:350 219x146 at 816,143 — the frame's
+   bitmap is T4's img_demo3_fruits (the same image) — with no shadow (the node has none; T1's girl has one) */
+.rcf-v-alp .rcf-sign{left:193px;}
+.rcf-v-alp .rcf-mark{left:88px;top:61px;}            /* the comma's line box: its ink sits 31.5 px below the box's centre */
+.rcf-v-alp .rcf-name{left:579px;top:141px;}
+.rcf-v-alp .rcf-ebox{left:197px;}
+.rcf-v-alp .rcf-eg{left:485.5px;top:306px;}
+.rcf-v-alp .rcf-pic{left:804px;top:131px;width:219px;height:146px;filter:none;}
 """
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame

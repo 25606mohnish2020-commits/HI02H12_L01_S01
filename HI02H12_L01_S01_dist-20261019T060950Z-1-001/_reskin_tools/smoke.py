@@ -72,9 +72,13 @@ with sync_playwright() as p:
     check("T0B's आगे opens T1 (the three-marks recap) in the tutorial frame", pg.evaluate("!!document.querySelector('.tut-card.sfig-recap .rcf-row')"))
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=90000)
     pg.click("#navBtn", force=True)
+    pg.wait_for_function("CARD.slides[state.idx].id==='T1B'", timeout=10000)   # [recap-alp]
+    check("T1's आगे opens T1B (the अल्प-विराम page) in the tutorial frame", pg.evaluate("!!document.querySelector('.tut-card.sfig-recap .rcf-row.rcf-v-alp')"))
+    pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=90000)
+    pg.click("#navBtn", force=True)
     pg.evaluate(GATE_LOG)
     pg.wait_for_function("CARD.slides[state.idx].id==='T2'", timeout=10000)
-    check("T1's आगे opens T2 (the run-on sentence demo) on the plain stage", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band')"))
+    check("T1B's आगे opens T2 (the run-on sentence demo) on the plain stage", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='T3'", timeout=40000)
     check("T2 runs itself through to T3, the second demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=40000)
@@ -192,8 +196,8 @@ with sync_playwright() as p:
           pg.evaluate("document.querySelector('.stp-final img').src.endsWith('img_stamp_final.webp') && document.querySelector('.stp-final img').naturalWidth === 1280"))
     pg.wait_for_function("CARD.slides[state.idx].id==='CEL' && document.body.classList.contains('is-end')", timeout=15000)
     log = pg.evaluate("window._gate"); opens = [log[i]["slide"] for i in range(len(log)) if log[i]["show"] and (i == 0 or not log[i - 1]["show"])]
-    check("the CELEBRATION end screen follows L2 with no further gate; 15 pages, the end screen last",
-          opens == ["T4", "P2"] and pg.evaluate("CARD.slides.length === 15 && CARD.slides[14].id === 'CEL'"), opens)
+    check("the CELEBRATION end screen follows L2 with no further gate; 16 pages ([recap-alp] + T1B), the end screen last",
+          opens == ["T4", "P2"] and pg.evaluate("CARD.slides.length === 16 && CARD.slides[15].id === 'CEL'"), opens)
     check("the end screen's validator: every expected signal fired", pg.evaluate("GameBus.validatorReport.passed === true"), pg.evaluate("GameBus.validatorReport.missing_signals"))
 
     # 3. dev nav present with ?dev=1

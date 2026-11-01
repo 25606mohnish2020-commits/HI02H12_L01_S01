@@ -6279,7 +6279,7 @@ const SlideModules = {
       const d = slide.data || {}, GAP = 300, GAP_MARK = 700;
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const fig = sfigMount(host,
-        '<div class="rcf-row"><div class="rcf-sign"><div class="rcf-mark"><p><span class="sfig-w on"></span></p></div></div>' +
+        '<div class="rcf-row' + (d.variant ? ' rcf-v-' + d.variant : '') + '"><div class="rcf-sign"><div class="rcf-mark"><p><span class="sfig-w on"></span></p></div></div>' +   // [recap-alp] a frame's own placements: .rcf-v-<variant>
         '<div class="rcf-name"><p></p></div><div class="rcf-ebox"></div><div class="rcf-eg"><p></p></div>' +
         '<div class="rcf-pic"><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-round", "sfig-recap");
@@ -6292,11 +6292,18 @@ const SlideModules = {
       // the sign reads as a one-word line on the name's clip (sfigSync): lit from the clip's first word to its last word's end
       const Lsign = { p: glyph.parentElement, words: [glyph], share: [0], times: [Lname.times ? Lname.times[0] : 0],
                       end: Lname.end, src: Lname.src, file: Lname.file, shown: true };
-      // the mark(s) at the sentence's end — a token of punctuation alone — keep their orange once the clip has lit them
-      const keeps = Leg.words.filter(w=> /^[।?,!]+$/.test(w.textContent));
+      // the sentence's marks keep their orange once the clip has lit them: a token of punctuation alone (T1's "।") whole; a mark
+      // ending a word ([recap-alp] T1B's "आम," / "केला,") split off into its own span, so the word lights and goes as the others
+      // do and only its mark stays lit
+      const keeps = [];
+      Leg.words.forEach((w, i)=>{
+        if(/^[।?,!]+$/.test(w.textContent)){ keeps.push({ el: w, i }); return; }
+        const m = w.textContent.match(/^(.+?)([।?,!]+)$/);
+        if(m){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "rcf-mk"; s.textContent = m[2]; w.appendChild(s); keeps.push({ el: s, i }); }
+      });
       const egTimes = Leg.times || [];
-      const cues = [egTimes[0] || 0];   // the picture, at the sentence's first word
-      if(keeps.length && egTimes.length) cues.push(egTimes[Math.max(0, Leg.words.indexOf(keeps[0]))]);   // the kept mark, at its word
+      // the picture at the sentence's first word; each kept mark at its own word's start
+      const cues = [egTimes[0] || 0].concat(egTimes.length ? keeps.map(k=> egTimes[k.i]) : []);
 
       state.ownsAudio = true; setNavActive(false);
       $("navBtn").onclick = ()=> completeSlide(true);
@@ -6337,7 +6344,7 @@ const SlideModules = {
         const mine = ++run, live = ()=> mine === run && alive();
         state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
         setNavActive(false);
-        keeps.forEach(w=> w.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
+        keeps.forEach(k=> k.el.classList.remove("keep"));   // [word-sync] a replay keeps everything on screen; the kept light goes until it is lit again
         // 1. the box + sign pop in as the name rises; the name's clip lights the sign
         if(appear(sign)) popSoft();
         sfigNarrate(Lname, live, ()=>{
@@ -6348,7 +6355,7 @@ const SlideModules = {
             setTimeout(()=>{ if(!live()) return;
               if(appear(ebox)) popSoft();
               const onCue = (i)=>{ if(i === 0){ if(appear(pic) && d.pic_sfx) playKitSfx("recapPic", d.pic_sfx, .55); }
-                                   else keeps.forEach(w=> w.classList.add("keep")); };
+                                   else if(keeps[i - 1]) keeps[i - 1].el.classList.add("keep"); };
               sfigNarrate(Leg, live, ()=>{ cues.forEach((_, i)=> onCue(i)); armNav(); });
               cueOn(Leg.file, onCue, live);
             }, GAP); }); }, GAP);

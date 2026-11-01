@@ -1,5 +1,5 @@
 """[word-sync] (2026-10-30) every text read with a clip, against the reference T1's behaviour (hi-02-h04-l01-s01-dun, STORY-INTRO-JS):
-usage: python -I -X utf8 word_sync_check.py <index.html> [T0 T0B T1 T2 T3 T4 G1 G2 G3 L2r1 .. L2r5]   (default: all of them;
+usage: python -I -X utf8 word_sync_check.py <index.html> [T0 T0B T1 T1B T2 T3 T4 G1 G2 G3 L2r1 .. L2r5]   (default: all of them;
        L2r<i> mounts the stamp page with round i first)
 Per page a rAF trace on the page's own clock of every narrated line (.sfig-w words grouped by their text element): words shown,
 words lit (.hot), the rise (.sfig-rise: siSentIn), the playing clip and its currentTime. Per line, from its card data (word_times,
@@ -9,9 +9,9 @@ end and none with no clip (the demos' second reading lights words on its own *_f
 """
 import sys, json, pathlib
 from playwright.sync_api import sync_playwright
-html = pathlib.Path(sys.argv[1]).resolve(); ids = sys.argv[2:] or ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "L2r1", "L2r2", "L2r3", "L2r4", "L2r5"]
+html = pathlib.Path(sys.argv[1]).resolve(); ids = sys.argv[2:] or ["T0", "T0B", "T1", "T1B", "T2", "T3", "T4", "G1", "G2", "G3", "L2r1", "L2r2", "L2r3", "L2r4", "L2r5"]
 LEAVE = """() => { for (const id of ['startGate','bootLoader']) { const e = document.getElementById(id); if (e) { e.classList.add('hidden'); if (id === 'bootLoader') e.remove(); } } document.body.classList.remove('is-start'); document.body.classList.add('loaded'); }"""
-DUR = {"T0": 42000, "T0B": 30000, "T1": 60000, "T2": 16000, "T3": 16000, "T4": 18000, "G1": 22000, "G2": 22000, "G3": 22000, "L2": 26000}
+DUR = {"T0": 42000, "T0B": 30000, "T1": 60000, "T1B": 30000, "T2": 16000, "T3": 16000, "T4": 18000, "G1": 22000, "G2": 22000, "G3": 22000, "L2": 26000}
 TRACE = r"""(dur) => new Promise(res => {
   const t0 = performance.now(), fr = [];
   const lines = () => { const m = new Map(); document.querySelectorAll('.sfig-w').forEach(w => { const p = w.parentElement.closest('p, .sfig-sent') || w.parentElement; if (!m.has(p)) m.set(p, []); m.get(p).push(w); }); return [...m.entries()]; };
