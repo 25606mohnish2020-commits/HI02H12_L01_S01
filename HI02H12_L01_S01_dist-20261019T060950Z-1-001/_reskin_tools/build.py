@@ -178,13 +178,15 @@ for b in beats:
 # word; then the explanation (vo_story_r1, the recording) lighting each sentence on its yellow as its meaning is told (cues =
 # the clip's "पहले" and "जबकि", read by vo_rec.py); then the moral (vo_story_moral = 4.wav) lighting the two commas orange as it
 # names the marks (cue = its "विराम"); then आगे. (Before: the Chintu story re-read in one block, frame 488:190, TTS vo_story_r1.)
+# [t0b-fig] (2026-11-01) laid out as frame 704:2, which has NO title: data.title_hi is gone, so the module's title stays empty
+# (the intro line vo_story_r0 still sounds first, the box still comes in when it ends); prompt_hi keeps the page's name
 for k in ("r0", "r1", "c1", "c2"):
     lines[k] = json.loads((SCR / "story_assets" / f"vo_story_{k}.words.json").read_text(encoding="utf-8"))
 _vr0 = json.loads((SCR / "vo_rec" / "derived.json").read_text(encoding="utf-8"))["cues"]
 card["slides"].insert(1, {"id": "T0B", "phase": "tutorial", "eis": "iconic", "type": "STORY_RELISTEN",
     "prompt_hi": "आइए वाक्य सुनें।",
     "audio": {"intro": "vo_story_r0", "narration": "vo_story_c1", "narration_2": "vo_story_c2", "explain": "vo_story_r1", "moral": "vo_story_moral"},
-    "data": {"title_hi": "आइए वाक्य सुनें।", "intro_audio": "vo_story_r0",
+    "data": {"intro_audio": "vo_story_r0",
              "lines": [{"text_hi": lines[k]["text"], "word_times": [t[0] for t in lines[k]["word_times"]], "word_end": lines[k]["word_times"][-1][1], "audio": f"vo_story_{k}"} for k in ("c1", "c2")],
              "explain_audio": "vo_story_r1", "explain_cues": _vr0["explain_s"], "moral_audio": "vo_story_moral", "moral_cue": _vr0["moral_s"],
              "text_hi": lines["c1"]["text"] + "\n" + lines["c2"]["text"]}})
@@ -2201,10 +2203,13 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
   color:#002F76;text-align:center;opacity:0;transform:translateY(calc(-50% + 18px)) scale(.92);
   transition:opacity .4s ease-out,transform .6s cubic-bezier(.2,.9,.3,1.25);}   /* node 488:376: centred on 532,59.5 */
 .sfig-title.in{opacity:1;transform:translateY(-50%);}
-/* node 488:371 (the frame as of 2026-10-21 evening, fifth version) is 683x219 at 191,144 — centred on 532.5 — with its
-   4px stroke drawn OUTSIDE it (its render is 691x227 at 187,140) and 20px corners, i.e. 24px on the stroke's outer edge */
-.sfig-sbox{position:absolute;left:187px;top:140px;width:691px;height:227px;background:#FFFFFF;border:4px solid #DADADA;
+/* [t0b-fig] (2026-11-01) frame 704:2: node 704:183 is 574x283 at 257,54 of the card (245,42 here) — centred on 532 — with its
+   4px stroke drawn OUTSIDE it (its render is 582x291 at 349,156 frame px) and 20px corners, i.e. 24px on the stroke's outer
+   edge. Was node 488:371 / 654:748: 683x219 at 191,144 (187,140 691x227 with the stroke) */
+.sfig-sbox{position:absolute;left:241px;top:38px;width:582px;height:291px;background:#FFFFFF;border:4px solid #DADADA;
   border-radius:24px;opacity:0;transform:scale(.9);}
+/* [t0b-fig] the frame's second grid tile (node 704:181) sits 2 px left of 488:369's: 529.969 (card x 541.969 - 12) */
+.sfig-round .sfig-in:has(.sfig-sbox) .sfig-grid.g2{left:calc(529.969px - 112px / var(--fig-s) + 108px);}
 .sfig-sbox.in{animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}
 @keyframes sfigBoxIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:none;}}
 /* node 488:374 (the frame as of 2026-10-21 evening): 631 wide, centred on 532.5, bottom-aligned on y 369 (280 tall),
@@ -2216,10 +2221,15 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 /* [relisten-pinki] frame 654:567: the two sentences are their own nodes in the box — 30px, 401 / 390 wide, centred on
    540.5,204.5 and 540,302.5 (the card's padding box; 8 px right of the box's centre, as the frame has them). The
    explanation lifts a sentence on its yellow (the demos' hot-word yellow); the moral lifts the commas in the picks' orange */
+/* [t0b-fig] (2026-11-01) frame 704:2: the two sentence nodes are centred in the box — 704:184 on 287,70 and 704:185 on 287,213
+   of it (532,112 and 532,255 here), 50px, line-height normal — set in page 1 T0's type (.sfig-text: Baloo 2 declared 600, which
+   renders the embedded 700 face, #002F76) at the frame's size; one line each, centred on the node's centre. Was frame 654:567's
+   30px 'Story Baloo 2' 800, 401 / 390 wide on 540.5,204.5 / 540,302.5 */
 .sfig-stext.sfig-lines{display:block;left:0;top:0;width:auto;height:auto;}
-.sfig-stext.sfig-lines p{position:absolute;margin:0;transform:translateY(-50%);font-size:30px;line-height:normal;}
-.sfig-stext.sfig-lines p.l1{left:340px;top:204.5px;width:401px;}   /* node 654:752 */
-.sfig-stext.sfig-lines p.l2{left:345px;top:302.5px;width:390px;}   /* node 654:753 */
+.sfig-stext.sfig-lines p{position:absolute;margin:0;transform:translate(-50%,-50%);white-space:nowrap;width:max-content;
+  font-family:var(--font-hi);font-weight:600;font-size:50px;line-height:normal;}
+.sfig-stext.sfig-lines p.l1{left:532px;top:112px;}   /* node 704:184 */
+.sfig-stext.sfig-lines p.l2{left:532px;top:255px;}   /* node 704:185 */
 .sfig-sent{display:inline-block;padding:2px 14px;margin:-2px -14px;border-radius:12px;
   transition:background-color .35s ease-out,transform .45s cubic-bezier(.2,.9,.3,1.2);}
 .sfig-sent.hl{background:#FFF1B6;transform:scale(1.06);}

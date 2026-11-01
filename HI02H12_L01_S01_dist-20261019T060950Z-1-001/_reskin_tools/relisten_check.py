@@ -1,7 +1,8 @@
-"""Verify T0B "आइए वाक्य सुनें।" (STORY_RELISTEN, [relisten-pinki]: frame 654:567) against its Figma frame and its timing.
-usage: python -I -X utf8 relisten_check.py <index.html> <relisten2_figma_render_1280x720.png> <outdir>
-1. At 1333x750, the page mounted on its own: the title appears as the intro line ("अब इन्हीं वाक्यों को फिर से सुनते हैं।",
-   vo_story_r0) starts to sound; the sentence box comes in only when that line has ended; once the box has landed the two
+"""Verify T0B "आइए वाक्य सुनें।" (STORY_RELISTEN, [relisten-pinki]; laid out as frame 704:2 since [t0b-fig]) against its Figma
+frame and its timing.
+usage: python -I -X utf8 relisten_check.py <index.html> <relisten3_figma_render_1280x720.png> <outdir>
+1. At 1333x750, the page mounted on its own: no title on screen (frame 704:2 has none, [t0b-fig]); the intro line ("अब इन्हीं
+   वाक्यों को फिर से सुनते हैं।", vo_story_r0) sounds first; the sentence box comes in only when that line has ended; once the box has landed the two
    contrast sentences are read one after the other, each rising in whole and read 0.45 s later with each word lit as its own
    recorded clip reaches it ([word-sync]; vo_story_c1 "उसे रोको,
    मत जाने दो।", vo_story_c2 "उसे रोको मत, जाने दो।"); then the explanation (vo_story_r1) lifts sentence 1 on its yellow from
@@ -12,10 +13,11 @@ usage: python -I -X utf8 relisten_check.py <index.html> <relisten2_figma_render_
    (the three-marks recap); past the Figma pages (G4) no story styling is left over.
 2. The card is the frame's (96,106 1088x508 x 1333/1280 = 100,110.39 1133x529.03 on the stage, 64px corners); Swiftie, 🔊
    chip and आगे are the story page's (T0): Swiftie 76,472 190x190, chip 202,606 58x58, आगे 581.5,550 170x62.
-3. 1280x720 viewport (stage px x 1333/1280 = frame px): title, sentence box and the two sentence nodes vs the frame, each
-   sentence on one line, and per-pixel diffs vs the Figma render over the title + box and over the whole card (less Swiftie,
-   the chip and आगे, which follow T0 rather than the frame) — taken with the commas' end-of-page highlight cleared, since
-   the frame draws the sentences plain.
+3. 1280x720 viewport (stage px x 1333/1280 = frame px): sentence box and the two sentence nodes' centres vs the frame, each
+   sentence on one line, its ink centred where the render's is, the type page 1 T0's (Baloo 2 declared 600) at the frame's
+   50px, and per-pixel diffs vs the Figma render over the box and over the whole card (less Swiftie, the chip and आगे, which
+   follow T0 rather than the frame, and less the two sentences' ink bands: the frame sets them in Baloo 2 SemiBold, the page
+   in T0's 700 face) — taken with the commas' end-of-page highlight cleared, since the frame draws the sentences plain.
 """
 import sys, json, pathlib
 import numpy as np
@@ -36,19 +38,21 @@ AS_T0 = {   # stage px: the frame's card box; the story page's (= the reference 
   ".tut-audio":          (202, 606, 58, 58),
   "#navBtn":             (581.5, 550, 170, 62),   # [dun-chrome] the reference's text pill (T0's आगे)
 }
-FRAME = {   # frame px at 1280x720, from the design context of node 654:567
-  ".sfig-sbox":  (96+12+191-4, 106+12+144-4, 691, 227),   # node 654:748: 683x219 (centred on 532.5) + its 4px OUTSIDE stroke
+FRAME = {   # frame px at 1280x720, from the design context of frame 704:2 ([t0b-fig])
+  ".sfig-sbox":  (96+257-4, 106+54-4, 582, 291),   # node 704:183: 574x283 at 257,54 of the card (centred on 640) + its 4px OUTSIDE stroke
 }
-NODES = {   # the sentence nodes: centre (x, y) in frame px and width
-  ".sfig-stext p.l1": ((96+12+540.5, 106+12+204.5), 401),   # node 654:752 (its centre 8 px right of the box's, as the frame has it)
-  ".sfig-stext p.l2": ((96+12+540, 106+12+302.5), 390),     # node 654:753
+NODES = {   # the sentence nodes' centres (x, y) in frame px: 704:184 on 287,70 and 704:185 on 287,213 of the box
+  ".sfig-stext p.l1": (96+257+287, 106+54+70),
+  ".sfig-stext p.l2": (96+257+287, 106+54+213),
 }
-TITLE_CENTRE = (96+12+532, 106+12+65.5)                      # node 654:749
+INK_BANDS = [(175, 290), (315, 430)]   # frame px rows holding each sentence's ink (inside the box, clear of its corners: x 380-900)
 LINES = ["उसे रोको, मत जाने दो।", "उसे रोको मत, जाने दो।"]
-CONTENT = (280, 128, 1000, 492)  # frame px region holding the title + the sentence box, for the pixel diff
+CONTENT = (340, 147, 940, 456)   # frame px region holding the sentence box, for the pixel diff
 WHOLE = (80, 90, 1200, 640)      # frame px: the card with its border and shadow
 OWN_T0 = [(25, 400, 290, 720),   # ...less Swiftie (the frame's at 35,415 245x245 and T0's) + the 🔊 chip,
           (535, 490, 745, 600)]  # and आगे (not in the frame)
+TYPE_T0 = [(420, 190, 860, 260),  # ...and the two sentences' ink, set in page 1 T0's type (Baloo 2's 700 face) where the frame
+           (420, 333, 860, 403)]  # has Baloo 2 SemiBold: compared by ink box instead
 BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
   if (!e) { o[s] = null; continue; } const r = e.getBoundingClientRect(); o[s] = [r.left, r.top, r.width, r.height]; } return o; }"""
 GOTO = """(id) => { const sg = document.getElementById('startGate'); if (sg) sg.classList.add('hidden');
@@ -66,7 +70,7 @@ NAVLOG = """() => { window._navLog = []; const btn = document.getElementById('na
 # one frame: the clip (r0 / c1 / c2 / r1 / moral), its clock, the title and box, each sentence's shown words, the lit sentence
 # (-1 = none), the lit commas, आगे
 SAMPLE = """() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_story_(\\w+)\\.ogg/), q = (s) => document.querySelector(s), nav = document.getElementById('navBtn');
-  return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying, title: !!q('.sfig-title.in'), box: !!q('.sfig-sbox.in'),
+  return { clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying, title: q('.sfig-title p') ? q('.sfig-title p').textContent : '', box: !!q('.sfig-sbox.in'),
     shown: [...document.querySelectorAll('.sfig-stext p')].map(p => p.querySelectorAll('.sfig-w.on').length),
     hot: [...document.querySelectorAll('.sfig-stext p')].map(p => [...p.querySelectorAll('.sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0)),   // [word-sync]
     hl: [...document.querySelectorAll('.sfig-sent')].findIndex(s => s.classList.contains('hl')), mk: document.querySelectorAll('.sfig-mk.on').length,
@@ -117,8 +121,8 @@ with sync_playwright() as p:
     check("the page's data: the frame's two sentences on vo_story_c1 / c2, the explanation vo_story_r1 with its two cues, the moral vo_story_moral with its cue",
           [ln["text_hi"] for ln in d["lines"]] == LINES and [ln["audio"] for ln in d["lines"]] == ["vo_story_c1", "vo_story_c2"] and d["explain_audio"] == "vo_story_r1"
           and len(CUES) == 2 and 0 < CUES[0] < CUES[1] and d["moral_audio"] == "vo_story_moral" and MCUE > 0, (CUES, MCUE))
-    pg.wait_for_function("!!document.querySelector('.sfig-title.in')", timeout=10000, polling=20); pg.wait_for_timeout(700)
-    pg.screenshot(path=str(out / "a_title_in_1333.png"))
+    pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_story_r0.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
+    pg.screenshot(path=str(out / "a_intro_1333.png"))   # [t0b-fig] the intro line sounding over the card alone (no title)
     pg.wait_for_function("!!document.querySelector('.sfig-sbox.in')", timeout=20000, polling=20); pg.wait_for_timeout(550)
     pg.screenshot(path=str(out / "b_box_in_1333.png"))
     pg.wait_for_function("document.querySelectorAll('.sfig-stext p.l2 .sfig-w.on').length >= 2", timeout=40000, polling=20)
@@ -137,11 +141,12 @@ with sync_playwright() as p:
     start_of = lambda c, i0=0: first(lambda s: s["clip"] == c and s["playing"], i0)
     end_of = lambda c, i0: first(lambda s: s["clip"] != c or not s["playing"], i0 + 1)   # the next clip may follow at once
     i_play = first(lambda s: s["clip"] == "r0" and (s["t"] or 0) > 0)
-    i_title = first(lambda s: s["title"]); i_end0 = end_of("r0", i_play); i_box = first(lambda s: s["box"])
+    i_end0 = end_of("r0", i_play); i_box = first(lambda s: s["box"])
     i_c1 = start_of("c1"); i_c1e = end_of("c1", i_c1); i_c2 = start_of("c2", i_c1e); i_c2e = end_of("c2", i_c2)
     i_r1 = start_of("r1", i_c2e); i_r1e = end_of("r1", i_r1); i_m = start_of("moral", i_r1e); i_me = end_of("moral", i_m)
-    check("the title appears as the intro line starts to sound", abs(ms(i_title) - ms(i_play)) <= 150 and not samples[0]["title"],
-          f"title at {ms(i_title) - ms(i_play):+.0f} ms from the clip's first played moment")
+    check("no title at any moment (frame 704:2 has none, [t0b-fig]); the intro line is the first clip, sounding over the card alone",
+          not d.get("title_hi") and all(s["title"] == "" for s in samples) and next(s["clip"] for s in samples if s["clip"]) == "r0"
+          and not any(s["box"] or any(s["shown"]) for s in samples[:i_play + 1]), (d.get("title_hi"), {s["title"] for s in samples}))
     check("the sentence box stays away while the intro line sounds", not any(s["box"] for s in samples[:i_end0]))
     check("the box comes in as the intro line ends", 0 <= ms(i_box) - ms(i_end0) <= 150, f"{ms(i_box) - ms(i_end0):.0f} ms after")
     i_s1 = first(lambda s: s["shown"][0] > 0)
@@ -188,9 +193,9 @@ with sync_playwright() as p:
     pg.wait_for_timeout(1200)
     pg.click(".tut-audio", force=True); pg.wait_for_timeout(400)
     r = pg.evaluate(SAMPLE)
-    check("🔊 afterwards replays the reading from sentence 1 (title, box and both sentences staying, sentence 1 lit word by word again, the highlights cleared) ([word-sync])",
+    check("🔊 afterwards replays the reading from sentence 1 (box and both sentences staying, sentence 1 lit word by word again, the highlights cleared) ([word-sync])",
           r["clip"] == "c1" and r["playing"] and r["shown"] == [len(T[0]), len(T[1])] and r["hot"][0] in (lit_want(T[0], WE[0], r["t"]), lit_want(T[0], WE[0], r["t"] - 0.05))
-          and r["hl"] == -1 and r["mk"] == 0 and r["title"] and r["box"], r)
+          and r["hl"] == -1 and r["mk"] == 0 and r["box"], r)
     check("आगे is hidden while the replay sounds", not r["navVisible"])
     pg.wait_for_function("document.querySelectorAll('.sfig-mk.on').length === 2", timeout=40000, polling=20)
     pg.wait_for_function("!isPlaying && document.getElementById('navBtn').classList.contains('active')", timeout=30000)
@@ -224,39 +229,50 @@ with sync_playwright() as p:
     pg.evaluate("document.querySelectorAll('.sfig-mk.on').forEach(m => m.classList.remove('on'))")   # the frame draws the sentences plain
     pg.wait_for_timeout(700)
     shot = out / "f_end_1280.png"; pg.screenshot(path=str(shot))
-    boxes = pg.evaluate(BOXES, list(FRAME) + list(NODES) + [".sfig-title p"]); worst = 0
-    print("== title / box / sentences vs the frame (px) ==")
+    boxes = pg.evaluate(BOXES, list(FRAME) + list(NODES)); worst = 0
+    print("== box / sentences vs the frame (px) ==")
     for sel, exp in FRAME.items():
         got = boxes[sel]; dd = max(abs(g - e) for g, e in zip(got, exp)); worst = max(worst, dd)
         print(f"  {sel:18s} got {[round(v,2) for v in got]}  frame {list(exp)}  max|d|={dd:.2f}")
-    for sel, ((cx, cy), w) in NODES.items():
-        g = boxes[sel]; gc = (g[0] + g[2] / 2, g[1] + g[3] / 2); dd = max(abs(gc[0] - cx), abs(gc[1] - cy), abs(g[2] - w)); worst = max(worst, dd)
-        print(f"  {sel:18s} centre {[round(v,2) for v in gc]} width {round(g[2],2)}  frame ({cx}, {cy}) {w}  max|d|={dd:.2f}")
-    tb = boxes[".sfig-title p"]; tc = (tb[0] + tb[2] / 2, tb[1] + tb[3] / 2)
-    dt = max(abs(tc[0] - TITLE_CENTRE[0]), abs(tc[1] - TITLE_CENTRE[1])); worst = max(worst, dt)
-    print(f"  title centre       got {[round(v,2) for v in tc]}  frame {list(TITLE_CENTRE)}  max|d|={dt:.2f}")
-    check("title, sentence box and the two sentence nodes within 1 px of the frame", worst <= 1.0, f"worst {worst:.2f}px")
+    for sel, (cx, cy) in NODES.items():
+        g = boxes[sel]; gc = (g[0] + g[2] / 2, g[1] + g[3] / 2); dd = max(abs(gc[0] - cx), abs(gc[1] - cy)); worst = max(worst, dd)
+        print(f"  {sel:18s} centre {[round(v,2) for v in gc]} width {round(g[2],2)}  frame ({cx}, {cy})  max|d|={dd:.2f}")
+    check("sentence box and the two sentence nodes' centres within 1 px of the frame (704:183 / 704:184 / 704:185)", worst <= 1.0, f"worst {worst:.2f}px")
+    check("no title is drawn (frame 704:2 has none)", pg.evaluate("(document.querySelector('.sfig-title p') || {}).textContent || ''") == "")
     lines = pg.evaluate("""() => [...document.querySelectorAll('.sfig-stext p')].map(p => { const ws = [...p.querySelectorAll('.sfig-w')];
       const tops = [...new Set(ws.map(w => Math.round(w.getBoundingClientRect().top)))];
       return tops.map(t => ws.filter(w => Math.round(w.getBoundingClientRect().top) === t).map(w => w.textContent).join(' ')); })""")
     print("  text lines:", lines)
     check("each sentence is the frame's, on one line", lines == [[l] for l in LINES])
-    fonts = pg.evaluate("[getComputedStyle(document.querySelector('.sfig-title')).fontSize, getComputedStyle(document.querySelector('.sfig-stext p.l1')).fontSize, document.fonts.check(\"800 64px 'Story Baloo 2'\", 'आइए')]")
-    check("fonts: Baloo 2 ExtraBold ([baloo-font]), 64px title / 30px sentences (frame px)", fonts[0] == "64px" and fonts[1] == "30px" and fonts[2], fonts)
+    # [t0b-fig] the type is page 1 T0's (.sfig-text: Baloo 2 declared 600 -> the embedded 700 face, #002F76) at the frame's 50px
+    t0 = pg.evaluate("""() => { const c = getComputedStyle(document.querySelector('.sfig-stext p.l1')), d = getComputedStyle(document.querySelector('.sfig-stext p.l2'));
+      return [c.fontFamily, c.fontWeight, c.fontSize, c.lineHeight, c.color, d.fontFamily + d.fontWeight + d.fontSize + d.color,
+              document.fonts.check("600 50px 'Baloo 2'", 'उसे रोको') && document.fonts.check("700 50px 'Baloo 2'", 'उसे रोको')]; }""")
+    check("type: page 1 T0's (Baloo 2 declared 600, #002F76) at the frame's 50px, line-height normal, both sentences", t0[0].startswith('"Baloo 2"') and t0[1] == "600"
+          and t0[2] == "50px" and t0[3] == "normal" and t0[4] == "rgb(0, 47, 118)" and t0[5] == t0[0] + "600" + "50px" + "rgb(0, 47, 118)" and t0[6], t0)
     A = np.asarray(Image.open(shot).convert("RGB"), np.int16); B = np.asarray(target, np.int16)
-    x0, y0, x1, y1 = CONTENT
+    def ink(X, y0, y1, x0=380, x1=900):   # the box of pixels at least 15 % of the way from white to the navy
+        sub = X[y0:y1, x0:x1].astype(int); m = np.clip((765 - sub.sum(axis=2)) / (765 - 165), 0, 1) >= 0.15
+        ys, xs = np.nonzero(m); return (x0 + xs.min(), y0 + ys.min(), x0 + xs.max() + 1, y0 + ys.max() + 1)
+    for k, (y0, y1) in enumerate(INK_BANDS, 1):
+        a, f = ink(A, y0, y1), ink(B, y0, y1)
+        dc = ((a[0] + a[2]) / 2 - (f[0] + f[2]) / 2, (a[1] + a[3]) / 2 - (f[1] + f[3]) / 2)
+        print(f"  sentence {k} ink: page {[int(v) for v in a]} ({a[2]-a[0]}x{a[3]-a[1]})  render {[int(v) for v in f]} ({f[2]-f[0]}x{f[3]-f[1]})  centre d {dc[0]:+.1f},{dc[1]:+.1f}")
+        check(f"sentence {k}'s ink sits where the render's does (centres within 1.5 px; the same height, within 3 % of its width — T0's bolder face)",
+              abs(dc[0]) <= 1.5 and abs(dc[1]) <= 1.5 and abs((a[3] - a[1]) - (f[3] - f[1])) <= 2 and abs((a[2] - a[0]) / (f[2] - f[0]) - 1) <= 0.03, dc)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
-    near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2)
-                   for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)[y0:y1, x0:x1]
-    big = int((near > 32).sum()); px = near.size
-    print(f"  pixel diff vs Figma render over the title + box (within 1 px): {big} of {px} px differ by >32 levels ({100*big/px:.2f}%)")
-    Image.fromarray(np.where(near > 32, 255, 0).astype(np.uint8)).save(out / "f_diff_mask.png")
-    # anti-aliasing of glyph strokes and the box edge is what remains; a misplaced line or box shows as whole shapes
-    check("title + box pixel-match the Figma render (within 1 px: >32-level diffs under 5% of the area)", big / px < 0.05)
     full = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2)
                    for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
+    near = full.copy()
+    for x0, y0, x1, y1 in TYPE_T0: near[y0:y1, x0:x1] = 0
+    x0, y0, x1, y1 = CONTENT; near = near[y0:y1, x0:x1]
+    big = int((near > 32).sum()); px = near.size
+    print(f"  pixel diff vs Figma render over the box, less the sentences' ink (within 1 px): {big} of {px} px differ by >32 levels ({100*big/px:.2f}%)")
+    Image.fromarray(np.where(near > 32, 255, 0).astype(np.uint8)).save(out / "f_diff_mask.png")
+    # anti-aliasing of the box edge is what remains; a misplaced or mis-sized box shows as whole shapes
+    check("the box pixel-matches the Figma render (within 1 px: >32-level diffs under 1% of the area)", big / px < 0.01)
     keep = np.zeros(full.shape, bool); x0, y0, x1, y1 = WHOLE; keep[y0:y1, x0:x1] = True
-    for x0, y0, x1, y1 in OWN_T0: keep[y0:y1, x0:x1] = False
+    for x0, y0, x1, y1 in OWN_T0 + TYPE_T0: keep[y0:y1, x0:x1] = False
     m = (full > 32) & keep; px = int(keep.sum())
     # what is left within 1 px is anti-aliasing: glyph outlines and a 1-px line along each edge of the card's border
     solid = int(((full > 32) & keep & np.roll(m, 1, 0) & np.roll(m, -1, 0) & np.roll(m, 1, 1) & np.roll(m, -1, 1)).sum())

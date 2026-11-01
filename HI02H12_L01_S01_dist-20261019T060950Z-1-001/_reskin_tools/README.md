@@ -1815,6 +1815,32 @@ Page 1 T0's text a little bigger, still centred in the box ([t0-font], 2026-11-0
 - Checked: story_check.py (its type / centring asserts moved to 31 / 39.68 / 6 / 5.01) 75/75 ALL PASS; smoke 47/47.
   `../_before_t0_font/` holds the [poem-box2] dist, build.py, README and story_check.py.
 
+Page 2 T0B laid out as Figma frame 704:2 ([t0b-fig], 2026-11-01)
+- Asked: "make page 2 T0B exactly the layout of this Figma (FLN-by-MJ 704:2), but keep the bird's and the speaker button's
+  position, placement and size exactly as on the page before; keep page 1 T0's font type, at the size the Figma shows; the
+  functionality (both sentences, the VOs and their synced animations) stays as it is; rest exactly the same."
+- The frame: the same card (96,106 1088x508, 64 px corners) and grid as 488:190 / 654:567, except its second grid tile (704:181)
+  2 px further left; NO title; the white box 704:183 574x283 at 257,54 of the card (centred on 640), 4 px #DADADA stroke drawn
+  OUTSIDE (measured on the 1:1 render: 349..930 x 156..446) and 20 px corners; the two sentences 704:184 / 704:185 centred on
+  640,230 / 640,373 (frame px), Baloo 2 SemiBold 50 px, line-height normal. Its bird (35,415 245) is not used: Swiftie
+  (76,472 190), the 🔊 chip (202,606 58) and आगे (581.5,550) stay where they were (stage px), as asked.
+- Here (build.py [t0b-fig]; T0B's own rules — .sfig-sbox / .sfig-stext.sfig-lines are T0B's alone, the grid shift is scoped
+  .sfig-in:has(.sfig-sbox) because .sfig-round is shared with T1): the box 241,38 582x291 in .sfig-in's px; the sentences
+  centred on 532,112 / 532,255 there, one line each (nowrap), in T0's type (font-family var(--font-hi), declared 600 -> the
+  embedded 700 face, #002F76) at 50 px, line-height normal; the second grid tile at 529.969. The title is gone by DATA: T0B's
+  data.title_hi is removed, so the module (unchanged) leaves its title element empty; the intro line vo_story_r0 still sounds
+  first and the box still comes in when it ends. The module, the clips, the word sync, the explanation's yellow lift and the
+  moral's orange commas are untouched. The rebuilt dist differs from the backup in those CSS rules and that one data field only.
+- Measured (1280x720): box 349.07,155.94 581.85x290.93; line boxes centred within 0.12 px of the nodes'; each sentence's ink
+  within 0.5 / 1.0 px of the render's ink centre, 403 x 50 vs the render's 392 x 50 (T0's bolder face, 2.8 % wider).
+- Checked: relisten_check.py rewritten for the frame (usage: relisten3_figma_render_1280x720.png, the 1:1 render of 704:2):
+  39/39 ALL PASS — no title at any moment, the box / node centres within 1 px, T0's type at 50 px, ink vs the render, the box
+  pixel-matching the render (0 px over 32 levels outside the sentences' ink) and the whole card 0 solid diffs (Swiftie / chip /
+  आगे and the two ink bands masked), plus all the timing checks as before. smoke 47/47; story_check 75/75; word_sync_check
+  T0B T0 all lines OK; recap_check (T1, which shares .sfig-round) 44 pass + the same 2 FAILs as the pre-change build (the
+  [baloo-font] by-design ink / whole-card diffs) and its 1280 end shot pixel-identical before and after.
+  `../_before_t0b_fig/` holds the [t0-font] dist, build.py, README, relisten_check.py and the old frame's render.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
