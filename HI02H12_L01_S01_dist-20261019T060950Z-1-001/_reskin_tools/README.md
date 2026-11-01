@@ -2123,7 +2123,7 @@ Page 6 T2: the blank box fades out and in slowly, as a whole, for 7 s ([t2-scene
   the .6 glow (the opacity alone moving); a new check that the pop-in does not run again (opacity 1 and the identity transform —
   Chrome writes sfigBoxIn's held `transform:none` as matrix(1,0,0,1,0,0) — through the 0.7 s after). 37/37 ALL PASS: the blink
   320 ms after the sound, 7013 ms, 4 troughs 1749 / 1750 / 1750 ms apart, the largest opacity step .052, seen (1) at the end; 393
-  look frames all orange / tint / .6 glow; the tail flat. SMOKE_T2E
+  look frames all orange / tint / .6 glow; the tail flat. smoke.py 50/50 passed on the new build.
   `../_before_t2_scene5/` holds the [t2-scene4] dist, build.py, README and scene_check.py.
 
 Rebuilding after a card/content change
