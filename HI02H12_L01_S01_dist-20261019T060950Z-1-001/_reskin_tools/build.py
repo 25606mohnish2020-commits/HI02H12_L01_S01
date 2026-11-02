@@ -601,6 +601,41 @@ card["_emoji_fallback"]["img_g3_flowers"] = "✏️"
 card["assets"]["image"]["img_g3_garden"] = "assets/Images/img_g3_garden.webp"   # [g3-scene] the frame's "image 284" fill (1671x941, q90)
 card["assets"]["image"]["img_g3_girl_point"] = "assets/Images/img_g3_girl_point.webp"   # [g3-scene] the frame's "image 283" fill (1024x1536, q90, alpha exact)
 card["_emoji_fallback"]["img_g3_garden"] = "🌳"; card["_emoji_fallback"]["img_g3_girl_point"] = "✏️"
+# [g3-grow] (asked 2026-11-02): "when the page starts and the image in the blue frame and the girl is shown, the plants in the image
+# should show a growing animation for once, synced with this sound effect (freesound_community-014_plantacreciendo-003-44289.mp3),
+# the three plants growing to their original size shown in the image, and the girl's eyes moving towards the plants and then towards
+# the screen; only after that the sentence should come and the whole flow continue as it is; keep repeating the eyes' movement every
+# 7 seconds; perfect and smooth". The garden's three plants (the rose, the marigold, the jasmine) are cut from its bitmap by
+# plant_rig_g3.py (g3_assets/plant_rig/: the garden WITHOUT them — the lawn and the tree line behind them rebuilt from the same
+# rows, the soil's top edge carried across under the stems, lossless so every other pixel is the painting's — and each plant as its
+# own RGBA cut-out whose edge is un-mixed from that garden, so plant-over-garden IS the painting, max 1 level). The page opens on the
+# garden without them (data.bg_id = img_g3_garden_bare; img_g3_garden stays in the dist, unused); once the garden and the plants are
+# decoded and no sooner than start_ms (past the page's .34 s slide-in) each plant GROWS out of its soil from its stem's base —
+# shooting up first (dscPlantH: its height, from .03 past its size to 1.08, a little under, a little over, home) and spreading a
+# beat behind (dscPlantW: its width from .22, past to 1.05, home) — the three one after another, each reaching its overshoot on one
+# of the sound's three loudest creaks (0.55, 1.075 and 1.35 s into it: delays 0 / 495 / 770 ms, 58% of 1 s), the jasmine home at
+# 1.77 s as the sound dies away (1.9 s). The user's sound is 37 dB under the lesson's voice (-55.5 LUFS): raised 29 dB as it is
+# (g3_assets/sfx_g3_grow.mp3, -26.9 LUFS, peak -2 dB, not shifted; the user's bytes kept as sfx_g3_grow_source.mp3). The girl's eyes
+# are layers of her own bitmap (girl_rig_g3.py: each eye's interior masked, a cover over the painted iris, the iris — her face is
+# three-quarter, the irises upright ellipses — completed where it runs on under the outline); look_ms into the growth her irises
+# slide down and to her left, to the plants (data.girl_look.gaze: 4 / 10 bitmap px), hold while they grow, and are back exactly as
+# painted ("the screen", as T4's "back to the screen in the exact same position") by 2.1 s; the glance repeats every 7 s until the
+# answer (lookOff: only in a rest phase). then_ms after the growth began the page goes on exactly as before: the instruction line,
+# 0.5 s, the sentence, the tiles (the glance's cycle runs on across them).
+_prig3 = json.loads((SCR / "g3_assets" / "plant_rig" / "rig.json").read_text(encoding="utf-8"))
+_erig3 = json.loads((SCR / "g3_assets" / "girl_rig" / "rig.json").read_text(encoding="utf-8"))
+assert [q["name"] for q in _prig3["plants"]] == ["rose", "marigold", "jasmine"] and _prig3["bitmap"] == [1671, 941], _prig3["bitmap"]
+assert all(q["rest_err_decoded"]["max"] <= 1.5 for q in _prig3["plants"]) and _prig3["bare"]["outside_holes_max_diff"] == 0, "plant_rig_g3.py: plant over bare is not the painting"
+assert _erig3["bitmap"] == [1024, 1536] and _erig3["rest_diff"]["max"] <= 4, "girl_rig_g3.py: the eyes at rest are not the painting"
+G3_BGS = 630 / 941; G3_BGX = -27 + (1117 - 1671 * G3_BGS) / 2; G3_BGY = -132   # the garden's cover in its 1117x630 box at -27,-132 (the height binds: 0.87 px off each side)
+G3_GS = 328 / 1536; G3_GX = (218 - 1024 * G3_GS) / 2                           # the girl's cover in her 218x328 box (0.33 px off each side)
+GROW3 = {"plants": [f"img_g3_plant_{q['name']}" for q in _prig3["plants"]], "sfx": "sfx_g3_grow.mp3", "sfx_vol": 0.9,
+         "start_ms": 600, "dur_ms": 1000, "delays_ms": [0, 495, 770], "look_ms": 300, "then_ms": 2700}
+LOOK3 = {"every_ms": 7000, "active_ms": 2100, "anim": "dscEyesLook", "warm_ms": 380, "gaze": [round(_erig3["gaze"][0] * G3_GS, 3), round(_erig3["gaze"][1] * G3_GS, 3)]}
+card["slides"][i_g3]["data"].update({"bg_id": "img_g3_garden_bare", "grow": GROW3, "girl_rig": "eyes", "girl_look": LOOK3})
+card["assets"]["image"]["img_g3_garden_bare"] = "assets/Images/img_g3_garden_bare.webp"; card["_emoji_fallback"]["img_g3_garden_bare"] = "🌳"
+for _q in _prig3["plants"]:
+    card["assets"]["image"][f"img_g3_plant_{_q['name']}"] = f"assets/Images/img_g3_plant_{_q['name']}.webp"; card["_emoji_fallback"][f"img_g3_plant_{_q['name']}"] = "🌱"
 # [sent-fig] G4 = the reference game's Page 11 (P4 of https://hi-02-h04-l01-s01-dun.vercel.app/, a picture-to-sentence question):
 # its layout, elements and flow with this lesson's picture (the girl flying a kite, framed like P4's by g4_picture.py), title
 # "सही विराम चिह्न वाला वाक्य चुनिए ।" and three sentences that differ only in where the danda sits — type SENT_PICK, in place of the
@@ -1305,14 +1340,21 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       const basketHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-brig"><span class="dsc-bunder"></span>' + bwin("dsc-bbody") + bwin("dsc-bfore") + bwin("dsc-belbow") +
         '<div class="dsc-bhead">' + bwin("dsc-bheadw") + [1, 2].map(k=> '<div class="dsc-beye e' + k + '">' + bwin("dsc-bwin") + '<span class="dsc-bfill"></span><span class="dsc-biris"></span></div>').join("") + '</div>' +
         bwin("dsc-bbasket") + '</div></div>';
-      const girlHtml = d.girl_rig === "basket" ? basketHtml : d.girl_rig
+      // [g3-grow] data.girl_rig "eyes" (G3): her one image as before and, over it, each eye's interior (masked by its sheet) holding
+      // the cover over the painted iris and the iris itself, which slides; nothing else of her is touched
+      const eyesHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"><div class="dsc-erig">' +
+        [1, 2].map(k=> '<div class="dsc-eeye e' + k + '"><span class="dsc-efill"></span><span class="dsc-eiris"></span></div>').join("") + '</div></div>';
+      // [g3-grow] data.grow: the garden's plants, each its own cut-out over the garden without them (data.bg_id), growing from its stem
+      const G = d.grow || null;
+      const plantsHtml = G ? '<div class="dsc-plants">' + G.plants.map((id, k)=> '<div class="dsc-plant p' + (k + 1) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join("") + '</div>' : '';
+      const girlHtml = d.girl_rig === "eyes" ? eyesHtml : d.girl_rig === "basket" ? basketHtml : d.girl_rig
         ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
           '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
           '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
           '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div></div></div>'
         : '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div>';
       const fig = sfigMount(host,
-        '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
+        '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + plantsHtml + girlHtml + '</div>' +
         (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
         Array.from({ length: nSlots }, (_, k)=> '<div class="dsc-slot' + (nSlots > 1 ? ' s' + (k + 1) : '') + '"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>').join("") +   // [t4-scene] data.slots of them (T2 / T3: one)
@@ -1350,6 +1392,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
       kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx)); kit("sceneBox", d.box_sfx);   // [t3-scene] the bubble's pop
+      kit("sceneGrow", G && G.sfx);   // [g3-grow] the plants' sound
       // the tiles' pops: the kit's play (held as an effect by [tap-lock]'s sfxBusy) — in the pick ([g1-scene]) played UNTRACKED: they
       // are the tiles' entrance, not feedback, and a tile tapped as it pops in answers at once (the buzz, the chime, the lines and
       // the sounds of the other pages still hold the taps)
@@ -1517,16 +1560,33 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
       let introDone = false;
-      say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
+      const opening = ()=> say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
+      // [g3-grow] the page opens on the garden without its plants: once the garden and the plants are decoded, and no sooner than
+      // data.grow.start_ms (past the page's slide-in), they GROW out of their soil one after another (the CSS: .grow) to the user's
+      // sound in that frame, the girl's eyes going to them data.grow.look_ms in (her glance, data.girl_look, every 7 s from then)
+      // and back; data.grow.then_ms after the growth began the page goes on exactly as before (the instruction line, the sentence,
+      // the tiles). A garden that never decodes holds nothing up for more than 5 s.
+      if(G){
+        const pics = [fig.querySelector(".dsc-bg > img")].concat(Array.from(fig.querySelectorAll(".dsc-plant img")));
+        const decoded = Promise.all(pics.map(im=> (im && im.decode) ? im.decode().catch(()=>{}) : Promise.resolve()));
+        const wait = (ms)=> new Promise(r=> setTimeout(r, ms));
+        Promise.race([Promise.all([decoded, wait(G.start_ms || 600)]), wait(5000)]).then(()=>{
+          if(!alive()) return;
+          fig.querySelector(".dsc-plants").classList.add("grow");
+          if(G.sfx) playKitSfx("sceneGrow", G.sfx, G.sfx_vol == null ? .9 : G.sfx_vol);
+          after(G.look_ms || 0, lookOn);
+          after(G.then_ms || 2700, opening);
+        });
+      } else opening();
       // [t3-look7] the first glance's GPU work done ahead: on a cold browser the first frame that draws the masked layers TILTED
       // compiles the GPU's shaders (measured: an 83-117 ms frame as the arm began to lift, in 6 of 6 fresh browsers; with this, 33-62 ms). The rig's
       // layers are composited from mount (style.css: will-change), and here, in the still moment after the page's slide-in and
       // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
       // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
       // not begun
-      if(look){ const body = girl.querySelector(".dsc-gbody, .dsc-bbody");   // [t4-basket] T4's body window too
+      if(look){ const body = girl.querySelector(".dsc-gbody, .dsc-bbody, :scope > img");   // [t4-basket] T4's body window too; [g3-grow] G3's one image, warmed at 0.38 s (data.girl_look.warm_ms: before its growth and its first glance)
         const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
-        after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
+        after(look.warm_ms || 560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
   },
 
@@ -3094,6 +3154,59 @@ scene_css += ("\n/* ===== [t4-basket] T4's girl in layers and her look into the 
     ".dsc-girl.look .dsc-bhead{animation:dscBasketHead var(--look-ms,7000ms) linear infinite;}\n"
     ".dsc-girl.look .dsc-biris{animation:dscBasketEye var(--look-ms,7000ms) linear infinite;}\n"
     + _basket_kf())
+# [g3-grow] G3's plants (plant_rig_g3.py: g3_assets/plant_rig/, the cut-outs shipped as files, decoded before they grow) over the
+# garden without them, each box the cut-out's own in the garden's cover mapping, its origin the stem's base; and G3's girl's eyes
+# (girl_rig_g3.py: g3_assets/girl_rig/, inlined): each eye a mask sheet at her box (cover, as her image), the cover and the iris as
+# images at the iris's box. The growth: dscPlantH (the height and the fade-in) on the image, dscPlantW (the width, a beat behind)
+# on its box, both data.grow.dur_ms long, each plant data.grow.delays_ms[k] late; the glance: dscEyesLook, every_ms long, the
+# irises to the gaze over 0.45 s, held to 1.65 s, home by 2.1 s.
+_R3 = SCR / "g3_assets" / "girl_rig"
+_r3_sheets = [f"g3_girl_{k}.png" for k in ("eye1_mask", "eye2_mask", "fill1", "fill2", "iris1", "iris2")]
+assert all((_R3 / v).exists() for v in _r3_sheets), "missing rig sheets: run girl_rig_g3.py"
+_durl3 = lambda name: "url(data:image/png;base64," + base64.b64encode((_R3 / name).read_bytes()).decode() + ")"
+_plant_css = ""
+for _k, _q in enumerate(_prig3["plants"], 1):
+    _bx, _by, _bw, _bh = _q["box"]; _ox, _oy = (_q["base"][0] - _bx) * G3_BGS, (_q["base"][1] - _by) * G3_BGS
+    _plant_css += (f".dsc-v-pick3 .dsc-plant.p{_k}{{left:{_px(G3_BGX + _bx * G3_BGS)};top:{_px(G3_BGY + _by * G3_BGS)};width:{_px(_bw * G3_BGS)};height:{_px(_bh * G3_BGS)};"
+                   f"transform-origin:{_px(_ox)} {_px(_oy)};--g-delay:{GROW3['delays_ms'][_k - 1]}ms;}}   /* the {_q['name']}: its stem's base at {_q['base'][0]},{_q['base'][1]} of the garden */\n"
+                   f".dsc-v-pick3 .dsc-plant.p{_k} > img{{transform-origin:{_px(_ox)} {_px(_oy)};}}\n")
+_eye3_css = ""
+for _i, _e in enumerate(_erig3["eyes"], 1):
+    _ox, _oy, _sz, _ = _e["iris_box"]
+    _at = f"left:{_px(G3_GX + _ox * G3_GS)};top:{_px(_oy * G3_GS)};width:{_px(_sz * G3_GS)};height:{_px(_sz * G3_GS)};"
+    _eye3_css += (f".dsc-eeye.e{_i}{{--m:{_durl3(f'g3_girl_eye{_i}_mask.png')};}}\n"
+                  f".dsc-eeye.e{_i} .dsc-efill{{{_at}background:{_durl3(f'g3_girl_fill{_i}.png')} 0 0 / 100% 100% no-repeat;}}\n"
+                  f".dsc-eeye.e{_i} .dsc-eiris{{{_at}background:{_durl3(f'g3_girl_iris{_i}.png')} 0 0 / 100% 100% no-repeat;}}\n")
+def _grow_kf():
+    """[g3-grow] the growth (stops in ms of data.grow.dur_ms written as %) and the glance (ms of the 7 s cycle written as %)"""
+    D = GROW3["dur_ms"]; pc = lambda t, ev: f"{100 * t / ev:.4g}%"
+    sw = "cubic-bezier(.45,0,.55,1)"   # each swing of the settle eases out of one extreme into the next
+    H = [((0,), "transform:scaleY(.03);opacity:0;", "cubic-bezier(.3,.6,.4,1)"), ((80,), "opacity:1;", None), ((580,), "transform:scaleY(1.08);", sw),
+         ((760,), "transform:scaleY(.965);", sw), ((900,), "transform:scaleY(1.012);", sw), ((D,), "transform:none;opacity:1;", None)]
+    Wd = [((0,), "transform:scaleX(.22);", "cubic-bezier(.35,.25,.4,1)"), ((620,), "transform:scaleX(1.05);", sw), ((800,), "transform:scaleX(.985);", sw),
+          ((930,), "transform:scaleX(1.004);", sw), ((D,), "transform:none;", None)]
+    ev = LOOK3["every_ms"]; gx, gy = LOOK3["gaze"]
+    assert LOOK3["active_ms"] == 2100 and ev >= LOOK3["active_ms"] + 500, LOOK3
+    E = [((0,), "transform:translate(0px,0px);", "cubic-bezier(.4,0,.2,1)"), ((450, 1650), f"transform:translate({gx}px,{gy}px);", "cubic-bezier(.4,0,.3,1)"), ((2100, ev), "transform:translate(0px,0px);", None)]
+    def kf(name, stops, total):
+        body = "".join(",".join(pc(t, total) for t in ts) + "{" + decl + (f"animation-timing-function:{fn};" if fn else "") + "}" for ts, decl, fn in stops)
+        return "@keyframes " + name + "{" + body + "}\n"
+    return kf("dscPlantH", H, D) + kf("dscPlantW", Wd, D) + kf("dscEyesLook", E, ev)
+scene_css += ("\n/* ===== [g3-grow] G3's plants growing out of their soil and the girl's glance at them (plant_rig_g3.py, girl_rig_g3.py; see build.py) ===== */\n"
+    ".dsc-plants{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}\n"
+    ".dsc-plant{position:absolute;} .dsc-plant > img{position:absolute;left:0;top:0;width:100%;height:100%;}\n"
+    ".dsc-plants:not(.grow) .dsc-plant{visibility:hidden;}   /* the page opens on the garden without them */\n"
+    f".dsc-plants.grow .dsc-plant{{animation:dscPlantW {GROW3['dur_ms']}ms linear var(--g-delay,0ms) both;}}\n"
+    f".dsc-plants.grow .dsc-plant > img{{animation:dscPlantH {GROW3['dur_ms']}ms linear var(--g-delay,0ms) both;}}\n"
+    + _plant_css +
+    ".dsc-erig{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}\n"
+    ".dsc-eeye{position:absolute;left:0;top:0;width:100%;height:100%;-webkit-mask:var(--m) 50% 50% / cover no-repeat;mask:var(--m) 50% 50% / cover no-repeat;}   /* her image's own cover */\n"
+    ".dsc-efill,.dsc-eiris{position:absolute;}\n"
+    + _eye3_css +
+    ".dsc-eiris{will-change:transform;}   /* composited from mount, as T3's / T4's irises */\n"
+    ".dsc-girl.warm .dsc-eiris{transform:translate(.001px,.001px);}   /* the GPU warm-up (see the module) */\n"
+    ".dsc-girl.look .dsc-eiris{animation:dscEyesLook var(--look-ms,7000ms) linear infinite;}\n"
+    + _grow_kf())
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial
@@ -4129,8 +4242,10 @@ for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_girl_bag.webp", "Images"
 # ---------- 7i. [pick-fig] G3's sentence clip and picture (g3_assets/: recap_vo.py g3; the frame's "image 233"; its title bar
 #               is G1's to the pixel, its instruction vo_g1_intro, its name on the right tap T4's vo_demo3_alp) ----------
 G3_SRC = SCR / "g3_assets"
-for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images"), ("img_g3_garden.webp", "Images"), ("img_g3_girl_point.webp", "Images")):   # [g3-scene] + the frame's garden and girl
-    f, dst = G3_SRC / name, DIST / "assets" / sub / name
+for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images"), ("img_g3_garden.webp", "Images"), ("img_g3_girl_point.webp", "Images"),   # [g3-scene] + the frame's garden and girl
+                  ("plant_rig/img_g3_garden_bare.webp", "Images"), ("plant_rig/img_g3_plant_rose.webp", "Images"), ("plant_rig/img_g3_plant_marigold.webp", "Images"),
+                  ("plant_rig/img_g3_plant_jasmine.webp", "Images"), ("sfx_g3_grow.mp3", "Audio")):   # [g3-grow] the garden without its plants, the three plants, the raised sound
+    f, dst = G3_SRC / name, DIST / "assets" / sub / pathlib.Path(name).name
     assert f.exists(), f"missing G3 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 

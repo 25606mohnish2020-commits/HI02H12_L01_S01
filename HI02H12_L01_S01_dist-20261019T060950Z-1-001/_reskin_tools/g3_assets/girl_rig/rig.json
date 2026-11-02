@@ -1,0 +1,101 @@
+{
+ "bitmap": [
+  1024,
+  1536
+ ],
+ "gaze": [
+  4.0,
+  10.0
+ ],
+ "eyes": [
+  {
+   "name": "eye1",
+   "iris": {
+    "cx": 467.88,
+    "cy": 292.26,
+    "rx": 21.98,
+    "ry": 26.01,
+    "r": 24.0,
+    "fit_pts": 94,
+    "fit_rms": 0.5,
+    "hidden_px": 305
+   },
+   "iris_box": [
+    437,
+    262,
+    61,
+    61
+   ],
+   "centre": [
+    454.0,
+    293.4
+   ],
+   "interior_r": {
+    "min": 26.0,
+    "max": 35.5,
+    "valid_angles": 189,
+    "ellipse_fit_err": 0.3
+   },
+   "sclera": [
+    254,
+    253,
+    252
+   ],
+   "iris_shown": {
+    "rest": 1631,
+    "glance": 1244
+   }
+  },
+  {
+   "name": "eye2",
+   "iris": {
+    "cx": 589.08,
+    "cy": 248.14,
+    "rx": 19.45,
+    "ry": 26.33,
+    "r": 22.89,
+    "fit_pts": 70,
+    "fit_rms": 0.55,
+    "hidden_px": 220
+   },
+   "iris_box": [
+    559,
+    218,
+    61,
+    61
+   ],
+   "centre": [
+    578.7,
+    248.1
+   ],
+   "interior_r": {
+    "min": 25.1,
+    "max": 30.7,
+    "valid_angles": 181,
+    "ellipse_fit_err": 0.33
+   },
+   "sclera": [
+    253,
+    252,
+    251
+   ],
+   "iris_shown": {
+    "rest": 1515,
+    "glance": 1150
+   }
+  }
+ ],
+ "sheets": {
+  "g3_girl_eye1_mask.png": 9202,
+  "g3_girl_eye2_mask.png": 9157,
+  "g3_girl_fill1.png": 302,
+  "g3_girl_fill2.png": 302,
+  "g3_girl_iris1.png": 4414,
+  "g3_girl_iris2.png": 4371
+ },
+ "rest_diff": {
+  "max": 3.0,
+  "over8": 0,
+  "over24": 0
+ }
+}

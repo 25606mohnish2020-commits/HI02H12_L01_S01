@@ -1,0 +1,106 @@
+{
+ "bitmap": [
+  1671,
+  941
+ ],
+ "plants": [
+  {
+   "name": "rose",
+   "box": [
+    628,
+    520,
+    143,
+    144
+   ],
+   "base": [
+    699.5,
+    660.0
+   ],
+   "copy_dx": 176,
+   "rim_mismatch": 16.2,
+   "plant_px": 9076,
+   "hole_px": 11546,
+   "clean_px": 17,
+   "edge_shown_cols": 125,
+   "rest_err": {
+    "max": 0.7,
+    "over4": 0,
+    "over12": 0
+   },
+   "file": "img_g3_plant_rose.webp",
+   "bytes": 26498,
+   "rest_err_decoded": {
+    "max": 1.0,
+    "over4": 0,
+    "over12": 0
+   }
+  },
+  {
+   "name": "marigold",
+   "box": [
+    961,
+    528,
+    128,
+    138
+   ],
+   "base": [
+    1025.0,
+    662.0
+   ],
+   "copy_dx": -140,
+   "rim_mismatch": 14.0,
+   "plant_px": 9030,
+   "hole_px": 11158,
+   "clean_px": 18,
+   "edge_shown_cols": 106,
+   "rest_err": {
+    "max": 0.7,
+    "over4": 0,
+    "over12": 0
+   },
+   "file": "img_g3_plant_marigold.webp",
+   "bytes": 24704,
+   "rest_err_decoded": {
+    "max": 1.0,
+    "over4": 0,
+    "over12": 0
+   }
+  },
+  {
+   "name": "jasmine",
+   "box": [
+    1305,
+    520,
+    153,
+    145
+   ],
+   "base": [
+    1381.0,
+    661.0
+   ],
+   "copy_dx": -146,
+   "rim_mismatch": 19.0,
+   "plant_px": 10554,
+   "hole_px": 12523,
+   "clean_px": 16,
+   "edge_shown_cols": 133,
+   "rest_err": {
+    "max": 0.8,
+    "over4": 0,
+    "over12": 0
+   },
+   "file": "img_g3_plant_jasmine.webp",
+   "bytes": 27958,
+   "rest_err_decoded": {
+    "max": 1.0,
+    "over4": 0,
+    "over12": 0
+   }
+  }
+ ],
+ "bare": {
+  "bytes": 249898,
+  "outside_holes_max_diff": 0.0,
+  "decoded_vs_built_max": 0.0
+ }
+}

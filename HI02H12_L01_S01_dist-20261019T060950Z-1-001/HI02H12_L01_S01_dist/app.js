@@ -6449,14 +6449,21 @@ const SlideModules = {
       const basketHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-brig"><span class="dsc-bunder"></span>' + bwin("dsc-bbody") + bwin("dsc-bfore") + bwin("dsc-belbow") +
         '<div class="dsc-bhead">' + bwin("dsc-bheadw") + [1, 2].map(k=> '<div class="dsc-beye e' + k + '">' + bwin("dsc-bwin") + '<span class="dsc-bfill"></span><span class="dsc-biris"></span></div>').join("") + '</div>' +
         bwin("dsc-bbasket") + '</div></div>';
-      const girlHtml = d.girl_rig === "basket" ? basketHtml : d.girl_rig
+      // [g3-grow] data.girl_rig "eyes" (G3): her one image as before and, over it, each eye's interior (masked by its sheet) holding
+      // the cover over the painted iris and the iris itself, which slides; nothing else of her is touched
+      const eyesHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"><div class="dsc-erig">' +
+        [1, 2].map(k=> '<div class="dsc-eeye e' + k + '"><span class="dsc-efill"></span><span class="dsc-eiris"></span></div>').join("") + '</div></div>';
+      // [g3-grow] data.grow: the garden's plants, each its own cut-out over the garden without them (data.bg_id), growing from its stem
+      const G = d.grow || null;
+      const plantsHtml = G ? '<div class="dsc-plants">' + G.plants.map((id, k)=> '<div class="dsc-plant p' + (k + 1) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join("") + '</div>' : '';
+      const girlHtml = d.girl_rig === "eyes" ? eyesHtml : d.girl_rig === "basket" ? basketHtml : d.girl_rig
         ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
           '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
           '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
           '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div></div></div>'
         : '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div>';
       const fig = sfigMount(host,
-        '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
+        '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + plantsHtml + girlHtml + '</div>' +
         (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
         Array.from({ length: nSlots }, (_, k)=> '<div class="dsc-slot' + (nSlots > 1 ? ' s' + (k + 1) : '') + '"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>').join("") +   // [t4-scene] data.slots of them (T2 / T3: one)
@@ -6494,6 +6501,7 @@ const SlideModules = {
       // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
       kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx)); kit("sceneBox", d.box_sfx);   // [t3-scene] the bubble's pop
+      kit("sceneGrow", G && G.sfx);   // [g3-grow] the plants' sound
       // the tiles' pops: the kit's play (held as an effect by [tap-lock]'s sfxBusy) — in the pick ([g1-scene]) played UNTRACKED: they
       // are the tiles' entrance, not feedback, and a tile tapped as it pops in answers at once (the buzz, the chime, the lines and
       // the sounds of the other pages still hold the taps)
@@ -6661,16 +6669,33 @@ const SlideModules = {
       // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
       let introDone = false;
-      say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
+      const opening = ()=> say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
+      // [g3-grow] the page opens on the garden without its plants: once the garden and the plants are decoded, and no sooner than
+      // data.grow.start_ms (past the page's slide-in), they GROW out of their soil one after another (the CSS: .grow) to the user's
+      // sound in that frame, the girl's eyes going to them data.grow.look_ms in (her glance, data.girl_look, every 7 s from then)
+      // and back; data.grow.then_ms after the growth began the page goes on exactly as before (the instruction line, the sentence,
+      // the tiles). A garden that never decodes holds nothing up for more than 5 s.
+      if(G){
+        const pics = [fig.querySelector(".dsc-bg > img")].concat(Array.from(fig.querySelectorAll(".dsc-plant img")));
+        const decoded = Promise.all(pics.map(im=> (im && im.decode) ? im.decode().catch(()=>{}) : Promise.resolve()));
+        const wait = (ms)=> new Promise(r=> setTimeout(r, ms));
+        Promise.race([Promise.all([decoded, wait(G.start_ms || 600)]), wait(5000)]).then(()=>{
+          if(!alive()) return;
+          fig.querySelector(".dsc-plants").classList.add("grow");
+          if(G.sfx) playKitSfx("sceneGrow", G.sfx, G.sfx_vol == null ? .9 : G.sfx_vol);
+          after(G.look_ms || 0, lookOn);
+          after(G.then_ms || 2700, opening);
+        });
+      } else opening();
       // [t3-look7] the first glance's GPU work done ahead: on a cold browser the first frame that draws the masked layers TILTED
       // compiles the GPU's shaders (measured: an 83-117 ms frame as the arm began to lift, in 6 of 6 fresh browsers; with this, 33-62 ms). The rig's
       // layers are composited from mount (style.css: will-change), and here, in the still moment after the page's slide-in and
       // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
       // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
       // not begun
-      if(look){ const body = girl.querySelector(".dsc-gbody, .dsc-bbody");   // [t4-basket] T4's body window too
+      if(look){ const body = girl.querySelector(".dsc-gbody, .dsc-bbody, :scope > img");   // [t4-basket] T4's body window too; [g3-grow] G3's one image, warmed at 0.38 s (data.girl_look.warm_ms: before its growth and its first glance)
         const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
-        after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
+        after(look.warm_ms || 560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
   },
 
