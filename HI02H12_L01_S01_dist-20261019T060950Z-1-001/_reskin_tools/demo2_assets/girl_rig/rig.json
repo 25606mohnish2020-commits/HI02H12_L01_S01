@@ -1,0 +1,188 @@
+{
+ "elbow": {
+  "pivot": [
+   752.68,
+   573.68
+  ],
+  "R_keep": 44.0,
+  "B": [
+   791.7,
+   594.0
+  ],
+  "straight_run": {
+   "a": -0.4481,
+   "b": 1058.73,
+   "rms": 0.18
+  },
+  "u": [
+   0.4619,
+   -0.8869
+  ],
+  "bend_rho_min": 7.0,
+  "clearance": -0.04,
+  "reach": 219.8
+ },
+ "arm": {
+  "poly": [
+   [
+    688,
+    548
+   ],
+   [
+    735,
+    548
+   ],
+   [
+    776,
+    542
+   ],
+   [
+    786,
+    500
+   ],
+   [
+    792,
+    470
+   ],
+   [
+    812,
+    452
+   ],
+   [
+    850,
+    414
+   ],
+   [
+    1010,
+    414
+   ],
+   [
+    1010,
+    600
+   ],
+   [
+    930,
+    700
+   ],
+   [
+    700,
+    700
+   ],
+   [
+    688,
+    640
+   ]
+  ],
+  "hair_zone_px": 14,
+  "cut_px": 10.0,
+  "cut_feather_px": 6,
+  "layer_px": 47122,
+  "hole_px": 45130,
+  "patch_px": 5347,
+  "braid_touch_box": null
+ },
+ "eyes": [
+  {
+   "name": "eye1",
+   "iris": {
+    "cx": 485.85,
+    "cy": 285.26,
+    "r": 27.44,
+    "fit_pts": 68,
+    "fit_rms": 0.93,
+    "hidden_px": 44
+   },
+   "iris_box": [
+    454,
+    254,
+    63,
+    63
+   ],
+   "pupil": [
+    485.9,
+    283.6
+   ],
+   "centre": [
+    486.8,
+    284.8
+   ],
+   "interior_r": {
+    "min": 28.1,
+    "max": 39.6,
+    "valid_angles": 360,
+    "ellipse_fit_err": 1.87
+   },
+   "sclera": [
+    250,
+    248,
+    245
+   ],
+   "room": {
+    "left": 11.0,
+    "right": 7.1,
+    "down": 0.5,
+    "up": 5.4
+   }
+  },
+  {
+   "name": "eye2",
+   "iris": {
+    "cx": 606.32,
+    "cy": 243.2,
+    "r": 26.19,
+    "fit_pts": 38,
+    "fit_rms": 0.85,
+    "hidden_px": 469
+   },
+   "iris_box": [
+    576,
+    213,
+    61,
+    61
+   ],
+   "pupil": [
+    608.4,
+    242.2
+   ],
+   "centre": [
+    615.7,
+    239.6
+   ],
+   "interior_r": {
+    "min": 26.3,
+    "max": 36.0,
+    "valid_angles": 244,
+    "ellipse_fit_err": 1.74
+   },
+   "sclera": [
+    252,
+    250,
+    247
+   ],
+   "room": {
+    "left": -6.4,
+    "right": 10.6,
+    "down": -2.0,
+    "up": 12.1
+   }
+  }
+ ],
+ "sheets": {
+  "demo2_girl_arm_mask.png": 9859,
+  "demo2_girl_body_mask.png": 9752,
+  "demo2_girl_eye1_mask.png": 9244,
+  "demo2_girl_eye2_mask.png": 9186,
+  "demo2_girl_iris1.png": 6431,
+  "demo2_girl_iris2.png": 5659,
+  "demo2_girl_patch_mask.png": 8879
+ },
+ "bitmap": [
+  1024,
+  1535
+ ],
+ "rest_diff": {
+  "max": 62.4,
+  "over8": 40,
+  "over24": 9
+ }
+}

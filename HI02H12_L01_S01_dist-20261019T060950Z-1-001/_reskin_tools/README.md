@@ -2189,12 +2189,64 @@ Page 7 T3: the frame's own girl, still, no sound ([t3-girl], 2026-11-01)
   317 ms after the sentence, solid pixel diffs 0.001%. T2 38/38 ALL PASS on the shared module. SMOKE_T3G
   `../_before_t3_girl/` holds the [t3-scene] dist, build.py, README, scene_check.py and the old T3 render.
 
+Page 7 T3: the girl looks at the options ([t3-look], 2026-11-02)
+- Asked: "when the options appear the girl standing should show an animation of looking towards these options and moving her arms
+  in a suitable animation and then looking back to the screen in the exact same position as shown; this animation should repeat
+  after every 5 seconds; perfect and smooth, without any unclear and disturbed animation around and of the girl; rest exactly the
+  same." Read "after every 5 seconds" as a 5 s cycle from one glance's start to the next's (data.girl_look.every_ms, one number).
+- Built (girl_rig.py + build.py [t3-look], the PUNCT_SCENE module): as the FIRST tile pops (stage 4) the girl's eyes slide toward
+  the tiles (9 / 4.5 bitmap px = 2.26 / 1.13 px right and down, eased over 0.25 s), she leans 2 degrees their way (a shear from
+  her feet over 0.5 s: her shoes never move) and her open hand lifts 11 degrees from the elbow (a touch past, settling by 0.5 s),
+  bobs twice (to 65 %, 0.5 s each — "which one?") and is down by 2.2 s; the eyes are back by 2.05 s, the lean by 2.3 s: from 2.3 s
+  to 5 s she is the painting again, and the cycle repeats every 5 s until the child's tap. data.girl_look carries the amounts and
+  the cycle (every_ms 5000, active_ms 2300, gx, gy, arm_deg, lean_deg -> CSS variables on .dsc-girl); the choreography is three CSS
+  keyframe sets (dscLookEye / dscLookLean / dscLookArm, each every_ms long, started together on .dsc-girl.look, infinite, their
+  percentages of the 5 s). The tap's lookOff takes the class away only in a REST phase of the cycle (the phase read from the
+  running animation's own clock), so she is never caught mid-move. The girl is her own bitmap in LAYERS (.dsc-grig, each a window on
+  the same 257x385 image, masked by a sheet cut by girl_rig.py and inlined in the CSS as a data URI — nothing to load, no first-frame
+  flash): the body with a hole where the forearm is; each eye's interior (the painted stroke's inner edge, traced ray by ray from
+  inside, completed by an ellipse where the iris hides it, 0.6 px in) holding a window, a sclera-coloured disc over the painted
+  iris and the iris itself (the painted disc; its part under the stroke made up from its own radial profile) that slides; the
+  forearm + hand, cut across the arm 10 px up from the elbow pivot (the cut feathered 6 px, the body whole under it); the braid tip,
+  painted last. The elbow: the forearm's lower edge is a straight run (rms 0.18 px) that bends from B 791.7,594 of the bitmap; the
+  pivot sits 44 px in on the inward normal there, so the keep circle through B is tangent to that edge and lies inside the arm
+  everywhere else (measured: by >= -0.04 px) — the body keeps the disc, the hole starts beyond it, and the turned edge leaves the
+  static one at B by R(1 - cos 11 deg) = 0.8 bitmap px = 0.2 px on the page; the crease stays whole with the body (the cut 10 px up:
+  its top end reaches 8 px past the pivot — with the cut through the pivot its top turned with the arm, a second stroke); the
+  forearm's upper edge lies UNDER the braid tip, so the body keeps a 14 px band there and the arm slides under the hair; the hole
+  and the patch are hard partitions (a half-transparent silhouette pixel kept by the body and painted by a layer composites darker),
+  the keep zones keep opaque pixels only. The sheets are RGBA with the mask in ALPHA: Chrome reads a raster mask's alpha
+  (mask-mode match-source) — the first build's greyscale PNGs masked nothing and showed a turned ghost of the whole figure
+  (masktest: an L PNG leaves the element whole, an RGBA one masks, also through var()). At rest the layers give the painting back
+  (girl_rig.py's own composite of the sheets: 40 px of the figure over 8 levels, 9 over 24, all at the irises' rims). T2 (no
+  data.girl_rig) keeps its one image and its code path; the module otherwise unchanged (girlHtml, the look variables, lookOn in
+  stage 4's first tile, lookOff in the tap). style.css +82 KB (the seven sheets). The scratchpad's look_frames.py pauses the rig's
+  animations at chosen times and shoots her box at 3x — how the frames here were looked at.
+- Checked: scene_check.py T3 — the data; the five masked layers at her box's size, every window the same bitmap, the discs and
+  irises placed, the pivot at the elbow (188.91,143.89 of her box), the lean's origin at her feet, all at identity before the
+  tiles; .look in the frame the first tile pops, nothing moving before; the arm to -11.9 at 0.37 s, -7.1..-11.6 while it bobs, 0
+  from 2.25 s to the cycle's end; the eyes at (2.26, 1.13) by 0.3 s and held, the lean 2 degrees by 0.6 s, neither past its mark;
+  smooth — per frame the arm <= 1.19 degrees, an iris <= 0.29 px (the first cut had a 0.22 s saccade starting at 0.65 px a frame:
+  eased both ends now), the lean <= 0.17 degrees, the arm never below 0; the lift's onsets 5000 / 5000 / 5000 ms apart (four
+  glances before the tap); after the tap the class leaves in a rest phase, every transform identity around it, 700 ms after the
+  tap = the running gesture's end; her pixels at rest (the rig paused 3 s into its cycle) vs the render: mean 3.97 levels, 1.22 %
+  over 48 — the [t3-girl] numbers. 45/45 ALL PASS. Frames of the glance at 3x (0 .. 4.9 s, 6x zooms): the elbow's bottom and the
+  crease unmoved, the junction's step under a third of a page px, the hand sliding under the braid, the shoes still through the
+  lean, the eyes' strokes never overpainted; her box at rest vs before the glance (inside her silhouette): 180 of 292k px over 24
+  levels, max 67 (the masked layers' edges). T2 on the shared module (no rig): 38/38 ALL PASS. word_sync_check T2 T3 OK.
+  smoke.py 51/51 passed on the new build. Nothing in the dist changed but T3's card data, the scene module's girl markup + look
+  control (app.js) and the appended rig CSS (style.css); no new asset files.
+  `../_before_t3_look/` holds the [t3-girl] dist, build.py, README and scene_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
 2. Clone the reference next to this file (or pass its path):
    `git clone https://github.com/siddharthsharma-ctrl/Ek-aur-Anek ref/Ek-aur-Anek`
 3. `python -I build.py [ref/Ek-aur-Anek] [../HI02H12_L01_S01_dist]`
+   T3's girl rig: after a NEW girl bitmap (demo2_assets/img_demo2_girl_ask.webp) run `python -I girl_rig.py [--debug <dir>]` first — it
+   re-cuts demo2_assets/girl_rig/ (the mask sheets, the irises, rig.json) that build.py inlines ([t3-look]); its printout gives the
+   elbow's pivot / keep circle, each eye's iris and interior, and the rest composite's distance from the painting (should be ~0).
 
 Checking it (needs Python 3.12, `pip install playwright`, and Chrome installed)
 - `python -I shoot.py ../HI02H12_L01_S01_dist/index.html shots --gate` — screenshots of every screen.

@@ -6407,15 +6407,28 @@ const SlideModules = {
         popping in with the sentence and the slot in stage 2 to data.box_sfx (the user's sharp pop) instead of T1's tone, the slot's
         box data.slot_w x data.slot_h, the recorded explanation, the "?" as the middle tile; everything else as T2.
      [t3-girl] T3's girl is the frame's own (data.image_id), still from the first frame: data.girl_pop false and no data.pic_sfx skip
-        stage 3, so the blink starts 0.3 s after the sentence's clip. ===== */
+        stage 3, so the blink starts 0.3 s after the sentence's clip.
+     [t3-look] With data.girl_rig the girl is LAYERS of her bitmap (.dsc-grig: the body, the two eyes, the forearm, the braid tip —
+        the masks and their geometry are the CSS's, from girl_rig.py) and, as the first tile pops (stage 4), .look starts her
+        glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
+        by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
+        a rest phase of the cycle, so she is never caught mid-move. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sw = d.slot_w || 53, sh = d.slot_h || 90;   // [t3-scene] the slot's box: T2's 53x90, T3's 59x100 (the ring drawn to size)
+      // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
+      // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
+      const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
+      const girlHtml = d.girl_rig
+        ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
+          '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
+          '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
+          '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div></div></div>'
+        : '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div>';
       const fig = sfigMount(host,
-        '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' +
-          '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div></div>' +
+        '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
         (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
         '<div class="dsc-slot"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
@@ -6428,6 +6441,18 @@ const SlideModules = {
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
       const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
+      // [t3-look] the glance (data.girl_look, on the rig): the amounts and the cycle as CSS variables on the girl; .look starts the
+      // cycle (dscLookEye / dscLookLean / dscLookArm, every_ms long, the gesture over its first active_ms, then at rest); lookOff
+      // (the tap) takes the class off only in a rest phase of the cycle — read from the running animation's own clock
+      const look = d.girl_rig && d.girl_look; let lookT0 = -1;
+      if(look){ const v = (k, val)=> girl.style.setProperty(k, val);
+        v("--look-ms", (look.every_ms || 5000) + "ms"); v("--look-gx", (look.gx || 0) + "px"); v("--look-gy", (look.gy || 0) + "px");
+        v("--look-arm", (look.arm_deg || 0) + "deg"); v("--look-lean", (look.lean_deg || 0) + "deg"); }
+      const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); lookT0 = performance.now(); };
+      const lookOff = ()=>{ if(lookT0 < 0) return; const every = look.every_ms || 5000, active = look.active_ms || 2300;
+        let ph = (performance.now() - lookT0) % every; lookT0 = -1;
+        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscLookArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
+        after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("look")); };
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
       $("navBtn").style.display = "none";   // the page advances itself
@@ -6502,7 +6527,7 @@ const SlideModules = {
         const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
         slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
         tiles.forEach((t, k)=>{
-          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); };
+          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); if(!k) lookOn(); };   // [t3-look] the girl looks as the first tile pops
           if(k) after(k * gap, go); else go();
         });
         after(ms, ()=>{ slot.classList.remove("blink"); after(300, stage5); });
@@ -6527,6 +6552,7 @@ const SlideModules = {
         if(!armed || !alive()) return;
         armed = false; state.locked = true; state.demoRunning = true;
         if(isPlaying) stopAudio();
+        lookOff();   // [t3-look] no new glance after the answer; a running one finishes its move first
         const t = tiles[pick]; t.onclick = null; t.classList.remove("pulse", "live"); t.classList.add("done");
         sfxCorrect(); setSwMood("happy");
         centreInk(mark); mark.classList.add("in");
