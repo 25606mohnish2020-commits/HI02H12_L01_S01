@@ -6413,6 +6413,13 @@ const SlideModules = {
         glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
         by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
         a rest phase of the cycle, so she is never caught mid-move.
+     [girl-wave] With data.girl_wave (T2 on the "demo1" rig, T3 on "demo2" — data.girl_rig names the rig, its layers and geometry
+        the CSS's) stage 3 is her WAVE instead of the school sound: .wave starts the rig's cycle — the irises glide to the eyes'
+        centres (she looks at the screen — both girls face it as painted), the forearm turns up about the elbow (on T2 the fist
+        swapped for the open palm on the way up, back into the fist as it lands: the .dsc-gpalm layer), swings three times and comes down, all
+        back as painted by active_ms (2.4 s); the tiles follow 0.3 s later; the cycle repeats every every_ms (7 s) until the tap,
+        the class leaving only in a rest phase. T2's rig: a repainted patch under the body's hole (.dsc-gunder), the body, the
+        eyes, the fist-arm and the palm-arm as their own images.
      [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
@@ -6438,11 +6445,15 @@ const SlideModules = {
       // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
       // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
       const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
-      const girlHtml = d.girl_rig
-        ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
-          '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
-          '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
-          '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div></div></div>'
+      // [girl-wave] data.girl_rig names the rig ("demo2" = T3's: the body, the eyes, the forearm, the braid tip, all windows on
+      // her bitmap; "demo1" = T2's: the repainted patch under the body's hole, the body, the eyes, the fist-arm and the palm-arm as
+      // their own images); true = "demo2" (the [t3-look] data)
+      const rigId = d.girl_rig === true ? "demo2" : d.girl_rig;
+      const eyeHtml = (k)=> '<div class="dsc-geye e' + k + '">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>';
+      const girlHtml = rigId
+        ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig dsc-rig-' + rigId + '">' + (rigId === "demo1" ? '<span class="dsc-gunder"></span>' : '') + gimg.replace("dsc-gwin", "dsc-gbody") +
+          eyeHtml(1) + eyeHtml(2) +
+          (rigId === "demo1" ? '<span class="dsc-garm"></span><span class="dsc-gpalm"></span>' : '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div>') + '</div></div>'
         : '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div>';
       const fig = sfigMount(host,
         '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
@@ -6472,6 +6483,20 @@ const SlideModules = {
         let ph = (performance.now() - lookT0) % every; lookT0 = -1;
         try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscLookArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
         after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("look")); };
+      // [girl-wave] the wave (data.girl_wave, on a rig): the amounts and the cycle as CSS variables on the girl (the eyes' slide per
+      // iris); .wave starts the cycle (dscWaveArm / dscWaveEye / dscWaveFist / dscWavePalm, every_ms long, the gesture
+      // over its first active_ms, then at rest); waveOff (the tap) takes the class off only in a rest phase — read from the running
+      // animation's own clock, as the glance's
+      const wave = d.girl_rig && d.girl_wave; let waveT0 = -1;
+      if(wave){ const v = (k, val)=> girl.style.setProperty(k, val);
+        v("--wave-ms", (wave.every_ms || 7000) + "ms"); v("--wave-arm", (wave.arm_deg || 0) + "deg"); v("--wave-swing", (wave.swing_deg || 0) + "deg");
+        (wave.eyes || []).forEach((e, k)=>{ const ir = girl.querySelector(".dsc-geye.e" + (k + 1) + " .dsc-giris"); if(ir){ ir.style.setProperty("--wave-gx", (e[0] || 0) + "px"); ir.style.setProperty("--wave-gy", (e[1] || 0) + "px"); } });
+        if(!wave.palm) girl.classList.add("nopalm"); }
+      const waveOn = ()=>{ if(!wave || waveT0 >= 0) return; girl.classList.add("wave"); waveT0 = performance.now(); };
+      const waveOff = ()=>{ if(waveT0 < 0) return; const every = wave.every_ms || 7000, active = wave.active_ms || 2400;
+        let ph = (performance.now() - waveT0) % every; waveT0 = -1;
+        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscWaveArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
+        after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("wave")); };
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
       $("navBtn").style.display = "none";   // the page advances itself
@@ -6528,7 +6553,10 @@ const SlideModules = {
       const stage2 = ()=>{
         if(bubble) bubble.classList.add("in");
         slots.forEach(sl=> sl.classList.add("in")); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
-        sfigNarrate(L, alive, ()=> after(300, beat ? stage3 : stage4)); };
+        sfigNarrate(L, alive, ()=> after(300, wave ? stage3w : (beat ? stage3 : stage4))); };
+      // 3'. [girl-wave] the girl looks at the screen and waves (the rig's cycle starts here and repeats every every_ms until the
+      //     tap); the tiles follow 0.3 s after her gesture (active_ms), as they followed the school sound
+      const stage3w = ()=>{ waveOn(); after(wave.active_ms || 2400, ()=> after(300, stage4)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
         const ms = d.pic_sfx_ms || 2000, FADE = 400;
@@ -6576,7 +6604,7 @@ const SlideModules = {
         if(!armed || !alive()) return;
         armed = false; state.locked = true; state.demoRunning = true;
         if(isPlaying) stopAudio();
-        lookOff();   // [t3-look] no new glance after the answer; a running one finishes its move first
+        lookOff(); waveOff();   // [t3-look] no new glance after the answer; a running one finishes its move first; [girl-wave] the wave likewise
         const t = tiles[pick]; t.onclick = null; t.classList.remove("pulse", "live"); t.classList.add("done");
         sfxCorrect(); setSwMood("happy");
         const stg = d.mark_stagger_ms || 0;   // [t4-scene] the marks land in turn (one slot: at once, as before)
@@ -6636,7 +6664,7 @@ const SlideModules = {
           return;
         }
         live = false; state.locked = true; state.demoRunning = true; const guided = !!hintHand; if(hintHand){ hintHand.remove(); hintHand = null; }   // the hand goes with the answer
-        lookOff();   // [t3-look] (no rig on G1; kept for a rigged girl)
+        lookOff(); waveOff();   // [t3-look] / [girl-wave] (no rig on the picks; kept for a rigged girl)
         slots.forEach(sl=> sl.classList.remove("blink"));
         tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are
         const stg = d.mark_stagger_ms || 300;
@@ -6657,8 +6685,8 @@ const SlideModules = {
       // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
       // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
       // not begun
-      if(look){ const body = girl.querySelector(".dsc-gbody");
-        const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
+      if(look || wave){ const body = girl.querySelector(".dsc-gbody");   // [girl-wave] the wave's layers too
+        const warm = ()=>{ if(girl.classList.contains("look") || girl.classList.contains("wave")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
         after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
   },

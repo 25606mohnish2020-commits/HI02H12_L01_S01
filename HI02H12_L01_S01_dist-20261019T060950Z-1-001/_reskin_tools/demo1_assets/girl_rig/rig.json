@@ -1,0 +1,258 @@
+{
+ "bitmap": [
+  1024,
+  1536
+ ],
+ "elbow": {
+  "pivot": [
+   416.0,
+   650.0
+  ],
+  "R_keep": 35.0,
+  "u": [
+   0.9191,
+   -0.3939
+  ],
+  "n": [
+   0.3939,
+   0.9191
+  ],
+  "cut_px": 8.0,
+  "wrist_px": 76.0,
+  "forearm_w": 55.6,
+  "reach_fist": 158.7
+ },
+ "arm": {
+  "poly": [
+   [
+    393,
+    592
+   ],
+   [
+    430,
+    575
+   ],
+   [
+    470,
+    556
+   ],
+   [
+    478,
+    540
+   ],
+   [
+    562,
+    540
+   ],
+   [
+    562,
+    672
+   ],
+   [
+    520,
+    695
+   ],
+   [
+    441,
+    708
+   ]
+  ],
+  "arm_px": 10188,
+  "rim_px": 381,
+  "hole_px": 8849
+ },
+ "patch": {
+  "strap_curve": [
+   [
+    517.8,
+    554.0
+   ],
+   [
+    526.7,
+    578.4
+   ],
+   [
+    509.4,
+    651.8
+   ],
+   [
+    490.8,
+    670.0
+   ]
+  ],
+  "strap_hw": [
+   18.0,
+   13.5
+  ],
+  "navy_plane": [
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  "navy_rms": 10.9,
+  "px": 10959
+ },
+ "palm": {
+  "t3_cut_s": -30.7,
+  "t3_cut_w": 59.2,
+  "scale": 0.9389,
+  "wrist": [
+   489.0,
+   627.4
+  ],
+  "fingers_along": [
+   0.9757,
+   -0.2192
+  ],
+  "reach": 195.4,
+  "outline_shift": [
+   24.5,
+   -16.0,
+   5.0
+  ]
+ },
+ "eyes": [
+  {
+   "name": "eye1",
+   "iris": {
+    "cx": 505.91,
+    "cy": 285.81,
+    "r": 25.79,
+    "fit_pts": 64,
+    "fit_rms": 0.74
+   },
+   "iris_box": [
+    476,
+    256,
+    59,
+    59
+   ],
+   "pupil": [
+    505.5,
+    281.3
+   ],
+   "centre": [
+    510.3,
+    284.3
+   ],
+   "interior_centre": [
+    503.5,
+    286.5
+   ],
+   "interior_r": {
+    "min": 23.4,
+    "max": 39.9,
+    "valid_angles": 208,
+    "ellipse_fit_err": 0.76
+   },
+   "sclera": [
+    252,
+    250,
+    248
+   ],
+   "room": {
+    "left": 6.5,
+    "right": 3.0,
+    "down": -1.3,
+    "up": 0.8
+   },
+   "to_centre": [
+    -2.45,
+    0.67
+   ],
+   "interior_box": [
+    472,
+    259,
+    535,
+    313
+   ]
+  },
+  {
+   "name": "eye2",
+   "iris": {
+    "cx": 633.86,
+    "cy": 248.49,
+    "r": 26.08,
+    "fit_pts": 34,
+    "fit_rms": 0.68
+   },
+   "iris_box": [
+    603,
+    218,
+    61,
+    61
+   ],
+   "pupil": [
+    630.3,
+    247.8
+   ],
+   "centre": [
+    639.6,
+    245.3
+   ],
+   "interior_centre": [
+    633.9,
+    247.2
+   ],
+   "interior_r": {
+    "min": 22.1,
+    "max": 35.2,
+    "valid_angles": 213,
+    "ellipse_fit_err": 0.34
+   },
+   "sclera": [
+    253,
+    250,
+    249
+   ],
+   "room": {
+    "left": 1.1,
+    "right": 2.3,
+    "down": -1.4,
+    "up": 2.5
+   },
+   "to_centre": [
+    0.08,
+    -1.26
+   ],
+   "interior_box": [
+    606,
+    219,
+    663,
+    274
+   ]
+  }
+ ],
+ "sheets": {
+  "demo1_girl_arm.png": 20192,
+  "demo1_girl_body_mask.png": 9106,
+  "demo1_girl_eye1_mask.png": 9133,
+  "demo1_girl_eye2_mask.png": 9132,
+  "demo1_girl_iris1.png": 5247,
+  "demo1_girl_iris2.png": 5286,
+  "demo1_girl_palm.png": 28719,
+  "demo1_girl_patch.png": 17911
+ },
+ "rest_diff": {
+  "max": 119.0,
+  "over8": 291,
+  "over24": 149
+ },
+ "rest_diff_page": {
+  "max": 12.0,
+  "over4": 31,
+  "over8": 7
+ }
+}

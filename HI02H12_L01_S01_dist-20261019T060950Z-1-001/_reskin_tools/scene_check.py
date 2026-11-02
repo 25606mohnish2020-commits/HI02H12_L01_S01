@@ -23,6 +23,13 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
 1. At 1333x750, the page mounted on its own (the engine's AudioContext warmed first, as the start tap would have):
    T2: the intro line (vo_demo1_intro) is the first clip and sounds over the hallway picture alone — the picture, the standing Swiftie
    and the 🔊 chip there from the first frame, the girl in her place (no animation, [t2-scene2]); no sentence word, no slot, no tile
+   [girl-wave] (2026-11-02) T2's school sound and pop are gone; T3's glance too: on both, 0.3 s after the sentence's clip the girl
+   WAVES (.wave on her rig: T2's from girl_rig_t2.py — the patch under the body's hole, the body, the eyes, the fist-arm and the
+   palm-arm as their own images; T3's the [t3-look] rig): her irises glide to the eyes' centres (T2 a hair; T3 0), the forearm turns
+   up about the elbow to -60 (T2) / -40 (T3) degrees (a touch past) within ~0.55 s, swings 12 / 10 degrees either side three
+   times, is down by 2.4 s and still to 7 s; on T2 the fist is swapped for the open palm in 60 ms as the arm passes ~40 degrees on
+   the way up and back as it lands; the tiles pop 0.3 s after the gesture (2.7 s after .wave); the cycle repeats every 7 s until the
+   tap, the class leaving only in a rest phase; smooth; her pixels at rest = the frame's bitmap (the rig paused at 3 s).
    [t3-look] T3's girl is her bitmap in layers (.dsc-grig: the body, two eyes, the forearm, the braid tip, each masked by a data-URI
    sheet) and, as the FIRST tile pops, .look starts her glance: the forearm up to 11 degrees by ~0.5 s and bobbing, the irises
    2.26 / 1.13 px toward the tiles within 0.3 s, the figure sheared 2 degrees from her feet; everything back at identity by 2.35 s
@@ -85,7 +92,7 @@ AS_T0 = {".tut-card.sfig-card": (96 * FS, 106 * FS, 1088 * FS, 508 * FS), ".sfig
 CX, CY = 96, 106
 TILE = (117.819, 116.498); FACE = (115.743, 110.983)
 C = {
-  "T2": dict(prefix="demo1", intro=True, open_ms=500, bg="img_demo1_hall", girl="img_demo1_girl_walk", beat=True, GIRL=(264, 215, 503, 573), bubble=None, box_sfx=None, slot=(53, 90),
+  "T2": dict(prefix="demo1", intro=True, open_ms=500, bg="img_demo1_hall", girl="img_demo1_girl_walk", beat=False, GIRL=(264, 215, 503, 573), bubble=None, box_sfx=None, slot=(53, 90),   # [girl-wave] beat=False: no school sound, no pop
              sent="पिंकी स्कूल जा रही है", sent_clip="vo_demo1_sent", nwords=5, explain_clip="vo_demo1_explain", cue="पूर्णविराम", opts=["।", ",", "?"], mark="।", pick=0,
              next="T3", next_ok="CARD.slides[state.idx].id === 'T3' && CARD.slides[state.idx].type === 'PUNCT_SCENE' && !!document.querySelector('.tut-card.sfig-round .dsc-bg')", next_what="T3, the classroom scene",
              FRAME={".dsc-bg > img": (CX + 0, CY - 113, 1088, 613), ".dsc-slot": (1013, 187, 53, 90), ".dsc-girl": (264, 215, 239, 358), ".dsc-shade": (307, 520, 160, 36),
@@ -94,7 +101,8 @@ C = {
              INK={"sentence": (560, 180, 1010, 290), "mark1": (574, 405, 672, 505), "mark2": (801, 405, 899, 505), "mark3": (1032, 405, 1130, 505)},
              BY_DESIGN=[(1008, 182, 1071, 282), (570, 186, 1015, 268), (600, 420, 645, 480), (830, 440, 870, 470), (1055, 418, 1105, 478)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
-             slot_in=dict(rgb=(255, 255, 255), row_y=232, xs=(1000, 1080), col_x=1040, ys=(175, 290), want=(1015, 1064, 189, 275)), first_word="पिंकी", look=None),
+             slot_in=dict(rgb=(255, 255, 255), row_y=232, xs=(1000, 1080), col_x=1040, ys=(175, 290), want=(1015, 1064, 189, 275)), first_word="पिंकी", look=None,
+             wave=dict(rig="demo1", every_ms=7000, active_ms=2400, arm_deg=60, swing_deg=12, palm=True, pivot=(97.09, 151.5))),   # [girl-wave]: her rig (girl_rig_t2.py), the elbow 416,650 of the 1024x1536 bitmap at 239x358
   "T3": dict(prefix="demo2", intro=False, open_ms=1000, bg="img_demo2_room", girl="img_demo2_girl_ask", beat=False, GIRL=(213, 212, 470, 597), bubble="img_demo2_bubble", box_sfx="sfx_demo2_sharp_pop.mp3", slot=(59, 100),
              sent="तुम्हारा नाम क्या है", sent_clip="vo_demo2_sent", nwords=4, explain_clip="vo_demo2_explain", cue="प्रश्नवाचक", opts=["।", "?", ","], mark="?", pick=1,
              next="T4", next_ok="CARD.slides[state.idx].id === 'T4' && CARD.slides[state.idx].type === 'PUNCT_SCENE' && !!document.querySelector('.tut-card.sfig-round.dsc-v-list .dsc-bg')", next_what="T4, the third scene ([t4-scene])",
@@ -105,7 +113,8 @@ C = {
              BY_DESIGN=[(902, 169, 971, 279), (472, 184, 904, 266), (501, 476, 546, 536), (725, 474, 775, 534), (962, 496, 1002, 526)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 241, 182)", blink_fill="rgb(250, 214, 146)",
              slot_in=dict(rgb=(255, 241, 182), row_y=224, xs=(895, 980), col_x=936, ys=(165, 285), want=(909, 964, 176, 272)), first_word="तुम्हारा",
-             look=dict(every_ms=7000, active_ms=2300, gx=2.26, gy=1.13, arm_deg=11, lean_deg=2)),   # [t3-look]; [t3-look7] every 7 s (was 5 s)
+             look=None,   # [girl-wave]: the [t3-look] glance (every 7 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2) is replaced by the wave on the same rig
+             wave=dict(rig="demo2", every_ms=7000, active_ms=2400, arm_deg=40, swing_deg=10, palm=False, pivot=(188.91, 143.89))),
   "T4": dict(prefix="demo3", intro=False, open_ms=1000, bg="img_demo3_park", girl="img_demo3_girl_basket", beat=False, GIRL=(240, 257, 464, 593), bubble=None, box_sfx=None, slot=(37, 42.606),
              sent="मेरे पास आम केला सेब और संतरा है ।", sent_clip="vo_demo3_sent", nwords=9, explain_clip="vo_demo3_explain", cue="अल्पविराम", opts=["।", ",", "?"], mark=",", pick=1,
              next="G1", gate=True, nslots=2, stagger=300,
@@ -135,7 +144,7 @@ C = {
   # [g2-scene] G2 = frame 716:1058 (render g2b_figma_render_1280x720.png): G1's pick, the "?" the answer, the frame's own geometry
   "G2": dict(prefix="g2", pick_mode=True, variant="pick2", intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g2_street", girl="img_g2_girl_bag2", beat=False, GIRL=(934, 227, 1170, 581), bubble=None, box_sfx=None, slot=(59, 100),
              sent="तुम कहाँ जा रहे हो", sent_clip="vo_g2_sent", nwords=5, explain_clip=None, cue=None, opts=["।", ",", "?"], mark="?", pick=2,
-             wrong=[0, 1], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", no_tshade=True,
+             wrong=[0, 1], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_g2_hint3", no_tshade=True,   # hint 3's line stays registered by [vo-rec], unspoken since [hand-quiet]
              next="G3", next_ok="CARD.slides[state.idx].id === 'G3' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick3 .dsc-bg')", next_what="G3 (the scene pick, [g3-scene])",
              FRAME={".dsc-bg > img": (CX - 34, CY - 5, 1152.714, 550), ".dsc-slot": (791, 184, 59, 100), ".dsc-girl": (934, 227, 236, 354), ".dsc-shade": (969, 534, 145, 38),
                     ".dsc-tile.t1": (334.0898, 426) + TILE, ".dsc-tile.t2": (561, 426) + TILE, ".dsc-tile.t3": (791.8203, 426) + TILE,
@@ -147,7 +156,7 @@ C = {
   # [g3-scene] G3 = frame 716:1262 (render g3b_figma_render_1280x720.png): G1's pick, the "," the answer in the sentence's own slot
   "G3": dict(prefix="g3", pick_mode=True, variant="pick3", intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g3_garden", girl="img_g3_girl_point", beat=False, GIRL=(234, 241, 452, 569), bubble=None, box_sfx=None, slot=(33, 38),
              sent="बाग में गुलाब गेंदा और चमेली के फूल हैं ।", sent_clip="vo_g3_sent", nwords=10, explain_clip=None, cue=None, opts=["।", ",", "?"], mark=",", pick=1,
-             wrong=[0, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", gaps=[2],
+             wrong=[0, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_g3_hint3", gaps=[2],   # hint 3's line stays registered by [vo-rec], unspoken since [hand-quiet]
              next="G4", next_ok="CARD.slides[state.idx].id === 'G4' && CARD.slides[state.idx].type === 'SENT_PICK' && document.querySelectorAll('#slideHost .sent-opt').length === 3", next_what="G4 (SENT_PICK, the reference's P4 page)",
              FRAME={".dsc-bg > img": (CX - 15, CY - 120, 1117, 630), ".dsc-slot": (484, 189, 33, 38), ".dsc-girl": (234, 241, 218, 328), ".dsc-shade": (243, 539, 172, 38),
                     ".dsc-tile.t1": (474.0908, 467) + TILE, ".dsc-tile.t2": (701, 467) + TILE, ".dsc-tile.t3": (931.8203, 467) + TILE,
@@ -192,6 +201,7 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     gate: !!document.getElementById('phaseGate') && document.getElementById('phaseGate').classList.contains('show'),
     pop: !!g && g.classList.contains('pop'), gOp: gc ? +(+gc.opacity).toFixed(3) : null, gTf: gc ? gc.transform : null,
     look: !!g && g.classList.contains('look'), warm: !!g && g.classList.contains('warm'), arm: q('.dsc-garm') ? getComputedStyle(q('.dsc-garm')).transform : null, iris: q('.dsc-giris') ? getComputedStyle(q('.dsc-giris')).transform : null, lean: q('.dsc-grig') ? getComputedStyle(q('.dsc-grig')).transform : null,
+    wave: !!g && g.classList.contains('wave'), iris2: qa('.dsc-giris')[1] ? getComputedStyle(qa('.dsc-giris')[1]).transform : null, palmOp: q('.dsc-gpalm') ? +getComputedStyle(q('.dsc-gpalm')).opacity : null, armOp: q('.dsc-garm') ? +getComputedStyle(q('.dsc-garm')).opacity : null,
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
     tTf: [...qa('.dsc-tile')].map(t => getComputedStyle(t).transform), tAn: [...qa('.dsc-tile')].map(t => getComputedStyle(t).animationName),
     faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
@@ -266,12 +276,12 @@ with sync_playwright() as p:
     d = pg.evaluate("CARD.slides[state.idx].data"); ST = d["sentence"]["word_times"]; SE = d["sentence"].get("word_end")
     XT = d["explain"]["word_times"] if not PICKM else []; CUE = XT[d["explain"]["cue_word"]] if not PICKM else None   # [g1-scene] the pick has no explanation
     if PICKM:
-        check(f"[g1-scene] the page's data: PUNCT_PICK with data.scene (variant \"{C.get('variant', 'pick')}\"), the intro line {C['intro_clip']}, the picture and the girl (still, no pop, no sound), the sentence (its clip and {C['nwords']} word times), the marks {C['opts']}, the answer \"{C['mark']}\", no explanation, no bubble, the 53x90 slot, T2's blink and tiles; the hint lines {C['hints']}, the praise {C['ok_clip']}, no hint 3 line; the idle re-read off ([g1-quiet] no_idle_vo)",
+        check(f"[g1-scene] the page's data: PUNCT_PICK with data.scene (variant \"{C.get('variant', 'pick')}\"), the intro line {C['intro_clip']}, the picture and the girl (still, no pop, no sound), the sentence (its clip and {C['nwords']} word times), the marks {C['opts']}, the answer \"{C['mark']}\", no explanation, no bubble, the {C['slot'][0]}x{C['slot'][1]} slot, T2's blink and tiles; the hint lines {C['hints']}, the praise {C['ok_clip']}, {("hint 3's line " + C["hint3"] + " registered (unspoken since [hand-quiet])") if C.get("hint3") else "no hint 3 line"}; the idle re-read off ([g1-quiet] no_idle_vo)",
               pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_PICK" and d.get("scene") is True and d.get("variant") == C.get("variant", "pick") and d.get("intro_audio") == C["intro_clip"] and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"]
               and d.get("girl_pop") is False and not d.get("pic_sfx") and not d.get("bubble_id") and not d.get("box_sfx") and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"] and not d.get("explain")
               and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
               and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350
-              and [d.get("hint1_audio"), d.get("hint2_audio")] == C["hints"] and d.get("ok_audio") == C["ok_clip"] and d.get("hint3_audio") is None and d.get("no_idle_vo") is True,   # [g1-quiet]
+              and [d.get("hint1_audio"), d.get("hint2_audio")] == C["hints"] and d.get("ok_audio") == C["ok_clip"] and d.get("hint3_audio") == C.get("hint3") and d.get("no_idle_vo") is True,   # [g1-quiet]; G2 / G3 keep [vo-rec]'s hint 3 line registered, never spoken ([hand-quiet])
               {k: d.get(k) for k in ("scene", "variant", "intro_audio", "bg_id", "image_id", "girl_pop", "slot_w", "mark", "blink_ms", "hint1_audio", "hint2_audio", "ok_audio", "hint3_audio", "no_idle_vo")})
     else:
         check(f"the page's data: PUNCT_SCENE with {'the intro line' if C['intro'] else 'no intro line (open_ms ' + str(C['open_ms']) + ')'}, the picture and the girl, {'the bubble and the box sound, ' if C['bubble'] else ''}the sentence (its clip and word times), the explanation with its cue word \"{C['cue']}\", the marks {C['opts']}, the answer \"{C['mark']}\", the sound / blink / pop",
@@ -304,10 +314,34 @@ with sync_playwright() as p:
               rig["n"] == 5 and rig["cls"] == ["dsc-gbody", "dsc-geye", "dsc-geye", "dsc-garm", "dsc-gpatch"] and all(rig["masked"]) and rig["wins"] == 5 and rig["same"] and rig["box"]
               and len(rig["fills"]) == 2 and all(f.startswith("rgb(25") for f in rig["fills"]) and rig["irises"] == [True, True] and rig["origin"] == "188.91px 143.89px" and rig["leanOrigin"] == "128.5px 378.84px"
               and not rig["plainImg"] and rig["still"] and not rig["look"] and rig["promoted"], rig)
+    if C.get("wave"):   # [girl-wave]
+        W = C["wave"]; gw = d.get("girl_wave") or {}
+        check(f"[girl-wave] the page's data: girl_rig \"{W['rig']}\" and girl_wave (every {W['every_ms'] / 1000:g} s, the gesture {W['active_ms']} ms, the arm {W['arm_deg']} degrees swinging {W['swing_deg']}, {'the palm swap' if W['palm'] else 'no palm swap'}, the eyes' amounts per eye); no girl_look, no school sound, no pop",
+              d.get("girl_rig") == W["rig"] and all(gw.get(k) == W[k] for k in ("every_ms", "active_ms", "arm_deg", "swing_deg", "palm")) and len(gw.get("eyes") or []) == 2 and all(abs(v) < 2 for e in gw["eyes"] for v in e)
+              and (W["palm"] or gw["eyes"] == [[0, 0], [0, 0]]) and not d.get("girl_look") and not d.get("pic_sfx") and d.get("girl_pop") is False, gw)
+        rig = pg.evaluate("""(demo1) => { const q = (s) => document.querySelector(s), L = [...document.querySelectorAll('.dsc-grig > *')], cs = (e) => getComputedStyle(e);
+          const img = (e) => (cs(e).backgroundImage || '').startsWith('url("data:image/png') && cs(e).backgroundSize === '100% 100%';
+          const masked = (e) => (cs(e).maskImage || cs(e).webkitMaskImage || '').startsWith('url("data:image/png') && (cs(e).maskSize || cs(e).webkitMaskSize) === '100% 100%';
+          const gb = q('.dsc-girl').getBoundingClientRect();
+          return { cls: L.map(e => e.className.split(' ')[0]), rig: q('.dsc-grig').className, bodyMasked: masked(q('.dsc-gbody')), eyesMasked: [...document.querySelectorAll('.dsc-geye')].every(masked),
+            own: demo1 ? ['.dsc-gunder', '.dsc-garm', '.dsc-gpalm'].map(s => img(q(s))) : ['.dsc-garm', '.dsc-gpatch'].map(s => masked(q(s))),
+            box: [...document.querySelectorAll('.dsc-grig, .dsc-grig > *')].every(e => Math.abs(e.getBoundingClientRect().width - gb.width) < 0.5 && Math.abs(e.getBoundingClientRect().height - gb.height) < 0.5),
+            fills: [...document.querySelectorAll('.dsc-gfill')].map(e => cs(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-giris')].map(e => cs(e).backgroundImage.startsWith('url("data:image/png')),
+            origin: cs(q('.dsc-garm')).transformOrigin, palmOrigin: q('.dsc-gpalm') ? cs(q('.dsc-gpalm')).transformOrigin : null, palmOp: q('.dsc-gpalm') ? cs(q('.dsc-gpalm')).opacity : null,
+            plainImg: !!q('.dsc-girl > img'), wins: document.querySelectorAll('.dsc-grig img').length,
+            still: ['.dsc-garm', '.dsc-gpalm', '.dsc-giris'].every(s => !q(s) || ['none', 'matrix(1, 0, 0, 1, 0, 0)'].includes(cs(q(s)).transform)), wave: !!q('.dsc-girl.wave'),
+            promoted: ['.dsc-grig', '.dsc-giris', '.dsc-garm', '.dsc-gpalm'].every(s => !q(s) || cs(q(s)).willChange === 'transform') }; }""", W["rig"] == "demo1")
+        exp_cls = ["dsc-gunder", "dsc-gbody", "dsc-geye", "dsc-geye", "dsc-garm", "dsc-gpalm"] if W["rig"] == "demo1" else ["dsc-gbody", "dsc-geye", "dsc-geye", "dsc-garm", "dsc-gpatch"]
+        piv = W["pivot"]; o = [float(v) for v in re.findall(r"[\d.]+", rig["origin"])]
+        check(f"[girl-wave] the rig {W['rig']}: the layers {exp_cls} in .dsc-grig, every one her box's size; the body and the eyes masked by data-URI sheets at 100% 100%; {'the patch, the fist-arm and the palm-arm their own data-URI images' if W['rig'] == 'demo1' else 'the forearm and the braid tip windows on her bitmap'}; the sclera discs and the irises in place; the arm{' and the palm' if W['palm'] else ''} turning about the elbow ({piv[0]:.2f}, {piv[1]:.2f} px); the palm unseen; no plain image; all at identity at mount, composited from mount",
+              rig["cls"] == exp_cls and ("dsc-rig-" + W["rig"]) in rig["rig"] and rig["bodyMasked"] and rig["eyesMasked"] and all(rig["own"]) and rig["box"] and len(rig["fills"]) == 2 and all(f.startswith("rgb(25") for f in rig["fills"]) and rig["irises"] == [True, True]
+              and abs(o[0] - piv[0]) < 0.02 and abs(o[1] - piv[1]) < 0.02 and (not W["palm"] or (rig["palmOrigin"] == rig["origin"] and rig["palmOp"] == "0")) and (W["palm"] or rig["palmOp"] is None) and not rig["plainImg"] and rig["wins"] == (3 if W["rig"] == "demo1" else 5)
+              and rig["still"] and not rig["wave"] and rig["promoted"], rig)
     if C["intro"]:
         pg.wait_for_function(f"isPlaying && currentAudio && currentAudio.src.includes('{INTRO_CLIP}.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
     else: pg.wait_for_timeout(600)
     pg.screenshot(path=str(out / "a_open_1333.png"))
+    sw_open = pg.evaluate("!!document.querySelector('.sfig-swiftie')")   # the Swiftie checked on THIS page (the old evaluate ran after the move-on: G3's next page G4 has none)
     pg.wait_for_function("!!document.querySelector('.dsc-girl.pop')" if C["beat"] else "!!document.querySelector('.dsc-slot.blink')", timeout=30000, polling=20); pg.wait_for_timeout(180); pg.screenshot(path=str(out / "b_beat_1333.png"))
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=30000, polling=20); pg.wait_for_timeout(600); pg.screenshot(path=str(out / "c_tiles_1333.png"))
     if PICKM:   # [g1-scene] the child's pick: the wiggles, the hint lines, the re-read, then the press
@@ -346,7 +380,7 @@ with sync_playwright() as p:
           next(s["clip"] for s in samples if s["clip"]) == FIRST and all(s["gOp"] == 1 and s["gTf"] == "none" for s in quiet)
           and all(s["bgLoaded"] for s in quiet if s["ms"] - samples[0]["ms"] >= 50)   # the bitmap's `complete` can flip one frame after the mount (seen once; a decode race, not the page)
           and not any(s["shown"] or s["slotIn"] or s["pop"] or s["tilesIn"] or s["bubIn"] for s in quiet) and (C["intro"] or not any(s["clip"] for s in quiet))
-          and pg.evaluate("(() => { const sw = document.querySelector('.sfig-swiftie'); return !!sw; })()"), (round(ms(i_open_end) - ms(0)), ))
+          and sw_open, (round(ms(i_open_end) - ms(0)), ))
     if C["intro"]:
         check("0.5 s after the intro the slot pops in and the sentence rises in WHOLE in the same frame", 350 <= ms(i_slot) - ms(i_open_end) <= 800 and abs(ms(i_rise) - ms(i_slot)) <= 34
               and {s["shown"] for s in samples} <= {0, len(ST)} and samples[i_rise]["rise"], (round(ms(i_slot) - ms(i_open_end)), round(ms(i_rise) - ms(i_slot))))
@@ -383,6 +417,7 @@ with sync_playwright() as p:
         check("the sound plays for pic_sfx_ms (2 s): full until its last 0.4 s, faded then, paused at its end", vol_mid == 0.5 and vol_end is not None and vol_end < 0.2 and paused_after is True, (vol_mid, vol_end, paused_after))
     else:
         i_pop = i_sente; t_sfx_end = ms(i_sente)   # [t3-girl] no beat: the blink follows the sentence's clip
+        if C.get("wave"): i_wv0 = first(lambda s_: s_["wave"], i_sente); t_sfx_end = ms(i_wv0) + C["wave"]["active_ms"]   # [girl-wave] the blink follows her gesture (active_ms after .wave)
         check("[t3-girl] no school sound and no pop: the girl stands still (opacity 1, transform none, never .pop) in every frame of the page",
               not sfx and all(s["gOp"] == 1 and s["gTf"] == "none" and not s["pop"] for s in samples), (len(sfx), sorted({(s["gOp"], s["gTf"], s["pop"]) for s in samples})[:3]))
     i_bl = first(lambda s: s["blink"], i_pop); i_ble = first(lambda s: not s["blink"], i_bl)
@@ -395,7 +430,7 @@ with sync_playwright() as p:
     jumps = max((abs(samples[k]["slotOp"] - samples[k - 1]["slotOp"]) for k in range(i_bl + 1, i_ble) if samples[k]["slotOp"] is not None and samples[k - 1]["slotOp"] is not None), default=0)
     seen_between = all(any(samples[k]["slotOp"] >= 0.99 for k in range(i_bl, i_ble) if a_ < ms(k) < b_) for a_, b_ in zip(tr_ms, tr_ms[1:]))
     after_bl = next(s_ for s_ in samples[i_ble:] if s_["ms"] - ms(i_ble) > 450)
-    check(f"0.3 s after the {'sound' if C['beat'] else 'sentence (no beat, [t3-girl])'} the slot blinks for blink_ms ({d['blink_ms']} ms): the box fades out and in {n_bl} times, its troughs {cyc} ms apart ([t2-scene5] slow: no frame-to-frame opacity jump over .12), fully seen between them and at the end, plain 0.45 s after",
+    check(f"0.3 s after the {'sound' if C['beat'] else ('wave (its gesture, [girl-wave])' if C.get('wave') else 'sentence (no beat, [t3-girl])')} the slot blinks for blink_ms ({d['blink_ms']} ms): the box fades out and in {n_bl} times, its troughs {cyc} ms apart ([t2-scene5] slow: no frame-to-frame opacity jump over .12), fully seen between them and at the end, plain 0.45 s after",
           200 <= ms(i_bl) - t_sfx_end <= 650 and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120 and len(tr_ms) == n_bl and all(abs(g - cyc) <= 60 for g in gaps_bl)
           and jumps <= 0.12 and seen_between and samples[i_ble]["slotOp"] >= 0.97 and nil(after_bl["glow"]) and after_bl["slotBg"] == C["slot_fill"] and "232, 106, 0" not in (after_bl["ringStroke"] or ""),
           (round(ms(i_bl) - t_sfx_end), round(ms(i_ble) - ms(i_bl)), len(tr_ms), gaps_bl, round(jumps, 3), samples[i_ble]["slotOp"], (after_bl["slotBg"], after_bl["glow"], after_bl["ringStroke"])))
@@ -555,6 +590,54 @@ with sync_playwright() as p:
         ph = (ms(i_done) - t0) % EV
         check(f"[t3-look] after the tap the class leaves only in a REST phase: every transform at identity in the frames around its going, which comes {'at once' if ph >= AC else 'once the running gesture has ended'} (within active_ms + 120 ms of the tap) and before the page leaves",
               i_lke >= i_done and rest_at_off and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["look"] for s_ in samples[i_lke:]), (round(ms(i_lke) - ms(i_done)), round(ph), rest_at_off))
+    if C.get("wave"):   # [girl-wave] the wave on the timeline
+        import math
+        W = C["wave"]; EV, AC, AD, SW = W["every_ms"], W["active_ms"], W["arm_deg"], W["swing_deg"]
+        num = lambda tf: [float(v) for v in re.findall(r"-?[\d.e+-]+", tf)] if tf and tf != "none" else [1, 0, 0, 1, 0, 0]
+        arm = lambda s_: math.degrees(math.atan2(num(s_["arm"])[1], num(s_["arm"])[0]))   # rotate(theta): matrix(cos, sin, -sin, cos)
+        eye = lambda s_, k=0: tuple(round(v, 3) for v in num(s_["iris"] if k == 0 else s_["iris2"])[4:6])
+        i_wv = first(lambda s_: s_["wave"]); i_t1 = first(lambda s_: s_["tilesIn"] >= 1)
+        tiny = lambda s_: abs(arm(s_)) < 0.01 and max(abs(v) for v in eye(s_) + eye(s_, 1)) < 0.01
+        check(f"[girl-wave] .wave starts 0.3 s after the sentence's clip (no school sound, no pop) and BEFORE the tiles: the first tile pops active_ms + 0.3 s ({AC + 300} ms) after it; every transform identity before it (the warm-up's thousandths aside), the palm unseen",
+              200 <= ms(i_wv) - ms(i_sente) <= 650 and i_t1 > i_wv and abs(ms(i_t1) - ms(i_wv) - AC - 300) <= 150 and all(tiny(s_) for s_ in samples[:i_wv]) and all(s_["palmOp"] in (None, 0) for s_ in samples[:i_wv]),
+              (round(ms(i_wv) - ms(i_sente)), round(ms(i_t1) - ms(i_wv))))
+        wf = [k for k in range(i_wv) if samples[k]["warm"]]; runs_w = sum(1 for k in wf if k - 1 not in wf)
+        check("[t3-look7] the GPU warm-up: .warm once, 0.4-1 s after the page's first sampled frame (0.56 s after the mount; the first frame itself can come ~0.15 s after it while her layers decode) and before the slot, 0.1-0.25 s long, the layers tilted by thousandths only (under 0.01 degree / px)",
+              bool(wf) and runs_w == 1 and 400 <= ms(wf[0]) - ms(0) and ms(wf[-1]) < ms(i_slot) and 100 <= ms(wf[-1]) - ms(wf[0]) <= 250 and all(tiny(samples[k]) for k in wf) and any(arm(samples[k]) != 0 for k in wf),
+              (round(ms(wf[0]) - ms(0)) if wf else None, round(ms(wf[-1]) - ms(wf[0])) if wf else None, runs_w, round(ms(i_slot) - ms(0))))
+        t0 = ms(i_wv); cyc1 = [(ms(i) - t0, samples[i]) for i in range(i_wv, len(samples)) if ms(i) - t0 < EV]
+        at = lambda t_: next(s_ for tt, s_ in cyc1 if tt >= t_)
+        peak = min(arm(s_) for t_, s_ in cyc1 if 350 <= t_ <= 750); peak_t = next(t_ for t_, s_ in cyc1 if arm(s_) == peak)
+        swing = [arm(s_) for t_, s_ in cyc1 if 850 <= t_ <= 1800]; crosses = sum(1 for a_, b_ in zip(swing, swing[1:]) if (a_ + AD) * (b_ + AD) < 0)
+        ret_t = next((t_ for t_, s_ in cyc1 if t_ > 1900 and abs(arm(s_)) < 0.05), None); back = [(t_, arm(s_)) for t_, s_ in cyc1 if AC <= t_ <= EV - 50]
+        check(f"[girl-wave] the arm: up to -{AD} degrees (a touch past: x1.06) within 0.35-0.75 s, swinging {SW} degrees either side of -{AD} (0.85-1.8 s: within the band, crossing -{AD} at least 3 times), down at 0 by active_ms ({AC} ms) and 0 to the cycle's end; never below 0",
+              -AD * 1.06 - 1.5 <= peak <= -AD + 0.5 and swing and all(-AD - SW - 1.5 <= a <= -AD + SW + 1.5 for a in swing) and crosses >= 3 and ret_t is not None and ret_t <= AC + 20 and back and all(abs(a) < 0.001 for t_, a in back) and all(arm(s_) <= 0.001 for t_, s_ in cyc1),
+              (round(peak, 2), round(peak_t), (round(min(swing), 1), round(max(swing), 1)) if swing else None, crosses, round(ret_t) if ret_t else None, len(back)))
+        pm = [(t_, s_["palmOp"], s_["armOp"]) for t_, s_ in cyc1]
+        if W["palm"]:
+            check("[girl-wave] T2: the fist swapped for the open palm on the way up (the palm 0 to 170 ms, 1 from 230 ms; the fist the other way, the two always summing to 1) and back as it lands (the palm 1 to 2090 ms, 0 from 2150 ms); the swap 60 ms, the arm past ~30-50 degrees and moving fastest",
+                  all(p == 0 and a == 1 for t_, p, a in pm if t_ <= 165 or t_ >= 2165) and all(p == 1 and a == 0 for t_, p, a in pm if 245 <= t_ <= 2085) and all(abs(p + a - 1) < 0.02 for t_, p, a in pm)
+                  and -52 <= arm(at(170)) <= -26 and -52 <= arm(at(2150)) <= -18,
+                  ([(round(t_), p, a) for t_, p, a in pm if 150 <= t_ <= 260][:6], round(arm(at(170)), 1), round(arm(at(2150)), 1)))
+        else:
+            check("[girl-wave] T3: no palm layer (her hand is open as painted), the forearm layer always opaque", all(p is None and a == 1 for t_, p, a in pm), pm[:3])
+        EY = d["girl_wave"]["eyes"]
+        ok_eyes = all(abs(eye(at(t_), k)[0] - EY[k][0]) < 0.03 and abs(eye(at(t_), k)[1] - EY[k][1]) < 0.03 for t_ in (320, 1000, 2040) for k in (0, 1)) and all(eye(at(t_), k) == (0, 0) for t_ in (2380, 3000, 6500) for k in (0, 1))
+        check(f"[girl-wave] the irises at their eyes' centres ({EY} px) from 0.3 s to 2.05 s and back at 0 by 2.35 s (T3's: 0 throughout — she looks at the screen as painted)", ok_eyes, [(t_, eye(at(t_)), eye(at(t_), 1)) for t_ in (320, 2040, 2380)])
+        steps = [(abs(arm(b_) - arm(a_)), max(abs(eye(b_)[0] - eye(a_)[0]), abs(eye(b_, 1)[0] - eye(a_, 1)[0])), round(tb - ta, 1)) for (ta, a_), (tb, b_) in zip(cyc1, cyc1[1:]) if tb - ta < 40]
+        mx = max(st[0] for st in steps); me = max(st[1] for st in steps)
+        check(f"[girl-wave] smooth: frame to frame the arm never turns more than {AD * 0.09:.1f} degrees ({AD} degrees in 0.55 s, eased), an iris never slides more than 0.1 px", mx <= AD * 0.09 and me <= 0.1, (round(mx, 2), round(me, 3), len(steps)))
+        on_i = [i for i in range(i_wv + 1, len(samples)) if arm(samples[i]) < -1 and arm(samples[i - 1]) >= -1]
+        onsets = [ms(i) - t0 for i in on_i]; slack = [ms(i) - ms(i - 1) for i in on_i]; gaps_on = [round(b_ - a_) for a_, b_ in zip(onsets, onsets[1:])]
+        check(f"[girl-wave] the wave repeats every {EV} ms (its lift's onsets {EV} ms apart within 20 ms plus the frame each was seen in, at least once more before the tap)",
+              len(onsets) >= 2 and all(abs(g - EV) <= 20 + max(sa, sb) for g, sa, sb in zip(gaps_on, slack, slack[1:])), ([round(x) for x in onsets[:3]], gaps_on[:2]))
+        long0 = [round(ms(i) - ms(i - 1)) for i in range(i_wv + 1, len(samples)) if ms(i) - t0 <= 400 and ms(i) - ms(i - 1) > 25]
+        check("[t3-look7] the first wave's start on this (cold) browser: no frame over 75 ms in its first 0.4 s", all(x <= 75 for x in long0), long0)
+        i_wve = first(lambda s_: not s_["wave"], i_wv)
+        rest_at_off = all(abs(arm(samples[k])) < 0.001 and eye(samples[k]) == (0, 0) and samples[k]["palmOp"] in (None, 0) for k in (i_wve - 1, i_wve, i_wve + 1) if 0 <= k < len(samples))
+        ph = (ms(i_done) - t0) % EV
+        check(f"[girl-wave] after the tap the class leaves only in a REST phase: every transform at identity in the frames around its going, which comes {'at once' if ph >= AC else 'once the running gesture has ended'} (within active_ms + 120 ms of the tap), and never comes back",
+              i_wve >= i_done and rest_at_off and (ms(i_wve) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["wave"] for s_ in samples[i_wve:]), (round(ms(i_wve) - ms(i_done)), round(ph), rest_at_off))
     if not PICKM:   # (the pick has no pulsing tile)
         check("the pulse: dscPulse, infinite, on the whole tile, its face glowing (dscGlow) with a 3px orange border, its mark the words' orange; the dim tiles at .6 ([t2-scene2])",
               look[0] == "dscPulse" and look[1] == "infinite" and look[2] == "dscGlow" and look[3] == "rgb(232, 106, 0)" and look[4] == "3px" and look[5] == "rgb(232, 106, 0)" and look[6] == "0.6", look)
@@ -615,7 +698,7 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate("_ac()"); pg.evaluate(GOTO, PAGE)
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=40000); pg.wait_for_timeout(650)
     pg.evaluate("document.querySelectorAll('.dsc-slot').forEach(e => e.classList.remove('blink'))"); pg.wait_for_timeout(600)   # the frame draws the slot plain (its fill's .4 s transition back, [t2-scene4])
-    if C["look"]: pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 3000; } }"); pg.wait_for_timeout(100)   # [t3-look] the rig at rest (3 s into its cycle): her painting
+    if C["look"] or C.get("wave"): pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 3000; } }"); pg.wait_for_timeout(100)   # [t3-look] the rig at rest (3 s into its cycle): her painting
     shot = out / "g_frame_1280.png"; pg.screenshot(path=str(shot))
     FRAME = C["FRAME"]; boxes = pg.evaluate(BOXES, list(FRAME)); worst = 0
     print("== boxes vs the frame (px) ==")

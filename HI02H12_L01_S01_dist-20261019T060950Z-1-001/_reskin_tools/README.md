@@ -2264,6 +2264,58 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Pages 6 T2 and 7 T3: the girl looks at the screen and waves before the tiles, every 7 s ([girl-wave], 2026-11-02)
+- Asked: "At page 6 T2 remove the sound effect and the pop animation of the girl synced with it; instead, before the options
+  appear, the girl standing should show an animation of looking towards the screen and waving her one hand in a suitable animation
+  as if saying bye and then come back to the exact same position as shown, and this animation should repeat after every 7 seconds.
+  Perfect and smooth, without any unclear and disturbed animation around and of the girl. Apply this at page 7 T3 too; rest keep
+  everything exactly the same." Read as: T2's 2 s school sound (sfx_demo1_school.mp3) and her small pop (dscPop) go; in their
+  place, on T2 AND T3, the wave gesture, then the tiles; T3's [t3-look] glance at the tiles is replaced by the same wave (its
+  "move her arms and look back" was the earlier ask for that page; this one names a new gesture for both).
+- The gesture (data.girl_wave on a rig, data.girl_rig naming it; the PUNCT_SCENE module's stage 3' in place of the school
+  sound's stage 3): .wave starts a 7 s CSS cycle whose first 2.4 s is the move — the irises glide to the eyes' centres over 0.3 s
+  (T2's sit a hair off: 0.57 / 0.16 px of her 239x358 box — both girls FACE the screen as painted, so this is all "looking towards
+  the screen" can be without redrawing her; a blink was built and dropped: a lid over the eye's opening leaves the painted outline
+  as a hollow ring); the forearm turns up about the elbow to -60 degrees (T2: the open hand beside her collar) / -40 (T3: beside her
+  braid, the frame's "which one?" palm already open) by 0.55 s with a 6% overshoot settling by 0.7 s, swings 12 / 10 degrees either
+  side three times (0.9-1.85 s), and is down by 2.4 s; every layer back at identity, she is the painting again until 7 s, when it
+  repeats — until the child's tap (the class leaves only in a rest phase, as the glance's did). The tiles pop 0.3 s after the
+  gesture (2.7 s after .wave), as they followed the school sound; the explanation and the rest unchanged.
+- T2's rig (girl_rig_t2.py -> demo1_assets/girl_rig/, inlined as data URIs in the CSS under .dsc-rig-demo1; her bitmap is the
+  frame's "image 243", 1024x1536, drawn 239x358): she holds both bag straps with closed fists, so her RIGHT forearm (the viewer's
+  left) turns about the elbow (the pivot 416,650 of the bitmap, a 35 px keep disc as girl_rig.py's), and the fist becomes an OPEN
+  PALM on the way up: the T3 girl's open hand (demo2_assets/img_demo2_girl_ask.webp, the same style, the same skin 253,190,129 vs
+  254,187,130), mirrored (her right hand: the thumb to the viewer's right once the fingers point up), cut across the wrist at its
+  narrowest (59 px), scaled 0.939 to her forearm's 55.6 px, its fingers along her forearm, its outline shifted to this bitmap's
+  maroon; the forearm's end ramped over it. Two arm layers, their own RGBA sheets (the bitmap's anti-aliased rim recoloured to the
+  outline with its coverage as alpha, so the edge is clean in the air and the painting at rest): .dsc-garm (the fist) and
+  .dsc-gpalm (the palm), the same transform; the swap = a 60 ms opacity cross as the arm passes ~40 degrees on the way up (the hand
+  moving fastest, ~4 degrees a frame) and as it lands — a 150 ms dissolve ghosted (tried, seen on the frame sheet). Behind the
+  forearm a PATCH (.dsc-gunder, under the body's hole): the pink strap carried from its visible end above the fist to its end
+  below the forearm (a cubic curve with the measured end lines and widths — it leans right coming down, 33 px wide, and bends to
+  45 degrees under the arm, 25 px; its colour cross-section sampled from the visible strap), the pinafore's navy as a harmonic fill
+  from the navy around (no tonal step at the hole's edge), the sleeve's corner on its fitted edges; the elbow's keep disc holds the
+  forearm's root as the glance rig's (the upper arm's lower end and the sleeve corner stay with the body: no outline parts the
+  forearm from the upper arm at the inner elbow). The eyes as girl_rig.py's (the interior windows — the lids' blended edge read as
+  lid —, sclera discs, irises completed), the irises' targets = the openings' centroids. At rest the layers give the painting back
+  within 12 levels at the page's size (7 px over 8 of 239x358: the arm's rim). Sheets ~110 KB in all.
+- T3's rig as [t3-look] built it (the body with the hole, the eyes, the forearm window about the elbow, the braid tip over it),
+  scoped to .dsc-rig-demo2 now; the wave's bigger lift (-40, -50 at the swing's far side) shows the hand passing behind the braid's
+  tip and the elbow's keep disc as a round elbow — judged on the frame sheet.
+- Built: build.py [girl-wave] — T2's entry (girl_pop false, girl_rig "demo1", girl_wave WAVE1; the sound stays in the dist, unused),
+  T3's (girl_rig "demo2", girl_wave WAVE2; girl_look gone from the data — the module still runs a glance for a page that asks),
+  the module (the rig markup by rig id, waveOn / waveOff beside lookOn / lookOff, stage 3' = waveOn then the tiles active_ms + 0.3 s
+  later, waveOff at every tap, the GPU warm-up for the wave's layers too), the CSS (the glance's rig rules scoped, T2's rig, the
+  wave's keyframes from ms stops as the glance's: dscWaveArm / dscWaveEye / dscWaveFist / dscWavePalm). Nothing else changed:
+  T4 / G1-G3 (no rig) run the same code paths; the picks' taps call waveOff (a no-op).
+- Checked: scene_check.py T2 [[T2_TALLY]] T3 [[T3_TALLY]] (the new [girl-wave] lines: the data, the rig's layers / masks / images /
+  origins / stillness at mount, .wave 0.3 s after the clip and before the tiles with the tiles 2.7 s later, the arm's peak / swings /
+  return / rest, the palm swap's timing and the angle it happens at (T3: no palm), the irises, frame-to-frame smoothness, the 7 s
+  period, the cold-start frames, the class off at rest after the tap; the blink's timing now counted from the gesture's end).
+  T4 [[T4_TALLY]], G1 [[G1_TALLY]] (unchanged pages on the same module), smoke.py [[SMOKE]], word_sync_check T2 T3 [[WS]]. Frame
+  sheets (the animations paused and sought: the face, the arm's rise and landing) at 3x in the scratchpad.
+  `../_before_wave/` holds the [g3-scene] dist's three files, build.py, README, scene_check.py and smoke.py.
+
 Page 11 G3: the garden scene from Figma 716:1262, G1's pick with the "," in the sentence's own slot ([g3-scene], 2026-11-02)
 - Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=716-1262 — at page 11 G3 make the exact same layout
   as this figma reference and follow the exact same flow as page 9 G1 for the correct answer as the (,) sign; rest keep the flow the
@@ -2292,15 +2344,16 @@ Page 11 G3: the garden scene from Figma 716:1262, G1's pick with the "," in the 
   re-read. CSS .dsc-v-pick3: the picture -27,-132 1117x630 of the padding box (cover); the sentence centred on 533,71 (the
   box's centre 532.5,68: measured word by word against the render) with the gap after गुलाब 33 px (measured the same way); the
   slot 376,71 33x38; the tiles 366.09 / 593 / 823.82 at 349; the tile ellipses #97CF28; the girl 126,123 218x328 (cover), her
-  ellipse 21,310 172x38 at rgba(151,207,40,.4). Assets (from the Figma connector, downloaded into the scratchpad first):
+  ellipse 9,298 172x38 of her box at rgba(151,207,40,.4) (the first build had it at 21,310 — the card's 12 px added twice; scene_check's
+  frame table caught the 12 px and it was fixed before the final run). Assets (from the Figma connector, downloaded into the scratchpad first):
   g3_assets/img_g3_garden.webp (image 284's fill, q90, 56 KB), img_g3_girl_point.webp (image 283's fill, q90, alpha exact, 176 KB);
   g3b_figma_render_1280x720.png = the frame's 1x export. Nothing else in the dist changed: the card's G3 entry + two image entries;
   style.css the .dsc-v-pick3 block; app.js two comments (the alias's and the module's). No page is on the PUNCT_DEMO module's tap
   mode any more (the module and its CSS stay; pick_check.py refuses every page now, kept for the record).
 - Checked: scene_check.py G3 (new config on the pick-mode branches — G1's taps and checks with the "," the answer, the wrong tiles the
-  first and the third; + the in-sentence slot's data): [[G3_TALLY]] scene_check G2 (its next page now the G3 scene) [[G2_TALLY]].
-  smoke.py [[SMOKE]] (the G2 -> G3 step expects the scene card with the gap; G3's taps on .dsc-tile; G3 -> G4 as before).
-  word_sync_check G1 G2 G3 [[WS]]. `../_before_g3_scene/` holds the [g2-scene] dist's three files, build.py, README, scene_check.py,
+  first and the third; + the in-sentence slot's data): 43/43 (the final run; the first run's frame table had caught the girl's ellipse 12 px off — fixed, see above — and two check artifacts: the data line had expected no hint-3 line, but [vo-rec] keeps vo_g3_hint3 registered, unspoken; and the Swiftie had been looked for after the move-on, on G4, which has none). scene_check G2 (its next page now the G3 scene) 43/43..
+  smoke.py 53/53 (the G2 -> G3 step expects the scene card with the gap; G3's taps on .dsc-tile; G3 -> G4 as before).
+  word_sync_check G1 G2 G3 all OK. `../_before_g3_scene/` holds the [g2-scene] dist's three files, build.py, README, scene_check.py,
   smoke.py and pick_check.py.
 
 Page 10 G2: the street scene from Figma 716:1058, G1's pick with the "?" ([g2-scene], 2026-11-02)
@@ -2337,9 +2390,9 @@ Page 10 G2: the street scene from Figma 716:1058, G1's pick with the "?" ([g2-sc
   block; app.js two comments (the alias's and the module's).
 - Checked: scene_check.py G2 (new config on the pick-mode branches — the same taps and checks as G1 with the "?" the answer, the
   wrong tiles the first two; the clip names in its sample now mapped from the page's own intro / sentence clips, since G2's intro
-  line is G1's file; a frame without tile ellipses: .dsc-tshade display none): [[G2_TALLY]] scene_check G1 (its next page now the
-  G2 scene) [[G1_TALLY]]. smoke.py [[SMOKE]] (the G1 -> G2 step expects the scene card; G2's taps on .dsc-tile; G2 -> G3 as before).
-  word_sync_check G1 G2 [[WS]]. pick_check.py refuses G2 now too (G3 is its only page). `../_before_g2_scene/` holds the [g1-quiet]
+  line is G1's file; a frame without tile ellipses: .dsc-tshade display none): 43/43 in the final run (42 + one check artifact of its own at the time: the data line expected no hint-3 line; [vo-rec] keeps vo_g2_hint3 registered, unspoken — the check now expects it). scene_check G1 (its next page now the
+  G2 scene) 42/42.. smoke.py 53/53 (the G1 -> G2 step expects the scene card; G2's taps on .dsc-tile; G2 -> G3 as before).
+  word_sync_check G1 G2 all OK. pick_check.py refuses G2 now too (G3 is its only page). `../_before_g2_scene/` holds the [g1-quiet]
   dist's three files, build.py, README, scene_check.py, smoke.py and pick_check.py.
 
 Page 9 G1: the sentence read once, no pop-in after a wrong tap's wiggle ([g1-quiet], 2026-11-02, after [g1-scene])
@@ -2363,7 +2416,7 @@ Page 9 G1: the sentence read once, no pop-in after a wrong tap's wiggle ([g1-qui
   after the wiggle's class leaves; the sentence's clip started exactly ONCE on the page and no word lit after that reading (the
   chip's tap after hint 1 says the instruction line again, no word lit; the intro line twice: the page's and the chip's); the hand run
   waits 8.5 s of quiet with the tiles the child's first: the sentence's clip has sounded once, no word lit, nothing speaking, the
-  idle ticker not running: [[G1_TALLY]] smoke.py [[SMOKE]]; word_sync_check G1 [[WS]]. T2 / T3 / T4 / G2 / G3 untouched by this
+  idle ticker not running: 42/42 (final run). smoke.py 53/53; word_sync_check G1 OK. T2 / T3 / T4 / G2 / G3 untouched by this
   (the engine patch adds a data condition only): their [g1-scene] runs stand. `../_before_g1_quiet/` holds the [g1-scene] dist's
   three files and README, build.py with this entry's two code changes undone (its comments carry both entries), and scene_check.py
   with this entry's checks (they only add).
@@ -2416,9 +2469,9 @@ Page 9 G1: the room scene from Figma 715:856 on T2's module, the tiles the child
   tile live as it pops, the early taps ignored, the wrong taps' wiggle + buzz + hint lines, the [tap-lock] tap ignored, the chip's
   re-read, the press with the mark / correct sound / confetti / praise and G2 1 s after; a second run with three wrong taps — the
   hand under the right tile, the dead decoys, the guided tap without a line; the geometry and pixel diff vs the render):
-  [[G1_TALLY]] scene_check T2 [[T2_TALLY]], T3 [[T3_TALLY]], T4 [[T4_TALLY]] on the shared module (T4's next page now expected to be
-  the G1 scene). smoke.py [[SMOKE]] (the T4 -> G1 step expects the scene card; G1's taps on .dsc-tile; the dev nav's T4 runs end at
-  the G1 scene). word_sync_check T2 T3 T4 G1 [[WS]]. pick_check.py refuses G1 now (G2 / G3 unchanged: [[PICK]]).
+  40/40 (42/42 in the final run with the later checks). scene_check T2 38/38, T3 47/47, T4 40/40 on the shared module (T4's next page now expected to be
+  the G1 scene). smoke.py 53/53 (the T4 -> G1 step expects the scene card; G1's taps on .dsc-tile; the dev nav's T4 runs end at
+  the G1 scene). word_sync_check T2 T3 T4 G1 all OK. pick_check.py refuses G1 now (G2 / G3 unchanged: 54 pass + the 2 pre-existing fails — the bar text 10 px low and the pixel diff — confirmed on the build from before this session).
   `../_before_g1_scene/` holds the [t4-scene] dist, build.py, README, scene_check.py, smoke.py, pick_check.py and word_sync_check.py.
 
 Page 8 T4: the park scene from Figma 723:1575 on T2's module ([t4-scene], 2026-11-02)
