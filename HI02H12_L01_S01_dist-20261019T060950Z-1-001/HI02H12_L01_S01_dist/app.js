@@ -928,7 +928,7 @@ function resetIdleVo(){ stopIdleVo(); _idleVoFired = false; }
    that re-armed a FULL 7s whenever it found audio playing, which stretched the real delay to as much
    as 14s — measured in-browser, it never fired. A ticker that resets the silence clock is exact.) */
 function armIdleVo(){
-  if(['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG','SENT_PICK','LETTER_STORY','STAMP_DEMO'].includes(CARD.slides[state.idx]?.type)){stopIdleVo();return;}
+  if((CARD.slides[state.idx]?.data || {}).no_idle_vo || ['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG','SENT_PICK','LETTER_STORY','STAMP_DEMO'].includes(CARD.slides[state.idx]?.type)){stopIdleVo();return;}
   if(_idleVoFired){ stopIdleVo(); return; }      // [27f] one reminder per slide — already spent
   _idleSince = 0;                                // any (re)arm restarts the silence clock
   const slide = CARD.slides[state.idx];
@@ -6425,7 +6425,8 @@ const SlideModules = {
         other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
         frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
         page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
-        idle reminder and the 🔊 chip read the sentence again. ===== */
+        🔊 chip says the instruction line again — the sentence and its word light play once on G1 ([g1-quiet]; the engine's
+        idle reminder is off there: data.no_idle_vo). ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -6594,8 +6595,9 @@ const SlideModules = {
       // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
       // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
       // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
-      // no tile answers while a feedback sound or line plays; the idle re-read (state.replayAudio, the engine's one per page after
-      // 7 s of quiet) and the 🔊 chip read the sentence again, words lit — a tap cuts that reading short and answers at once
+      // no tile answers while a feedback sound or line plays; the 🔊 chip says the instruction line again (state.replayAudio; the
+      // sentence and its word light play ONCE on this page — [g1-quiet]; the engine's idle reminder is off here: data.no_idle_vo)
+      // — a tap cuts that line short and answers at once
       let live = false, fbAudio = null, hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
@@ -6609,7 +6611,10 @@ const SlideModules = {
       };
       function armTile(k){
         if(!live){ live = true; state.demoRunning = false; setSwMood("point");
-          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; sfigNarrate(L, alive, ()=>{}); }; }
+          // [g1-quiet] the 🔊 chip: the instruction line (data.intro_audio) again — NOT the sentence: its clip and its word light play
+          // once on this page (asked twice: "the VO and the highlight animation of the sentence should not repeat"); the engine's
+          // idle reminder, which would call this too, is off here (data.no_idle_vo)
+          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; say(A(d.intro_audio), ()=>{}); }; }
         const t = tiles[k]; t.classList.add("live"); t.onclick = ()=> pickTap(k);
         t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); };
       }
