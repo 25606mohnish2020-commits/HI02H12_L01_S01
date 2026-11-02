@@ -6416,7 +6416,16 @@ const SlideModules = {
      [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
-        each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before. ===== */
+        each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before.
+     [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene, variant "pick") runs on this module as the CHILD's pick:
+        stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
+        frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
+        the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
+        hint ladder (data.hint1_audio / hint2_audio 0.5 s after; the 3rd wrong tap the pointing hand under the right tile, the
+        other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
+        frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
+        page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
+        idle reminder and the 🔊 chip read the sentence again. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -6445,6 +6454,7 @@ const SlideModules = {
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
       const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
+      const picking = slide.type === "PUNCT_PICK";   // [g1-scene] G1: the tiles are the child's as they pop in, with the pick page's feedback
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
       (S.gaps || []).forEach(i=>{ if(L.words[i]) L.words[i].classList.add("dsc-gap"); });   // [t4-scene] the words the slots follow: their gap's width is the variant's CSS
       // [t3-look] the glance (data.girl_look, on the rig): the amounts and the cycle as CSS variables on the girl; .look starts the
@@ -6470,6 +6480,11 @@ const SlideModules = {
       // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
       kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx)); kit("sceneBox", d.box_sfx);   // [t3-scene] the bubble's pop
+      // the tiles' pops: the kit's play (held as an effect by [tap-lock]'s sfxBusy) — in the pick ([g1-scene]) played UNTRACKED: they
+      // are the tiles' entrance, not feedback, and a tile tapped as it pops in answers at once (the buzz, the chime, the lines and
+      // the sounds of the other pages still hold the taps)
+      const popTile = (k)=>{ if(!picking){ playKitSfx("scenePop" + k, d.tiles_sfx, .8); return; }
+        const a = _kitSfx["scenePop" + k]; if(!a) return; try{ a.volume = .8; a.currentTime = 0; const pr = a.play(); if(pr && pr.catch) pr.catch(()=>{}); }catch(e){} };
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -6533,10 +6548,10 @@ const SlideModules = {
         const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
         slots.forEach(sl=>{ sl.style.setProperty("--blink-ms", (ms / n) + "ms"); sl.style.setProperty("--blink-n", n); sl.classList.add("blink"); });
         tiles.forEach((t, k)=>{
-          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); if(!k) lookOn(); };   // [t3-look] the girl looks as the first tile pops
+          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) popTile(k); if(!k) lookOn(); if(picking) armTile(k); };   // [t3-look] the girl looks as the first tile pops; [g1-scene] the tile the child's as it pops
           if(k) after(k * gap, go); else go();
         });
-        after(ms, ()=>{ slots.forEach(sl=> sl.classList.remove("blink")); after(300, stage5); });
+        after(ms, ()=>{ slots.forEach(sl=> sl.classList.remove("blink")); if(!picking) after(300, stage5); });   // [g1-scene] the pick: no explanation, the page waits for the child
       };
       // 5. the explanation: the danda's tile lights as the clip says its cue word; after the clip the other two go dim and dead,
       //    then the lit tile pulses and is the child's
@@ -6572,6 +6587,58 @@ const SlideModules = {
           const land = ()=>{ centreInk(marks[k]); marks[k].classList.add("in"); after(450, ()=>{ sl.classList.add("gone"); if(k === slots.length - 1) after(1200, finish); }); };
           if(k) after(k * stg, land); else land();
         });
+      }
+      // [g1-scene] the pick (type PUNCT_PICK): each tile is the child's from the frame it pops in (armTile); the feedback is the pick
+      // page's own, as before on G1 — a wrong tile wiggles (the engine's wgNo) with the kit's wrong buzz and the deck's hint ladder
+      // (hint 1, hint 2, 0.5 s after the wiggle; the 3rd wrong tap, [hand-quiet]: the pointing hand under the right tile, the other
+      // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
+      // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
+      // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
+      // no tile answers while a feedback sound or line plays; the idle re-read (state.replayAudio, the engine's one per page after
+      // 7 s of quiet) and the 🔊 chip read the sentence again, words lit — a tap cuts that reading short and answers at once
+      let live = false, fbAudio = null, hintHand = null;
+      const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
+        const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
+      const showHand = ()=>{ if(hintHand) return; const st = document.querySelector(".slide-stage"); if(!st) return;
+        hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+        st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
+      const hintLadder = (n)=>{
+        if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } }); return; }   // the wiggle just started runs out on its own
+        const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
+        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // a hint line is feedback: no tile answers while it speaks
+      };
+      function armTile(k){
+        if(!live){ live = true; state.demoRunning = false; setSwMood("point");
+          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; sfigNarrate(L, alive, ()=>{}); }; }
+        const t = tiles[k]; t.classList.add("live"); t.onclick = ()=> pickTap(k);
+        t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); };
+      }
+      function pickTap(k){
+        if(!live || !alive()) return;
+        if(sfxBusy() || (isPlaying && currentAudio && currentAudio === fbAudio)) return;   // [tap-lock]
+        if(isPlaying) stopAudio();   // the re-read is no feedback: a tap cuts it short and answers at once
+        L.words.forEach(w=> w.classList.remove("hot"));
+        const t = tiles[k], ok = k === pick, opt = opts[k] || {};
+        GameBus.sendQuestionAnswered(slide, { is_correct: ok, score: ok && state.attempts === 0 ? 1 : 0, attempt: state.attempts + 1,
+          ui_index: k, original_index: k, text: opt.name_hi || opt.mark || null });
+        if(!ok){
+          state.attempts++; sfxWrongSoft(); setSwMood("tryagain");
+          GameBus.emit("answer_wrong", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts });
+          t.classList.remove("wiggle"); void t.offsetWidth; t.classList.add("wiggle");
+          hintLadder(state.attempts);
+          return;
+        }
+        live = false; state.locked = true; state.demoRunning = true; const guided = !!hintHand; if(hintHand){ hintHand.remove(); hintHand = null; }   // the hand goes with the answer
+        lookOff();   // [t3-look] (no rig on G1; kept for a rigged girl)
+        slots.forEach(sl=> sl.classList.remove("blink"));
+        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are
+        const stg = d.mark_stagger_ms || 300;
+        marks.forEach((m, j)=>{ const land = ()=>{ centreInk(m); m.classList.add("in"); }; if(j) after(j * stg, land); else land(); });
+        sfxCorrect(); confettiCannon(); setSwMood("happy");
+        GameBus.emit("punct_build_done", { slide_id: slide.id, phase: slide.phase, value: true,
+          first_try: state.attempts === 0, wrong: state.attempts, latency_ms: Date.now() - state.slideStart });
+        if(guided){ after(1700 + (marks.length - 1) * stg, ()=> completeSlide(true)); return; }   // after the hand: no praise line
+        say(A(d.ok_audio || d.mark_audio), ()=> after(PACE.tail, ()=> completeSlide(true)));   // "शाबाश!", then the page moves on
       }
       // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
@@ -8010,7 +8077,7 @@ SlideModules.SORT_VACHAN           = SlideModules.SORT_GENDER;
 SlideModules.MATCH_VACHAN_PAIRS    = SlideModules.MATCH_THE_PAIR;   // rebuilt as the tap-to-pair bubble game
 SlideModules.MATCH_PAIRS           = SlideModules.MATCH_THE_PAIR;
 SlideModules.SORT_WORDS            = SlideModules.SORT_QTYPE;   // [reskin] generic two-box word sort (custom data.bins), r4n
-SlideModules.PUNCT_PICK            = SlideModules.PUNCT_DEMO;   // [pick-fig] G1: the run-on demo's page with the tap left to the child
+SlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] G2 / G3: the run-on demo's page with the tap left to the child; [g1-scene] G1 (data.scene): the scene module's page, its tiles the child's
 
 /* ---------- 13. CONTROLLER ---------- */
 /* FLN toolkit retune: fewer particles, lower launch speed and a much longer,

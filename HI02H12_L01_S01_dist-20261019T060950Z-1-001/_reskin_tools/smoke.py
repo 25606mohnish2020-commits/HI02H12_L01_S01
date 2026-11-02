@@ -105,20 +105,20 @@ with sync_playwright() as p:
     pg.wait_for_function("document.querySelectorAll('.dsc-mark.in').length === 2", timeout=5000)
     check("the tap lands the comma in both slots", pg.evaluate("[...document.querySelectorAll('.dsc-mark.in')].every(m => m.textContent === ',')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)
-    check("T4 runs itself through the round gate to G1, the Figma tap page (no आगे)",
-          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))
+    check("T4 runs itself through the round gate to G1, the Figma pick page ([g1-scene]: the scene module's card, no आगे)",
+          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick .dsc-bg') && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     check("after T4 (and only there since T1) the gate: the peeking Swiftie, then \"चलिए, साथ में करें!\" with its VO, then G1", *gate_after_t4(pg.evaluate("window._gate")))
 
-    # 2. G1 (PUNCT_PICK, see pick_check.py): once the sentence has been read, two wrong tiles (each wiggles, no mark), then
-    #    the right one -> its mark in the slot -> auto-advance to G2
-    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
-    pg.click(".dmf-tile.t2"); pg.wait_for_timeout(150)
-    check("G1: a wrong tile wiggles, counts an attempt, no mark in the slot",
-          pg.evaluate("document.querySelector('.dmf-tile.t2').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
-    quiet(pg); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(150)
-    check("G1: the other wrong tile too, and the page waits", pg.evaluate("state.attempts===2 && CARD.slides[state.idx].id==='G1' && !document.querySelector('.dmf-mark.in')"))
-    quiet(pg); pg.click(".dmf-tile.t1"); pg.wait_for_timeout(600)
-    check("G1: the right tile (पूर्ण विराम) puts its mark in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent==='।'"))
+    # 2. G1 ([g1-scene] PUNCT_PICK on the scene module, see scene_check.py G1): once the tiles have popped in they are the child's;
+    #    two wrong tiles (each wiggles, no mark), then the right one -> its mark in the slot -> auto-advance to G2
+    pg.wait_for_function("document.querySelectorAll('.dsc-tile.live').length === 3", timeout=30000)
+    pg.click(".dsc-tile.t2", force=True); pg.wait_for_timeout(150)
+    check("G1: a wrong tile wiggles, counts an attempt, no mark in the slot, all three tiles still the child's",
+          pg.evaluate("document.querySelector('.dsc-tile.t2').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dsc-mark.in') && document.querySelectorAll('.dsc-tile.live').length === 3"))
+    quiet(pg); pg.click(".dsc-tile.t3", force=True); pg.wait_for_timeout(150)
+    check("G1: the other wrong tile too, and the page waits", pg.evaluate("state.attempts===2 && CARD.slides[state.idx].id==='G1' && !document.querySelector('.dsc-mark.in')"))
+    quiet(pg); pg.click(".dsc-tile.t1", force=True); pg.wait_for_timeout(600)
+    check("G1: the right tile (पूर्ण विराम) presses and puts its mark in the slot, with the confetti", pg.evaluate("document.querySelector('.dsc-tile.t1').classList.contains('on') && !!document.querySelector('.dsc-slot .dsc-mark.in') && document.querySelector('.dsc-mark').textContent==='।' && !!document.querySelector('.fx-confetti')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G2'", timeout=15000)
     check("G1 then moves on to G2 by itself, the second Figma tap page",
           pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))

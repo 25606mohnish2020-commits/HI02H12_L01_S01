@@ -3,7 +3,7 @@
    प्रश्नवाचक चिह्न; the title bar is T4's — its text G3's, "वाक्य सुनिए और सही चिह्न लगाइए ।", since [band-title] 2026-10-28:
    its render's band is 528:424's pasted over its own, the frame still showing T4's line), G3 = frame 528:424 "9 G3" ("बाग में
    गुलाब    गेंदा और चमेली के फूल हैं ।", अल्प विराम; T4's layout with one small slot).
-usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdir> [G1|G2|G3]     (default G1)
+usage: python -I -X utf8 pick_check.py <index.html> <render_1280x720.png> <outdir> [G2|G3]     (default G2; G1 is a scene since [g1-scene] 2026-11-02: scene_check.py G1)
        renders: g1_figma_render_1280x720.png (G1), g2_... (G2), g3_... (G3)
 1. At 1333x750, the page mounted on its own: the title bar appears as the intro line ("वाक्य सुनिए और सही चिह्न लगाइए ।")
    starts to sound and nothing else shows before that line has ended; the picture, the sentence bar and the tiles come
@@ -37,7 +37,8 @@ from PIL import Image
 
 html = pathlib.Path(sys.argv[1]).resolve(); target = Image.open(sys.argv[2]).convert("RGB")
 out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
-SLIDE = sys.argv[4] if len(sys.argv) > 4 else "G1"
+SLIDE = sys.argv[4] if len(sys.argv) > 4 else "G2"
+if SLIDE == "G1": raise SystemExit("[g1-scene] (2026-11-02): G1 is the scene module's pick page now (frame 715:856) — python -I -X utf8 scene_check.py <index.html> g1b_figma_render_1280x720.png <outdir> G1; the G1 table below is kept for the record")
 T3_TILES = {".t1 .dmf-base": (197, 443, 227, 169), ".t2 .dmf-base": (527, 443, 227, 169), ".t3 .dmf-base": (857, 443, 227, 169),
             ".t1 .dmf-face": (199, 445, 223, 161), ".t2 .dmf-face": (529, 445, 223, 161), ".t3 .dmf-face": (859, 445, 223, 161)}
 BIG = lambda x: (365 + x, 211 + 20, 59, 100)   # 519:32's slot, at x in its bar

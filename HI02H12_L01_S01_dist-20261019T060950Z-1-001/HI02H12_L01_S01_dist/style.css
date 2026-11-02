@@ -3239,6 +3239,21 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-v-list .dsc-girl{left:132px;top:139px;width:224px;height:336px;z-index:1;}
 .dsc-v-list .dsc-girl > img{width:224px;height:336px;object-fit:cover;}
 .dsc-v-list .dsc-shade{left:17px;top:289px;width:190px;height:47px;background:#FEB564;}   /* her ellipse, 729:2321 */
+/* ===== [g1-scene] G1 = frame 715:856 "9 G1" on the scene module: the "pick" variant (.dsc-v-pick) ===== */
+.dsc-v-pick .dsc-bg > img{left:-15px;top:-15px;width:1095px;height:514.872px;}   /* the room, drawn whole (the box has the bitmap's aspect) */
+.dsc-v-pick .dsc-sent{left:635.5px;top:116px;}   /* the box's centre 634.5,113 of the padding box: Chrome's Baloo ink sat 1 px left and 1 px below the render's there (measured, word by word) */
+.dsc-v-pick .dsc-slot{left:887px;top:68px;}   /* T2's 53x90 white slot, 18 px further left, 1 px higher */
+.dsc-v-pick .dsc-tile.t1{left:386.09px;} .dsc-v-pick .dsc-tile.t2{left:613px;} .dsc-v-pick .dsc-tile.t3{left:843.818px;}   /* T2's row, 70 px further left (T4's columns) */
+.dsc-v-pick .dsc-tshade{background:rgba(225,180,142,.6);}   /* the frame's tile ellipses: #E1B48E at .6 on the floor */
+.dsc-v-pick .dsc-girl{left:121px;top:45px;width:252px;height:378px;}
+.dsc-v-pick .dsc-girl > img{width:252px;height:378px;}
+.dsc-v-pick .dsc-shade{left:21px;top:338px;width:158px;height:34px;background:rgba(225,180,142,.3);}   /* her ellipse 749:2547: #E1B48E .5 in a .6 node */
+/* the pick's tiles ([g1-scene]): a wrong one shakes with the engine's wrong-answer wiggle (wgNo, one --fx-beat), its colours
+   unchanged — dscTileIn (the tile's pop-in) stays FIRST in the animation list: a list that dropped it would run it again as the
+   wiggle's class leaves (the [t2-scene5] gotcha: a second pop of the tile after every wrong tap); the right one presses (the demos'
+   dmfTap) and keeps its colours — no green, no glow (the pick page's look, as before) */
+.dsc-tile.in.wiggle{animation:dscTileIn .45s ease-out,wgNo var(--fx-beat) ease-in-out both;}
+.dsc-tile.in.on{animation:dscTileIn .45s ease-out,dmfTap .45s ease-out;}
 
 /* ===== [t3-look] the girl in layers and her glance at the tiles (girl_rig.py; see build.py) ===== */
 .dsc-grig{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 98.4%;}   /* the lean shears from her feet */

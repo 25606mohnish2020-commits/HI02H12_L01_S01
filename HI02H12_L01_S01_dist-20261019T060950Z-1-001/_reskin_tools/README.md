@@ -2264,6 +2264,59 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Page 9 G1: the room scene from Figma 715:856 on T2's module, the tiles the child's ([g1-scene], 2026-11-02)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=715-856 — at page 9 G1 make this exact same layout;
+  after the instruction VO in the bg, first the image inside the blue frame along with the girl, then the sentence along with the
+  empty blank box, then the VO of the sentence with the exact same highlight animation as page 6 T2, and the exact same type of flow
+  with the options as page 6 T2. But on G1 the correct option will not pulse and all three options stay tappable; a wrong option
+  wiggles with the incorrect sound effect synced; for the first wrong attempt use the exact same feedbacks for the right and the
+  wrong options as before on this page; when the correct option is tapped it also appears in the sentence synced with it, and the
+  exact same confetti as before; rest exactly the same."
+- The frame (715:856 "9 G1"): T2's card (96,106 1088x508, 12px #5A8FEE, 64px corners) filled by a room picture ("image 274",
+  1829x860, drawn WHOLE at -3,-3 1095x514.872 of the card — the box has the bitmap's aspect, so no crop; it covers the #404040
+  rectangle under it; a different room from T2's hallway); the girl with the ball ("image 273", 1024x1536, at 133,57 252x378 of
+  the card, the frame's last node) on her ellipse (749:2547, 154,395 158x34, #E1B48E .5 in a .6 node); the sentence 714:845
+  "पिंकी गेंद से खेल रही थी " (Baloo 2 ExtraBold 55 #012F76, centred in a 557 box at 368,81 of the card; its text ends in a space);
+  the white slot 724:2228 53x90 at 899,80 of the card (2px dashed rgba(86,86,86,.85), 8px corners); the tiles । , ? (T2's order,
+  faces and mark offsets) at 494.09 / 721 / 951.818, 397 (T2's row, T4's columns) over #E1B48E .6 ellipses (118x26 at y 496); its
+  own Swiftie 715:1051 "Hello (2) 1" (not used — T1's standing Swiftie and chip, as T2 / T3 / T4); a hidden title bar and a hidden
+  "image 218".
+- Built (build.py [g1-scene]): G1's card entry keeps type PUNCT_PICK and phase "guided" (the engine's whole-stage frame, the
+  answerable type, the round and its gate are keyed on them) and gets data.scene true + data.variant "pick" (card class
+  dsc-v-pick); the PUNCT_PICK alias is now a dispatcher — a page with data.scene mounts PUNCT_SCENE, the others (G2, G3) PUNCT_DEMO's
+  tap mode as before. The flow: the instruction line vo_g1_intro over the picture and the girl, standing from the first frame (T2's
+  stage 1; the standing Swiftie and the chip with it); 0.5 s after it the white slot pops in with the sentence rising whole and T1's
+  text pop (T2's stage 2); the clip vo_g1_sent with each word lit (the [word-sync] light); 0.3 s later T2's options flow — the slot
+  blinks 7 s (the slow whole-box fades, 1.75 s cycles) while the tiles pop in one by one, 350 ms apart, each with T2's pop (no
+  school sound / girl pop, as T3 / T4) — and the module's new pick mode: each tile is the CHILD's from the frame it pops in (.live,
+  the page's drive off, Swiftie pointing), no explanation, no lit tile, no pulse, all three tappable. The feedback is the page's own
+  as before (ported from PUNCT_DEMO's tap mode, the same engine calls): a wrong tile wiggles (wgNo, one --fx-beat, its colours
+  unchanged) with the kit's wrong buzz (sfx_wrong_new.ogg) in that frame, the attempt counted, then the [vo-rec] hint ladder —
+  hint 1 vo_build_hint1 / hint 2 vo_build_hint2 half a second after the wiggle; the 3rd wrong tap ([hand-quiet]) the pointing
+  hand under the right tile, the other two dead and dim (.off at .6, the scene's dim), no line and nothing spoken again; [tap-lock]
+  no tile answers while a feedback sound or line plays; the idle reminder (7 s of quiet) and the 🔊 chip read the sentence again,
+  words lit, a tap cutting that reading short. The right tile presses (the demos' dmfTap — its colours kept: no green border, no
+  glow, as the pick page before), its mark lands in the slot in that frame (its ink centred), the kit's correct sound, the confetti
+  (confettiCannon, with its sound) and the happy Swiftie, "शाबाश!" (vo_ok) and PACE.tail (1 s) later the page moves on to G2;
+  after the hand: no line, 1.7 s. The slot's box stays (as the pick page's did). The telemetry is unchanged (sendQuestionAnswered,
+  answer_wrong, punct_build_done, the on_complete signal). CSS .dsc-v-pick: the picture -15,-15 1095x514.872 of the padding box;
+  the sentence centred on 635.5,116 (the box's centre 634.5,113: Chrome's Baloo ink sat 1 px left and 1 px below the render's
+  there, measured word by word — every word within 0.5 px now); the slot 887,68; the tiles 386.09 / 613 / 843.818 on T2's row (279);
+  the tile ellipses rgba(225,180,142,.6); the girl 121,45 252x378, her ellipse 21,338 158x34 at rgba(225,180,142,.3); the pick's
+  tile states .wiggle (wgNo) and .on (dmfTap). Assets (from the Figma connector, downloaded into the scratchpad first):
+  g1_assets/img_g1_room.webp (image 274's fill, q90, 20 KB), img_g1_girl_ball2.webp (image 273's fill, q90, alpha exact, 195 KB);
+  g1b_figma_render_1280x720.png = the frame's 1x export. Kept: img_g1_girl_ball and vo_demo1_purn registered and shipped (unplayed
+  now), the [vo-rec] hooks on G1's data (mark_audio, ok_audio, hint1/2/3_audio) as they were. Nothing else in the dist changed:
+  the card's G1 entry + two image entries; app.js the module's pick mode and the alias; style.css the .dsc-v-pick block.
+- Checked: scene_check.py G1 (new config, pick mode: the data, T2's opening / sentence / blink / tiles checks, then the pick's — each
+  tile live as it pops, the early taps ignored, the wrong taps' wiggle + buzz + hint lines, the [tap-lock] tap ignored, the chip's
+  re-read, the press with the mark / correct sound / confetti / praise and G2 1 s after; a second run with three wrong taps — the
+  hand under the right tile, the dead decoys, the guided tap without a line; the geometry and pixel diff vs the render):
+  [[G1_TALLY]] scene_check T2 [[T2_TALLY]], T3 [[T3_TALLY]], T4 [[T4_TALLY]] on the shared module (T4's next page now expected to be
+  the G1 scene). smoke.py [[SMOKE]] (the T4 -> G1 step expects the scene card; G1's taps on .dsc-tile; the dev nav's T4 runs end at
+  the G1 scene). word_sync_check T2 T3 T4 G1 [[WS]]. pick_check.py refuses G1 now (G2 / G3 unchanged: [[PICK]]).
+  `../_before_g1_scene/` holds the [t4-scene] dist, build.py, README, scene_check.py, smoke.py, pick_check.py and word_sync_check.py.
+
 Page 8 T4: the park scene from Figma 723:1575 on T2's module ([t4-scene], 2026-11-02)
 - Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=723-1575 — at page 8 T4 make this exact same layout;
   first the image inside the blue frame along with the girl standing, then the sentence along with the empty blank boxes, then the

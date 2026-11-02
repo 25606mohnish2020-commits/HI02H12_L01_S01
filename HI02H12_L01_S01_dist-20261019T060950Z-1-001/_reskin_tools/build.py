@@ -437,22 +437,45 @@ gl = {k: json.loads((SCR / "g1_assets" / f"vo_g1_{k}.words.json").read_text(enco
 i_g1 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "G1")
 _g1 = card["slides"][i_g1]
 assert _g1["type"] == "BUILD_PUNCT" and _g1["phase"] == "guided" and not _g1["data"].get("auto"), "G1 is not the first guided builder"
+# [g1-scene] (asked 2026-11-02): G1 is now frame 715:856 "9 G1" — the first pick on T2's PUNCT_SCENE module (data.scene true,
+# variant "pick", card class dsc-v-pick; the type stays PUNCT_PICK — the engine's whole-stage frame, the answerable type, the
+# round — and the alias below sends a PUNCT_PICK page with data.scene to the scene module), in place of the [g1-pinki] page on the
+# PUNCT_DEMO module (frame 656:66's title bar, picture box, sentence bar and data.layout all go with it; img_g1_girl_ball stays in
+# the dist, unused). The frame: T2's card (96,106 1088x508) filled by a room picture ("image 274", 1829x860, drawn WHOLE at -3,-3
+# 1095x514.872 of the card — the box has the bitmap's aspect; it covers the #404040 rectangle under it), the girl with the ball
+# ("image 273", 1024x1536, at 133,57 252x378 of the card — the frame's last node) on her ellipse (749:2547, 154,395 158x34, #E1B48E
+# .5 at .6), the sentence 714:845 "पिंकी गेंद से खेल रही थी " (Baloo 2 ExtraBold 55 #012F76, centred in a 557 box at 368,81 of the
+# card; its text ends in a space), the white slot 724:2228 53x90 at 899,80 of the card (2px dashed rgba(86,86,86,.85), 8px corners),
+# the tiles । , ? (T2's order, faces and mark offsets) at 494.09 / 721 / 951.818, 397 over #E1B48E .6 ellipses (118x26 at y 496),
+# its own Swiftie 715:1051 (not used: T1's standing Swiftie and chip, as T2-T4), a hidden title bar. The flow, as asked: the
+# instruction line vo_g1_intro over the picture and the girl, standing (T2's stage 1); 0.5 s after it the sentence rises in whole
+# with the empty slot popping in and T1's text pop; its clip vo_g1_sent with the words lit ([word-sync]); 0.3 s later T2's options
+# flow — the slot blinks 7 s (the slow whole-box fades) while the tiles pop in one by one, 350 ms apart, each with its pop (no
+# school sound / girl pop: as T3 / T4) — and each tile is the CHILD's from the frame it pops in: no explanation, no pulse, all
+# three tappable. The feedback is this page's own as before (the module's [g1-scene] pick mode): a wrong tile wiggles (wgNo) with
+# the kit's wrong buzz, then the [vo-rec] hint ladder (hint 1 / hint 2 half a second after; the 3rd wrong tap the pointing hand
+# under the right tile, the other two dead and dim, no line — [hand-quiet]); the right one is pressed (dmfTap, its colours kept),
+# its mark lands in the slot in that frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (vo_ok)
+# sounds and PACE.tail (1 s) later the page moves on to G2 (after the hand: no line, 1.7 s); [tap-lock] no tile answers while a
+# feedback sound or line plays; the idle reminder and the 🔊 chip read the sentence again (words lit) while the tiles are the
+# child's. The clips are the ones in use before: vo_g1_intro and the hint / praise lines recorded ([vo-rec]), vo_g1_sent the TTS
+# take (the recording says राजू).
 card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
-    "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g1_girl_ball",   # [g1-pinki]
+    "data": {"scene": True, "variant": "pick", "intro_audio": "vo_g1_intro", "bg_id": "img_g1_room", "image_id": "img_g1_girl_ball2", "girl_pop": False,   # the frame's room and girl, standing from the first frame
              "sentence": {"text_hi": gl["sent"]["shown"], "audio": "vo_g1_sent", "word_times": [t[0] for t in gl["sent"]["word_times"]], "word_end": gl["sent"]["word_times"][-1][1]},
-             "mark": "।", "mark_audio": "vo_demo1_purn",
-             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500,
-             "layout": {"img": [207, 214, 125, 131], "sent": SENT50, "slot": [553.6, 20],   # [baloo-font] slot 548 -> 553.6 ("थी" +5.6 px);   # [g1-pinki] 656:66's places; [sent-50] the sentence at 50px centred in the bar (was 656:66's 64px box 560 wide at 47.5, ws -4), the slot 4px after its ink (was 612)
-                        "tiles": [{"base": [197, 442, 227, 170], "face": [199, 444, 223, 162]},
-                                  {"base": [525, 443, 231, 169], "face": [527, 445, 227, 161]}, None]}},
+             "mark": "।", "mark_audio": "vo_demo1_purn",   # ([vo-rec] sets the name, the praise and the hint lines below)
+             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
     "signals": {"on_complete": ["punct_build_done"]}}
 for k in G1_KEYS:
     card["assets"]["audio"][f"vo_g1_{k}"] = f"assets/Audio/vo_g1_{k}.ogg"
     card["assets"]["audio_text"][f"vo_g1_{k}"] = gl[k]["text"]
 card["assets"]["image"]["img_g1_girl_ball"] = "assets/Images/img_g1_girl_ball.webp"   # [g1-pinki]
 card["_emoji_fallback"]["img_g1_girl_ball"] = "✏️"
+card["assets"]["image"]["img_g1_room"] = "assets/Images/img_g1_room.webp"   # [g1-scene] the frame's "image 274" fill (1829x860, q90)
+card["assets"]["image"]["img_g1_girl_ball2"] = "assets/Images/img_g1_girl_ball2.webp"   # [g1-scene] the frame's "image 273" fill (1024x1536, q90, alpha exact)
+card["_emoji_fallback"]["img_g1_room"] = "🏠"; card["_emoji_fallback"]["img_g1_girl_ball2"] = "✏️"
 # [pick-fig] G2 = the Figma frame 600:197 "8 G2", G1's page and flow for "तुम कहाँ जा रहे हो" (the ported builder had the same
 # sentence and mark): the प्रश्नवाचक चिह्न tile is the right one. The frame's title bar is T4's to the pixel — its text too,
 # "सुनो यह वाक्य बिना रुके पढ़ा गया ।" — while the line it plays is G1's instruction "वाक्य सुनिए और सही चिह्न लगाइए ।" (both as
@@ -1184,7 +1207,16 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
      [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
-        each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before. ===== */
+        each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before.
+     [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene, variant "pick") runs on this module as the CHILD's pick:
+        stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
+        frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
+        the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
+        hint ladder (data.hint1_audio / hint2_audio 0.5 s after; the 3rd wrong tap the pointing hand under the right tile, the
+        other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
+        frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
+        page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
+        idle reminder and the 🔊 chip read the sentence again. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -1213,6 +1245,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
       const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
+      const picking = slide.type === "PUNCT_PICK";   // [g1-scene] G1: the tiles are the child's as they pop in, with the pick page's feedback
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
       (S.gaps || []).forEach(i=>{ if(L.words[i]) L.words[i].classList.add("dsc-gap"); });   // [t4-scene] the words the slots follow: their gap's width is the variant's CSS
       // [t3-look] the glance (data.girl_look, on the rig): the amounts and the cycle as CSS variables on the girl; .look starts the
@@ -1238,6 +1271,11 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // Audio per tile ([t2-scene3]): playKitSfx restarts a shared element, which would cut each pop's tail as the next tile comes
       const kit = (name, file)=>{ if(file && !_kitSfx[name]){ const a = _kitSfx[name] = new Audio("assets/Audio/" + file); a.preload = "auto"; } };
       kit("scenePic", d.pic_sfx); tiles.forEach((_, k)=> kit("scenePop" + k, d.tiles_sfx)); kit("sceneBox", d.box_sfx);   // [t3-scene] the bubble's pop
+      // the tiles' pops: the kit's play (held as an effect by [tap-lock]'s sfxBusy) — in the pick ([g1-scene]) played UNTRACKED: they
+      // are the tiles' entrance, not feedback, and a tile tapped as it pops in answers at once (the buzz, the chime, the lines and
+      // the sounds of the other pages still hold the taps)
+      const popTile = (k)=>{ if(!picking){ playKitSfx("scenePop" + k, d.tiles_sfx, .8); return; }
+        const a = _kitSfx["scenePop" + k]; if(!a) return; try{ a.volume = .8; a.currentTime = 0; const pr = a.play(); if(pr && pr.catch) pr.catch(()=>{}); }catch(e){} };
       // a clip with nothing to light (T1's say): it sounds, then onEnd; a watchdog stops a stalled clip
       const say = (src, onEnd)=>{
         if(!src){ onEnd(); return; }
@@ -1301,10 +1339,10 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
         slots.forEach(sl=>{ sl.style.setProperty("--blink-ms", (ms / n) + "ms"); sl.style.setProperty("--blink-n", n); sl.classList.add("blink"); });
         tiles.forEach((t, k)=>{
-          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); if(!k) lookOn(); };   // [t3-look] the girl looks as the first tile pops
+          const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) popTile(k); if(!k) lookOn(); if(picking) armTile(k); };   // [t3-look] the girl looks as the first tile pops; [g1-scene] the tile the child's as it pops
           if(k) after(k * gap, go); else go();
         });
-        after(ms, ()=>{ slots.forEach(sl=> sl.classList.remove("blink")); after(300, stage5); });
+        after(ms, ()=>{ slots.forEach(sl=> sl.classList.remove("blink")); if(!picking) after(300, stage5); });   // [g1-scene] the pick: no explanation, the page waits for the child
       };
       // 5. the explanation: the danda's tile lights as the clip says its cue word; after the clip the other two go dim and dead,
       //    then the lit tile pulses and is the child's
@@ -1340,6 +1378,58 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
           const land = ()=>{ centreInk(marks[k]); marks[k].classList.add("in"); after(450, ()=>{ sl.classList.add("gone"); if(k === slots.length - 1) after(1200, finish); }); };
           if(k) after(k * stg, land); else land();
         });
+      }
+      // [g1-scene] the pick (type PUNCT_PICK): each tile is the child's from the frame it pops in (armTile); the feedback is the pick
+      // page's own, as before on G1 — a wrong tile wiggles (the engine's wgNo) with the kit's wrong buzz and the deck's hint ladder
+      // (hint 1, hint 2, 0.5 s after the wiggle; the 3rd wrong tap, [hand-quiet]: the pointing hand under the right tile, the other
+      // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
+      // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
+      // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
+      // no tile answers while a feedback sound or line plays; the idle re-read (state.replayAudio, the engine's one per page after
+      // 7 s of quiet) and the 🔊 chip read the sentence again, words lit — a tap cuts that reading short and answers at once
+      let live = false, fbAudio = null, hintHand = null;
+      const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
+        const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
+      const showHand = ()=>{ if(hintHand) return; const st = document.querySelector(".slide-stage"); if(!st) return;
+        hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
+        st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
+      const hintLadder = (n)=>{
+        if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } }); return; }   // the wiggle just started runs out on its own
+        const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
+        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // a hint line is feedback: no tile answers while it speaks
+      };
+      function armTile(k){
+        if(!live){ live = true; state.demoRunning = false; setSwMood("point");
+          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; sfigNarrate(L, alive, ()=>{}); }; }
+        const t = tiles[k]; t.classList.add("live"); t.onclick = ()=> pickTap(k);
+        t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); };
+      }
+      function pickTap(k){
+        if(!live || !alive()) return;
+        if(sfxBusy() || (isPlaying && currentAudio && currentAudio === fbAudio)) return;   // [tap-lock]
+        if(isPlaying) stopAudio();   // the re-read is no feedback: a tap cuts it short and answers at once
+        L.words.forEach(w=> w.classList.remove("hot"));
+        const t = tiles[k], ok = k === pick, opt = opts[k] || {};
+        GameBus.sendQuestionAnswered(slide, { is_correct: ok, score: ok && state.attempts === 0 ? 1 : 0, attempt: state.attempts + 1,
+          ui_index: k, original_index: k, text: opt.name_hi || opt.mark || null });
+        if(!ok){
+          state.attempts++; sfxWrongSoft(); setSwMood("tryagain");
+          GameBus.emit("answer_wrong", { slide_id: slide.id, phase: slide.phase, attempts: state.attempts });
+          t.classList.remove("wiggle"); void t.offsetWidth; t.classList.add("wiggle");
+          hintLadder(state.attempts);
+          return;
+        }
+        live = false; state.locked = true; state.demoRunning = true; const guided = !!hintHand; if(hintHand){ hintHand.remove(); hintHand = null; }   // the hand goes with the answer
+        lookOff();   // [t3-look] (no rig on G1; kept for a rigged girl)
+        slots.forEach(sl=> sl.classList.remove("blink"));
+        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are
+        const stg = d.mark_stagger_ms || 300;
+        marks.forEach((m, j)=>{ const land = ()=>{ centreInk(m); m.classList.add("in"); }; if(j) after(j * stg, land); else land(); });
+        sfxCorrect(); confettiCannon(); setSwMood("happy");
+        GameBus.emit("punct_build_done", { slide_id: slide.id, phase: slide.phase, value: true,
+          first_try: state.attempts === 0, wrong: state.attempts, latency_ms: Date.now() - state.slideStart });
+        if(guided){ after(1700 + (marks.length - 1) * stg, ()=> completeSlide(true)); return; }   // after the hand: no praise line
+        say(A(d.ok_audio || d.mark_audio), ()=> after(PACE.tail, ()=> completeSlide(true)));   // "शाबाश!", then the page moves on
       }
       // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
@@ -2270,7 +2360,7 @@ js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: stamp_mod + m.group(0), re.M
 js = sub1(js, r"^SlideModules\.MATCH_PAIRS           = SlideModules\.MATCH_THE_PAIR;",
           lambda m: m.group(0) + "\nSlideModules.SORT_WORDS            = SlideModules.SORT_QTYPE;   // [reskin] generic two-box word sort (custom data.bins), r4n", re.M, "alias block")
 js = sub1(js, r"^SlideModules\.SORT_WORDS .*$",
-          lambda m: m.group(0) + "\nSlideModules.PUNCT_PICK            = SlideModules.PUNCT_DEMO;   // [pick-fig] G1: the run-on demo's page with the tap left to the child", re.M, "alias block (pick)")
+          lambda m: m.group(0) + "\nSlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] G2 / G3: the run-on demo's page with the tap left to the child; [g1-scene] G1 (data.scene): the scene module's page, its tiles the child's", re.M, "alias block (pick)")
 js = sub1(js, r'  SEQUENCE_DRAG: "drag",',
           lambda m: m.group(0) + '\n  EVIDENCE_QA: "mcq", BUILD_PUNCT: "build", SORT_QTYPE: "drag", SORT_WORDS: "drag", PUNCT_PICK: "mcq", SENT_PICK: "mcq",   /* [reskin] this lesson\'s answerable types */', 0, "QUESTION_FORMAT")
 # [sent-fig] G4, P1 + P2 (SENT_PICK) repeat their instruction after every 5 s of quiet itself (the reference P4's rule), so the engine's
@@ -2782,7 +2872,22 @@ scene_css += r"""
 .dsc-v-list .dsc-girl{left:132px;top:139px;width:224px;height:336px;z-index:1;}
 .dsc-v-list .dsc-girl > img{width:224px;height:336px;object-fit:cover;}
 .dsc-v-list .dsc-shade{left:17px;top:289px;width:190px;height:47px;background:#FEB564;}   /* her ellipse, 729:2321 */
-""".replace("__GAP__", "33")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
+/* ===== [g1-scene] G1 = frame 715:856 "9 G1" on the scene module: the "pick" variant (.dsc-v-pick) ===== */
+.dsc-v-pick .dsc-bg > img{left:-15px;top:-15px;width:1095px;height:514.872px;}   /* the room, drawn whole (the box has the bitmap's aspect) */
+.dsc-v-pick .dsc-sent{left:__PSX__px;top:__PSY__px;}   /* the box's centre 634.5,113 of the padding box: Chrome's Baloo ink sat 1 px left and 1 px below the render's there (measured, word by word) */
+.dsc-v-pick .dsc-slot{left:887px;top:68px;}   /* T2's 53x90 white slot, 18 px further left, 1 px higher */
+.dsc-v-pick .dsc-tile.t1{left:386.09px;} .dsc-v-pick .dsc-tile.t2{left:613px;} .dsc-v-pick .dsc-tile.t3{left:843.818px;}   /* T2's row, 70 px further left (T4's columns) */
+.dsc-v-pick .dsc-tshade{background:rgba(225,180,142,.6);}   /* the frame's tile ellipses: #E1B48E at .6 on the floor */
+.dsc-v-pick .dsc-girl{left:121px;top:45px;width:252px;height:378px;}
+.dsc-v-pick .dsc-girl > img{width:252px;height:378px;}
+.dsc-v-pick .dsc-shade{left:21px;top:338px;width:158px;height:34px;background:rgba(225,180,142,.3);}   /* her ellipse 749:2547: #E1B48E .5 in a .6 node */
+/* the pick's tiles ([g1-scene]): a wrong one shakes with the engine's wrong-answer wiggle (wgNo, one --fx-beat), its colours
+   unchanged — dscTileIn (the tile's pop-in) stays FIRST in the animation list: a list that dropped it would run it again as the
+   wiggle's class leaves (the [t2-scene5] gotcha: a second pop of the tile after every wrong tap); the right one presses (the demos'
+   dmfTap) and keeps its colours — no green, no glow (the pick page's look, as before) */
+.dsc-tile.in.wiggle{animation:dscTileIn .45s ease-out,wgNo var(--fx-beat) ease-in-out both;}
+.dsc-tile.in.on{animation:dscTileIn .45s ease-out,dmfTap .45s ease-out;}
+""".replace("__GAP__", "33").replace("__PSX__", "635.5").replace("__PSY__", "116")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
 # [t3-look] the girl's layers: every layer fills her box and windows her bitmap (so at rest the composite IS the painting), each
 # masked by its sheet from girl_rig.py (demo2_assets/girl_rig/, inlined here); the eyes' discs / irises and the elbow pivot in her
 # box px (the 257x385 box over the 1024x1535 bitmap). The glance = three CSS animations on .look, all every_ms long and in step:
@@ -3855,7 +3960,7 @@ for name, sub in [(f"vo_demo3_{k}.ogg", "Audio") for k in DEMO3_CLIPS] + [("img_
 # ---------- 7g. [pick-fig] G1's clips and picture (g1_assets/: recap_vo.py g1; the frame's "image 231"; its head is
 #               byte-for-byte T2's demo1_head.webp; the name on the right tap is T2's vo_demo1_purn) ----------
 G1_SRC = SCR / "g1_assets"
-for name, sub in [(f"vo_g1_{k}.ogg", "Audio") for k in G1_KEYS] + [("img_g1_girl_ball.webp", "Images")]:
+for name, sub in [(f"vo_g1_{k}.ogg", "Audio") for k in G1_KEYS] + [("img_g1_girl_ball.webp", "Images"), ("img_g1_room.webp", "Images"), ("img_g1_girl_ball2.webp", "Images")]:   # [g1-scene] + the frame's room and girl
     f, dst = G1_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing G1 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
