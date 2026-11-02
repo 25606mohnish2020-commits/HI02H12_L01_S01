@@ -3229,6 +3229,17 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-v-ask .dsc-girl > img{width:257px;height:385px;}
 .dsc-v-ask .dsc-shade{left:64px;top:346px;width:118px;height:37px;background:rgba(211,160,111,.4);}   /* her own shadow, Ellipse 3767 */
 
+/* ===== [t4-scene] T4 = frame 723:1575 "8 T4" on the scene module: the "list" variant (.dsc-v-list) ===== */
+.dsc-v-list .dsc-bg > img{left:-114px;top:-136px;width:1371px;height:654px;object-fit:cover;}
+.dsc-v-list .dsc-sent{left:533.5px;top:76px;}   /* the box centre 532.5,73: Chrome's Baloo ink sat 1 px left and 3 px above the render's there (measured, word by word) */
+.dsc-v-list .dsc-sent .dsc-gap{margin-right:33px;}   /* the frame's four-space runs where the slots sit */
+.dsc-v-list .dsc-slot{top:70px;width:37px;height:42.606px;} .dsc-v-list .dsc-slot.s1{left:387px;} .dsc-v-list .dsc-slot.s2{left:537px;}
+.dsc-v-list .dsc-tile{top:329px;} .dsc-v-list .dsc-tile.t1{left:386.09px;} .dsc-v-list .dsc-tile.t2{left:613px;} .dsc-v-list .dsc-tile.t3{left:843.818px;}
+.dsc-v-list .dsc-tshade{background:#FEB564;}   /* the frame's tile ellipses: opaque #FEB564 on the path */
+.dsc-v-list .dsc-girl{left:132px;top:139px;width:224px;height:336px;z-index:1;}
+.dsc-v-list .dsc-girl > img{width:224px;height:336px;object-fit:cover;}
+.dsc-v-list .dsc-shade{left:17px;top:289px;width:190px;height:47px;background:#FEB564;}   /* her ellipse, 729:2321 */
+
 /* ===== [t3-look] the girl in layers and her glance at the tiles (girl_rig.py; see build.py) ===== */
 .dsc-grig{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 98.4%;}   /* the lean shears from her feet */
 .dsc-grig > *{position:absolute;left:0;top:0;width:100%;height:100%;-webkit-mask:var(--m) 0 0 / 100% 100% no-repeat;mask:var(--m) 0 0 / 100% 100% no-repeat;}

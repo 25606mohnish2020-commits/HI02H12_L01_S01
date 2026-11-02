@@ -96,7 +96,14 @@ with sync_playwright() as p:
     check("T3 runs itself to the pulsing \"?\" tile (the middle one), the other two dim, no आगे", pg.evaluate("document.querySelector('.dsc-tile.pulse.live').classList.contains('t2') && document.querySelectorAll('.dsc-tile.off').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
     pg.click(".dsc-tile.pulse.live", force=True)
     pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=15000)
-    check("the tap on it moves T3 on to T4, the third demo (no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-full .dmf-band') && document.querySelectorAll('.dmf-blank').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    check("the tap on it moves T3 on to T4, the third scene ([t4-scene]: two slots in the sentence, no आगे)", pg.evaluate("!!document.querySelector('.tut-card.sfig-round.dsc-v-list .dsc-bg') && CARD.slides[state.idx].type === 'PUNCT_SCENE' && document.querySelectorAll('.dsc-slot').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    # [t4-scene] T4 drives itself (the sentence with its two slots, the tiles, the explanation) up to the "," tile pulsing for the
+    # child's tap; the tap lands the comma in both slots and moves it on, through the round's gate, to G1
+    pg.wait_for_function("!!document.querySelector('.dsc-tile.pulse.live')", timeout=60000)
+    check("T4 runs itself to the pulsing \",\" tile (the middle one), the other two dim, no आगे", pg.evaluate("document.querySelector('.dsc-tile.pulse.live').classList.contains('t2') && document.querySelectorAll('.dsc-tile.off').length === 2 && getComputedStyle(document.getElementById('navBtn')).display === 'none'"))
+    pg.click(".dsc-tile.pulse.live", force=True)
+    pg.wait_for_function("document.querySelectorAll('.dsc-mark.in').length === 2", timeout=5000)
+    check("the tap lands the comma in both slots", pg.evaluate("[...document.querySelectorAll('.dsc-mark.in')].every(m => m.textContent === ',')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)
     check("T4 runs itself through the round gate to G1, the Figma tap page (no आगे)",
           pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))
@@ -222,6 +229,7 @@ with sync_playwright() as p:
     for run in (1, 2):
         pg.select_option("#devNav select.dev-nav-sel", str(next(i for i, s in enumerate(pg.evaluate("CARD.slides.map(s => s.id)")) if s == "T4")))
         pg.wait_for_function("CARD.slides[state.idx].id==='T4'", timeout=5000); pg.evaluate(GATE_LOG)
+        pg.wait_for_function("!!document.querySelector('.dsc-tile.pulse.live')", timeout=60000); pg.click(".dsc-tile.pulse.live", force=True)   # [t4-scene] T4 waits for the child's tap
         pg.wait_for_function("CARD.slides[state.idx].id==='G1'", timeout=60000)
         check(f"T4 from the dev nav's list, run {run} in the same load: its end crosses the gate (VO + animation) into G1", *gate_after_t4(pg.evaluate("window._gate")))
     check("no page errors", not errs, errs[:3])

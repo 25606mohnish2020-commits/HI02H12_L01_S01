@@ -375,34 +375,45 @@ i_t4 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "T4")
 _t4 = card["slides"][i_t4]
 assert _t4["type"] == "BUILD_PUNCT" and _t4["data"].get("auto") and "," in [m["mark"] for m in _t4["data"]["marks"]], "T4 is not the comma auto demo"
 dpart3 = lambda k: {"text_hi": dl3[k]["shown"], "audio": f"vo_demo3_{k}", "word_times": [t[0] for t in dl3[k]["word_times"]], "word_end": dl3[k]["word_times"][-1][1]}
-_full3 = dpart3("full")
-# the second reading's tokens: मेरे पास आम, अल्पविराम, केला, अल्पविराम, सेब और संतरा है। -> sentence words 0-2, slot 0, word 3,
-# slot 1, words 4-7 (the sentence's spans: मेरे पास आम केला सेब और संतरा है ।)
-_full3["targets"] = ["w0", "w1", "w2", "s0", "w3", "s1", "w4", "w5", "w6", "w7"]
-assert len(_full3["targets"]) == len(_full3["word_times"]), "T4: the second reading's tokens and its targets differ in number"
-# measured against the frame's render (word by word): Baloo Bhai 2's spaces are 3px narrower than Noto's at 50px
-# (layout.sent.ws), its line box puts the glyphs where an 84px one does here, and the space before the closing danda
-# ("है ।") is 4.5px narrower still in the render — sentence.nudge pulls the danda (span 8) in by that much; with it
-# every word's ink is within 1px of the render
-_sent3 = dict(dpart3("sent"), gaps=[2, 3], gap_spaces=4, nudge={"3": 3.4, "4": 2.1})   # [baloo-font] the gaps' old ink widths in Baloo 2; no danda nudge (was {"8": -4.5})
-assert _sent3["text_hi"].split()[2:4] == ["आम", "केला"], "T4: the slots no longer follow आम / केला"
-# the slots' dashes, measured on the frame's render: two dashes centred on each side, [margin, dash, gap, dash, margin]
-_slot = lambda x: {"x": x, "y": 76, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}
-card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_DEMO",
-    "prompt_hi": DEMO_BAND, "audio": {},   # [demo-intro] no intro line (was vo_demo3_intro)
-    "data": {"band_hi": DEMO_BAND, "intro_audio": None, "image_id": "img_demo3_fruits",
-             "sentence": _sent3, "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 50, "mark_stagger_ms": 300,
-             "full": _full3, "slots": [_slot(280.7), _slot(420.1)],   # [baloo-font] 286 / 417 -> on the Baloo gaps
-             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500, "hold_ms": 1500,
-             "layout": {"pic_x": 144, "img": [144, 229, 144, 96], "bar": [312, 824],
-                        "sent": {"x": -31.7, "y": 33, "w": 893, "size": 50, "lh": 84, "ws": 0}}},   # [baloo-font] x -34 -> -31.7: the sentence's old centre
+# [t4-scene] (asked 2026-11-02): T4 is now frame 723:1575 "8 T4" — a third scene on T2's PUNCT_SCENE module (data.variant "list",
+# card class dsc-v-list), in place of the [demo-fig] PUNCT_DEMO page (frame 523:320, its title bar, picture box, sentence bar and
+# second reading, all gone with it). The frame: T2's card (96,106 1088x508) with a park landscape ("image 264", 1815x866, drawn
+# rotate(180) + flipY = mirrored, at -102,-124 1371x654 of the card; the bitmap is mirrored once in img_demo3_park.webp), the girl
+# with a fruit basket ("image 276", 1024x1535 at 240,257 224x336, the frame's last node) on an opaque #FEB564 ellipse (729:2321,
+# 257,546 190x47), the sentence "मेरे पास आम    केला    सेब और संतरा है ।" (Baloo 2 ExtraBold 55 #012F76, centred on 640.5, box
+# top 147, 893 wide) with TWO white dashed slots 37x42.606 at 495,188 and 645,188 in its four-space runs, the tiles । , ? (T2's
+# order) at 494.09 / 721 / 951.818, 447 over #FEB564 ellipses, its own Swiftie (not used: T1's standing Swiftie and chip, as T2 /
+# T3). The flow, as asked: the picture and the girl, standing, from the first frame (no intro line: data.open_ms 1 s); then the
+# sentence rises in whole with both empty slots popping in and T1's text pop (T2's stage 2: no bubble, no box sound); its RECORDED
+# clip vo_demo3_sent with the words lit ([word-sync]); then T2's options flow — both slots blink together for 7 s while the tiles
+# pop in one by one, each with its pop (no school sound / girl pop: no data.pic_sfx, data.girl_pop false, as T3); then the
+# RECORDED explanation vo_demo3_explain "इस वाक्य में कई सारे नाम एक साथ लिखे गए हैं । जब हमें इस तरह कई नाम लिखने हों तो उनके
+# बीच अल्पविराम आता है ।" (the [vo-rec] take; its whisper word times from vo_rec/transcripts.json) lighting the "," tile — the
+# MIDDLE one — at "अल्पविराम" (7.06 s), the other two dim, the pulse, the child's tap, its border green, the comma in the left slot
+# and 0.3 s later in the right one (data.mark_stagger_ms, the [demo-fig] page's stagger), each box gone 0.45 s after its comma, on
+# to G1 by itself through the round's gate. The words before the slots carry the gaps (data.sentence.gaps -> .dsc-gap, its width
+# CSS). vo_demo3_full / alp stay registered and shipped (unplayed, as T3's old clips); img_demo3_fruits stays (T1B shows it).
+_vr_t4 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))["vo_demo3_explain.wav"]
+_x4_words = [w[0] for w in _vr_t4["words"]]
+assert _x4_words.count("अल्पविराम") == 1 and _vr_t4["text"].startswith("इस वाक्य में कई सारे नाम"), _vr_t4["text"]
+_sent4 = dict(dpart3("sent"), gaps=[2, 3])   # the slots sit after "आम" (word 2) and after "केला" (word 3)
+assert _sent4["text_hi"] == "मेरे पास आम केला सेब और संतरा है ।" and len(_sent4["word_times"]) == 9 and _sent4["text_hi"].split()[2:4] == ["आम", "केला"], _sent4
+card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
+    "prompt_hi": dl3["sent"]["text"], "audio": {},
+    "data": {"variant": "list", "intro_audio": None, "open_ms": 1000, "bg_id": "img_demo3_park", "image_id": "img_demo3_girl_basket", "girl_pop": False,   # the frame's girl, standing from the first frame
+             "slots": 2, "slot_w": 37, "slot_h": 42.606, "mark_stagger_ms": 300,   # the frame's two slots; the comma left, then right
+             "sentence": _sent4, "mark": ",",
+             "explain": {"text_hi": _vr_t4["text"], "audio": "vo_demo3_explain", "word_times": [w[1] for w in _vr_t4["words"]], "word_end": _vr_t4["words"][-1][2], "cue_word": _x4_words.index("अल्पविराम")},
+             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
     "signals": {"on_complete": []}}
 for k in DEMO3_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo3_{k}"] = f"assets/Audio/vo_demo3_{k}.ogg"
     card["assets"]["audio_text"][f"vo_demo3_{k}"] = dl3[k]["text"]
 card["assets"]["image"]["img_demo3_fruits"] = "assets/Images/img_demo3_fruits.webp"
 card["_emoji_fallback"]["img_demo3_fruits"] = "✏️"
+card["assets"]["image"]["img_demo3_park"] = "assets/Images/img_demo3_park.webp"   # [t4-scene] the frame's "image 264" fill, mirrored (1815x866, q90)
+card["assets"]["image"]["img_demo3_girl_basket"] = "assets/Images/img_demo3_girl_basket.webp"   # [t4-scene] the frame's "image 276" fill (1024x1535, q90, alpha exact)
 # [pick-fig] G1 = the Figma frame 525:354 "7 G1", the first sentence the CHILD punctuates, in place of the ported BUILD_PUNCT
 # builder ("राजू खेल रहा था उसकी गेंद खो गई", two dandas): T4's title bar with its own line "वाक्य सुनिए और सही चिह्न लगाइए ।"
 # (the bar appears as it starts to sound), then T3's picture, sentence bar (with its empty slot) and tiles coming in, the
@@ -1169,12 +1180,17 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         the masks and their geometry are the CSS's, from girl_rig.py) and, as the first tile pops (stage 4), .look starts her
         glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
         by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
-        a rest phase of the cycle, so she is never caught mid-move. ===== */
+        a rest phase of the cycle, so she is never caught mid-move.
+     [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
+        .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
+        (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
+        each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sw = d.slot_w || 53, sh = d.slot_h || 90;   // [t3-scene] the slot's box: T2's 53x90, T3's 59x100 (the ring drawn to size)
+      const nSlots = Math.max(1, d.slots || 1);   // [t4-scene] T4's two slots inside its sentence
       // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
       // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
       const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
@@ -1188,16 +1204,17 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
         (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
-        '<div class="dsc-slot"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
+        Array.from({ length: nSlots }, (_, k)=> '<div class="dsc-slot' + (nSlots > 1 ? ' s' + (k + 1) : '') + '"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>').join("") +   // [t4-scene] data.slots of them (T2 / T3: one)
         opts.map((_, k)=> '<div class="dsc-tile t' + (k + 1) + '"><span class="dsc-tshade"></span><div class="dsc-base"></div><div class="dsc-face"></div><p class="dsc-sym"></p></div>').join(""));
       const card = host.closest(".tut-card"); if(card){ card.classList.add("sfig-round", "sfig-scene"); if(d.variant) card.classList.add("dsc-v-" + d.variant); }   // [t3-scene] the variant's geometry by CSS
-      const sentEl = fig.querySelector(".dsc-sent"), slot = fig.querySelector(".dsc-slot"), mark = fig.querySelector(".dsc-mark"),
+      const sentEl = fig.querySelector(".dsc-sent"), slots = Array.from(fig.querySelectorAll(".dsc-slot")), marks = slots.map(sl=> sl.querySelector(".dsc-mark")),
             girl = fig.querySelector(".dsc-girl"), tiles = Array.from(fig.querySelectorAll(".dsc-tile")), bubble = fig.querySelector(".dsc-bubble");
-      mark.textContent = d.mark || "";
+      marks.forEach(mk=>{ mk.textContent = d.mark || ""; });
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
       const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
+      (S.gaps || []).forEach(i=>{ if(L.words[i]) L.words[i].classList.add("dsc-gap"); });   // [t4-scene] the words the slots follow: their gap's width is the variant's CSS
       // [t3-look] the glance (data.girl_look, on the rig): the amounts and the cycle as CSS variables on the girl; .look starts the
       // cycle (dscLookEye / dscLookLean / dscLookArm, every_ms long, the gesture over its first active_ms, then at rest); lookOff
       // (the tap) takes the class off only in a rest phase of the cycle — read from the running animation's own clock
@@ -1260,7 +1277,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       //    with T1's pop, or the page's own box sound (data.box_sfx); the clip 0.45 s after the rise, each word lit
       const stage2 = ()=>{
         if(bubble) bubble.classList.add("in");
-        slot.classList.add("in"); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
+        slots.forEach(sl=> sl.classList.add("in")); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
         sfigNarrate(L, alive, ()=> after(300, beat ? stage3 : stage4)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
@@ -1282,12 +1299,12 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       //    apart, each with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
         const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
-        slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
+        slots.forEach(sl=>{ sl.style.setProperty("--blink-ms", (ms / n) + "ms"); sl.style.setProperty("--blink-n", n); sl.classList.add("blink"); });
         tiles.forEach((t, k)=>{
           const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); if(!k) lookOn(); };   // [t3-look] the girl looks as the first tile pops
           if(k) after(k * gap, go); else go();
         });
-        after(ms, ()=>{ slot.classList.remove("blink"); after(300, stage5); });
+        after(ms, ()=>{ slots.forEach(sl=> sl.classList.remove("blink")); after(300, stage5); });
       };
       // 5. the explanation: the danda's tile lights as the clip says its cue word; after the clip the other two go dim and dead,
       //    then the lit tile pulses and is the child's
@@ -1312,8 +1329,17 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         lookOff();   // [t3-look] no new glance after the answer; a running one finishes its move first
         const t = tiles[pick]; t.onclick = null; t.classList.remove("pulse", "live"); t.classList.add("done");
         sfxCorrect(); setSwMood("happy");
-        centreInk(mark); mark.classList.add("in");
-        after(450, ()=>{ slot.classList.add("gone"); after(1200, ()=> completeSlide(true)); });
+        const stg = d.mark_stagger_ms || 0;   // [t4-scene] the marks land in turn (one slot: at once, as before)
+        // [t4-scene] T4 ends the tutorial: the gate into the guided round follows it EVERY time it ends, as it did after the
+        // [demo-fig] page — the engine opens each round's gate once per load, so the round is cleared first (a re-run from the
+        // dev nav's list crosses it again); T2 / T3 end inside the tutorial round, where this does nothing
+        const finish = ()=>{ const nx = CARD.slides[state.idx + 1], nr = nx && PHASE_ROUND[nx.phase];
+          if(nr && nr !== PHASE_ROUND[slide.phase]) _gatedPhases.delete(nr);
+          completeSlide(true); };
+        slots.forEach((sl, k)=>{
+          const land = ()=>{ centreInk(marks[k]); marks[k].classList.add("in"); after(450, ()=>{ sl.classList.add("gone"); if(k === slots.length - 1) after(1200, finish); }); };
+          if(k) after(k * stg, land); else land();
+        });
       }
       // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
@@ -2740,6 +2766,23 @@ scene_css += r"""
 .dsc-v-ask .dsc-girl > img{width:257px;height:385px;}
 .dsc-v-ask .dsc-shade{left:64px;top:346px;width:118px;height:37px;background:rgba(211,160,111,.4);}   /* her own shadow, Ellipse 3767 */
 """
+# [t4-scene] T4's geometry (frame 723:1575 "8 T4"; stage px less the padding box's 108,118): the park picture -102,-124 1371x654 of the
+# card (mirrored in the file); the sentence centred on 640.5 (box top 147, 893 wide), its gaps after "आम" / "केला" sized so the words
+# sit where the render's do (measured); the two slots 495,188 and 645,188, 37x42.606, white with T2's dashes; the tiles 494.09 / 721
+# / 951.818 at 447 in T2's order (T2's mark offsets apply as they are) over opaque #FEB564 ellipses; the girl 240,257 224x336 above
+# everything (the frame's last node) on her #FEB564 ellipse 257,546 190x47 (17,289 of her box)
+scene_css += r"""
+/* ===== [t4-scene] T4 = frame 723:1575 "8 T4" on the scene module: the "list" variant (.dsc-v-list) ===== */
+.dsc-v-list .dsc-bg > img{left:-114px;top:-136px;width:1371px;height:654px;object-fit:cover;}
+.dsc-v-list .dsc-sent{left:533.5px;top:76px;}   /* the box centre 532.5,73: Chrome's Baloo ink sat 1 px left and 3 px above the render's there (measured, word by word) */
+.dsc-v-list .dsc-sent .dsc-gap{margin-right:__GAP__px;}   /* the frame's four-space runs where the slots sit */
+.dsc-v-list .dsc-slot{top:70px;width:37px;height:42.606px;} .dsc-v-list .dsc-slot.s1{left:387px;} .dsc-v-list .dsc-slot.s2{left:537px;}
+.dsc-v-list .dsc-tile{top:329px;} .dsc-v-list .dsc-tile.t1{left:386.09px;} .dsc-v-list .dsc-tile.t2{left:613px;} .dsc-v-list .dsc-tile.t3{left:843.818px;}
+.dsc-v-list .dsc-tshade{background:#FEB564;}   /* the frame's tile ellipses: opaque #FEB564 on the path */
+.dsc-v-list .dsc-girl{left:132px;top:139px;width:224px;height:336px;z-index:1;}
+.dsc-v-list .dsc-girl > img{width:224px;height:336px;object-fit:cover;}
+.dsc-v-list .dsc-shade{left:17px;top:289px;width:190px;height:47px;background:#FEB564;}   /* her ellipse, 729:2321 */
+""".replace("__GAP__", "33")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
 # [t3-look] the girl's layers: every layer fills her box and windows her bitmap (so at rest the composite IS the painting), each
 # masked by its sheet from girl_rig.py (demo2_assets/girl_rig/, inlined here); the eyes' discs / irises and the elbow pivot in her
 # box px (the 257x385 box over the 1024x1535 bitmap). The glance = three CSS animations on .look, all every_ms long and in step:
@@ -3404,8 +3447,8 @@ SL = {s["id"]: s for s in card["slides"]}
 SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
 SL["T0"]["data"]["beat1_sfx"] = "sfx_story_cat.mp3"   # [story-cat] the user's stu9-cute-cat-352656.mp3 (0.89 s, as given): once, as beat 1's line ends, with the picture's pop
 SL["T1"]["data"]["lead_audio"] = "vo_recap_lead"
-SL["T4"]["data"]["mark_audio"] = "vo_recap_alp_name"   # [t2-scene] T2 names no mark and has no conclusion now (was T2 too, + conclude_audio vo_demo1_conclude); [t3-scene] T3 neither (its explanation vo_demo2_explain is in its own data; vo_demo2_conclude is not played)
-SL["T4"]["data"].update({"explain_audio": "vo_demo3_explain", "again_audio": "vo_demo_again"})
+# [t4-scene] T4's PUNCT_DEMO hooks (mark_audio vo_recap_alp_name, explain_audio vo_demo3_explain, again_audio vo_demo_again) are gone:
+# T4 is a scene whose explanation (vo_demo3_explain) is in its own data; [t2-scene] / [t3-scene] dropped T2's and T3's the same way
 for sid, mk, h3 in (("G1", "purn", None), ("G2", "prashn", "vo_g2_hint3"), ("G3", "alp", "vo_g3_hint3")):
     SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": h3})
 SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
@@ -3803,7 +3846,7 @@ for name, sub in [(f"vo_demo2_{k}.ogg", "Audio") for k in DEMO2_CLIPS] + [("img_
 # ---------- 7f. [demo-fig] T4's clips and picture (demo3_assets/: recap_vo.py demo3; the frame's "image 230"; its head is
 #               byte-for-byte T2's demo1_head.webp) ----------
 DEMO3_SRC = SCR / "demo3_assets"
-for name, sub in [(f"vo_demo3_{k}.ogg", "Audio") for k in DEMO3_CLIPS] + [("img_demo3_fruits.webp", "Images")]:
+for name, sub in [(f"vo_demo3_{k}.ogg", "Audio") for k in DEMO3_CLIPS] + [("img_demo3_fruits.webp", "Images"), ("img_demo3_park.webp", "Images"), ("img_demo3_girl_basket.webp", "Images")]:   # [t4-scene] the frame's landscape (mirrored) and girl
     f, dst = DEMO3_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing demo asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)

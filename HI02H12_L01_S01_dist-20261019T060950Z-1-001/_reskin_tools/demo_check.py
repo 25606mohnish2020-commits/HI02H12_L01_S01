@@ -35,7 +35,7 @@ from PIL import Image
 html = pathlib.Path(sys.argv[1]).resolve(); target = Image.open(sys.argv[2]).convert("RGB")
 out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
 SLIDE = sys.argv[4] if len(sys.argv) > 4 else "T4"
-if SLIDE in ("T2", "T3"): sys.exit(f"{SLIDE} is a scene since [t2-scene] / [t3-scene] (2026-11-01): python -I -X utf8 scene_check.py <index.html> <render> <outdir> {SLIDE}")
+if SLIDE in ("T2", "T3", "T4"): sys.exit(f"{SLIDE} is a scene since [t2-scene] / [t3-scene] (2026-11-01) / [t4-scene] (2026-11-02): python -I -X utf8 scene_check.py <index.html> <render> <outdir> {SLIDE}   (no page uses PUNCT_DEMO's demo layout now; G1-G3 = pick_check.py)")
 BIG = [(583, 20, 59, 100)]    # 519:32's slot, in the bar's frame px
 CONFIG = {   # per page: its clips, the mark's clip, the tapped tile, the frame's boxes (frame px), the next slide
   "T2": {"page": "demo1", "mark_clip": "purn", "pick": 0, "pic_x": 197, "img": (228, 214, 82, 132), "bar": (365, 719),   # [demo1-pinki] the picture cut from 656:2's render at its ink's box

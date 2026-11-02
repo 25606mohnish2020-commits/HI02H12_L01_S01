@@ -51,6 +51,9 @@ import numpy as np
 from playwright.sync_api import sync_playwright
 from PIL import Image
 
+# [t4-scene] T4 = frame 723:1575 (render demo3b_figma_render_1280x720.png): no intro line and no bubble — open_ms, then both slots pop
+# in with the rising sentence and T1's text pop; the comma lands in the left slot at the tap and in the right one 0.3 s later, each
+# box gone 0.45 s after its comma; 1.2 s after the last the round's gate opens, then G1
 html = pathlib.Path(sys.argv[1]).resolve(); target = Image.open(sys.argv[2]).convert("RGB")
 out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
 PAGE = sys.argv[4] if len(sys.argv) > 4 else "T2"
@@ -76,7 +79,7 @@ C = {
              slot_in=dict(rgb=(255, 255, 255), row_y=232, xs=(1000, 1080), col_x=1040, ys=(175, 290), want=(1015, 1064, 189, 275)), first_word="पिंकी", look=None),
   "T3": dict(prefix="demo2", intro=False, open_ms=1000, bg="img_demo2_room", girl="img_demo2_girl_ask", beat=False, GIRL=(213, 212, 470, 597), bubble="img_demo2_bubble", box_sfx="sfx_demo2_sharp_pop.mp3", slot=(59, 100),
              sent="तुम्हारा नाम क्या है", sent_clip="vo_demo2_sent", nwords=4, explain_clip="vo_demo2_explain", cue="प्रश्नवाचक", opts=["।", "?", ","], mark="?", pick=1,
-             next="T4", next_ok="CARD.slides[state.idx].id === 'T4' && CARD.slides[state.idx].type === 'PUNCT_DEMO' && !!document.querySelector('.sfig-full .dmf-band')", next_what="T4, the third demo (PUNCT_DEMO)",
+             next="T4", next_ok="CARD.slides[state.idx].id === 'T4' && CARD.slides[state.idx].type === 'PUNCT_SCENE' && !!document.querySelector('.tut-card.sfig-round.dsc-v-list .dsc-bg')", next_what="T4, the third scene ([t4-scene])",
              FRAME={".dsc-bg > img": (CX + 0, CY - 4, 1088, 519), ".dsc-bubble": (397.306, 160.61, 651.745, 135.269), ".dsc-slot": (907, 174, 59, 100), ".dsc-girl": (213, 212, 257, 385), ".dsc-shade": (277, 558, 118, 37),
                     ".dsc-tile.t1": (465.09, 453) + TILE, ".dsc-tile.t2": (692, 453) + TILE, ".dsc-tile.t3": (922.818, 453) + TILE,
                     ".t1 .dsc-face": (466.13, 454.38) + FACE, ".t1 .dsc-tshade": (464, 552, 118, 26), ".t3 .dsc-tshade": (922.818, 552.498, 118, 26)},
@@ -85,6 +88,18 @@ C = {
              girl_in_render=True, slot_fill="rgb(255, 241, 182)", blink_fill="rgb(250, 214, 146)",
              slot_in=dict(rgb=(255, 241, 182), row_y=224, xs=(895, 980), col_x=936, ys=(165, 285), want=(909, 964, 176, 272)), first_word="तुम्हारा",
              look=dict(every_ms=7000, active_ms=2300, gx=2.26, gy=1.13, arm_deg=11, lean_deg=2)),   # [t3-look]; [t3-look7] every 7 s (was 5 s)
+  "T4": dict(prefix="demo3", intro=False, open_ms=1000, bg="img_demo3_park", girl="img_demo3_girl_basket", beat=False, GIRL=(240, 257, 464, 593), bubble=None, box_sfx=None, slot=(37, 42.606),
+             sent="मेरे पास आम केला सेब और संतरा है ।", sent_clip="vo_demo3_sent", nwords=9, explain_clip="vo_demo3_explain", cue="अल्पविराम", opts=["।", ",", "?"], mark=",", pick=1,
+             next="G1", gate=True, nslots=2, stagger=300,
+             next_ok="CARD.slides[state.idx].id === 'G1' && CARD.slides[state.idx].type === 'PUNCT_PICK'", next_what="G1 (PUNCT_PICK), through the round's gate",
+             FRAME={".dsc-bg > img": (CX - 102, CY - 124, 1371, 654), ".dsc-slot": (495, 188, 37, 42.606), ".dsc-slot.s2": (645, 188, 37, 42.606), ".dsc-girl": (240, 257, 224, 336), ".dsc-shade": (257, 546, 190, 47),
+                    ".dsc-tile.t1": (494.0908, 447) + TILE, ".dsc-tile.t2": (721, 447) + TILE, ".dsc-tile.t3": (951.8184, 447) + TILE,
+                    ".t1 .dsc-face": (495.1289, 448.3789) + FACE, ".t1 .dsc-tshade": (493, 546, 118, 26), ".t3 .dsc-tshade": (951.8184, 546.498, 118, 26)},
+             INK={"sentence": (200, 140, 1080, 250), "mark1": (505, 455, 603, 555), "mark2": (732, 455, 830, 555), "mark3": (962, 455, 1060, 555)},
+             BY_DESIGN=[(490, 183, 688, 236), (220, 150, 1055, 218), (546, 477, 559, 523), (770, 494, 787, 516), (995, 471, 1026, 524)],   # the slots, the ink bands
+             girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
+             slot_in=[dict(rgb=(255, 255, 255), row_y=209, xs=(485, 545), col_x=524, ys=(178, 242), want=(497, 530, 190, 228)),
+                      dict(rgb=(255, 255, 255), row_y=209, xs=(635, 695), col_x=674, ys=(178, 242), want=(647, 680, 190, 228))], first_word="मेरे", look=None),   # the columns where BOTH the render and the page have a dash top and bottom (the dashes' phase differs by design); the render's white there
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
 WHOLE = (80, 90, 1200, 640)
@@ -115,6 +130,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     slotIn: !!slot && slot.classList.contains('in'), blink: !!slot && slot.classList.contains('blink'), glow: slot ? getComputedStyle(slot).boxShadow : null, slotBg: slot ? getComputedStyle(slot).backgroundColor : null, slotOp: slot ? +(+getComputedStyle(slot).opacity).toFixed(3) : null, slotTf: slot ? getComputedStyle(slot).transform : null, ringStroke: ring ? getComputedStyle(ring).stroke : null,
     bubIn: !!bub && bub.classList.contains('in'), bubTf: bub ? getComputedStyle(bub).transform : null, bubOp: bub ? +(+getComputedStyle(bub).opacity).toFixed(3) : null, bubAn: bub ? getComputedStyle(bub).animationName : null,
     gone: !!slot && slot.classList.contains('gone'), markIn: !!q('.dsc-mark.in'),
+    slots: [...qa('.dsc-slot')].map(e => [e.classList.contains('in'), e.classList.contains('blink'), e.classList.contains('gone'), !!e.querySelector('.dsc-mark.in'), +(+getComputedStyle(e).opacity).toFixed(3)]),
+    gate: !!document.getElementById('phaseGate') && document.getElementById('phaseGate').classList.contains('show'),
     pop: !!g && g.classList.contains('pop'), gOp: gc ? +(+gc.opacity).toFixed(3) : null, gTf: gc ? gc.transform : null,
     look: !!g && g.classList.contains('look'), warm: !!g && g.classList.contains('warm'), arm: q('.dsc-garm') ? getComputedStyle(q('.dsc-garm')).transform : null, iris: q('.dsc-giris') ? getComputedStyle(q('.dsc-giris')).transform : null, lean: q('.dsc-grig') ? getComputedStyle(q('.dsc-grig')).transform : null,
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
@@ -172,6 +189,10 @@ with sync_playwright() as p:
           and d["explain"]["text_hi"].split()[d["explain"]["cue_word"]] == C["cue"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
           and ((d.get("pic_sfx_ms"), d.get("pic_sfx"), d.get("girl_pop", True)) == ((2000, "sfx_demo1_school.mp3", True) if C["beat"] else (None, None, False))) and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
           {k: d.get(k) for k in ("intro_audio", "open_ms", "bg_id", "image_id", "bubble_id", "box_sfx", "slot_w", "slot_h", "mark", "pic_sfx_ms", "blink_ms", "blink_cycle_ms", "tiles_gap_ms")})
+    if C.get("nslots"):   # [t4-scene]
+        check(f"[t4-scene] the page's data: {C['nslots']} slots ({C['slot'][0]}x{C['slot'][1]}), the marks {C['stagger']} ms apart, the gaps after \"आम\" and \"केला\" (words 2, 3)",
+              d.get("slots") == C["nslots"] and d.get("mark_stagger_ms") == C["stagger"] and d["sentence"].get("gaps") == [2, 3] and d["sentence"]["text_hi"].split()[2:4] == ["आम", "केला"],
+              {k: d.get(k) for k in ("slots", "mark_stagger_ms")} | {"gaps": d["sentence"].get("gaps")})
     if C["look"]:   # [t3-look]
         LK = C["look"]; gl = d.get("girl_look") or {}
         check(f"[t3-look] the page's data: girl_rig and girl_look (every {C['look']['every_ms'] / 1000:g} s, the gesture 2.3 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2 degrees)",
@@ -205,7 +226,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(500); pg.screenshot(path=str(out / "f_done_1333.png"))
     look2 = pg.evaluate("""() => { const t = document.querySelector('.dsc-tile.done'), f = t.querySelector('.dsc-face'), s = t.querySelector('.dsc-sym'); const c = getComputedStyle(f);
       return [c.borderTopColor, c.borderTopWidth, c.backgroundColor, c.boxShadow, getComputedStyle(s).color]; }""")
-    pg.wait_for_function(f"CARD.slides[state.idx].id === '{NEXT}'", timeout=10000)
+    pg.wait_for_function(f"CARD.slides[state.idx].id === '{NEXT}'", timeout=30000 if C.get("gate") else 10000)
     samples, taps, snd = pg.evaluate("window._tl"), pg.evaluate("window._taps"), pg.evaluate("window._snd")
     samples = [s for s in samples if s["ready"] and s["slide"] == PAGE]
     with open(out / "timeline.json", "w", encoding="utf-8") as f: json.dump(samples, f, indent=0)
@@ -224,6 +245,11 @@ with sync_playwright() as p:
     if C["intro"]:
         check("0.5 s after the intro the slot pops in and the sentence rises in WHOLE in the same frame", 350 <= ms(i_slot) - ms(i_open_end) <= 800 and abs(ms(i_rise) - ms(i_slot)) <= 34
               and {s["shown"] for s in samples} <= {0, len(ST)} and samples[i_rise]["rise"], (round(ms(i_slot) - ms(i_open_end)), round(ms(i_rise) - ms(i_slot))))
+    elif not C["bubble"]:   # [t4-scene] no intro line, no bubble: open_ms, then the slots and the whole sentence in one frame
+        both = first(lambda s: s["slots"] and all(x[0] for x in s["slots"]))
+        check(f"[t4-scene] open_ms ({C['open_ms']}) after the first frame ALL {C.get('nslots', 1)} slots pop in and the sentence rises in WHOLE, in the same frame",
+              C["open_ms"] - 150 <= ms(i_slot) - ms(0) <= C["open_ms"] + 400 and both == i_slot and len(samples[i_slot]["slots"]) == C.get("nslots", 1) and abs(ms(i_rise) - ms(i_slot)) <= 34
+              and {s["shown"] for s in samples} <= {0, len(ST)} and samples[i_rise]["rise"], (round(ms(i_slot) - ms(0)), both - i_slot, round(ms(i_rise) - ms(i_slot))))
     else:
         i_bub = first(lambda s: s["bubIn"]); bub_run = [s for s in samples[i_bub:] if s["ms"] - ms(i_bub) <= 600]
         bub_settled = all(s["bubTf"] in IDENT and s["bubOp"] == 1 for s in samples if 700 < s["ms"] - ms(i_bub) < 1500)
@@ -314,8 +340,23 @@ with sync_playwright() as p:
           "tap" in taps and abs(ms(i_mark) - ms(i_done)) <= 34 and len(corr) == 1 and abs(corr[0]["ms"] - ms(i_done)) <= 50 and corr[0]["vol"] == 0.85
           and not samples[i_done + 2]["pulse"] and not samples[i_done + 2]["live"] and 380 <= ms(i_gone) - ms(i_done) <= 650, (round(ms(i_mark) - ms(i_done)), [(round(e["ms"] - ms(i_done)), e["vol"]) for e in corr], round(ms(i_gone) - ms(i_done))))
     t_end = samples[-1]["ms"]
-    check(f"{C['next_what']} follows ~1.2 s after the box has gone, by itself (no आगे, no gate)", 1000 <= t_end - ms(i_gone) <= 1700 and pg.evaluate(C["next_ok"] + " && !document.getElementById('phaseGate').classList.contains('show')")
-          and all(s["nav"] == "none" for s in samples), round(t_end - ms(i_gone)))
+    if C.get("nslots", 1) > 1:   # [t4-scene] every slot pops, blinks and fades together; the marks land in turn, each box going 0.45 s after its mark
+        n_ = C["nslots"]; lands = [first(lambda s, k=k: s["slots"][k][3], i_live) for k in range(n_)]; gones = [first(lambda s, k=k: s["slots"][k][2], i_done) for k in range(n_)]
+        same = all(len({tuple(x[:2]) + (x[4],) for x in s["slots"]}) == 1 for s in samples[:i_done])
+        check(f"[t4-scene] all {n_} slots identical in every frame before the tap (in / blinking / opacity); after it the comma lands in each in turn, {C['stagger']} ms apart (the first in the tap's frame), each box gone 0.45 s after its own comma",
+              same and abs(ms(lands[0]) - ms(i_done)) <= 34 and all(abs(ms(b_) - ms(a_) - C["stagger"]) <= 50 for a_, b_ in zip(lands, lands[1:]))
+              and all(380 <= ms(g_) - ms(l_) <= 650 for l_, g_ in zip(lands, gones)) and not any(s["slots"][k][3] for s in samples[:i_done] for k in range(n_)),
+              (same, [round(ms(x) - ms(i_done)) for x in lands], [round(ms(g_) - ms(l_)) for l_, g_ in zip(lands, gones)]))
+        i_gone = gones[-1]
+    if C.get("gate"):   # [t4-scene] the round's gate after the tutorial's last page
+        i_gate = first(lambda s: s["gate"], i_gone)
+        check(f"[t4-scene] ~1.2 s after the last box has gone the round's gate opens (#phaseGate.show), by itself (no आगे); then {C['next_what']}",
+              1000 <= ms(i_gate) - ms(i_gone) <= 1700 and not any(s["gate"] for s in samples[:i_gone]) and pg.evaluate(C["next_ok"]) and all(s["nav"] == "none" for s in samples[:i_gate]),
+              round(ms(i_gate) - ms(i_gone)))
+        t_end = ms(i_gate)   # the page's own sounds end here; the gate's are the gate's
+    else:
+      check(f"{C['next_what']} follows ~1.2 s after the box has gone, by itself (no आगे, no gate)", 1000 <= t_end - ms(i_gone) <= 1700 and pg.evaluate(C["next_ok"] + " && !document.getElementById('phaseGate').classList.contains('show')")
+          and all(s["nav"] == "none" for s in samples), round(t_end - ms(i_gone)))   # (indented under the else above)
     if C["look"]:   # [t3-look] the glance on the timeline
         import math
         LK = C["look"]; EV, AC = LK["every_ms"], LK["active_ms"]
@@ -394,7 +435,7 @@ with sync_playwright() as p:
     pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("requestfailed", lambda r: bad.append(r.url))
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate("_ac()"); pg.evaluate(GOTO, PAGE)
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=40000); pg.wait_for_timeout(650)
-    pg.evaluate("document.querySelector('.dsc-slot').classList.remove('blink')"); pg.wait_for_timeout(600)   # the frame draws the slot plain (its fill's .4 s transition back, [t2-scene4])
+    pg.evaluate("document.querySelectorAll('.dsc-slot').forEach(e => e.classList.remove('blink'))"); pg.wait_for_timeout(600)   # the frame draws the slot plain (its fill's .4 s transition back, [t2-scene4])
     if C["look"]: pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 3000; } }"); pg.wait_for_timeout(100)   # [t3-look] the rig at rest (3 s into its cycle): her painting
     shot = out / "g_frame_1280.png"; pg.screenshot(path=str(shot))
     FRAME = C["FRAME"]; boxes = pg.evaluate(BOXES, list(FRAME)); worst = 0
@@ -421,12 +462,13 @@ with sync_playwright() as p:
         print(f"  {name:9s} page {[int(v) for v in a]} ({a[2]-a[0]}x{a[3]-a[1]})  render {[int(v) for v in t]} ({t[2]-t[0]}x{t[3]-t[1]})  centre d=({dc[0]:+.1f},{dc[1]:+.1f})  size d=({ds[0]:+d},{ds[1]:+d})")
         check(f"{name}: its ink sits where the render's does (centre within 1.5 px), its size within 2 px", abs(dc[0]) <= 1.5 and abs(dc[1]) <= 1.5 and abs(ds[0]) <= 2 and abs(ds[1]) <= 2, (dc, ds))
     A = np.asarray(mine, np.int16); B = np.asarray(target, np.int16)
-    SI = C["slot_in"]; fill = lambda y, x: tuple(A[y, x]) == SI["rgb"]
-    row = [x for x in range(*SI["xs"]) if fill(SI["row_y"], x)]; col = [y for y in range(*SI["ys"]) if fill(y, SI["col_x"])]
-    w = SI["want"]
-    check(f"the slot's interior is the frame's fill {SI['rgb']} (x {w[0]}..{w[1]}, y {w[2]}..{w[3]} within 2 px: the ring's anti-aliased inner edge on the 1280 grid's fractional positions)",
-          row and col and abs(min(row) - w[0]) <= 2 and abs(max(row) + 1 - w[1]) <= 2 and abs(min(col) - w[2]) <= 2 and abs(max(col) + 1 - w[3]) <= 2,
-          ((min(row), max(row) + 1) if row else None, (min(col), max(col) + 1) if col else None))
+    for SI in (C["slot_in"] if isinstance(C["slot_in"], list) else [C["slot_in"]]):   # [t4-scene] every slot
+        fill = lambda y, x, SI=SI: tuple(A[y, x]) == SI["rgb"]
+        row = [x for x in range(*SI["xs"]) if fill(SI["row_y"], x)]; col = [y for y in range(*SI["ys"]) if fill(y, SI["col_x"])]
+        w = SI["want"]
+        check(f"the slot's interior is the frame's fill {SI['rgb']} (x {w[0]}..{w[1]}, y {w[2]}..{w[3]} within 2 px: the ring's anti-aliased inner edge on the 1280 grid's fractional positions)",
+              row and col and abs(min(row) - w[0]) <= 2 and abs(max(row) + 1 - w[1]) <= 2 and abs(min(col) - w[2]) <= 2 and abs(max(col) + 1 - w[3]) <= 2,
+              ((min(row), max(row) + 1) if row else None, (min(col), max(col) + 1) if col else None))
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
     if C["girl_in_render"]:

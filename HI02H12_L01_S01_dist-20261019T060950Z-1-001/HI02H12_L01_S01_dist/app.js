@@ -6412,12 +6412,17 @@ const SlideModules = {
         the masks and their geometry are the CSS's, from girl_rig.py) and, as the first tile pops (stage 4), .look starts her
         glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
         by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
-        a rest phase of the cycle, so she is never caught mid-move. ===== */
+        a rest phase of the cycle, so she is never caught mid-move.
+     [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
+        .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
+        (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
+        each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before. ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sw = d.slot_w || 53, sh = d.slot_h || 90;   // [t3-scene] the slot's box: T2's 53x90, T3's 59x100 (the ring drawn to size)
+      const nSlots = Math.max(1, d.slots || 1);   // [t4-scene] T4's two slots inside its sentence
       // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
       // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
       const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
@@ -6431,16 +6436,17 @@ const SlideModules = {
         '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
         (d.bubble_id ? '<img class="dsc-bubble" src="' + imgSrc(d.bubble_id) + '" alt="" draggable="false">' : '') +   // [t3-scene] the frame's speech bubble, popping in with the sentence
         '<p class="dsc-sent"></p>' +
-        '<div class="dsc-slot"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>' +
+        Array.from({ length: nSlots }, (_, k)=> '<div class="dsc-slot' + (nSlots > 1 ? ' s' + (k + 1) : '') + '"><svg class="dsc-dash" width="' + sw + '" height="' + sh + '" viewBox="0 0 ' + sw + ' ' + sh + '" aria-hidden="true"><rect x="1" y="1" width="' + (sw - 2) + '" height="' + (sh - 2) + '" rx="7" ry="7"/></svg><span class="dsc-mark"></span></div>').join("") +   // [t4-scene] data.slots of them (T2 / T3: one)
         opts.map((_, k)=> '<div class="dsc-tile t' + (k + 1) + '"><span class="dsc-tshade"></span><div class="dsc-base"></div><div class="dsc-face"></div><p class="dsc-sym"></p></div>').join(""));
       const card = host.closest(".tut-card"); if(card){ card.classList.add("sfig-round", "sfig-scene"); if(d.variant) card.classList.add("dsc-v-" + d.variant); }   // [t3-scene] the variant's geometry by CSS
-      const sentEl = fig.querySelector(".dsc-sent"), slot = fig.querySelector(".dsc-slot"), mark = fig.querySelector(".dsc-mark"),
+      const sentEl = fig.querySelector(".dsc-sent"), slots = Array.from(fig.querySelectorAll(".dsc-slot")), marks = slots.map(sl=> sl.querySelector(".dsc-mark")),
             girl = fig.querySelector(".dsc-girl"), tiles = Array.from(fig.querySelectorAll(".dsc-tile")), bubble = fig.querySelector(".dsc-bubble");
-      mark.textContent = d.mark || "";
+      marks.forEach(mk=>{ mk.textContent = d.mark || ""; });
       tiles.forEach((t, k)=>{ t.querySelector(".dsc-sym").textContent = opts[k].mark || ""; });
       const pick = Math.max(0, opts.findIndex(o=> o.mark === d.mark));
       const beat = !!d.pic_sfx || d.girl_pop !== false;   // [t3-girl] stage 3 (the sound + the girl's pop) only where the page has it: T3's girl stands still
       const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
+      (S.gaps || []).forEach(i=>{ if(L.words[i]) L.words[i].classList.add("dsc-gap"); });   // [t4-scene] the words the slots follow: their gap's width is the variant's CSS
       // [t3-look] the glance (data.girl_look, on the rig): the amounts and the cycle as CSS variables on the girl; .look starts the
       // cycle (dscLookEye / dscLookLean / dscLookArm, every_ms long, the gesture over its first active_ms, then at rest); lookOff
       // (the tap) takes the class off only in a rest phase of the cycle — read from the running animation's own clock
@@ -6503,7 +6509,7 @@ const SlideModules = {
       //    with T1's pop, or the page's own box sound (data.box_sfx); the clip 0.45 s after the rise, each word lit
       const stage2 = ()=>{
         if(bubble) bubble.classList.add("in");
-        slot.classList.add("in"); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
+        slots.forEach(sl=> sl.classList.add("in")); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
         sfigNarrate(L, alive, ()=> after(300, beat ? stage3 : stage4)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
@@ -6525,12 +6531,12 @@ const SlideModules = {
       //    apart, each with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
         const ms = d.blink_ms || 2000, n = Math.max(1, Math.round(ms / (d.blink_cycle_ms || 667))), gap = d.tiles_gap_ms || 350;
-        slot.style.setProperty("--blink-ms", (ms / n) + "ms"); slot.style.setProperty("--blink-n", n); slot.classList.add("blink");
+        slots.forEach(sl=>{ sl.style.setProperty("--blink-ms", (ms / n) + "ms"); sl.style.setProperty("--blink-n", n); sl.classList.add("blink"); });
         tiles.forEach((t, k)=>{
           const go = ()=>{ t.classList.add("in"); if(d.tiles_sfx) playKitSfx("scenePop" + k, d.tiles_sfx, .8); if(!k) lookOn(); };   // [t3-look] the girl looks as the first tile pops
           if(k) after(k * gap, go); else go();
         });
-        after(ms, ()=>{ slot.classList.remove("blink"); after(300, stage5); });
+        after(ms, ()=>{ slots.forEach(sl=> sl.classList.remove("blink")); after(300, stage5); });
       };
       // 5. the explanation: the danda's tile lights as the clip says its cue word; after the clip the other two go dim and dead,
       //    then the lit tile pulses and is the child's
@@ -6555,8 +6561,17 @@ const SlideModules = {
         lookOff();   // [t3-look] no new glance after the answer; a running one finishes its move first
         const t = tiles[pick]; t.onclick = null; t.classList.remove("pulse", "live"); t.classList.add("done");
         sfxCorrect(); setSwMood("happy");
-        centreInk(mark); mark.classList.add("in");
-        after(450, ()=>{ slot.classList.add("gone"); after(1200, ()=> completeSlide(true)); });
+        const stg = d.mark_stagger_ms || 0;   // [t4-scene] the marks land in turn (one slot: at once, as before)
+        // [t4-scene] T4 ends the tutorial: the gate into the guided round follows it EVERY time it ends, as it did after the
+        // [demo-fig] page — the engine opens each round's gate once per load, so the round is cleared first (a re-run from the
+        // dev nav's list crosses it again); T2 / T3 end inside the tutorial round, where this does nothing
+        const finish = ()=>{ const nx = CARD.slides[state.idx + 1], nr = nx && PHASE_ROUND[nx.phase];
+          if(nr && nr !== PHASE_ROUND[slide.phase]) _gatedPhases.delete(nr);
+          completeSlide(true); };
+        slots.forEach((sl, k)=>{
+          const land = ()=>{ centreInk(marks[k]); marks[k].classList.add("in"); after(450, ()=>{ sl.classList.add("gone"); if(k === slots.length - 1) after(1200, finish); }); };
+          if(k) after(k * stg, land); else land();
+        });
       }
       // 1. the intro line over the picture alone (the standing Swiftie and the chip with it); the sentence 0.5 s after it — or, with
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops

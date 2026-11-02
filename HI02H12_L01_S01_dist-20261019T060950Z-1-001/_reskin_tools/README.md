@@ -2264,6 +2264,55 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Page 8 T4: the park scene from Figma 723:1575 on T2's module ([t4-scene], 2026-11-02)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=723-1575 — at page 8 T4 make this exact same layout;
+  first the image inside the blue frame along with the girl standing, then the sentence along with the empty blank boxes, then the
+  VO of the sentence with the exact same highlight animation as page 6 T2, then the exact same flow with the options as page 6 T2;
+  the VO इस वाक्य में कई सारे नाम एक साथ लिखे गए हैं । जब हमें इस तरह कई नाम लिखने हों तो उनके बीच अल्पविराम आता है । in between,
+  and then the same flow as page 6 T2 for the (,) sign; rest exactly the same."
+- The frame (723:1575 "8 T4"): T2's card (96,106 1088x508, 12px #5A8FEE, 64px corners) filled by a park landscape ("image 264", its
+  fill 1815x866, drawn rotate(180) + flipY = MIRRORED, at -102,-124 1371x654 of the card — it covers the hidden "image 263" and the
+  #404040 rectangle under it entirely); the sentence 728:2308 "मेरे पास आम    केला    सेब और संतरा है ।" (Baloo 2 ExtraBold 55
+  #012F76, centred on 640.5, box 194,147 893 wide) with TWO white slots 37x42.606 at 495,188 and 645,188 (2px dashed
+  rgba(86,86,86,.85), 8px corners) in its four-space runs; the tiles । , ? (T2's order) at 494.09 / 721 / 951.818, 447 (T2's faces,
+  bases and mark offsets) over opaque #FEB564 ellipses (118x26 at y 546 — on the sandy path, as good as invisible); the girl with a
+  fruit basket ("image 276", 1024x1535, 240,257 224x336 — the frame's last node) on her opaque #FEB564 ellipse (729:2321, 257,546
+  190x47); its own Swiftie 723:1767 (not used — T1's standing Swiftie and chip, as T2 / T3); a hidden title bar.
+- Built (build.py [t4-scene]): T4's card entry is a PUNCT_SCENE with data.variant "list" (card class dsc-v-list), in place of the
+  [demo-fig] PUNCT_DEMO page (frame 523:320's title bar, picture box, sentence bar and second reading go with it). The flow: the
+  picture and the girl, standing, from the first frame, alone for data.open_ms (1 s); then BOTH slots pop in with the sentence rising
+  whole and T1's text pop (T2's stage 2; no bubble and no box sound); the RECORDED clip vo_demo3_sent with each word lit (the
+  [word-sync] light); 0.3 s later T2's options flow — both slots blink together for 7 s (the slow whole-box fade, 1.75 s cycles)
+  while the tiles pop in one by one, 350 ms apart, each with T2's pop; then the RECORDED explanation vo_demo3_explain (the [vo-rec]
+  take of exactly the text asked; its whisper word times from vo_rec/transcripts.json) lighting the "," tile — the MIDDLE one — at
+  "अल्पविराम" (7.06 s); after it the other two dim and dead, the "," pulses and is the child's (🔊 reads the sentence again); the tap:
+  its border green, the kit's correct sound, the comma in the left slot at once and in the right one 0.3 s later
+  (data.mark_stagger_ms — the [demo-fig] page's stagger), each box gone 0.45 s after its comma, and 1.2 s after the last one the
+  round's gate ("चलिए, साथ में करें!") into G1, as before. Not carried over from T2: its intro line and its 2 s school sound with
+  the girl's pop — they are T2's own content and no sound was given for T4 (T3 skips them the same way: data.girl_pop false, no
+  pic_sfx). The module (shared with T2 / T3, unchanged for them): data.slots (n .dsc-slot sN, placed by the variant's CSS; one slot
+  = the old markup), every slot popping, blinking and fading together, the marks landing in turn; data.sentence.gaps marks the words
+  the slots follow (.dsc-gap: the gap's width is CSS); and at its end the next round's "shown" mark is cleared when the next page
+  starts a new round — the [demo-fig] page did that so the gate follows T4 EVERY time it ends (the engine opens each round's gate
+  once per load; without it the second run of T4 from the dev nav's list went straight to G1 — smoke.py caught it). CSS
+  .dsc-v-list: the picture -114,-136 1371x654 (object-fit cover); the sentence centred on 533.5,76 of the padding box and its gaps
+  33 px (both measured word by word against the render: every word's width already equal, the gaps first 7 px too wide, the line
+  1 px left and 3 px high at the box's own centre); the slots 387 / 537, 70 37x42.606 white; the tiles 386.09 / 613 / 843.818, 329;
+  the tile ellipses #FEB564; the girl 132,139 224x336, z-index 1, her ellipse 17,289 190x47 #FEB564. Assets (from the Figma
+  connector, downloaded into the scratchpad first): demo3_assets/img_demo3_park.webp (image 264's fill mirrored, q90, 62 KB — placed
+  as the frame places it, it matches the render pixel for pixel), img_demo3_girl_basket.webp (image 276's fill, q90, alpha exact, 169
+  KB); demo3b_figma_render_1280x720.png = the frame's 1x export. Kept: vo_demo3_full / alp registered and shipped (unplayed now, as
+  T3's old clips), img_demo3_fruits (T1B shows it). The [vo-rec] block's T4 hooks (mark_audio, explain_audio, again_audio) are gone,
+  as T2's / T3's went. Nothing else in the dist changed: the card's T4 entry + two image entries; app.js the module's slot lines and
+  the gate clearing; style.css the .dsc-v-list block (11 lines added, none removed).
+- Checked: scene_check.py T4 (new config: no intro and no bubble — open_ms, then all slots and the whole sentence in one frame; both
+  slots sampled every frame; the marks in turn; the gate): 40/40 ALL PASS (the slots and the sentence 988 ms after the first frame in one frame; the clip 492 ms after the rise, 0 words off; the blink 316 ms after the clip, 7 s, four fades, both slots identical in every frame; the tiles 350 ms apart with their pops; the "," lit 0.02 s before its cue; dim / pulse 316 / 300 ms; the commas at 0 and 300 ms after the tap, each box gone 450 / 466 ms after its comma; the gate 1202 ms after the last box; every box within 0.34 px of the frame; the sentence's and the three marks' ink centres within 0.5 px of the render; the girl mean 4.24 levels off the render; solid pixel diffs 0.002 %); T3 47/47 ALL PASS and T2 38/38 ALL PASS on the shared module.
+  smoke.py 53/53 (the T3 -> T4 step is the scene; T4 runs to its pulsing "," tile, the tap lands the comma in both slots, the gate,
+  G1; the dev nav's two T4 runs tap it too). word_sync_check T2 T3 T4 OK (T4: 9 words, the clip 0.5 s after the rise). demo_check.py refuses T4 now (no page uses the
+  PUNCT_DEMO demo layout; G1-G3 are pick_check.py's). The slot-interior check samples columns where BOTH the render and the page
+  have a dash top and bottom (the dashes' phase differs by design) and takes the render's white span there.
+  `../_before_t4_scene/` holds the [t3-look7] dist, build.py, README, scene_check.py, smoke.py, word_sync_check.py and demo_check.py.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
