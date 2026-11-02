@@ -2264,57 +2264,25 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
-Pages 6 T2 and 7 T3: the girl looks at the screen and waves before the tiles, every 7 s ([girl-wave], 2026-11-02)
-- Asked: "At page 6 T2 remove the sound effect and the pop animation of the girl synced with it; instead, before the options
-  appear, the girl standing should show an animation of looking towards the screen and waving her one hand in a suitable animation
-  as if saying bye and then come back to the exact same position as shown, and this animation should repeat after every 7 seconds.
-  Perfect and smooth, without any unclear and disturbed animation around and of the girl. Apply this at page 7 T3 too; rest keep
-  everything exactly the same." Read as: T2's 2 s school sound (sfx_demo1_school.mp3) and her small pop (dscPop) go; in their
-  place, on T2 AND T3, the wave gesture, then the tiles; T3's [t3-look] glance at the tiles is replaced by the same wave (its
-  "move her arms and look back" was the earlier ask for that page; this one names a new gesture for both).
-- The gesture (data.girl_wave on a rig, data.girl_rig naming it; the PUNCT_SCENE module's stage 3' in place of the school
-  sound's stage 3): .wave starts a 7 s CSS cycle whose first 2.4 s is the move — the irises glide to the eyes' centres over 0.3 s
-  (T2's sit a hair off: 0.57 / 0.16 px of her 239x358 box — both girls FACE the screen as painted, so this is all "looking towards
-  the screen" can be without redrawing her; a blink was built and dropped: a lid over the eye's opening leaves the painted outline
-  as a hollow ring); the forearm turns up about the elbow to -60 degrees (T2: the open hand beside her collar) / -40 (T3: beside her
-  braid, the frame's "which one?" palm already open) by 0.55 s with a 6% overshoot settling by 0.7 s, swings 12 / 10 degrees either
-  side three times (0.9-1.85 s), and is down by 2.4 s; every layer back at identity, she is the painting again until 7 s, when it
-  repeats — until the child's tap (the class leaves only in a rest phase, as the glance's did). The tiles pop 0.3 s after the
-  gesture (2.7 s after .wave), as they followed the school sound; the explanation and the rest unchanged.
-- T2's rig (girl_rig_t2.py -> demo1_assets/girl_rig/, inlined as data URIs in the CSS under .dsc-rig-demo1; her bitmap is the
-  frame's "image 243", 1024x1536, drawn 239x358): she holds both bag straps with closed fists, so her RIGHT forearm (the viewer's
-  left) turns about the elbow (the pivot 416,650 of the bitmap, a 35 px keep disc as girl_rig.py's), and the fist becomes an OPEN
-  PALM on the way up: the T3 girl's open hand (demo2_assets/img_demo2_girl_ask.webp, the same style, the same skin 253,190,129 vs
-  254,187,130), mirrored (her right hand: the thumb to the viewer's right once the fingers point up), cut across the wrist at its
-  narrowest (59 px), scaled 0.939 to her forearm's 55.6 px, its fingers along her forearm, its outline shifted to this bitmap's
-  maroon; the forearm's end ramped over it. Two arm layers, their own RGBA sheets (the bitmap's anti-aliased rim recoloured to the
-  outline with its coverage as alpha, so the edge is clean in the air and the painting at rest): .dsc-garm (the fist) and
-  .dsc-gpalm (the palm), the same transform; the swap = a 60 ms opacity cross as the arm passes ~40 degrees on the way up (the hand
-  moving fastest, ~4 degrees a frame) and as it lands — a 150 ms dissolve ghosted (tried, seen on the frame sheet). Behind the
-  forearm a PATCH (.dsc-gunder, under the body's hole): the pink strap carried from its visible end above the fist to its end
-  below the forearm (a cubic curve with the measured end lines and widths — it leans right coming down, 33 px wide, and bends to
-  45 degrees under the arm, 25 px; its colour cross-section sampled from the visible strap), the pinafore's navy as a harmonic fill
-  from the navy around (no tonal step at the hole's edge), the sleeve's corner on its fitted edges; the elbow's keep disc holds the
-  forearm's root as the glance rig's (the upper arm's lower end and the sleeve corner stay with the body: no outline parts the
-  forearm from the upper arm at the inner elbow). The eyes as girl_rig.py's (the interior windows — the lids' blended edge read as
-  lid —, sclera discs, irises completed), the irises' targets = the openings' centroids. At rest the layers give the painting back
-  within 12 levels at the page's size (7 px over 8 of 239x358: the arm's rim). Sheets ~110 KB in all.
-- T3's rig as [t3-look] built it (the body with the hole, the eyes, the forearm window about the elbow, the braid tip over it),
-  scoped to .dsc-rig-demo2 now; the wave's bigger lift (-40, -50 at the swing's far side) shows the hand passing behind the braid's
-  tip and the elbow's keep disc as a round elbow — judged on the frame sheet.
-- Built: build.py [girl-wave] — T2's entry (girl_pop false, girl_rig "demo1", girl_wave WAVE1; the sound stays in the dist, unused),
-  T3's (girl_rig "demo2", girl_wave WAVE2; girl_look gone from the data — the module still runs a glance for a page that asks),
-  the module (the rig markup by rig id, waveOn / waveOff beside lookOn / lookOff, stage 3' = waveOn then the tiles active_ms + 0.3 s
-  later, waveOff at every tap, the GPU warm-up for the wave's layers too), the CSS (the glance's rig rules scoped, T2's rig, the
-  wave's keyframes from ms stops as the glance's: dscWaveArm / dscWaveEye / dscWaveFist / dscWavePalm). Nothing else changed:
-  T4 / G1-G3 (no rig) run the same code paths; the picks' taps call waveOff (a no-op).
-- Checked: scene_check.py T2 [[T2_TALLY]] T3 [[T3_TALLY]] (the new [girl-wave] lines: the data, the rig's layers / masks / images /
-  origins / stillness at mount, .wave 0.3 s after the clip and before the tiles with the tiles 2.7 s later, the arm's peak / swings /
-  return / rest, the palm swap's timing and the angle it happens at (T3: no palm), the irises, frame-to-frame smoothness, the 7 s
-  period, the cold-start frames, the class off at rest after the tap; the blink's timing now counted from the gesture's end).
-  T4 [[T4_TALLY]], G1 [[G1_TALLY]] (unchanged pages on the same module), smoke.py [[SMOKE]], word_sync_check T2 T3 [[WS]]. Frame
-  sheets (the animations paused and sought: the face, the arm's rise and landing) at 3x in the scratchpad.
-  `../_before_wave/` holds the [g3-scene] dist's three files, build.py, README, scene_check.py and smoke.py.
+Page 6 T2: no school sound, no pop of the girl, no wave ([t2-quiet], 2026-11-02)
+- Asked first: "At page 6 T2 remove the sound effect and the pop animation of the girl synced with it; instead, before the options
+  appear, the girl should look towards the screen and wave her one hand as if saying bye ... repeat every 7 seconds ... Apply this
+  at page 7 T3 of this file". A wave was built on both girls ([girl-wave]: rigs, a palm swap on T2, T3's glance replaced). Then:
+  "No remove this hand wave animation of the girl at page 6 T2 ... why you applied this hand wave at page 7 T3 also?? Keep the
+  animation of page 7 T3 same as before, don't apply this hand wave there." So the wave is gone from both pages and the one part of
+  the first ask that stands is T2 losing its school sound and its pop.
+- Built: build.py = the [g3-scene] build.py (`../_before_wave/build.py`) with ONLY T2's data changed: no data.pic_sfx /
+  pic_sfx_ms (sfx_demo1_school.mp3 stays in the dist, unused), data.girl_pop false. The module's own [t3-girl] path then skips
+  stage 3: the girl stands still as painted, the slot's 7 s blink starts 0.3 s after the sentence's clip with the tiles popping in
+  one by one (they came 0.3 s after the 2 s school sound before), the explanation and the rest unchanged. The dist's app.js and
+  style.css are byte-identical to `../_before_wave/`'s; index.html differs in those three keys of T2's data only. T3 is exactly
+  as before: its [t3-look7] glance at the tiles every 7 s.
+- Checked: scene_check.py T2 37/37 (its config beat=False: the [t3-girl] no-sound / no-pop / still-girl line and the blink 0.3 s
+  after the clip), T3 47/47 (the warm-up's window 0.4-1 s after the first sampled frame — 429 ms was seen on one run, as with the
+  wave; a run before that had one frame with an iris step of 0.514 px against the 0.45 limit and passed on the re-run, the code
+  byte-identical to the approved T3), smoke.py 53/53, word_sync_check T2 T3 none off.
+  `../_before_t2_nowave/` holds the wave's state (the dist's three files, build.py, README, scene_check.py, smoke.py);
+  girl_rig_t2.py and demo1_assets/girl_rig/ stay on disk, unused by the build.
 
 Page 11 G3: the garden scene from Figma 716:1262, G1's pick with the "," in the sentence's own slot ([g3-scene], 2026-11-02)
 - Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=716-1262 — at page 11 G3 make the exact same layout

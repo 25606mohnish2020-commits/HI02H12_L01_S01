@@ -264,33 +264,16 @@ dpart = lambda k: {"text_hi": dl[k]["shown"], "audio": f"vo_demo1_{k}", "word_ti
 # "पूर्णविराम"; the other two dim; the lit tile pulsing until the CHILD taps it; then green, the kit's correct sound, the mark in
 # the slot, the slot's box gone, on to T3. The explanation is a placeholder take (recap_vo.py demo1 explain: edge-tts, no recording
 # of it yet); its word times are the synthesiser's own.
-# [girl-wave] (asked 2026-11-02): "at T2 remove the sound effect and the pop animation of the girl synced with it; instead, before
-# the options appear, the girl standing should show an animation of looking towards the screen and waving her one hand as if
-# saying bye, then come back to the exact same position; repeat every 7 seconds; perfect and smooth; apply this at T3 too". The
-# wave = one cycle of data.girl_wave.every_ms (7 s) on the girl's rig, its gesture over the first active_ms (2.4 s): her irises
-# glide to the eyes' centres (T2's sit a hair off them; T3's are there already — the amounts per eye, in her box px: both girls
-# face the screen as painted, so this is the whole of "looking towards the screen" — a blink was tried and dropped: a lid over the
-# eye's interior leaves the painted outline as a hollow ring); the forearm turns up about the elbow to arm_deg (T2 60 degrees: the
-# open hand beside her collar; T3 40: beside her braid — the frame's "which one?" palm already open), swings swing_deg each way
-# three times and comes down; on T2 the fist becomes the open palm in a 60 ms swap as it rises past ~40 degrees (the hand moving
-# fastest, 4 degrees a frame) and back into the fist as it lands (data.girl_wave.palm; girl_rig_t2.py grafts the T3 girl's open
-# hand; a longer dissolve ghosted). It starts where the school sound did (0.3 s after the
-# sentence's clip) and the tiles follow 0.3 s after the gesture, as they followed the sound; it repeats every 7 s until the
-# child's tap (the class leaves only in a rest phase, as the glance's did). T3's eyes do not slide (they look at the screen as
-# painted). The rig of T2 (demo1_assets/girl_rig/, girl_rig_t2.py): the strap and the uniform behind her forearm repainted.
-_rig1 = json.loads((SCR / "demo1_assets" / "girl_rig" / "rig.json").read_text(encoding="utf-8"))
-GIRL1_BOX = (239, 358); _g1sx, _g1sy = GIRL1_BOX[0] / _rig1["bitmap"][0], GIRL1_BOX[1] / _rig1["bitmap"][1]   # the frame's 239x358 over the 1024x1536 bitmap
-WAVE1 = {"every_ms": 7000, "active_ms": 2400, "arm_deg": 60, "swing_deg": 12, "palm": True,
-         "eyes": [[round(e["to_centre"][0] * _g1sx, 2), round(e["to_centre"][1] * _g1sy, 2)] for e in _rig1["eyes"]]}   # each iris to its eye's centre (her box px)
-WAVE2 = {"every_ms": 7000, "active_ms": 2400, "arm_deg": 40, "swing_deg": 10, "palm": False, "eyes": [[0, 0], [0, 0]]}
-assert WAVE1["every_ms"] == WAVE2["every_ms"] == 7000 and WAVE1["active_ms"] == WAVE2["active_ms"] == 2400
+# [t2-quiet] (asked 2026-11-02): "remove the sound effect and the pop animation of the girl synced with it" — data.girl_pop false and no
+# data.pic_sfx skip stage 3, so the slot's blink starts 0.3 s after the sentence's clip and the tiles pop with it. (A wave of her
+# hand was built in their place and on T3 — [girl-wave] — and withdrawn on the user's word: T2 without it, T3's glance as before.)
 _cue = dl["explain"]["shown"].split().index("पूर्णविराम")
 card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
     "prompt_hi": dl["intro"]["text"], "audio": {"prompt": "vo_demo1_intro"},
     "data": {"intro_audio": "vo_demo1_intro", "bg_id": "img_demo1_hall", "image_id": "img_demo1_girl_walk",
              "sentence": dpart("sent"), "mark": "।", "explain": dict(dpart("explain"), cue_word=_cue),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "girl_pop": False, "girl_rig": "demo1", "girl_wave": WAVE1,   # [girl-wave] (2026-11-02) no school sound and no pop any more: she looks at the screen and waves before the tiles, every 7 s (girl_rig_t2.py; the sound sfx_demo1_school.mp3 stays in the dist, unused)
+             "girl_pop": False,   # [t2-quiet] (2026-11-02) no school sound and no pop of the girl any more (was "pic_sfx": "sfx_demo1_school.mp3", "pic_sfx_ms": 2000 — the file stays in the dist, unused): she stands still as painted and the blink follows the sentence's clip, as T3's ([t3-girl]); the [girl-wave] wave built in their place was withdrawn the same day
              "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # [t2-scene5] the blink 7 s (2 -> 4 -> 6 -> 7) in SLOW 1.75 s cycles = four fades of the whole box (the module rounds blink_ms / blink_cycle_ms; [t2-scene4] had 1.2 s on / off cycles, [t2-scene3] ~667 ms); the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) ONCE PER TILE as the tiles pop in one by one, 350 ms apart ([t2-scene3]; was all three 90 ms apart under one pop)
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
@@ -368,7 +351,7 @@ assert dl2["sent"]["shown"] == "तुम्हारा नाम क्या 
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
     "prompt_hi": dl2["sent"]["text"], "audio": {},
     "data": {"variant": "ask", "intro_audio": None, "open_ms": 1000, "bg_id": "img_demo2_room", "image_id": "img_demo2_girl_ask", "girl_pop": False,   # [t3-girl] the frame's girl, still
-             "girl_rig": "demo2", "girl_wave": WAVE2,   # [girl-wave] her layers (the CSS) and the wave's amounts / timing — in place of the [t3-look] glance (girl_look: the module still knows it)
+             "girl_rig": True, "girl_look": LOOK,   # [t3-look] her layers (the CSS) and the glance's amounts / timing
              "bubble_id": "img_demo2_bubble", "box_sfx": "sfx_demo2_sharp_pop.mp3", "slot_w": 59, "slot_h": 100,   # the frame's slot (T2's is 53x90)
              "sentence": dpart2("sent"), "mark": "?",
              "explain": {"text_hi": _x3["text"], "audio": "vo_demo2_explain", "word_times": [w[1] for w in _x3["words"]], "word_end": _x3["words"][-1][2], "cue_word": _x3_words.index("प्रश्नवाचक")},
@@ -1268,13 +1251,6 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
         by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
         a rest phase of the cycle, so she is never caught mid-move.
-     [girl-wave] With data.girl_wave (T2 on the "demo1" rig, T3 on "demo2" — data.girl_rig names the rig, its layers and geometry
-        the CSS's) stage 3 is her WAVE instead of the school sound: .wave starts the rig's cycle — the irises glide to the eyes'
-        centres (she looks at the screen — both girls face it as painted), the forearm turns up about the elbow (on T2 the fist
-        swapped for the open palm on the way up, back into the fist as it lands: the .dsc-gpalm layer), swings three times and comes down, all
-        back as painted by active_ms (2.4 s); the tiles follow 0.3 s later; the cycle repeats every every_ms (7 s) until the tap,
-        the class leaving only in a rest phase. T2's rig: a repainted patch under the body's hole (.dsc-gunder), the body, the
-        eyes, the fist-arm and the palm-arm as their own images.
      [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
@@ -1300,15 +1276,11 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
       // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
       const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
-      // [girl-wave] data.girl_rig names the rig ("demo2" = T3's: the body, the eyes, the forearm, the braid tip, all windows on
-      // her bitmap; "demo1" = T2's: the repainted patch under the body's hole, the body, the eyes, the fist-arm and the palm-arm as
-      // their own images); true = "demo2" (the [t3-look] data)
-      const rigId = d.girl_rig === true ? "demo2" : d.girl_rig;
-      const eyeHtml = (k)=> '<div class="dsc-geye e' + k + '">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>';
-      const girlHtml = rigId
-        ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig dsc-rig-' + rigId + '">' + (rigId === "demo1" ? '<span class="dsc-gunder"></span>' : '') + gimg.replace("dsc-gwin", "dsc-gbody") +
-          eyeHtml(1) + eyeHtml(2) +
-          (rigId === "demo1" ? '<span class="dsc-garm"></span><span class="dsc-gpalm"></span>' : '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div>') + '</div></div>'
+      const girlHtml = d.girl_rig
+        ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
+          '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
+          '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
+          '<div class="dsc-garm">' + gimg + '</div><div class="dsc-gpatch">' + gimg + '</div></div></div>'
         : '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"></div>';
       const fig = sfigMount(host,
         '<div class="dsc-bg"><img src="' + imgSrc(d.bg_id) + '" alt="" draggable="false">' + girlHtml + '</div>' +
@@ -1338,20 +1310,6 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         let ph = (performance.now() - lookT0) % every; lookT0 = -1;
         try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscLookArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
         after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("look")); };
-      // [girl-wave] the wave (data.girl_wave, on a rig): the amounts and the cycle as CSS variables on the girl (the eyes' slide per
-      // iris); .wave starts the cycle (dscWaveArm / dscWaveEye / dscWaveFist / dscWavePalm, every_ms long, the gesture
-      // over its first active_ms, then at rest); waveOff (the tap) takes the class off only in a rest phase — read from the running
-      // animation's own clock, as the glance's
-      const wave = d.girl_rig && d.girl_wave; let waveT0 = -1;
-      if(wave){ const v = (k, val)=> girl.style.setProperty(k, val);
-        v("--wave-ms", (wave.every_ms || 7000) + "ms"); v("--wave-arm", (wave.arm_deg || 0) + "deg"); v("--wave-swing", (wave.swing_deg || 0) + "deg");
-        (wave.eyes || []).forEach((e, k)=>{ const ir = girl.querySelector(".dsc-geye.e" + (k + 1) + " .dsc-giris"); if(ir){ ir.style.setProperty("--wave-gx", (e[0] || 0) + "px"); ir.style.setProperty("--wave-gy", (e[1] || 0) + "px"); } });
-        if(!wave.palm) girl.classList.add("nopalm"); }
-      const waveOn = ()=>{ if(!wave || waveT0 >= 0) return; girl.classList.add("wave"); waveT0 = performance.now(); };
-      const waveOff = ()=>{ if(waveT0 < 0) return; const every = wave.every_ms || 7000, active = wave.active_ms || 2400;
-        let ph = (performance.now() - waveT0) % every; waveT0 = -1;
-        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscWaveArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
-        after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("wave")); };
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
       $("navBtn").style.display = "none";   // the page advances itself
@@ -1408,10 +1366,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       const stage2 = ()=>{
         if(bubble) bubble.classList.add("in");
         slots.forEach(sl=> sl.classList.add("in")); if(d.box_sfx) playKitSfx("sceneBox", d.box_sfx, .8); else popSoft();
-        sfigNarrate(L, alive, ()=> after(300, wave ? stage3w : (beat ? stage3 : stage4))); };
-      // 3'. [girl-wave] the girl looks at the screen and waves (the rig's cycle starts here and repeats every every_ms until the
-      //     tap); the tiles follow 0.3 s after her gesture (active_ms), as they followed the school sound
-      const stage3w = ()=>{ waveOn(); after(wave.active_ms || 2400, ()=> after(300, stage4)); };
+        sfigNarrate(L, alive, ()=> after(300, beat ? stage3 : stage4)); };
       // 3. the school sound for pic_sfx_ms, faded out over its last 0.4 s; the girl's small pop (dscPop) as it starts
       const stage3 = ()=>{
         const ms = d.pic_sfx_ms || 2000, FADE = 400;
@@ -1459,7 +1414,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         if(!armed || !alive()) return;
         armed = false; state.locked = true; state.demoRunning = true;
         if(isPlaying) stopAudio();
-        lookOff(); waveOff();   // [t3-look] no new glance after the answer; a running one finishes its move first; [girl-wave] the wave likewise
+        lookOff();   // [t3-look] no new glance after the answer; a running one finishes its move first
         const t = tiles[pick]; t.onclick = null; t.classList.remove("pulse", "live"); t.classList.add("done");
         sfxCorrect(); setSwMood("happy");
         const stg = d.mark_stagger_ms || 0;   // [t4-scene] the marks land in turn (one slot: at once, as before)
@@ -1519,7 +1474,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
           return;
         }
         live = false; state.locked = true; state.demoRunning = true; const guided = !!hintHand; if(hintHand){ hintHand.remove(); hintHand = null; }   // the hand goes with the answer
-        lookOff(); waveOff();   // [t3-look] / [girl-wave] (no rig on the picks; kept for a rigged girl)
+        lookOff();   // [t3-look] (no rig on G1; kept for a rigged girl)
         slots.forEach(sl=> sl.classList.remove("blink"));
         tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are
         const stg = d.mark_stagger_ms || 300;
@@ -1540,8 +1495,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
       // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
       // not begun
-      if(look || wave){ const body = girl.querySelector(".dsc-gbody");   // [girl-wave] the wave's layers too
-        const warm = ()=>{ if(girl.classList.contains("look") || girl.classList.contains("wave")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
+      if(look){ const body = girl.querySelector(".dsc-gbody");
+        const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
         after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
   },
@@ -3038,67 +2993,25 @@ _piv = _rig["elbow"]["pivot"]
 _eye_css = ""
 for _i, _e in enumerate(_rig["eyes"], 1):
     _f = _e["iris"]; _ox, _oy, _sz, _ = _e["iris_box"]; _sc = _e["sclera"]
-    _eye_css += (f".dsc-rig-demo2 .dsc-geye.e{_i}{{--m:{_durl(f'demo2_girl_eye{_i}_mask.png')};}}\n"
-                 f".dsc-rig-demo2 .dsc-geye.e{_i} .dsc-gfill{{left:{_px((_f['cx'] - _f['r'] - 1) * _gsx)};top:{_px((_f['cy'] - _f['r'] - 1) * _gsy)};width:{_px(2 * (_f['r'] + 1) * _gsx)};height:{_px(2 * (_f['r'] + 1) * _gsy)};background:rgb({_sc[0]},{_sc[1]},{_sc[2]});}}\n"
-                 f".dsc-rig-demo2 .dsc-geye.e{_i} .dsc-giris{{left:{_px(_ox * _gsx)};top:{_px(_oy * _gsy)};width:{_px(_sz * _gsx)};height:{_px(_sz * _gsy)};background:{_durl(f'demo2_girl_iris{_i}.png')} 0 0 / 100% 100% no-repeat;}}\n")
+    _eye_css += (f".dsc-geye.e{_i}{{--m:{_durl(f'demo2_girl_eye{_i}_mask.png')};}}\n"
+                 f".dsc-geye.e{_i} .dsc-gfill{{left:{_px((_f['cx'] - _f['r'] - 1) * _gsx)};top:{_px((_f['cy'] - _f['r'] - 1) * _gsy)};width:{_px(2 * (_f['r'] + 1) * _gsx)};height:{_px(2 * (_f['r'] + 1) * _gsy)};background:rgb({_sc[0]},{_sc[1]},{_sc[2]});}}\n"
+                 f".dsc-geye.e{_i} .dsc-giris{{left:{_px(_ox * _gsx)};top:{_px(_oy * _gsy)};width:{_px(_sz * _gsx)};height:{_px(_sz * _gsy)};background:{_durl(f'demo2_girl_iris{_i}.png')} 0 0 / 100% 100% no-repeat;}}\n")
 scene_css += ("\n/* ===== [t3-look] the girl in layers and her glance at the tiles (girl_rig.py; see build.py) ===== */\n"
     ".dsc-grig{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 98.4%;}   /* the lean shears from her feet */\n"
     ".dsc-grig > *{position:absolute;left:0;top:0;width:100%;height:100%;-webkit-mask:var(--m) 0 0 / 100% 100% no-repeat;mask:var(--m) 0 0 / 100% 100% no-repeat;}\n"
     ".dsc-gwin{position:absolute;left:0;top:0;width:100%;height:100%;}\n"
     ".dsc-gfill{position:absolute;border-radius:50%;}\n"
     ".dsc-giris{position:absolute;}\n"
-    f".dsc-rig-demo2 .dsc-gbody{{--m:{_durl('demo2_girl_body_mask.png')};}}\n"
-    f".dsc-rig-demo2 .dsc-garm{{--m:{_durl('demo2_girl_arm_mask.png')};transform-origin:{_px(_piv[0] * _gsx)} {_px(_piv[1] * _gsy)};}}   /* the elbow */\n"
-    f".dsc-rig-demo2 .dsc-gpatch{{--m:{_durl('demo2_girl_patch_mask.png')};}}\n"
+    f".dsc-gbody{{--m:{_durl('demo2_girl_body_mask.png')};}}\n"
+    f".dsc-garm{{--m:{_durl('demo2_girl_arm_mask.png')};transform-origin:{_px(_piv[0] * _gsx)} {_px(_piv[1] * _gsy)};}}   /* the elbow */\n"
+    f".dsc-gpatch{{--m:{_durl('demo2_girl_patch_mask.png')};}}\n"
     + _eye_css +
-    ".dsc-grig,.dsc-giris,.dsc-garm,.dsc-gpalm{will-change:transform;}   /* [t3-look7] composited from mount (was from .look): the glance's start no longer switches how she is drawn */\n"
+    ".dsc-grig,.dsc-giris,.dsc-garm{will-change:transform;}   /* [t3-look7] composited from mount (was from .look): the glance's start no longer switches how she is drawn */\n"
     ".dsc-girl.warm .dsc-grig{transform:skewX(-.001deg);} .dsc-girl.warm .dsc-giris{transform:translate(.001px,.001px);} .dsc-girl.warm .dsc-garm{transform:rotate(-.001deg);}   /* [t3-look7] the GPU warm-up (see the module) */\n"
     ".dsc-girl.look .dsc-grig{animation:dscLookLean var(--look-ms,5000ms) linear infinite;}\n"
     ".dsc-girl.look .dsc-giris{animation:dscLookEye var(--look-ms,5000ms) linear infinite;}\n"
     ".dsc-girl.look .dsc-garm{animation:dscLookArm var(--look-ms,5000ms) linear infinite;}\n"
     + _look_kf())
-# [girl-wave] T2's rig ("demo1", girl_rig_t2.py: demo1_assets/girl_rig/) — the patch under the body's hole, the body's mask, the
-# eyes (masks, sclera discs, irises), the fist-arm and the palm-arm images about the elbow — at her 239x358 box; the wave's
-# keyframes (ms of the gesture as % of the cycle)
-_RIG1 = SCR / "demo1_assets" / "girl_rig"
-_rig1_sheets = [f"demo1_girl_{k}.png" for k in ("body_mask", "arm", "palm", "patch", "eye1_mask", "eye2_mask", "iris1", "iris2")]
-assert all((_RIG1 / v).exists() for v in _rig1_sheets), "missing rig sheets: run girl_rig_t2.py"
-_durl1 = lambda name: "url(data:image/png;base64," + base64.b64encode((_RIG1 / name).read_bytes()).decode() + ")"
-_piv1 = _rig1["elbow"]["pivot"]
-_eye1_css = ""
-for _i, _e in enumerate(_rig1["eyes"], 1):
-    _f = _e["iris"]; _ox, _oy, _sz, _ = _e["iris_box"]; _sc = _e["sclera"]
-    _eye1_css += (f".dsc-rig-demo1 .dsc-geye.e{_i}{{--m:{_durl1(f'demo1_girl_eye{_i}_mask.png')};}}\n"
-                  f".dsc-rig-demo1 .dsc-geye.e{_i} .dsc-gfill{{left:{_px((_f['cx'] - _f['r'] - 1) * _g1sx)};top:{_px((_f['cy'] - _f['r'] - 1) * _g1sy)};width:{_px(2 * (_f['r'] + 1) * _g1sx)};height:{_px(2 * (_f['r'] + 1) * _g1sy)};background:rgb({_sc[0]},{_sc[1]},{_sc[2]});}}\n"
-                  f".dsc-rig-demo1 .dsc-geye.e{_i} .dsc-giris{{left:{_px(_ox * _g1sx)};top:{_px(_oy * _g1sy)};width:{_px(_sz * _g1sx)};height:{_px(_sz * _g1sy)};background:{_durl1(f'demo1_girl_iris{_i}.png')} 0 0 / 100% 100% no-repeat;}}\n")
-def _wave_kf():
-    """[girl-wave] the wave's keyframe sets, their stops given in ms of the gesture and written as % of the 7 s cycle"""
-    ev = WAVE1["every_ms"]; pc = lambda t: f"{100 * t / ev:.4g}%"
-    A_ = lambda k: f"rotate(calc(var(--wave-arm,0deg) * {k}))"
-    S_ = lambda k, sw: f"rotate(calc(var(--wave-arm,0deg) * {k} + var(--wave-swing,0deg) * {sw}))"
-    arm = [((0,), "rotate(0deg)", "cubic-bezier(.3,.6,.3,1)"), ((550,), A_(-1.06), "ease-in-out"), ((700,), A_(-1), "ease-in-out"),
-           ((900,), S_(-1, 1), "ease-in-out"), ((1150,), S_(-1, -1), "ease-in-out"), ((1400,), S_(-1, 1), "ease-in-out"), ((1650,), S_(-1, -0.7), "ease-in-out"),
-           ((1850,), A_(-1), "cubic-bezier(.5,0,.4,1)"), ((2400, ev), "rotate(0deg)", None)]
-    eye = [((0,), "translate(0,0)", "cubic-bezier(.4,0,.2,1)"), ((300, 2050), "translate(var(--wave-gx,0px),var(--wave-gy,0px))", "cubic-bezier(.4,0,.3,1)"), ((2350, ev), "translate(0,0)", None)]
-    fist = [((0, 170), "1", "linear"), ((230, 2090), "0", "linear"), ((2150, ev), "1", None)]   # the swap: 60 ms either way, the arm past ~40 degrees and moving fastest
-    palm = [((0, 170), "0", "linear"), ((230, 2090), "1", "linear"), ((2150, ev), "0", None)]
-    def kf(name, stops, prop="transform"):
-        body = "".join(",".join(pc(t) for t in ts) + "{" + prop + ":" + val + ";" + (f"animation-timing-function:{fn};" if fn else "") + "}" for ts, val, fn in stops)
-        return "@keyframes " + name + "{" + body + "}\n"
-    return kf("dscWaveArm", arm) + kf("dscWaveEye", eye) + kf("dscWaveFist", fist, "opacity") + kf("dscWavePalm", palm, "opacity")
-scene_css += ("\n/* ===== [girl-wave] T2's rig in layers (girl_rig_t2.py) and the wave of both girls ===== */\n"
-    f".dsc-rig-demo1 .dsc-gunder{{background:{_durl1('demo1_girl_patch.png')} 0 0 / 100% 100% no-repeat;}}   /* the strap and the uniform behind her forearm, repainted: under the body's hole */\n"
-    f".dsc-rig-demo1 .dsc-gbody{{--m:{_durl1('demo1_girl_body_mask.png')};}}\n"
-    f".dsc-rig-demo1 .dsc-garm{{background:{_durl1('demo1_girl_arm.png')} 0 0 / 100% 100% no-repeat;transform-origin:{_px(_piv1[0] * _g1sx)} {_px(_piv1[1] * _g1sy)};}}   /* the forearm + fist, its own image; the elbow */\n"
-    f".dsc-rig-demo1 .dsc-gpalm{{background:{_durl1('demo1_girl_palm.png')} 0 0 / 100% 100% no-repeat;transform-origin:{_px(_piv1[0] * _g1sx)} {_px(_piv1[1] * _g1sy)};}}   /* the same forearm with the open palm */\n"
-    + _eye1_css +
-    ".dsc-gpalm{opacity:0;}   /* seen only as the arm rises (dscWavePalm) */\n"
-    ".dsc-girl.warm .dsc-gpalm{transform:rotate(-.001deg);}   /* the GPU warm-up, as the glance's */\n"
-    ".dsc-girl.wave .dsc-garm{animation:dscWaveArm var(--wave-ms,7000ms) linear infinite;}\n"
-    ".dsc-girl.wave .dsc-rig-demo1 .dsc-garm{animation:dscWaveArm var(--wave-ms,7000ms) linear infinite,dscWaveFist var(--wave-ms,7000ms) linear infinite;}   /* the fist fades as the palm comes */\n"
-    ".dsc-girl.wave .dsc-gpalm{animation:dscWaveArm var(--wave-ms,7000ms) linear infinite,dscWavePalm var(--wave-ms,7000ms) linear infinite;}\n"
-    ".dsc-girl.wave .dsc-giris{animation:dscWaveEye var(--wave-ms,7000ms) linear infinite;}\n"
-    + _wave_kf())
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial
