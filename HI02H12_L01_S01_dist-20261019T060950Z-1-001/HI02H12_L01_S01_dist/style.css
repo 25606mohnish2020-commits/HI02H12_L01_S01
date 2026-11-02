@@ -3263,6 +3263,16 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-v-pick2 .dsc-girl{left:826px;top:109px;width:236px;height:354px;}
 .dsc-v-pick2 .dsc-girl > img{width:236px;height:354px;}
 .dsc-v-pick2 .dsc-shade{left:35px;top:307px;width:145px;height:38px;background:rgba(233,149,96,.41);}   /* her ellipse 750:2551: #E99560 at .41 */
+/* ===== [g3-scene] G3 = frame 716:1262 "11 G3" on the scene module: the "pick3" variant (.dsc-v-pick3) — G1's page with the frame's own geometry, the slot inside the sentence ===== */
+.dsc-v-pick3 .dsc-bg > img{left:-27px;top:-132px;width:1117px;height:630px;object-fit:cover;}   /* the garden: the box's aspect is the bitmap's to 0.2% */
+.dsc-v-pick3 .dsc-sent{left:533px;top:71px;}   /* the box's centre 532.5,68 of the padding box: Chrome's Baloo ink sat 0.5 px right and 3 px above the render's there (measured, word by word; every word within 1 px, the gap 33 as T4's) */
+.dsc-v-pick3 .dsc-sent .dsc-gap{margin-right:33px;}   /* the frame's four-space run after गुलाब, where the slot sits */
+.dsc-v-pick3 .dsc-slot{left:376px;top:71px;width:33px;height:38px;}   /* the frame's small slot, white */
+.dsc-v-pick3 .dsc-tile{top:349px;} .dsc-v-pick3 .dsc-tile.t1{left:366.09px;} .dsc-v-pick3 .dsc-tile.t2{left:593px;} .dsc-v-pick3 .dsc-tile.t3{left:823.82px;}
+.dsc-v-pick3 .dsc-tshade{background:#97CF28;}   /* the frame's tile ellipses: opaque #97CF28 on the grass */
+.dsc-v-pick3 .dsc-girl{left:126px;top:123px;width:218px;height:328px;}
+.dsc-v-pick3 .dsc-girl > img{width:218px;height:328px;object-fit:cover;}
+.dsc-v-pick3 .dsc-shade{left:21px;top:310px;width:172px;height:38px;background:rgba(151,207,40,.4);}   /* her ellipse 810:14: #97CF28 at .4 (it reaches 8 px below her box) */
 
 /* ===== [t3-look] the girl in layers and her glance at the tiles (girl_rig.py; see build.py) ===== */
 .dsc-grig{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 98.4%;}   /* the lean shears from her feet */

@@ -2264,6 +2264,45 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Page 11 G3: the garden scene from Figma 716:1262, G1's pick with the "," in the sentence's own slot ([g3-scene], 2026-11-02)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=716-1262 — at page 11 G3 make the exact same layout
+  as this figma reference and follow the exact same flow as page 9 G1 for the correct answer as the (,) sign; rest keep the flow the
+  same as page 9 G1; rest keep everything exactly the same."
+- The frame (716:1262 "11 G3"): T2's card (96,106 1088x508) filled by a garden picture ("image 284", 1671x941 — T2's hallway
+  bitmap's size, a different picture; drawn at -15,-120 1117x630 of the card, cover: the box's aspect is the bitmap's to 0.2%); the
+  girl pointing at the flowers ("image 283", 1024x1536, at 138,135 218x328 of the card) on her ellipse (810:14, 147,433 172x38,
+  #97CF28 at .4 — it reaches 8 px below her box); the sentence 807:6 "बाग में गुलाब    गेंदा और चमेली के फूल हैं ।" (Baloo 2 ExtraBold
+  55 #012F76, centred in a 893 box at 98,36 of the card, a four-space run after गुलाब where the white slot 807:7 33x38 sits at 388,83
+  — 2px dashed rgba(86,86,86,.85), 8px corners; the sentence already ending with its danda); the tiles । , ? (T2's order, faces and
+  mark offsets) at 474.09 / 701 / 931.82, 467 over opaque #97CF28 ellipses (118x26 at y 566, on the grass); its own Swiftie
+  716:1454 (not used: T1's standing Swiftie and chip, as T2-T4 / G1 / G2); a hidden title bar and a hidden "image 218".
+- Built (build.py [g3-scene]): G3's card entry = G1's ([g1-scene] + [g1-quiet]: type PUNCT_PICK, data.scene, no_idle_vo) with
+  data.variant "pick3" (card class dsc-v-pick3), the frame's slot size (data.slot_w 33 / slot_h 38), its sentence vo_g3_sent (the
+  [vo-rec] recording, whisper word times — ten words, the danda one of them) with data.sentence.gaps [2] (the slot after गुलाब: T4's
+  in-sentence mechanism — the word carries the gap, .dsc-gap, its width the variant's CSS; the slot's place too) and "," as
+  data.mark — the middle tile the answer; the instruction line G1's vo_g1_intro as before; the [vo-rec] hooks on G3's data unchanged
+  (the name vo_recap_alp_name, the praise vo_ok, hint 1 / 2; hint 3's line vo_g3_hint3 stays registered — unspoken since
+  [hand-quiet]). In place of the [pick-fig] page on the PUNCT_DEMO module (frame 528:424's title bar, picture box, sentence bar,
+  its per-side-dashed small slot (data.slots) and data.layout go with it; img_g3_flowers stays in the dist, unused). The flow is
+  G1's to the letter — the module unchanged: the instruction line over the picture and the girl, standing; 0.5 s later the
+  sentence rising whole with the small slot popping in (in its gap) and T1's text pop; the recorded clip with the words lit, once;
+  0.3 s later the 7 s blink with the tiles popping in one by one, each the child's as it pops; a wrong tile's wiggle + the buzz +
+  hint 1 / hint 2 / the hand; the right tile (",") pressed, its comma in the slot in that frame (its ink centred — the demos'
+  centreInk) with the correct sound, the confetti and "शाबाश!", G4 1 s later; the chip says the instruction line again; no idle
+  re-read. CSS .dsc-v-pick3: the picture -27,-132 1117x630 of the padding box (cover); the sentence centred on 533,71 (the
+  box's centre 532.5,68: measured word by word against the render) with the gap after गुलाब 33 px (measured the same way); the
+  slot 376,71 33x38; the tiles 366.09 / 593 / 823.82 at 349; the tile ellipses #97CF28; the girl 126,123 218x328 (cover), her
+  ellipse 21,310 172x38 at rgba(151,207,40,.4). Assets (from the Figma connector, downloaded into the scratchpad first):
+  g3_assets/img_g3_garden.webp (image 284's fill, q90, 56 KB), img_g3_girl_point.webp (image 283's fill, q90, alpha exact, 176 KB);
+  g3b_figma_render_1280x720.png = the frame's 1x export. Nothing else in the dist changed: the card's G3 entry + two image entries;
+  style.css the .dsc-v-pick3 block; app.js two comments (the alias's and the module's). No page is on the PUNCT_DEMO module's tap
+  mode any more (the module and its CSS stay; pick_check.py refuses every page now, kept for the record).
+- Checked: scene_check.py G3 (new config on the pick-mode branches — G1's taps and checks with the "," the answer, the wrong tiles the
+  first and the third; + the in-sentence slot's data): [[G3_TALLY]] scene_check G2 (its next page now the G3 scene) [[G2_TALLY]].
+  smoke.py [[SMOKE]] (the G2 -> G3 step expects the scene card with the gap; G3's taps on .dsc-tile; G3 -> G4 as before).
+  word_sync_check G1 G2 G3 [[WS]]. `../_before_g3_scene/` holds the [g2-scene] dist's three files, build.py, README, scene_check.py,
+  smoke.py and pick_check.py.
+
 Page 10 G2: the street scene from Figma 716:1058, G1's pick with the "?" ([g2-scene], 2026-11-02)
 - Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=716-1058 — at page 10 G2 make the exact same layout
   as this figma reference and follow the exact same flow as page 9 G1 for the correct answer as the (?) sign; rest keep the flow the

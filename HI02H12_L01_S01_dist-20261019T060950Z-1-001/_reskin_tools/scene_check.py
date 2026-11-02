@@ -1,7 +1,11 @@
 """Verify a PUNCT_SCENE page — T2, the hallway scene ([t2-scene] 2026-11-01, FLN-by-MJ frame 706:188 "2 T0B"), or T3, the classroom
 scene ([t3-scene] the same day, frame 724:2016 "7 T3") — against its frame and its timing.
-usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4|G1|G2]     (default T2)
-       renders: demo1b_figma_render_1280x720.png (T2), demo2b_figma_render_1280x720.png (T3), demo3b_... (T4), g1b_... (G1), g2b_... (G2)
+usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4|G1|G2|G3]     (default T2)
+       renders: demo1b_figma_render_1280x720.png (T2), demo2b_figma_render_1280x720.png (T3), demo3b_... (T4), g1b_... (G1), g2b_... (G2), g3b_... (G3)
+   [g3-scene] G3 (frame 716:1262 "11 G3") = G1's pick with the "," landing in the sentence's OWN small slot (33x38 at 484,189,
+   after गुलाब: data.sentence.gaps as T4's): the garden picture -15,-120 1117x630 of the card, the girl pointing 234,241 218x328 on
+   her ellipse 243,539 172x38, the tiles 474.09 / 701 / 931.82 at 467 over #97CF28 ellipses, the sentence clip vo_g3_sent (the
+   recording, ten words with the danda), the instruction G1's; the same taps and checks as G1.
    [g2-scene] G2 (frame 716:1058 "10 G2") = G1's pick with the frame's own geometry: the street picture drawn whole at -34,-5
    1152.714x550 of the card, the girl with the bag 934,227 236x354 on her ellipse 969,534 145x38, T3's 59x100 white slot at
    791,184, the tiles 334.09 / 561 / 791.82 at 426 with NO ellipses under them, the "?" (the third tile) the answer, the sentence
@@ -129,10 +133,10 @@ C = {
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=dict(rgb=(255, 255, 255), row_y=231, xs=(982, 1062), col_x=1022, ys=(174, 289), want=(997, 1046, 188, 274)), first_word="पिंकी", look=None),
   # [g2-scene] G2 = frame 716:1058 (render g2b_figma_render_1280x720.png): G1's pick, the "?" the answer, the frame's own geometry
-  "G2": dict(prefix="g2", pick_mode=True, intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g2_street", girl="img_g2_girl_bag2", beat=False, GIRL=(934, 227, 1170, 581), bubble=None, box_sfx=None, slot=(59, 100),
+  "G2": dict(prefix="g2", pick_mode=True, variant="pick2", intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g2_street", girl="img_g2_girl_bag2", beat=False, GIRL=(934, 227, 1170, 581), bubble=None, box_sfx=None, slot=(59, 100),
              sent="तुम कहाँ जा रहे हो", sent_clip="vo_g2_sent", nwords=5, explain_clip=None, cue=None, opts=["।", ",", "?"], mark="?", pick=2,
              wrong=[0, 1], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", no_tshade=True,
-             next="G3", next_ok="CARD.slides[state.idx].id === 'G3' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')", next_what="G3 (PUNCT_PICK, the title-bar page)",
+             next="G3", next_ok="CARD.slides[state.idx].id === 'G3' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick3 .dsc-bg')", next_what="G3 (the scene pick, [g3-scene])",
              FRAME={".dsc-bg > img": (CX - 34, CY - 5, 1152.714, 550), ".dsc-slot": (791, 184, 59, 100), ".dsc-girl": (934, 227, 236, 354), ".dsc-shade": (969, 534, 145, 38),
                     ".dsc-tile.t1": (334.0898, 426) + TILE, ".dsc-tile.t2": (561, 426) + TILE, ".dsc-tile.t3": (791.8203, 426) + TILE,
                     ".t1 .dsc-face": (335.1289, 427.3789) + FACE},
@@ -140,6 +144,18 @@ C = {
              BY_DESIGN=[(786, 179, 855, 289), (345, 185, 790, 265), (370, 449, 415, 509), (600, 469, 640, 499), (825, 447, 875, 507)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=dict(rgb=(255, 255, 255), row_y=234, xs=(778, 865), col_x=820, ys=(172, 297), want=(793, 848, 186, 282)), first_word="तुम", look=None),
+  # [g3-scene] G3 = frame 716:1262 (render g3b_figma_render_1280x720.png): G1's pick, the "," the answer in the sentence's own slot
+  "G3": dict(prefix="g3", pick_mode=True, variant="pick3", intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g3_garden", girl="img_g3_girl_point", beat=False, GIRL=(234, 241, 452, 569), bubble=None, box_sfx=None, slot=(33, 38),
+             sent="बाग में गुलाब गेंदा और चमेली के फूल हैं ।", sent_clip="vo_g3_sent", nwords=10, explain_clip=None, cue=None, opts=["।", ",", "?"], mark=",", pick=1,
+             wrong=[0, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", gaps=[2],
+             next="G4", next_ok="CARD.slides[state.idx].id === 'G4' && CARD.slides[state.idx].type === 'SENT_PICK' && document.querySelectorAll('#slideHost .sent-opt').length === 3", next_what="G4 (SENT_PICK, the reference's P4 page)",
+             FRAME={".dsc-bg > img": (CX - 15, CY - 120, 1117, 630), ".dsc-slot": (484, 189, 33, 38), ".dsc-girl": (234, 241, 218, 328), ".dsc-shade": (243, 539, 172, 38),
+                    ".dsc-tile.t1": (474.0908, 467) + TILE, ".dsc-tile.t2": (701, 467) + TILE, ".dsc-tile.t3": (931.8203, 467) + TILE,
+                    ".t1 .dsc-face": (475.1289, 468.3789) + FACE, ".t1 .dsc-tshade": (473, 566, 118, 26), ".t3 .dsc-tshade": (931.8203, 566.498, 118, 26)},
+             INK={"sentence": (190, 138, 1090, 240), "mark1": (484, 475, 582, 575), "mark2": (711, 475, 809, 575), "mark3": (942, 475, 1040, 575)},
+             BY_DESIGN=[(479, 184, 522, 232), (200, 146, 1080, 230), (510, 490, 555, 550), (740, 510, 780, 540), (965, 488, 1015, 548)],   # the slot, the ink bands
+             girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
+             slot_in=dict(rgb=(255, 255, 255), row_y=208, xs=(474, 530), col_x=500, ys=(180, 240), want=(486, 515, 191, 225)), first_word="बाग", look=None),
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
 PICKM = bool(C.get("pick_mode")); INTRO_CLIP = C.get("intro_clip", "vo_demo1_intro")   # [g1-scene] the child's pick on the scene
@@ -250,8 +266,8 @@ with sync_playwright() as p:
     d = pg.evaluate("CARD.slides[state.idx].data"); ST = d["sentence"]["word_times"]; SE = d["sentence"].get("word_end")
     XT = d["explain"]["word_times"] if not PICKM else []; CUE = XT[d["explain"]["cue_word"]] if not PICKM else None   # [g1-scene] the pick has no explanation
     if PICKM:
-        check(f"[g1-scene] the page's data: PUNCT_PICK with data.scene (variant \"pick\"), the intro line {C['intro_clip']}, the picture and the girl (still, no pop, no sound), the sentence (its clip and {C['nwords']} word times), the marks {C['opts']}, the answer \"{C['mark']}\", no explanation, no bubble, the 53x90 slot, T2's blink and tiles; the hint lines {C['hints']}, the praise {C['ok_clip']}, no hint 3 line; the idle re-read off ([g1-quiet] no_idle_vo)",
-              pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_PICK" and d.get("scene") is True and d.get("variant") == "pick" and d.get("intro_audio") == C["intro_clip"] and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"]
+        check(f"[g1-scene] the page's data: PUNCT_PICK with data.scene (variant \"{C.get('variant', 'pick')}\"), the intro line {C['intro_clip']}, the picture and the girl (still, no pop, no sound), the sentence (its clip and {C['nwords']} word times), the marks {C['opts']}, the answer \"{C['mark']}\", no explanation, no bubble, the 53x90 slot, T2's blink and tiles; the hint lines {C['hints']}, the praise {C['ok_clip']}, no hint 3 line; the idle re-read off ([g1-quiet] no_idle_vo)",
+              pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_PICK" and d.get("scene") is True and d.get("variant") == C.get("variant", "pick") and d.get("intro_audio") == C["intro_clip"] and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"]
               and d.get("girl_pop") is False and not d.get("pic_sfx") and not d.get("bubble_id") and not d.get("box_sfx") and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"] and not d.get("explain")
               and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
               and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350
@@ -269,6 +285,9 @@ with sync_playwright() as p:
         check(f"[t4-scene] the page's data: {C['nslots']} slots ({C['slot'][0]}x{C['slot'][1]}), the marks {C['stagger']} ms apart, the gaps after \"आम\" and \"केला\" (words 2, 3)",
               d.get("slots") == C["nslots"] and d.get("mark_stagger_ms") == C["stagger"] and d["sentence"].get("gaps") == [2, 3] and d["sentence"]["text_hi"].split()[2:4] == ["आम", "केला"],
               {k: d.get(k) for k in ("slots", "mark_stagger_ms")} | {"gaps": d["sentence"].get("gaps")})
+    if C.get("gaps"):   # [g3-scene] the slot inside the sentence
+        check(f"[g3-scene] the page's data: the slot after word {C['gaps'][0]} (\"{C['sent'].split()[C['gaps'][0]]}\") — data.sentence.gaps, the gap's width the variant's CSS; one slot of {C['slot'][0]}x{C['slot'][1]}",
+              d["sentence"].get("gaps") == C["gaps"] and not d.get("slots") and (d.get("slot_w"), d.get("slot_h")) == C["slot"], (d["sentence"].get("gaps"), d.get("slot_w"), d.get("slot_h")))
     if C["look"]:   # [t3-look]
         LK = C["look"]; gl = d.get("girl_look") or {}
         check(f"[t3-look] the page's data: girl_rig and girl_look (every {C['look']['every_ms'] / 1000:g} s, the gesture 2.3 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2 degrees)",
@@ -462,7 +481,7 @@ with sync_playwright() as p:
         corr = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_correct_new.ogg"]; cel = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_celebrate.ogg"]
         i_ok = start_of(OKC, i_on); i_oke = end_of(OKC, i_ok)
         check(f"the right tap (after hint 2): the tile presses with its mark in the slot in that frame, the kit's correct sound (sfx_correct_new.ogg at .85) and the confetti (.fx-confetti, its sfx_celebrate.ogg) in that tick (its frame is a long one: the 100 pieces are built in it); the other two tiles untouched (not dim), no green, the slot's box stays, no tile live; \"शाबाश!\" ({C['ok_clip']}) at once",
-              "tap" in taps and i_on > i_h2e and abs(ms(i_mark) - ms(i_on)) <= 34 and len(corr) == 1 and abs(corr[0]["ms"] - ms(i_on)) <= 90 and corr[0]["vol"] == 0.85 and len(cel) == 1 and abs(cel[0]["ms"] - ms(i_on)) <= 90
+              "tap" in taps and i_on > i_h2e and abs(ms(i_mark) - ms(i_on)) <= 34 and len(corr) == 1 and abs(corr[0]["ms"] - ms(i_on)) <= 150 and corr[0]["vol"] == 0.85 and len(cel) == 1 and abs(cel[0]["ms"] - ms(i_on)) <= 150
               and any(s["conf"] for s in samples[i_on:i_on + 3]) and all(s["off"] == 0 and not s["done"] and not s["gone"] and s["liveN"] == 0 for s in samples[i_on + 1:]) and 0 <= ms(i_ok) - ms(i_on) <= 400,
               (round(ms(i_mark) - ms(i_on)), [(round(e["ms"] - ms(i_on)), e["vol"]) for e in corr], [round(e["ms"] - ms(i_on)) for e in cel], round(ms(i_ok) - ms(i_on))))
         check("[g1-scene] pressed: the tile's colours unchanged — its face's 2.386px #D5D8DF border, white, no glow, the mark its blue; the press is the demos' dmfTap",

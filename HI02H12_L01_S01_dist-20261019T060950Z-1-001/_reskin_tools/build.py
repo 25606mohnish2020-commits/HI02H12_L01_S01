@@ -543,24 +543,43 @@ gl3 = json.loads((SCR / "g3_assets" / "vo_g3_sent.words.json").read_text(encodin
 i_g3 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "G3")
 assert card["slides"][i_g3]["type"] == "EVIDENCE_QA" and card["slides"][i_g3]["phase"] == "guided", "G3 is not the guided reading pick"
 assert gl3["shown"].split()[2:4] == ["गुलाब", "गेंदा"], "G3: the slot no longer follows गुलाब"
+# [g3-scene] (asked 2026-11-02): G3 is now frame 716:1262 "11 G3" — G1's scene pick ([g1-scene]: the PUNCT_SCENE module's pick
+# mode, type PUNCT_PICK + data.scene, variant "pick3", card class dsc-v-pick3) with the "," the answer, landing in the sentence's
+# OWN slot (T4's in-sentence slot: data.sentence.gaps names the word the gap follows, the gap's width and the slot's place are the
+# variant's CSS), in place of the [pick-fig] page on the PUNCT_DEMO module (frame 528:424's title bar, picture box, sentence bar,
+# its per-side-dashed small slot and data.layout go with it; img_g3_flowers stays in the dist, unused). The frame: T2's card
+# (96,106 1088x508) filled by a garden picture ("image 284", 1671x941 — T2's hallway bitmap's size, a different picture; drawn at
+# -15,-120 1117x630 of the card, cover — the box's aspect is the bitmap's to 0.2%, so nothing to speak of is cropped); the girl
+# pointing at the flowers ("image 283", 1024x1536, at 138,135 218x328 of the card) on her ellipse (810:14, 147,433 172x38, #97CF28
+# at .4); the sentence 807:6 "बाग में गुलाब    गेंदा और चमेली के फूल हैं ।" (Baloo 2 ExtraBold 55 #012F76, centred in a 893 box at
+# 98,36 of the card, with a four-space run after गुलाब where the white slot 807:7 33x38 sits at 388,83 — 2px dashed
+# rgba(86,86,86,.85), 8px corners; the sentence already ending with its danda); the tiles । , ? (T2's order, faces and mark
+# offsets) at 474.09 / 701 / 931.82, 467 over opaque #97CF28 ellipses (118x26 at y 566, on the grass); its own Swiftie 716:1454
+# (not used: T1's standing Swiftie and chip, as T2-T4 / G1 / G2); a hidden title bar and a hidden "image 218". The flow is G1's to
+# the letter (the module unchanged): the instruction line vo_g1_intro over the picture and the girl, standing; 0.5 s later the
+# sentence rising whole with the small slot popping in and T1's text pop; its RECORDED clip vo_g3_sent with the ten words lit
+# (the danda a word of its own), once ([g1-quiet]: no idle re-read, the chip says the instruction line again); the 7 s blink with
+# the tiles popping in one by one, each the child's as it pops; a wrong tile's wiggle + buzz + the hint ladder (hint 1, hint 2, the
+# hand on the 3rd); the right tile (",", the middle one) pressed, its comma in the slot (its ink centred) with the correct sound,
+# the confetti and "शाबाश!", G4 1 s later.
 card["slides"][i_g3] = {"id": "G3", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
-    "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g3_flowers",
-             # the space before the closing danda ("हैं ।") is 4.5px narrower in the render, as on T4: measured word by word,
-             # every word 2-3px left of the render and the danda 4.5px right of the rest without the nudge
+    "data": {"scene": True, "variant": "pick3", "intro_audio": "vo_g1_intro", "bg_id": "img_g3_garden", "image_id": "img_g3_girl_point", "girl_pop": False,   # the frame's garden and girl, standing from the first frame
+             "slot_w": 33, "slot_h": 38,   # the frame's small slot, inside the sentence
              "sentence": {"text_hi": gl3["shown"], "audio": "vo_g3_sent", "word_times": [t[0] for t in gl3["word_times"]], "word_end": gl3["word_times"][-1][1],
-                          "gaps": [2], "gap_spaces": 4, "nudge": {"3": 4.1}},   # [baloo-font] the gap's old ink width (37.1 px) in Baloo 2 at 48 px: गेंदा out 4.1 px; no danda nudge (was {"9": -4.5})   # [baloo-font] the gap's old ink width in Baloo 2; no danda nudge (was {"9": -4.5})
-             "mark": ",", "mark_audio": "vo_demo3_alp", "mark_size": 48,
-             "slots": [{"x": 279.3, "y": 70, "w": 33, "h": 38, "dash_h": [4.5, 9.5, 5, 9.5, 4.5], "dash_v": [5, 10, 8, 10, 5]}],
-             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500,
-             "layout": {"pic_x": 144, "img": [146, 211, 140, 140], "bar": [312, 824],
-                        "sent": {"x": -26.2, "y": 33, "w": 893, "size": 48, "lh": 84, "ws": 0}}},   # [baloo-font] 50 -> 48 px (and the stamped comma, mark_size): at 50 Baloo 2 ExtraBold's sentence ran to 16 px from the bar's end, at 48 it is as wide as the Noto one was (754 px); x -28 -> -26.2 keeps its old centre; the slot 278 -> 279.3, 1 px after गुलाब as before
+                          "gaps": [2]},   # the slot sits after गुलाब (word 2): the gap's width is the variant's CSS (.dsc-gap)
+             "mark": ",", "mark_audio": "vo_demo3_alp",   # ([vo-rec] sets the name, the praise and the hint lines below)
+             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
+             "no_idle_vo": True},   # [g1-quiet] as G1: the sentence's clip and its word light play once
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g3_sent"] = "assets/Audio/vo_g3_sent.ogg"
 card["assets"]["audio_text"]["vo_g3_sent"] = gl3["text"]
 card["assets"]["image"]["img_g3_flowers"] = "assets/Images/img_g3_flowers.webp"
 card["_emoji_fallback"]["img_g3_flowers"] = "✏️"
+card["assets"]["image"]["img_g3_garden"] = "assets/Images/img_g3_garden.webp"   # [g3-scene] the frame's "image 284" fill (1671x941, q90)
+card["assets"]["image"]["img_g3_girl_point"] = "assets/Images/img_g3_girl_point.webp"   # [g3-scene] the frame's "image 283" fill (1024x1536, q90, alpha exact)
+card["_emoji_fallback"]["img_g3_garden"] = "🌳"; card["_emoji_fallback"]["img_g3_girl_point"] = "✏️"
 # [sent-fig] G4 = the reference game's Page 11 (P4 of https://hi-02-h04-l01-s01-dun.vercel.app/, a picture-to-sentence question):
 # its layout, elements and flow with this lesson's picture (the girl flying a kite, framed like P4's by g4_picture.py), title
 # "सही विराम चिह्न वाला वाक्य चुनिए ।" and three sentences that differ only in where the danda sits — type SENT_PICK, in place of the
@@ -1234,7 +1253,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
         each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before.
      [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene, variant "pick") runs on this module as the CHILD's pick
-        — and since [g2-scene] G2 too (frame 716:1058 "10 G2", variant "pick2", the "?" the answer; its geometry the CSS's):
+        — and since [g2-scene] / [g3-scene] G2 and G3 too (frames 716:1058 "10 G2", variant "pick2", the "?" the answer, and
+        716:1262 "11 G3", variant "pick3", the "," landing in the sentence's own slot: data.sentence.gaps as T4's; the geometry the CSS's):
         stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
         frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
         the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
@@ -2391,7 +2411,7 @@ js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: stamp_mod + m.group(0), re.M
 js = sub1(js, r"^SlideModules\.MATCH_PAIRS           = SlideModules\.MATCH_THE_PAIR;",
           lambda m: m.group(0) + "\nSlideModules.SORT_WORDS            = SlideModules.SORT_QTYPE;   // [reskin] generic two-box word sort (custom data.bins), r4n", re.M, "alias block")
 js = sub1(js, r"^SlideModules\.SORT_WORDS .*$",
-          lambda m: m.group(0) + "\nSlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] G3: the run-on demo's page with the tap left to the child; [g1-scene] G1 — and [g2-scene] G2 — (data.scene): the scene module's page, its tiles the child's", re.M, "alias block (pick)")
+          lambda m: m.group(0) + "\nSlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] the run-on demo's page with the tap left to the child (no page now); [g1-scene] G1, [g2-scene] G2 and [g3-scene] G3 (data.scene): the scene module's page, its tiles the child's", re.M, "alias block (pick)")
 js = sub1(js, r'  SEQUENCE_DRAG: "drag",',
           lambda m: m.group(0) + '\n  EVIDENCE_QA: "mcq", BUILD_PUNCT: "build", SORT_QTYPE: "drag", SORT_WORDS: "drag", PUNCT_PICK: "mcq", SENT_PICK: "mcq",   /* [reskin] this lesson\'s answerable types */', 0, "QUESTION_FORMAT")
 # [sent-fig] G4, P1 + P2 (SENT_PICK) repeat their instruction after every 5 s of quiet itself (the reference P4's rule), so the engine's
@@ -2927,7 +2947,17 @@ scene_css += r"""
 .dsc-v-pick2 .dsc-girl{left:826px;top:109px;width:236px;height:354px;}
 .dsc-v-pick2 .dsc-girl > img{width:236px;height:354px;}
 .dsc-v-pick2 .dsc-shade{left:35px;top:307px;width:145px;height:38px;background:rgba(233,149,96,.41);}   /* her ellipse 750:2551: #E99560 at .41 */
-""".replace("__GAP__", "33").replace("__QSX__", "495").replace("__QSY__", "118").replace("__PSX__", "635.5").replace("__PSY__", "116")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
+/* ===== [g3-scene] G3 = frame 716:1262 "11 G3" on the scene module: the "pick3" variant (.dsc-v-pick3) — G1's page with the frame's own geometry, the slot inside the sentence ===== */
+.dsc-v-pick3 .dsc-bg > img{left:-27px;top:-132px;width:1117px;height:630px;object-fit:cover;}   /* the garden: the box's aspect is the bitmap's to 0.2% */
+.dsc-v-pick3 .dsc-sent{left:__RSX__px;top:__RSY__px;}   /* the box's centre 532.5,68 of the padding box: Chrome's Baloo ink sat 0.5 px right and 3 px above the render's there (measured, word by word; every word within 1 px, the gap 33 as T4's) */
+.dsc-v-pick3 .dsc-sent .dsc-gap{margin-right:__RGAP__px;}   /* the frame's four-space run after गुलाब, where the slot sits */
+.dsc-v-pick3 .dsc-slot{left:376px;top:71px;width:33px;height:38px;}   /* the frame's small slot, white */
+.dsc-v-pick3 .dsc-tile{top:349px;} .dsc-v-pick3 .dsc-tile.t1{left:366.09px;} .dsc-v-pick3 .dsc-tile.t2{left:593px;} .dsc-v-pick3 .dsc-tile.t3{left:823.82px;}
+.dsc-v-pick3 .dsc-tshade{background:#97CF28;}   /* the frame's tile ellipses: opaque #97CF28 on the grass */
+.dsc-v-pick3 .dsc-girl{left:126px;top:123px;width:218px;height:328px;}
+.dsc-v-pick3 .dsc-girl > img{width:218px;height:328px;object-fit:cover;}
+.dsc-v-pick3 .dsc-shade{left:21px;top:310px;width:172px;height:38px;background:rgba(151,207,40,.4);}   /* her ellipse 810:14: #97CF28 at .4 (it reaches 8 px below her box) */
+""".replace("__GAP__", "33").replace("__QSX__", "495").replace("__QSY__", "118").replace("__RSX__", "533").replace("__RSY__", "71").replace("__RGAP__", "33").replace("__PSX__", "635.5").replace("__PSY__", "116")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
 # [t3-look] the girl's layers: every layer fills her box and windows her bitmap (so at rest the composite IS the painting), each
 # masked by its sheet from girl_rig.py (demo2_assets/girl_rig/, inlined here); the eyes' discs / irises and the elbow pivot in her
 # box px (the 257x385 box over the 1024x1535 bitmap). The glance = three CSS animations on .look, all every_ms long and in step:
@@ -4014,7 +4044,7 @@ for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_girl_bag.webp", "Images"
 # ---------- 7i. [pick-fig] G3's sentence clip and picture (g3_assets/: recap_vo.py g3; the frame's "image 233"; its title bar
 #               is G1's to the pixel, its instruction vo_g1_intro, its name on the right tap T4's vo_demo3_alp) ----------
 G3_SRC = SCR / "g3_assets"
-for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images")):
+for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images"), ("img_g3_garden.webp", "Images"), ("img_g3_girl_point.webp", "Images")):   # [g3-scene] + the frame's garden and girl
     f, dst = G3_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing G3 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)

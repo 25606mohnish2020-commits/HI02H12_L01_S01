@@ -6418,7 +6418,8 @@ const SlideModules = {
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
         each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before.
      [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene, variant "pick") runs on this module as the CHILD's pick
-        — and since [g2-scene] G2 too (frame 716:1058 "10 G2", variant "pick2", the "?" the answer; its geometry the CSS's):
+        — and since [g2-scene] / [g3-scene] G2 and G3 too (frames 716:1058 "10 G2", variant "pick2", the "?" the answer, and
+        716:1262 "11 G3", variant "pick3", the "," landing in the sentence's own slot: data.sentence.gaps as T4's; the geometry the CSS's):
         stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
         frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
         the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
@@ -8083,7 +8084,7 @@ SlideModules.SORT_VACHAN           = SlideModules.SORT_GENDER;
 SlideModules.MATCH_VACHAN_PAIRS    = SlideModules.MATCH_THE_PAIR;   // rebuilt as the tap-to-pair bubble game
 SlideModules.MATCH_PAIRS           = SlideModules.MATCH_THE_PAIR;
 SlideModules.SORT_WORDS            = SlideModules.SORT_QTYPE;   // [reskin] generic two-box word sort (custom data.bins), r4n
-SlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] G3: the run-on demo's page with the tap left to the child; [g1-scene] G1 — and [g2-scene] G2 — (data.scene): the scene module's page, its tiles the child's
+SlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] the run-on demo's page with the tap left to the child (no page now); [g1-scene] G1, [g2-scene] G2 and [g3-scene] G3 (data.scene): the scene module's page, its tiles the child's
 
 /* ---------- 13. CONTROLLER ---------- */
 /* FLN toolkit retune: fewer particles, lower launch speed and a much longer,
