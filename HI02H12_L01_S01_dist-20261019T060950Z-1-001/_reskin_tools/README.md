@@ -2264,6 +2264,58 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Page 9 G1: the girl stays still — a ball bounce was built and withdrawn ([g1-ball] -> [g1-still], 2026-11-02)
+- Asked: "At Page 9 G1 when the options appear the girl standing should show an animation of playing with the ball and thumping
+  the ball on the ground with this sound effect synced (freesound_community-bowling-ball-90863 (1).mp3), then looking back to the
+  screen ... repeat after every 7 seconds". The ball hid her far arm, so the user chose (asked) to have what it uncovers PAINTED;
+  girl_rig_g1.py built it (the ball as its own image, completed panel by panel from its white cap, a rest and a clean version
+  crossfaded; the painted bodice / skirt / arm / cupped hand; the hands in front; the thump on each floor contact read off the
+  ball's own animation clock). Then: "No remove the ball animation from page 9 G1, keep the page without any animation of the girl
+  at this page; rest keep everything exactly the same." So nothing of it ships: build.py and scene_check.py are back to
+  `../_before_g1_ball/` (the [t4-basket] state) and the dist's three files are byte-identical to that build's (checked with cmp);
+  the copied sfx_g1_ball_thump.mp3 is gone from the dist. girl_rig_g1.py, g1_assets/girl_rig/ and g1_assets/sfx_g1_ball_thump.mp3
+  stay on disk, unused; `../_before_g1_still/` holds the ball build (the dist's files, build.py, scene_check.py).
+
+Page 8 T4: the girl looks into her basket as the options appear, every 7 s ([t4-basket], 2026-11-02)
+- Asked: "At Page 8 T4 when the options appear then the girl standing should show an animation of looking inside the fruit basket
+  by raising the fruit basket a little bit she is carrying it in a suitable animation and then looking back to the screen in the
+  exact same position as shown and this animation should repeat after every 7 seconds. Perfect and smooth without any unclear and
+  disturbed animation around and of the girl. Apply this at page 8 T4; rest keep everything exactly the same."
+- The look (T4's data.girl_look on data.girl_rig "basket"; the module's .look, added as the FIRST tile pops — the stage-4 hook T3's
+  glance uses): one 7 s cycle whose first 2.4 s is the move, in her 224x336 box — the basket with both hands rises 3.5 px (16
+  bitmap px) over 0.65 s (eased both ends), holds to 1.75 s, is down by 2.35 s; her forearm (the viewer's left) SHEARED about the
+  elbow's vertical line on the same stops, so its wrist end rises exactly with the hand (lockstep, measured 0.013 px); her head
+  with both braids and the eyes dips 1.5 px from 0.15 s to 0.7 s, up by 2.25 s; her irises drop into the basket (0.33, 1.31 px)
+  by 0.48 s, drift over the fruit (0.88, 1.31) by 1.3 s and are back as painted — looking at the screen — by 2.05 s, before the
+  basket has settled; the rest of the cycle she is the painting; it repeats until the child's tap (lookOff waits for a rest
+  phase, reading data.girl_look.anim's clock). The tiles, the blink, the explanation, the taps: unchanged.
+- The rig (girl_rig_t4.py -> demo3_assets/girl_rig/, inlined as data URIs, masks once each via --m): .dsc-brig = the patch behind
+  what the motion uncovers, the body (with the hole), the forearm, the elbow's fold (static, over the forearm: it tucks under the
+  crease), the head group (the head above the jaw's cut WITH both braids and bobbles — no cut crosses any hair — and the eyes as
+  girl_rig.py's: interior windows, sclera discs, completed irises), the basket with the fruits, the handle and both hands; the
+  head group is under the basket, so the braid tip slides behind the handle. Segmentation: the dress as a FLOOD through its pinks
+  (hue < -14: the sleeves' dark-magenta outlines are the dress's, the apple's red is not), its white work and the white-pink
+  blends (else the basket's flood took the motif's rims and they rose with the handle as dotted ghosts); skin by saturation
+  (0.40-0.61) — the basket's weave and handle (0.62-0.98) share its hue; her other arm, seen inside the handle's arc, its own
+  static flood (seeded below the handle); the braid tip kept out of the basket by a polygon along the handle's outer edge; the
+  moving masks take 2 px of the dress / her arm next to them (their outlines' blends: no line left behind). The patch: each
+  uncovered band COPIED from the static picture just past it — below for the lift, above for the dip — by its thickness (one
+  offset per band, so neighbouring columns agree), along the two measured slanted edges (the dress's right edge x = 0.385 y +
+  416.1, her other arm's right edge), Poisson-matched to the static picture at every seam; a harmonic fill where nothing static
+  is within 4 px (the head's top: clear). Tried and dropped on the zooms: a per-column mirror (it fragmented the bodice's motif
+  and stair-stepped the pleats), a cut through the braids (it stepped their silhouette as the head dipped), box-shaped bobbles
+  (they took the sleeves' corners; now six measured spheres). At rest the layers give the painting back within 8.4 levels (the
+  model); in Chrome the irises re-sample against the plain image (273 px over 24 levels at 1x) exactly as T3's live rig does
+  (256 px) — the plain image is never shown: every cycle returns to the rig's own rest frame. style.css +167 KB (the sheets).
+- Built: build.py [t4-basket] — LOOK4 from rig.json (T4's data: girl_rig "basket", girl_look: every / active ms, anim, lift_px,
+  dip_px, shear_deg, elbow_x, gaze), the module (the rig's markup for girl_rig "basket", the T3 markup untouched; lookOff reads
+  look.anim || "dscLookArm"; the warm-up finds .dsc-gbody or .dsc-bbody), the CSS (the layers; dscBasketLift / Fore / Head / Eye
+  from ms stops), `import math`. T3's data, markup and CSS unchanged (its glance runs as before).
+- Checked: scene_check.py T4 52/52 (new [t4-basket] lines: the data, the rig at mount, .look at the first tile's pop, the warm-up,
+  the lockstep, the lift / dip / gaze amounts and times, smoothness, the 7 s period, the cold start, the rest at the tap; a "by"
+  time allows the one frame it is first seen in), T3 47/47, T2 37/37, G1 42/42, smoke.py 53/53, word_sync_check T2-G3 none off;
+  frame seeks in Chrome at 3x (the animations paused and sought). `../_before_t4_basket/` holds the [t2-quiet] dist and tools.
+
 Page 6 T2: no school sound, no pop of the girl, no wave ([t2-quiet], 2026-11-02)
 - Asked first: "At page 6 T2 remove the sound effect and the pop animation of the girl synced with it; instead, before the options
   appear, the girl should look towards the screen and wave her one hand as if saying bye ... repeat every 7 seconds ... Apply this

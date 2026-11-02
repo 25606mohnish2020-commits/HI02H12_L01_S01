@@ -36,7 +36,8 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    Then, on both: the sentence's clip 0.45 s after the rise, each word lit as it is read ([word-sync]); T2: 0.3 s after the clip the
    school sound (sfx_demo1_school.mp3 at .5) for data.pic_sfx_ms, full until its last 0.4 s, faded then and paused at its end, the girl
    giving her small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and
-   after ([t2-quiet] 2026-11-02: T2 no longer — it takes T3's path below); T3 ([t3-girl]): no school sound and no pop at all, the girl still (opacity 1, transform none) in every frame; 0.3 s after
+   after ([t2-quiet] 2026-11-02: T2 no longer — it takes T3's path below; [t4-basket] T4's girl looks into her basket from the first
+   tile's pop, every 7 s: the data, her layers, the lift / the forearm in lockstep / the dip / the eyes, smoothness, the period, the rest at the tap); T3 ([t3-girl]): no school sound and no pop at all, the girl still (opacity 1, transform none) in every frame; 0.3 s after
    the sound (T3: after the sentence's clip) the slot blinks (data.blink_ms = 7 s in data.blink_cycle_ms = 1.75 s cycles, [t2-scene5]: the WHOLE box, in its
    orange look — the ring the words' orange, the fill the slot's own colour warmed by the orange (#FAE1CC on T2's white, #FAD692 on
    T3's yellow), the glow the pulsing tile's rgba(232,106,0,.6) 5px in every frame from 0.45 s in to the end — APPEARS and
@@ -117,7 +118,8 @@ C = {
              BY_DESIGN=[(490, 183, 688, 236), (220, 150, 1055, 218), (546, 477, 559, 523), (770, 494, 787, 516), (995, 471, 1026, 524)],   # the slots, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=[dict(rgb=(255, 255, 255), row_y=209, xs=(485, 545), col_x=524, ys=(178, 242), want=(497, 530, 190, 228)),
-                      dict(rgb=(255, 255, 255), row_y=209, xs=(635, 695), col_x=674, ys=(178, 242), want=(647, 680, 190, 228))], first_word="मेरे", look=None),   # the columns where BOTH the render and the page have a dash top and bottom (the dashes' phase differs by design); the render's white there
+                      dict(rgb=(255, 255, 255), row_y=209, xs=(635, 695), col_x=674, ys=(178, 242), want=(647, 680, 190, 228))], first_word="मेरे", look=None,
+             basket=dict(every_ms=7000, active_ms=2400, lift=3.502, dip=1.532, shear=9.6661, elbow_x=83.562, gaze=[[0.328, 1.313], [0.875, 1.313]])),   # [t4-basket] girl_rig_t4.py; the amounts in her 224x336 box   # the columns where BOTH the render and the page have a dash top and bottom (the dashes' phase differs by design); the render's white there
   # [g1-scene] G1 = frame 715:856 (render g1b_figma_render_1280x720.png): the child's pick on the scene — the room picture drawn whole
   # at -3,-3 1095x514.872 of the card, the girl with the ball 229,163 252x378 on her ellipse 250,501 158x34, the white slot 995,186
   # 53x90, the tiles at T4's columns on T2's row
@@ -192,6 +194,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     gate: !!document.getElementById('phaseGate') && document.getElementById('phaseGate').classList.contains('show'),
     pop: !!g && g.classList.contains('pop'), gOp: gc ? +(+gc.opacity).toFixed(3) : null, gTf: gc ? gc.transform : null,
     look: !!g && g.classList.contains('look'), warm: !!g && g.classList.contains('warm'), arm: q('.dsc-garm') ? getComputedStyle(q('.dsc-garm')).transform : null, iris: q('.dsc-giris') ? getComputedStyle(q('.dsc-giris')).transform : null, lean: q('.dsc-grig') ? getComputedStyle(q('.dsc-grig')).transform : null,
+    bkLift: q('.dsc-bbasket') ? getComputedStyle(q('.dsc-bbasket')).transform : null, bkFore: q('.dsc-bfore') ? getComputedStyle(q('.dsc-bfore')).transform : null,
+    bkHead: q('.dsc-bhead') ? getComputedStyle(q('.dsc-bhead')).transform : null, bkIris: [...qa('.dsc-biris')].map(e => getComputedStyle(e).transform),
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
     tTf: [...qa('.dsc-tile')].map(t => getComputedStyle(t).transform), tAn: [...qa('.dsc-tile')].map(t => getComputedStyle(t).animationName),
     faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
@@ -304,6 +308,27 @@ with sync_playwright() as p:
               rig["n"] == 5 and rig["cls"] == ["dsc-gbody", "dsc-geye", "dsc-geye", "dsc-garm", "dsc-gpatch"] and all(rig["masked"]) and rig["wins"] == 5 and rig["same"] and rig["box"]
               and len(rig["fills"]) == 2 and all(f.startswith("rgb(25") for f in rig["fills"]) and rig["irises"] == [True, True] and rig["origin"] == "188.91px 143.89px" and rig["leanOrigin"] == "128.5px 378.84px"
               and not rig["plainImg"] and rig["still"] and not rig["look"] and rig["promoted"], rig)
+    if C.get("basket"):   # [t4-basket]
+        BK = C["basket"]; gl = d.get("girl_look") or {}
+        check(f"[t4-basket] the page's data: girl_rig \"basket\" and girl_look (every {BK['every_ms'] / 1000:g} s, the gesture {BK['active_ms']} ms, the lift {BK['lift']} px, the dip {BK['dip']} px, the forearm's shear {BK['shear']} degrees about x {BK['elbow_x']}, the gaze {BK['gaze']}; the clock dscBasketLift); no glance data",
+              d.get("girl_rig") == "basket" and gl.get("every_ms") == BK["every_ms"] and gl.get("active_ms") == BK["active_ms"] and gl.get("anim") == "dscBasketLift"
+              and all(abs(gl.get(k, -1) - BK[v]) < 0.002 for k, v in (("lift_px", "lift"), ("dip_px", "dip"), ("shear_deg", "shear"), ("elbow_x", "elbow_x")))
+              and gl.get("gaze") == BK["gaze"] and not d.get("pic_sfx") and d.get("girl_pop") is False, gl)
+        rig = pg.evaluate("""() => { const q = (s) => document.querySelector(s), cs = (e) => getComputedStyle(e), g = q('.dsc-girl').getBoundingClientRect();
+          const masked = (e) => { const c = cs(e); return (c.maskImage || c.webkitMaskImage || '').startsWith('url("data:image/png') && (c.maskSize || c.webkitMaskSize) === '100% 100%'; };
+          const L = [...document.querySelectorAll('.dsc-brig > *')], Hd = [...document.querySelectorAll('.dsc-bhead > *')], imgs = [...document.querySelectorAll('.dsc-brig img')];
+          return { cls: L.map(e => e.className.split(' ')[0]), head: Hd.map(e => e.className.split(' ')[0]),
+            masked: ['.dsc-bbody', '.dsc-bfore', '.dsc-belbow', '.dsc-bheadw', '.dsc-beye.e1', '.dsc-beye.e2', '.dsc-bbasket'].map(s => !!q(s) && masked(q(s))),
+            under: cs(q('.dsc-bunder')).backgroundImage.startsWith('url("data:image/png'), wins: imgs.length, same: imgs.every(i => i.getAttribute('src') === q('.dsc-bbody').getAttribute('src')),
+            box: [...document.querySelectorAll('.dsc-brig, .dsc-brig > *, .dsc-bhead > *')].every(e => { const r = e.getBoundingClientRect(); return Math.abs(r.width - g.width) < 0.5 && Math.abs(r.height - g.height) < 0.5 && Math.abs(r.left - g.left) < 0.5 && Math.abs(r.top - g.top) < 0.5; }),
+            fills: [...document.querySelectorAll('.dsc-bfill')].map(e => cs(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-biris')].map(e => cs(e).backgroundImage.startsWith('url("data:image/png')),
+            origin: cs(q('.dsc-bfore')).transformOrigin, plainImg: !!q('.dsc-girl > img'), t3rig: !!q('.dsc-grig'),
+            still: ['.dsc-bfore', '.dsc-bbasket', '.dsc-bhead', '.dsc-biris'].every(s => ['none', 'matrix(1, 0, 0, 1, 0, 0)'].includes(cs(q(s)).transform)), look: !!q('.dsc-girl.look'),
+            promoted: ['.dsc-bfore', '.dsc-bbasket', '.dsc-bhead', '.dsc-biris'].every(s => cs(q(s)).willChange === 'transform') }; }""")
+        check("[t4-basket] the rig: in .dsc-brig the patch, the body, the forearm, the elbow's fold, the head group (its window and the two eyes), the basket — every one her box; the windows (7) the same bitmap, masked by data-URI sheets at 100% 100%, the patch its own data-URI image; the sclera discs and the irises in place; the forearm's origin on the elbow's line; no plain image, not T3's rig; all at rest at mount and composited",
+              rig["cls"] == ["dsc-bunder", "dsc-bbody", "dsc-bfore", "dsc-belbow", "dsc-bhead", "dsc-bbasket"] and rig["head"] == ["dsc-bheadw", "dsc-beye", "dsc-beye"] and all(rig["masked"]) and rig["under"]
+              and rig["wins"] == 7 and rig["same"] and rig["box"] and len(rig["fills"]) == 2 and all(f.startswith("rgb(25") for f in rig["fills"]) and rig["irises"] == [True, True]
+              and rig["origin"] == f"{BK['elbow_x']:.2f}px 0px" and not rig["plainImg"] and not rig["t3rig"] and rig["still"] and not rig["look"] and rig["promoted"], rig)
     if C["intro"]:
         pg.wait_for_function(f"isPlaying && currentAudio && currentAudio.src.includes('{INTRO_CLIP}.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
     else: pg.wait_for_timeout(600)
@@ -556,6 +581,57 @@ with sync_playwright() as p:
         ph = (ms(i_done) - t0) % EV
         check(f"[t3-look] after the tap the class leaves only in a REST phase: every transform at identity in the frames around its going, which comes {'at once' if ph >= AC else 'once the running gesture has ended'} (within active_ms + 120 ms of the tap) and before the page leaves",
               i_lke >= i_done and rest_at_off and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["look"] for s_ in samples[i_lke:]), (round(ms(i_lke) - ms(i_done)), round(ph), rest_at_off))
+    if C.get("basket"):   # [t4-basket] the look into the basket on the timeline
+        import math
+        BK = C["basket"]; EV, AC = BK["every_ms"], BK["active_ms"]   # (a "by" time allows the one frame it is first seen in: +25 ms)
+        num = lambda tf: [float(v) for v in re.findall(r"-?[\d.e+-]+", tf)] if tf and tf != "none" else [1, 0, 0, 1, 0, 0]
+        lift = lambda s_: -num(s_["bkLift"])[5]                                   # translateY(-L): matrix(1, 0, 0, 1, 0, -L)
+        wrist = lambda s_: -num(s_["bkFore"])[1] / math.tan(math.radians(BK["shear"])) * BK["lift"]   # skewY(a): matrix(1, tan a, 0, 1, 0, 0) — the wrist end's rise
+        dip = lambda s_: num(s_["bkHead"])[5]
+        gz = lambda s_, k=0: tuple(num(s_["bkIris"][k])[4:6]) if s_["bkIris"] else (0, 0)
+        tiny = lambda s_: abs(lift(s_)) < 0.01 and abs(wrist(s_)) < 0.01 and abs(dip(s_)) < 0.01 and max(abs(v) for v in gz(s_) + gz(s_, 1)) < 0.01
+        i_t1 = first(lambda s_: s_["tilesIn"] >= 1); i_lk = first(lambda s_: s_["look"])
+        check("[t4-basket] .look starts in the frame the FIRST tile pops (\"when the options appear\"): no move before it — every transform identity (the warm-up's thousandths aside)",
+              abs(i_lk - i_t1) <= 1 and not any(s_["look"] for s_ in samples[:i_t1]) and all(tiny(s_) for s_ in samples[:i_t1])
+              and all(lift(s_) == 0 and dip(s_) == 0 and gz(s_) == (0, 0) for s_ in samples[:i_t1] if not s_["warm"]), (round(ms(i_lk) - ms(i_t1)), i_t1, i_lk))
+        wf = [k for k in range(i_t1) if samples[k]["warm"]]; runs_w = sum(1 for k in wf if k - 1 not in wf)
+        check("[t4-basket] the GPU warm-up: .warm once, 0.4-1 s after the page's first sampled frame and before the slots, 0.1-0.25 s long, the layers moved by thousandths only",
+              bool(wf) and runs_w == 1 and 400 <= ms(wf[0]) - ms(0) and ms(wf[-1]) < ms(i_slot) and 100 <= ms(wf[-1]) - ms(wf[0]) <= 250 and all(tiny(samples[k]) for k in wf) and any(lift(samples[k]) != 0 for k in wf),
+              (round(ms(wf[0]) - ms(0)) if wf else None, round(ms(wf[-1]) - ms(wf[0])) if wf else None, runs_w, round(ms(i_slot) - ms(0))))
+        t0 = ms(i_lk)
+        cyc1 = [(ms(i) - t0, samples[i]) for i in range(i_lk, len(samples)) if ms(i) - t0 < EV]
+        at = lambda t_: next(s_ for tt, s_ in cyc1 if tt >= t_)
+        lock = max(abs(wrist(s_) - lift(s_)) for t_, s_ in cyc1)
+        check(f"[t4-basket] the forearm in lockstep with the basket: its wrist end rises exactly as the hand does (|wrist - lift| <= 0.06 px in every frame of the cycle)", lock <= 0.06, round(lock, 4))
+        pk = max(lift(s_) for t_, s_ in cyc1); held = [lift(s_) for t_, s_ in cyc1 if 650 <= t_ <= 1750]
+        ret_t = next((t_ for t_, s_ in cyc1 if t_ > 1750 and abs(lift(s_)) < 0.005), None)
+        back = [(t_, s_) for t_, s_ in cyc1 if 2400 <= t_ <= EV - 50]
+        check(f"[t4-basket] the basket (with both hands) rises {BK['lift']} px by 0.65 s, holds to 1.75 s, is down by 2.35 s, and is still to the cycle's end — never past its mark, never below its place",
+              abs(pk - BK["lift"]) <= 0.02 and held and min(held) >= BK["lift"] - 0.02 and ret_t is not None and ret_t <= 2350 + 25 and all(-0.001 <= lift(s_) <= BK["lift"] + 0.01 for t_, s_ in cyc1)
+              and back and all(tiny(s_) for t_, s_ in back), (round(pk, 3), (round(min(held), 3), round(max(held), 3)) if held else None, round(ret_t) if ret_t else None, len(back)))
+        dpk = dip(at(1200)); d_ret = next((t_ for t_, s_ in cyc1 if t_ > 1700 and abs(dip(s_)) < 0.005), None)
+        check(f"[t4-basket] the head (with both braids and the eyes) dips {BK['dip']} px by 0.7 s, holds to 1.7 s, is up by 2.25 s — never past its mark", abs(dpk - BK["dip"]) <= 0.01 and abs(dip(at(750)) - BK["dip"]) <= 0.02
+              and d_ret is not None and d_ret <= 2250 + 25 and all(-0.001 <= dip(s_) <= BK["dip"] + 0.01 for t_, s_ in cyc1), (round(dpk, 3), round(d_ret) if d_ret else None))
+        (g1x, g1y), (g2x, g2y) = BK["gaze"]
+        e1, e2 = gz(at(700)), gz(at(1450)); e_ret = next((t_ for t_, s_ in cyc1 if t_ > 1650 and gz(s_) == (0, 0) and gz(s_, 1) == (0, 0)), None)
+        check(f"[t4-basket] the eyes: into the basket ({g1x}, {g1y}) px by 0.48 s, over the fruit ({g2x}, {g2y}) by 1.3 s, back to the screen (0, 0) by 2.05 s — before the head and the basket have settled; both irises together",
+              abs(e1[0] - g1x) < 0.01 and abs(e1[1] - g1y) < 0.01 and abs(e2[0] - g2x) < 0.01 and abs(e2[1] - g2y) < 0.01 and e_ret is not None and e_ret <= 2050 + 25
+              and all(gz(s_) == gz(s_, 1) for t_, s_ in cyc1), (e1, e2, round(e_ret) if e_ret else None))
+        steps = [(abs(lift(b_) - lift(a_)), abs(dip(b_) - dip(a_)), max(abs(gz(b_)[0] - gz(a_)[0]), abs(gz(b_)[1] - gz(a_)[1]))) for (ta, a_), (tb, b_) in zip(cyc1, cyc1[1:]) if tb - ta < 40]
+        m1, m2, m3 = (max(st[k] for st in steps) for k in range(3))
+        check("[t4-basket] smooth: frame to frame the basket never moves more than 0.35 px, the head 0.2 px, an iris 0.2 px", m1 <= 0.35 and m2 <= 0.2 and m3 <= 0.2, (round(m1, 3), round(m2, 3), round(m3, 3), len(steps)))
+        on_i = [i for i in range(i_lk + 1, len(samples)) if lift(samples[i]) > 0.3 and lift(samples[i - 1]) <= 0.3]
+        onsets = [ms(i) - t0 for i in on_i]; slack = [ms(i) - ms(i - 1) for i in on_i]
+        gaps_on = [round(b_ - a_) for a_, b_ in zip(onsets, onsets[1:])]
+        check(f"[t4-basket] the look repeats every {EV} ms (its lift's onsets {EV} ms apart within 20 ms plus the frame each was seen in, at least once more before the tap)",
+              len(onsets) >= 2 and all(abs(g - EV) <= 20 + max(sa, sb) for g, sa, sb in zip(gaps_on, slack, slack[1:])), (len(onsets), gaps_on[:6], [round(x) for x in slack[:6]]))
+        long0 = [round(ms(i) - ms(i - 1)) for i in range(i_lk + 1, len(samples)) if ms(i) - t0 <= 400 and ms(i) - ms(i - 1) > 25]
+        check("[t4-basket] the first look's start on this (cold) browser: no frame over 75 ms in its first 0.4 s", all(x <= 75 for x in long0), long0)
+        i_lke = first(lambda s_: not s_["look"], i_lk)
+        rest_at_off = all(tiny(samples[k]) for k in (i_lke - 1, i_lke, i_lke + 1) if 0 <= k < len(samples))
+        ph = (ms(i_done) - t0) % EV
+        check(f"[t4-basket] after the tap the class leaves only in a REST phase (\"back in the exact same position\"): every transform at identity in the frames around its going, which comes {'at once' if ph >= AC else 'once the running look has ended'} (within active_ms + 120 ms of the tap) and before the page leaves",
+              i_lke >= i_done and rest_at_off and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["look"] for s_ in samples[i_lke:]), (round(ms(i_lke) - ms(i_done)), round(ph), rest_at_off))
     if not PICKM:   # (the pick has no pulsing tile)
         check("the pulse: dscPulse, infinite, on the whole tile, its face glowing (dscGlow) with a 3px orange border, its mark the words' orange; the dim tiles at .6 ([t2-scene2])",
               look[0] == "dscPulse" and look[1] == "infinite" and look[2] == "dscGlow" and look[3] == "rgb(232, 106, 0)" and look[4] == "3px" and look[5] == "rgb(232, 106, 0)" and look[6] == "0.6", look)
@@ -616,7 +692,7 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate("_ac()"); pg.evaluate(GOTO, PAGE)
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=40000); pg.wait_for_timeout(650)
     pg.evaluate("document.querySelectorAll('.dsc-slot').forEach(e => e.classList.remove('blink'))"); pg.wait_for_timeout(600)   # the frame draws the slot plain (its fill's .4 s transition back, [t2-scene4])
-    if C["look"]: pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 3000; } }"); pg.wait_for_timeout(100)   # [t3-look] the rig at rest (3 s into its cycle): her painting
+    if C["look"] or C.get("basket"): pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 3000; } }"); pg.wait_for_timeout(100)   # [t3-look] the rig at rest (3 s into its cycle): her painting
     shot = out / "g_frame_1280.png"; pg.screenshot(path=str(shot))
     FRAME = C["FRAME"]; boxes = pg.evaluate(BOXES, list(FRAME)); worst = 0
     print("== boxes vs the frame (px) ==")

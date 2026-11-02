@@ -6413,6 +6413,10 @@ const SlideModules = {
         glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
         by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
         a rest phase of the cycle, so she is never caught mid-move.
+     [t4-basket] With data.girl_rig "basket" (T4) the layers are girl_rig_t4.py's (.dsc-brig: the patch behind what the lift
+        uncovers, the body, the forearm, the elbow's fold over it, the head group — the head, both braids, the eyes inside it —,
+        the basket with both hands) and the same .look, as the first tile pops, runs her look into the basket (data.girl_look:
+        the amounts in her box px; lookOff reads data.girl_look.anim's clock).
      [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
@@ -6438,7 +6442,14 @@ const SlideModules = {
       // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
       // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
       const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
-      const girlHtml = d.girl_rig
+      // [t4-basket] data.girl_rig "basket" (T4): the patch behind what the lift uncovers, the body, the forearm (sheared about the
+      // elbow's line), the elbow's fold over it, the head group (the head with both braids; the eyes inside it), the basket with
+      // both hands — every window the same bitmap, masked by the CSS
+      const bwin = (c)=> '<img class="' + c + '" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
+      const basketHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-brig"><span class="dsc-bunder"></span>' + bwin("dsc-bbody") + bwin("dsc-bfore") + bwin("dsc-belbow") +
+        '<div class="dsc-bhead">' + bwin("dsc-bheadw") + [1, 2].map(k=> '<div class="dsc-beye e' + k + '">' + bwin("dsc-bwin") + '<span class="dsc-bfill"></span><span class="dsc-biris"></span></div>').join("") + '</div>' +
+        bwin("dsc-bbasket") + '</div></div>';
+      const girlHtml = d.girl_rig === "basket" ? basketHtml : d.girl_rig
         ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
           '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
           '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
@@ -6470,7 +6481,7 @@ const SlideModules = {
       const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); lookT0 = performance.now(); };
       const lookOff = ()=>{ if(lookT0 < 0) return; const every = look.every_ms || 5000, active = look.active_ms || 2300;
         let ph = (performance.now() - lookT0) % every; lookT0 = -1;
-        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscLookArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
+        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === (look.anim || "dscLookArm")); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}   // [t4-basket] T4's clock: dscBasketLift
         after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("look")); };
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
@@ -6657,7 +6668,7 @@ const SlideModules = {
       // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
       // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
       // not begun
-      if(look){ const body = girl.querySelector(".dsc-gbody");
+      if(look){ const body = girl.querySelector(".dsc-gbody, .dsc-bbody");   // [t4-basket] T4's body window too
         const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
         after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }

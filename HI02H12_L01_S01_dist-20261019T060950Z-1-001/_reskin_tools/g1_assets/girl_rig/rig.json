@@ -1,0 +1,157 @@
+{
+ "bitmap": [
+  1024,
+  1536
+ ],
+ "ball": {
+  "cx": 790.57,
+  "cy": 697.87,
+  "r": 157.74,
+  "fit_pts": 92
+ },
+ "floor_y": 1519.0,
+ "hands_px": 13022,
+ "ball_pole": [
+  866.9,
+  598.5
+ ],
+ "panels_hidden": {
+  "rest": {
+   "cap": 0,
+   "pink": 541,
+   "orange": 497,
+   "yellow": 5983,
+   "green": 0,
+   "blue": 0
+  },
+  "clean": {
+   "cap": 0,
+   "pink": 572,
+   "orange": 94,
+   "yellow": 8723,
+   "green": 0,
+   "blue": 0
+  }
+ },
+ "hand_outline": [
+  126,
+  48,
+  0
+ ],
+ "arm_colours": {
+  "lit": [
+   255,
+   189,
+   123
+  ],
+  "shade": [
+   246,
+   162,
+   95
+  ],
+  "outline": [
+   123,
+   35,
+   6
+  ]
+ },
+ "under_px": 36789,
+ "far_seam_px": 363,
+ "eyes": [
+  {
+   "name": "eye1",
+   "iris": {
+    "cx": 467.07,
+    "cy": 299.18,
+    "r": 25.93,
+    "fit_pts": 129,
+    "fit_rms": 0.88
+   },
+   "iris_box": [
+    438,
+    270,
+    59,
+    59
+   ],
+   "sclera": [
+    252,
+    250,
+    247
+   ],
+   "room": {
+    "left": 5.2,
+    "right": 11.7,
+    "down": -2.3,
+    "up": 9.3
+   }
+  },
+  {
+   "name": "eye2",
+   "iris": {
+    "cx": 602.8,
+    "cy": 248.23,
+    "r": 25.25,
+    "fit_pts": 39,
+    "fit_rms": 0.86
+   },
+   "iris_box": [
+    573,
+    219,
+    59,
+    59
+   ],
+   "sclera": [
+    252,
+    251,
+    250
+   ],
+   "room": {
+    "left": -0.3,
+    "right": 11.1,
+    "down": 0.7,
+    "up": 9.0
+   }
+  }
+ ],
+ "ball_box": [
+  628,
+  536,
+  954,
+  861
+ ],
+ "hands_box": [
+  598,
+  570,
+  975,
+  806
+ ],
+ "under_box": [
+  622,
+  530,
+  960,
+  867
+ ],
+ "farhand_box": [
+  886,
+  572,
+  970,
+  758
+ ],
+ "sheets": {
+  "g1_girl_ball.webp": 51120,
+  "g1_girl_ball_rest.webp": 65690,
+  "g1_girl_body_mask.png": 9531,
+  "g1_girl_eye1_mask.png": 9285,
+  "g1_girl_eye2_mask.png": 9197,
+  "g1_girl_farhand.png": 11452,
+  "g1_girl_hands.png": 23011,
+  "g1_girl_iris1.png": 5812,
+  "g1_girl_iris2.png": 5094,
+  "g1_girl_under.png": 42198
+ },
+ "rest_diff": {
+  "max": 24.6,
+  "over8": 24,
+  "over24": 1
+ }
+}

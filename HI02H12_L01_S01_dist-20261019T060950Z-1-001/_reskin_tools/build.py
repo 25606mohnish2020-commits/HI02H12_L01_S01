@@ -104,7 +104,7 @@ Added  = L1, the thought-cloud letter page after P2's round gate (LETTER_STORY, 
          and is read 0.45 s later with the reference's word light (one word at a time, dark orange + a small pop, on the clip's clock).
 Idempotent: always rebuilds from the _before_reskin backup of the original files.
 """
-import re, json, shutil, pathlib, sys, base64
+import re, json, shutil, pathlib, sys, base64, math
 
 SCR  = pathlib.Path(__file__).resolve().parent
 # usage: python -I build.py [<path to a clone of github.com/siddharthsharma-ctrl/Ek-aur-Anek>] [<path to the game's dist folder>]
@@ -396,6 +396,23 @@ dpart3 = lambda k: {"text_hi": dl3[k]["shown"], "audio": f"vo_demo3_{k}", "word_
 # and 0.3 s later in the right one (data.mark_stagger_ms, the [demo-fig] page's stagger), each box gone 0.45 s after its comma, on
 # to G1 by itself through the round's gate. The words before the slots carry the gaps (data.sentence.gaps -> .dsc-gap, its width
 # CSS). vo_demo3_full / alp stay registered and shipped (unplayed, as T3's old clips); img_demo3_fruits stays (T1B shows it).
+# [t4-basket] (asked 2026-11-02): "when the options appear the girl standing should show an animation of looking inside the fruit
+# basket by raising the fruit basket a little bit she is carrying, and then looking back to the screen in the exact same position
+# as shown; repeat every 7 seconds; perfect and smooth". As the first tile pops (stage 4, where T3's glance starts) .look runs one
+# 7 s cycle on her layers (girl_rig_t4.py -> demo3_assets/girl_rig/, every window her own bitmap, so at rest she IS the painting):
+# the basket with both hands rises 16 bitmap px (3.5 px on the page) over 0.65 s, her forearm sheared about the elbow so its
+# wrist rises with the hand exactly; from 0.15 s her head with both braids dips 7 px (1.5 px) and her irises drop into the basket
+# (6 px, a touch toward its middle) and drift over the fruit (to 4 px right by 1.3 s); from 1.65 s her eyes come back to the screen
+# (as painted by 2.05 s), her head rises (2.25 s), the basket comes down (2.35 s) — the rest of the 7 s she is the painting, and
+# the cycle repeats until the child's tap (the class leaves only in a rest phase, as T3's glance). Behind what the lift uncovers
+# (under the basket, the handle's arc, the hands, the forearm) her dress / bodice / the background is the static picture copied
+# from just past each band (girl_rig_t4.py: one offset per band, Poisson-matched at the seams). The amounts in her 224x336 box:
+_rig4 = json.loads((SCR / "demo3_assets" / "girl_rig" / "rig.json").read_text(encoding="utf-8"))
+GIRL4_BOX = (224, 336); _g4sx, _g4sy = GIRL4_BOX[0] / _rig4["bitmap"][0], GIRL4_BOX[1] / _rig4["bitmap"][1]   # the frame's 224x336 over the 1024x1535 bitmap
+_lift4 = _rig4["lift"] * _g4sy; _sh4 = _rig4["shear"]
+LOOK4 = {"every_ms": 7000, "active_ms": 2400, "anim": "dscBasketLift", "lift_px": round(_lift4, 3), "dip_px": round(_rig4["dip"] * _g4sy, 3),
+         "shear_deg": round(math.degrees(math.atan(_lift4 / ((_sh4["x_w"] - _sh4["x_e"]) * _g4sx))), 4), "elbow_x": round(_sh4["x_e"] * _g4sx, 3),
+         "gaze": [[round(1.5 * _g4sx, 3), round(6 * _g4sy, 3)], [round(4 * _g4sx, 3), round(6 * _g4sy, 3)]]}   # the irises: in (1.5, 6) then over the fruit (4, 6) bitmap px
 _vr_t4 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))["vo_demo3_explain.wav"]
 _x4_words = [w[0] for w in _vr_t4["words"]]
 assert _x4_words.count("अल्पविराम") == 1 and _vr_t4["text"].startswith("इस वाक्य में कई सारे नाम"), _vr_t4["text"]
@@ -404,6 +421,7 @@ assert _sent4["text_hi"] == "मेरे पास आम केला से�
 card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
     "prompt_hi": dl3["sent"]["text"], "audio": {},
     "data": {"variant": "list", "intro_audio": None, "open_ms": 1000, "bg_id": "img_demo3_park", "image_id": "img_demo3_girl_basket", "girl_pop": False,   # the frame's girl, standing from the first frame
+             "girl_rig": "basket", "girl_look": LOOK4,   # [t4-basket] her layers (the CSS) and the look into the basket's amounts / timing
              "slots": 2, "slot_w": 37, "slot_h": 42.606, "mark_stagger_ms": 300,   # the frame's two slots; the comma left, then right
              "sentence": _sent4, "mark": ",",
              "explain": {"text_hi": _vr_t4["text"], "audio": "vo_demo3_explain", "word_times": [w[1] for w in _vr_t4["words"]], "word_end": _vr_t4["words"][-1][2], "cue_word": _x4_words.index("अल्पविराम")},
@@ -1251,6 +1269,10 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         glance: the eyes slide toward the tiles, a small lean their way, the open hand lifts and bobs, all back exactly as painted
         by data.girl_look.active_ms (2.3 s) of an every_ms (5 s) cycle that repeats until the tap — the class is taken off only in
         a rest phase of the cycle, so she is never caught mid-move.
+     [t4-basket] With data.girl_rig "basket" (T4) the layers are girl_rig_t4.py's (.dsc-brig: the patch behind what the lift
+        uncovers, the body, the forearm, the elbow's fold over it, the head group — the head, both braids, the eyes inside it —,
+        the basket with both hands) and the same .look, as the first tile pops, runs her look into the basket (data.girl_look:
+        the amounts in her box px; lookOff reads data.girl_look.anim's clock).
      [t4-scene] T4 (frame 723:1575 "8 T4") runs on this module too, as data.variant "list": TWO slots (data.slots, each a
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
@@ -1276,7 +1298,14 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // [t3-look] with data.girl_rig the girl is her bitmap in layers (every layer a window on the same image, masked by the CSS):
       // the body, each eye (the window, the sclera disc, the iris), the forearm, the braid tip; without it, the one image as before
       const gimg = '<img class="dsc-gwin" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
-      const girlHtml = d.girl_rig
+      // [t4-basket] data.girl_rig "basket" (T4): the patch behind what the lift uncovers, the body, the forearm (sheared about the
+      // elbow's line), the elbow's fold over it, the head group (the head with both braids; the eyes inside it), the basket with
+      // both hands — every window the same bitmap, masked by the CSS
+      const bwin = (c)=> '<img class="' + c + '" src="' + imgSrc(d.image_id) + '" alt="" draggable="false">';
+      const basketHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-brig"><span class="dsc-bunder"></span>' + bwin("dsc-bbody") + bwin("dsc-bfore") + bwin("dsc-belbow") +
+        '<div class="dsc-bhead">' + bwin("dsc-bheadw") + [1, 2].map(k=> '<div class="dsc-beye e' + k + '">' + bwin("dsc-bwin") + '<span class="dsc-bfill"></span><span class="dsc-biris"></span></div>').join("") + '</div>' +
+        bwin("dsc-bbasket") + '</div></div>';
+      const girlHtml = d.girl_rig === "basket" ? basketHtml : d.girl_rig
         ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
           '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
           '<div class="dsc-geye e2">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
@@ -1308,7 +1337,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); lookT0 = performance.now(); };
       const lookOff = ()=>{ if(lookT0 < 0) return; const every = look.every_ms || 5000, active = look.active_ms || 2300;
         let ph = (performance.now() - lookT0) % every; lookT0 = -1;
-        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === "dscLookArm"); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}
+        try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === (look.anim || "dscLookArm")); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}   // [t4-basket] T4's clock: dscBasketLift
         after(ph < active ? active - ph + 40 : 0, ()=> girl.classList.remove("look")); };
 
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false);
@@ -1495,7 +1524,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
       // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
       // not begun
-      if(look){ const body = girl.querySelector(".dsc-gbody");
+      if(look){ const body = girl.querySelector(".dsc-gbody, .dsc-bbody");   // [t4-basket] T4's body window too
         const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
         after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
@@ -3012,6 +3041,59 @@ scene_css += ("\n/* ===== [t3-look] the girl in layers and her glance at the til
     ".dsc-girl.look .dsc-giris{animation:dscLookEye var(--look-ms,5000ms) linear infinite;}\n"
     ".dsc-girl.look .dsc-garm{animation:dscLookArm var(--look-ms,5000ms) linear infinite;}\n"
     + _look_kf())
+# [t4-basket] T4's girl in layers (girl_rig_t4.py: demo3_assets/girl_rig/, inlined): every layer fills her 224x336 box, the windows
+# her bitmap stretched to it and masked by a full-size sheet at 100% 100% (the patch its own image); the eyes' discs / irises in her
+# box px. The look = four CSS animations on .look, all every_ms long and in step (ms stops written as % of the cycle):
+#   dscBasketLift  the basket + both hands up lift_px over 0.65 s (eased both ends), held to 1.75 s, down by 2.35 s;
+#   dscBasketFore  the forearm's skewY about the elbow's line (elbow_x) on the same stops / easings — its wrist end rises exactly
+#                  as the hand does (tan(shear) x the wrist's distance = lift_px);
+#   dscBasketHead  the head group (head, braids, eyes) down dip_px from 0.15 s to 0.7 s, held to 1.7 s, up by 2.25 s;
+#   dscBasketEye   the irises into the basket by 0.48 s (gaze[0]), over the fruit by 1.3 s (gaze[1]), back to the screen by 2.05 s.
+_RIG4 = SCR / "demo3_assets" / "girl_rig"
+_rig4_sheets = [f"demo3_girl_{k}.png" for k in ("under", "body_mask", "fore_mask", "elbow_mask", "head_mask", "basket_mask", "eye1_mask", "eye2_mask", "iris1", "iris2")]
+assert all((_RIG4 / v).exists() for v in _rig4_sheets), "missing rig sheets: run girl_rig_t4.py"
+_durl4 = lambda name: "url(data:image/png;base64," + base64.b64encode((_RIG4 / name).read_bytes()).decode() + ")"
+_m4 = lambda name: f"--m:{_durl4(name)};"   # each sheet once, read by the shared mask rule (as T3's --m)
+_eye4_css = ""
+for _i, _e in enumerate(_rig4["eyes"], 1):
+    _f = _e["iris"]; _ox, _oy, _sz, _ = _e["iris_box"]; _sc = _e["sclera"]
+    _eye4_css += (f".dsc-beye.e{_i}{{{_m4(f'demo3_girl_eye{_i}_mask.png')}}}\n"
+                  f".dsc-beye.e{_i} .dsc-bfill{{left:{_px((_f['cx'] - _f['r'] - 1) * _g4sx)};top:{_px((_f['cy'] - _f['r'] - 1) * _g4sy)};width:{_px(2 * (_f['r'] + 1) * _g4sx)};height:{_px(2 * (_f['r'] + 1) * _g4sy)};background:rgb({_sc[0]},{_sc[1]},{_sc[2]});}}\n"
+                  f".dsc-beye.e{_i} .dsc-biris{{left:{_px(_ox * _g4sx)};top:{_px(_oy * _g4sy)};width:{_px(_sz * _g4sx)};height:{_px(_sz * _g4sy)};background:{_durl4(f'demo3_girl_iris{_i}.png')} 0 0 / 100% 100% no-repeat;}}\n")
+def _basket_kf():
+    """[t4-basket] the look's four keyframe sets, their stops in ms of the gesture written as % of the 7 s cycle"""
+    ev = LOOK4["every_ms"]; pc = lambda t: f"{100 * t / ev:.4g}%"
+    assert LOOK4["active_ms"] == 2400 and ev >= LOOK4["active_ms"] + 500, LOOK4
+    L, Dp, Sk = LOOK4["lift_px"], LOOK4["dip_px"], LOOK4["shear_deg"]; (g1x, g1y), (g2x, g2y) = LOOK4["gaze"]
+    up, down = "cubic-bezier(.45,0,.3,1)", "cubic-bezier(.45,0,.35,1)"
+    lift = [((0,), "translateY(0px)", up), ((650, 1750), f"translateY(-{L}px)", down), ((2350, ev), "translateY(0px)", None)]
+    fore = [((0,), "skewY(0deg)", up), ((650, 1750), f"skewY(-{Sk}deg)", down), ((2350, ev), "skewY(0deg)", None)]
+    head = [((0, 150), "translateY(0px)", "cubic-bezier(.4,0,.3,1)"), ((700, 1700), f"translateY({Dp}px)", "cubic-bezier(.4,0,.3,1)"), ((2250, ev), "translateY(0px)", None)]
+    eye = [((0, 100), "translate(0px,0px)", "cubic-bezier(.4,0,.2,1)"), ((480, 1000), f"translate({g1x}px,{g1y}px)", "cubic-bezier(.45,0,.4,1)"),
+           ((1300, 1650), f"translate({g2x}px,{g2y}px)", "cubic-bezier(.4,0,.3,1)"), ((2050, ev), "translate(0px,0px)", None)]
+    def kf(name, stops):
+        body = "".join(",".join(pc(t) for t in ts) + "{transform:" + tf + ";" + (f"animation-timing-function:{fn};" if fn else "") + "}" for ts, tf, fn in stops)
+        return "@keyframes " + name + "{" + body + "}\n"
+    return kf("dscBasketLift", lift) + kf("dscBasketFore", fore) + kf("dscBasketHead", head) + kf("dscBasketEye", eye)
+scene_css += ("\n/* ===== [t4-basket] T4's girl in layers and her look into the basket (girl_rig_t4.py; see build.py) ===== */\n"
+    ".dsc-brig{position:absolute;left:0;top:0;width:100%;height:100%;}\n"
+    ".dsc-brig > *,.dsc-bhead > *,.dsc-beye > img{position:absolute;left:0;top:0;width:100%;height:100%;}\n"
+    ".dsc-bfill{position:absolute;border-radius:50%;} .dsc-biris{position:absolute;}\n"
+    ".dsc-bbody,.dsc-bfore,.dsc-belbow,.dsc-bheadw,.dsc-bbasket,.dsc-beye{-webkit-mask:var(--m) 0 0 / 100% 100% no-repeat;mask:var(--m) 0 0 / 100% 100% no-repeat;}\n"
+    f".dsc-bunder{{background:{_durl4('demo3_girl_under.png')} 0 0 / 100% 100% no-repeat;}}   /* her dress / bodice / the background behind what the lift uncovers */\n"
+    f".dsc-bbody{{{_m4('demo3_girl_body_mask.png')}}}\n"
+    f".dsc-bfore{{{_m4('demo3_girl_fore_mask.png')}transform-origin:{_px(LOOK4['elbow_x'])} 0px;}}   /* the forearm, sheared from the elbow's line */\n"
+    f".dsc-belbow{{{_m4('demo3_girl_elbow_mask.png')}}}   /* the upper arm's fold, over the forearm */\n"
+    f".dsc-bheadw{{{_m4('demo3_girl_head_mask.png')}}}\n"
+    f".dsc-bbasket{{{_m4('demo3_girl_basket_mask.png')}}}\n"
+    + _eye4_css +
+    ".dsc-bfore,.dsc-bbasket,.dsc-bhead,.dsc-biris{will-change:transform;}   /* composited from mount, as T3's layers ([t3-look7]) */\n"
+    ".dsc-girl.warm .dsc-bfore{transform:skewY(-.001deg);} .dsc-girl.warm .dsc-bbasket{transform:translateY(-.001px);} .dsc-girl.warm .dsc-bhead{transform:translateY(.001px);} .dsc-girl.warm .dsc-biris{transform:translate(.001px,.001px);}   /* the GPU warm-up (see the module) */\n"
+    ".dsc-girl.look .dsc-bbasket{animation:dscBasketLift var(--look-ms,7000ms) linear infinite;}\n"
+    ".dsc-girl.look .dsc-bfore{animation:dscBasketFore var(--look-ms,7000ms) linear infinite;}\n"
+    ".dsc-girl.look .dsc-bhead{animation:dscBasketHead var(--look-ms,7000ms) linear infinite;}\n"
+    ".dsc-girl.look .dsc-biris{animation:dscBasketEye var(--look-ms,7000ms) linear infinite;}\n"
+    + _basket_kf())
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial

@@ -1,0 +1,121 @@
+{
+ "lift": 16.0,
+ "dip": 7.0,
+ "basket_px": 79272,
+ "fore_px": 9344,
+ "head_px": 160550,
+ "eyes": [
+  {
+   "name": "eye1",
+   "iris": {
+    "cx": 494.19,
+    "cy": 289.34,
+    "r": 26.27,
+    "fit_pts": 121,
+    "fit_rms": 0.79,
+    "hidden_px": 110
+   },
+   "iris_box": [
+    464,
+    259,
+    61,
+    61
+   ],
+   "pupil": [
+    493.5,
+    286.7
+   ],
+   "centre": [
+    499.3,
+    287.2
+   ],
+   "interior_r": {
+    "min": 24.9,
+    "max": 40.6,
+    "valid_angles": 323,
+    "ellipse_fit_err": 1.07
+   },
+   "sclera": [
+    250,
+    249,
+    246
+   ],
+   "room": {
+    "left": 8.5,
+    "right": 8.2,
+    "down": -2.8,
+    "up": 8.2
+   }
+  },
+  {
+   "name": "eye2",
+   "iris": {
+    "cx": 627.31,
+    "cy": 245.96,
+    "r": 25.42,
+    "fit_pts": 29,
+    "fit_rms": 0.76,
+    "hidden_px": 19
+   },
+   "iris_box": [
+    598,
+    216,
+    59,
+    59
+   ],
+   "pupil": [
+    624.4,
+    247.1
+   ],
+   "centre": [
+    634.9,
+    243.0
+   ],
+   "interior_r": {
+    "min": 25.3,
+    "max": 37.3,
+    "valid_angles": 353,
+    "ellipse_fit_err": 1.0
+   },
+   "sclera": [
+    251,
+    250,
+    249
+   ],
+   "room": {
+    "left": 1.0,
+    "right": 8.7,
+    "down": 0.3,
+    "up": 11.4
+   }
+  }
+ ],
+ "uncovered_px": 21140,
+ "orphans": 836,
+ "shear": {
+  "x_e": 382.0,
+  "x_w": 476.0,
+  "tan": 0.17021
+ },
+ "sheets": {
+  "demo3_girl_basket_mask.png": 10084,
+  "demo3_girl_body_mask.png": 15162,
+  "demo3_girl_elbow_mask.png": 8840,
+  "demo3_girl_eye1_mask.png": 9209,
+  "demo3_girl_eye2_mask.png": 9179,
+  "demo3_girl_fore_mask.png": 9072,
+  "demo3_girl_head_mask.png": 12986,
+  "demo3_girl_iris1.png": 5948,
+  "demo3_girl_iris2.png": 5037,
+  "demo3_girl_under.png": 37099
+ },
+ "bitmap": [
+  1024,
+  1535
+ ],
+ "rest_diff": {
+  "max": 8.4,
+  "over8": 1,
+  "over24": 0
+ }
+}
