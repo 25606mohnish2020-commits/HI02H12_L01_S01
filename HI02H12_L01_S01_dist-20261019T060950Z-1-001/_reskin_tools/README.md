@@ -2543,6 +2543,26 @@ Page 8 T4: the park scene from Figma 723:1575 on T2's module ([t4-scene], 2026-1
   have a dash top and bottom (the dashes' phase differs by design) and takes the render's white span there.
   `../_before_t4_scene/` holds the [t3-look7] dist, build.py, README, scene_check.py, smoke.py, word_sync_check.py and demo_check.py.
 
+Pages 12 G4, 13 P1 and 14 P2: the user's redrawn pictures ([pics-pinki], 2026-11-02)
+- Asked: replace the pictures at pages 12 G4, 13 P1 and 14 P2 with the user's three new ones, each at its place; everything
+  else unchanged.
+- Built: the three PNGs (also in Downloads: "Joyful Girl Flying a Colorful Kite.png" 1447x1087, "Girls Sharing a Storybook in
+  the Park.png" and "Joyful Braided Girl in Stationery Shop.png" 1448x1086 — the same scenes, the girl redrawn as the braided
+  girl in the pink dress of the other pages) are g4_assets/g4_kite_source.png, p1_assets/p1_book_source.png and
+  p2_assets/p2_pencils_source.png (the earlier ones kept as *_v1_2026-10-25, P1's 10-28 pair as *_v2_2026-10-28), framed by
+  g4_picture.py as before — P4's grey ring baked into the bitmap at 1058 px high, 1411 wide — into the same
+  img_g4_kite_gry.webp / img_p1_book_gry.webp / img_p2_pencils_gry.webp. The kite PNG is a pixel narrower and a pixel taller
+  than the others: g4_picture.py's new optional width (`python -I g4_picture.py <source> <out.webp> 1411`) makes it cover the
+  same 1411x1058 frame, centred (the trim, about a pixel top and bottom, is under the 15 px ring), so its frame lands exactly
+  where it did; P1's and P2's take the unchanged path. Each new bitmap's alpha is the old one's exactly (the frame's shape); the
+  ring is within 0-2 levels of #DADADA but for the pixel or two where the lossy webp's blocks meet the picture. build.py gained
+  only comments and a docstring line; the built dist differs from before in those three image files (index.html, app.js and
+  style.css byte-identical).
+- Checked: g4_check.py --page G4 / P1 / P2: 27 / 27 each (each page shows its own picture at its natural 1411 px width, 315
+  high from y 146, centred; the pills, the taps and their sounds, the hints, the review and the reveal as before); no page
+  errors. `../_before_pics_pinki/` holds build.py, README.md, g4_picture.py, the old sources + framed pictures and the dist's
+  copies (its three files and the three pictures).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

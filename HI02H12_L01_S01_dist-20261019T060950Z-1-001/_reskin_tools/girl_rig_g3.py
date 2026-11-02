@@ -3,13 +3,15 @@ the frame 716:1262's "image 283", 1024x1536, drawn 218x328 cover) so they can gl
 T3's — on this girl; nothing else of her moves).
 
 Per eye: the bitmap clipped to the eye's INTERIOR (inside the painted outline's inner edge: g3_girl_eye{1,2}_mask.png, a full
-1024x1536 sheet, the mask in its alpha), a sclera-coloured cover over the painted iris (g3_girl_fill{1,2}.png: the iris's own painted
+1024x1536 sheet, the mask in its alpha), a sclera-coloured cover over the painted iris (on img_g3_girl_efill.png: the iris's own painted
 pixels, 1 px grown — its rim reaches past any fitted curve where the outline hides it, and a ring of it left uncovered stays behind
-as a thin dark arc when the iris moves), and the iris itself (g3_girl_iris{1,2}.png:
+as a thin dark arc when the iris moves), and the iris itself (on img_g3_girl_eiris.png:
 the painted iris, its parts under the outline completed from its own radial profile) which slides. Her face is three-quarter, so
 each iris is an upright ELLIPSE (T3's were circles): fitted, axis-aligned, to its arc against the white and its rim against the
 thin outline on the right, where it is drawn touching the outline. At rest the layers are the
-painting. Writes g3_assets/girl_rig/ (+ rig.json: the irises, the interiors' room, the sclera colours, in bitmap px) and, with
+painting. The two eyes' covers share one sheet her bitmap's size and their irises another, each in its place, so the page draws
+them with her image's own box and cover — on her pixels exactly (each in its own small box they were snapped to the device pixels on
+their own: up to half a pixel off her painted eyes at rest, measured). Writes g3_assets/girl_rig/ (+ rig.json: the irises, the interiors' room, the sclera colours, in bitmap px) and, with
 --debug <dir>, overlays and the glance's composites. Run: python -I girl_rig_g3.py [--debug <dir>]
 """
 import sys, json, pathlib, math
@@ -205,9 +207,6 @@ for E in EYES:
     iris[..., 3] = np.where(pin, 1.0, np.where(keep, np.minimum(a_ell * 2, 1.0), 0.0)) * 255
     iris[..., :3] = np.where((region & (em > 0) & solid[fy, fx])[..., None], cols, synth)
     fill = np.zeros((sz, sz, 4), np.float32); fill[..., :3] = np.median(rgb[white & bm], axis=0); fill[..., 3] = pin * 255.0
-    iris_im = Image.fromarray(np.clip(np.round(iris), 0, 255).astype(np.uint8), "RGBA")
-    iris_im.save(OUT / f"g3_girl_iris{E['name'][-1]}.png", optimize=True)
-    Image.fromarray(np.clip(np.round(fill), 0, 255).astype(np.uint8), "RGBA").save(OUT / f"g3_girl_fill{E['name'][-1]}.png", optimize=True)
     save_mask(eye_mask, OUT / f"g3_girl_{E['name']}_mask.png")
     hidden = int((inside & ~vis).sum())
     # how much of the iris the glance leaves in the opening (its area inside the interior, at rest and moved)
@@ -223,6 +222,15 @@ for E in EYES:
     print(f"{E['name']}: iris c {icx:.1f},{icy:.1f} rx {irx:.1f} ry {iry:.1f} ({ok.sum()} pts, rms {eo['iris']['fit_rms']}), interior r {r_s.min():.1f}-{r_s.max():.1f} ({valid.sum()}/360 angles read, ellipse within {ell_err:.2f} px), sclera {eo['sclera']}, hidden {hidden} px, iris shown {eo['iris_shown']}")
     E["mask"] = eye_mask; E["out"] = eo; E["iris"] = iris; E["fill"] = fill
 
+# the covers on one sheet and the irises on another, her bitmap's size, each eye's in its place
+fill_sheet = np.zeros((H, W, 4), np.float32); iris_sheet = np.zeros((H, W, 4), np.float32)
+for E in EYES:
+    ox, oy, sz, _ = E["out"]["iris_box"]
+    assert not fill_sheet[oy:oy + sz, ox:ox + sz, 3].any() and not iris_sheet[oy:oy + sz, ox:ox + sz, 3].any(), "the eyes' boxes overlap"
+    fill_sheet[oy:oy + sz, ox:ox + sz] = E["fill"]; iris_sheet[oy:oy + sz, ox:ox + sz] = E["iris"]
+for sh in (fill_sheet, iris_sheet): sh[sh[..., 3] == 0, :3] = 0
+Image.fromarray(np.clip(np.round(fill_sheet), 0, 255).astype(np.uint8), "RGBA").save(OUT / "img_g3_girl_efill.png", optimize=True)
+Image.fromarray(np.clip(np.round(iris_sheet), 0, 255).astype(np.uint8), "RGBA").save(OUT / "img_g3_girl_eiris.png", optimize=True)
 report["sheets"] = {p.name: p.stat().st_size for p in sorted(OUT.glob("*.png"))}
 # ---------- the composite at rest (must give the painting back) and at the glance ----------
 def over(dst, src, m):

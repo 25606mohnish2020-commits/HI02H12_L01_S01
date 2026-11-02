@@ -6450,12 +6450,15 @@ const SlideModules = {
         '<div class="dsc-bhead">' + bwin("dsc-bheadw") + [1, 2].map(k=> '<div class="dsc-beye e' + k + '">' + bwin("dsc-bwin") + '<span class="dsc-bfill"></span><span class="dsc-biris"></span></div>').join("") + '</div>' +
         bwin("dsc-bbasket") + '</div></div>';
       // [g3-grow] data.girl_rig "eyes" (G3): her one image as before and, over it, each eye's interior (masked by its sheet) holding
-      // the cover over the painted iris and the iris itself, which slides; nothing else of her is touched
+      // the cover over the painted iris and the iris itself, which slides — the covers and the irises on two sheets her image's size
+      // (data.girl_eyes), drawn with her image's box and cover; the rig shows only for the glance (the CSS); nothing else of her is touched
+      const EY = d.girl_eyes || {};
       const eyesHtml = '<div class="dsc-girl"><span class="dsc-shade"></span><img src="' + imgSrc(d.image_id) + '" alt="" draggable="false"><div class="dsc-erig">' +
-        [1, 2].map(k=> '<div class="dsc-eeye e' + k + '"><span class="dsc-efill"></span><span class="dsc-eiris"></span></div>').join("") + '</div></div>';
-      // [g3-grow] data.grow: the garden's plants, each its own cut-out over the garden without them (data.bg_id), growing from its stem
+        [1, 2].map(k=> '<div class="dsc-eeye e' + k + '"><img class="dsc-efill" src="' + imgSrc(EY.fill) + '" alt="" draggable="false"><img class="dsc-eiris" src="' + imgSrc(EY.iris) + '" alt="" draggable="false"></div>').join("") + '</div></div>';
+      // [g3-grow] data.grow: over the garden (the painting), the growth's layers — the garden without its plants (data.grow.bare)
+      // and each plant on its own sheet, growing from its stem — all the garden's size, drawn with its box and cover
       const G = d.grow || null;
-      const plantsHtml = G ? '<div class="dsc-plants">' + G.plants.map((id, k)=> '<div class="dsc-plant p' + (k + 1) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join("") + '</div>' : '';
+      const plantsHtml = G ? '<div class="dsc-plants"><img src="' + imgSrc(G.bare) + '" alt="" draggable="false">' + G.plants.map((id, k)=> '<div class="dsc-plant p' + (k + 1) + '"><img src="' + imgSrc(id) + '" alt="" draggable="false"></div>').join("") + '</div>' : '';
       const girlHtml = d.girl_rig === "eyes" ? eyesHtml : d.girl_rig === "basket" ? basketHtml : d.girl_rig
         ? '<div class="dsc-girl"><span class="dsc-shade"></span><div class="dsc-grig">' + gimg.replace("dsc-gwin", "dsc-gbody") +
           '<div class="dsc-geye e1">' + gimg + '<span class="dsc-gfill"></span><span class="dsc-giris"></span></div>' +
@@ -6674,17 +6677,21 @@ const SlideModules = {
       // data.grow.start_ms (past the page's slide-in), they GROW out of their soil one after another (the CSS: .grow) to the user's
       // sound in that frame, the girl's eyes going to them data.grow.look_ms in (her glance, data.girl_look, every 7 s from then)
       // and back; data.grow.then_ms after the growth began the page goes on exactly as before (the instruction line, the sentence,
-      // the tiles). A garden that never decodes holds nothing up for more than 5 s.
+      // the tiles). Grown, the layers fade into the painting under them (data.grow.fade_ms: the same picture) and leave the page —
+      // from then on the garden is the painting itself, drawn as before (the finished layers, kept, held the sentence and the tiles on
+      // layers of their own: their text drawn differently, measured). A garden that never decodes holds nothing up for more than 5 s.
       if(G){
-        const pics = [fig.querySelector(".dsc-bg > img")].concat(Array.from(fig.querySelectorAll(".dsc-plant img")));
-        const decoded = Promise.all(pics.map(im=> (im && im.decode) ? im.decode().catch(()=>{}) : Promise.resolve()));
+        const pics = Array.from(fig.querySelectorAll(".dsc-bg > img, .dsc-plants img, .dsc-erig img"));
+        const decoded = Promise.all(pics.map(im=> im.decode ? im.decode().catch(()=>{}) : Promise.resolve()));
         const wait = (ms)=> new Promise(r=> setTimeout(r, ms));
         Promise.race([Promise.all([decoded, wait(G.start_ms || 600)]), wait(5000)]).then(()=>{
           if(!alive()) return;
-          fig.querySelector(".dsc-plants").classList.add("grow");
+          const pl = fig.querySelector(".dsc-plants"); pl.classList.add("grow");
           if(G.sfx) playKitSfx("sceneGrow", G.sfx, G.sfx_vol == null ? .9 : G.sfx_vol);
           after(G.look_ms || 0, lookOn);
           after(G.then_ms || 2700, opening);
+          Promise.all(pl.getAnimations({ subtree:true }).map(a=> a.finished)).then(()=>{ if(!alive()) return;
+            pl.classList.add("done"); after((G.fade_ms || 200) + 60, ()=> pl.classList.add("gone")); }).catch(()=>{});
         });
       } else opening();
       // [t3-look7] the first glance's GPU work done ahead: on a cold browser the first frame that draws the masked layers TILTED

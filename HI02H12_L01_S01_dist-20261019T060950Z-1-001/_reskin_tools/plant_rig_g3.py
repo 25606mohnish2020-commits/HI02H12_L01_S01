@@ -6,9 +6,12 @@ Writes g3_assets/plant_rig/:
                            same rows (Poisson-matched at every seam), the soil behind the stems and the lower leaves rebuilt from the
                            soil around them (the mound's top edge carried across); LOSSLESS, so every pixel away from the plants is
                            the painting's
-  img_g3_plant_{rose,marigold,jasmine}.webp  each plant (stem, leaves, flowers) as RGBA, cropped to its box: its edge pixels
-                           un-mixed from the bare garden behind them, so plant-over-bare gives the painting back
-  rig.json                 the boxes and each stem's base point (bitmap px), the checks
+  img_g3_plant_{rose,marigold,jasmine}.webp  each plant (stem, leaves, flowers) as RGBA: its edge pixels un-mixed from the bare
+                           garden behind them, so plant-over-bare gives the painting back; a sheet the garden's size with the plant
+                           in its place (LOSSLESS), so the page draws it with the garden's own box and cover — on the garden's
+                           pixels exactly (a cut-out in its own box was snapped to the device pixels on its own: up to half a
+                           pixel off the painting, its edges up to 101 levels off at rest, measured)
+  rig.json                 each plant's box in the sheet and its stem's base point (bitmap px), the checks
 With --debug <dir>: overlays and the rest / mid-growth composites. Run: python -I plant_rig_g3.py [--debug <dir>]
 """
 import sys, json, pathlib, math
@@ -345,7 +348,8 @@ for P in PLANTS:
     ys, xs = np.nonzero(alpha > 0); bx0, by0, bx1, by1 = xs.min() - 1, ys.min() - 1, xs.max() + 2, ys.max() + 2
     rgba = np.concatenate([col, alpha[..., None] * 255], axis=2)[by0:by1, bx0:bx1]
     rgba[rgba[..., 3] < 0.5, :3] = 0
-    Image.fromarray(np.clip(np.round(rgba), 0, 255).astype(np.uint8), "RGBA").save(OUT / f"img_g3_plant_{P['name']}.webp", lossless=True, quality=100, method=6, exact=True)
+    sheet = np.zeros((H, W, 4)); sheet[y0 + by0:y0 + by1, x0 + bx0:x0 + bx1] = rgba   # the garden's size, the plant in its place
+    Image.fromarray(np.clip(np.round(sheet), 0, 255).astype(np.uint8), "RGBA").save(OUT / f"img_g3_plant_{P['name']}.webp", lossless=True, quality=100, method=6, exact=True)
     # the stem's base: the lowest rows of the plant (the stem where the mound's front lip hides it), their middle
     pys, pxs = np.nonzero(P["plant"]); yb = pys.max(); bxs = np.nonzero(P["plant"][yb - 3:yb + 1].any(axis=0))[0]
     base = (float(x0 + bxs.mean() + 0.5), float(y0 + yb + 1))
@@ -368,7 +372,9 @@ report["bare"] = {"bytes": (OUT / "img_g3_garden_bare.webp").stat().st_size, "ou
                   "decoded_vs_built_max": float(np.abs(chk - np.clip(np.round(bare), 0, 255)).max())}
 # the layers as decoded, over the decoded bare: the rest frame the page draws (before any resampling)
 for P, rp in zip(PLANTS, report["plants"]):
-    lx, ly, lw, lh = rp["box"]; L_ = np.asarray(Image.open(OUT / rp["file"]).convert("RGBA")).astype(np.float64)
+    lx, ly, lw, lh = rp["box"]; Lf = np.asarray(Image.open(OUT / rp["file"]).convert("RGBA")).astype(np.float64)
+    assert Lf.shape[:2] == (H, W) and Lf[..., 3].sum() == Lf[ly:ly + lh, lx:lx + lw, 3].sum(), "the sheet holds its plant only, in its box"
+    L_ = Lf[ly:ly + lh, lx:lx + lw]
     a_ = L_[..., 3:4] / 255; comp = a_ * L_[..., :3] + (1 - a_) * chk[ly:ly + lh, lx:lx + lw]
     e = np.abs(comp - O[ly:ly + lh, lx:lx + lw]).max(axis=2)
     rp["rest_err_decoded"] = {"max": round(float(e.max()), 1), "over4": int((e > 4).sum()), "over12": int((e > 12).sum())}

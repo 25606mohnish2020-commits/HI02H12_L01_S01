@@ -88,10 +88,8 @@
  "sheets": {
   "g3_girl_eye1_mask.png": 9202,
   "g3_girl_eye2_mask.png": 9157,
-  "g3_girl_fill1.png": 302,
-  "g3_girl_fill2.png": 302,
-  "g3_girl_iris1.png": 4414,
-  "g3_girl_iris2.png": 4371
+  "img_g3_girl_efill.png": 6600,
+  "img_g3_girl_eiris.png": 15644
  },
  "rest_diff": {
   "max": 3.0,
