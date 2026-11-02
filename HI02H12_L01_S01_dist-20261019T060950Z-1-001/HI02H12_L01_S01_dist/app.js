@@ -6562,6 +6562,15 @@ const SlideModules = {
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
       let introDone = false;
       say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
+      // [t3-look7] the first glance's GPU work done ahead: on a cold browser the first frame that draws the masked layers TILTED
+      // compiles the GPU's shaders (measured: a 33-117 ms frame as the arm began to lift, in 6 of 6 fresh browsers). The rig's
+      // layers are composited from mount (style.css: will-change), and here, in the still moment after the page's slide-in and
+      // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
+      // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
+      // not begun
+      if(look){ const body = girl.querySelector(".dsc-gbody");
+        const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
+        after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
   },
 

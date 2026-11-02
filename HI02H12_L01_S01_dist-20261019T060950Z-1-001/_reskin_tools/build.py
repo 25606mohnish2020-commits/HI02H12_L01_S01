@@ -332,7 +332,7 @@ card["_emoji_fallback"]["img_demo2_girl"] = "✏️"
 # [t3-look] (asked 2026-11-02): "when the options appear the girl should look towards them and move her arms, then look back to
 # the screen in the exact same position; repeat every 5 seconds; perfect and smooth". As the FIRST tile pops the girl's eyes slide
 # toward the tiles, she leans a little their way and her open hand lifts and bobs twice ("which one?"); by 2.3 s she is back
-# exactly as painted, and the cycle repeats every data.girl_look.every_ms (5 s) until the child's tap (the class leaves only in a
+# exactly as painted, and the cycle repeats every data.girl_look.every_ms (5 s; [t3-look7] 7 s) until the child's tap (the class leaves only in a
 # rest phase, so she is never caught mid-move). The girl is her own bitmap cut into LAYERS by girl_rig.py (demo2_assets/girl_rig/:
 # the body with a hole for the forearm, the two eyes' interiors with a sclera disc and the completed iris, the forearm about the
 # elbow, the braid tip over it — see that script's docstring) and moved by CSS transforms only; the sheets are inlined in the CSS
@@ -340,7 +340,7 @@ card["_emoji_fallback"]["img_demo2_girl"] = "✏️"
 # lift, the lean) in the card data as CSS variables, the choreography (the keyframes) in the CSS.
 _rig = json.loads((SCR / "demo2_assets" / "girl_rig" / "rig.json").read_text(encoding="utf-8"))
 GIRL_BOX = (257, 385); _gsx, _gsy = GIRL_BOX[0] / _rig["bitmap"][0], GIRL_BOX[1] / _rig["bitmap"][1]   # the frame's 257x385 over the 1024x1535 bitmap
-LOOK = {"every_ms": 5000, "active_ms": 2300, "gx": round(9 * _gsx, 2), "gy": round(4.5 * _gsy, 2), "arm_deg": 11, "lean_deg": 2}   # the eyes 9 / 4.5 bitmap px toward the tiles, the forearm 11 degrees up, the lean 2 degrees
+LOOK = {"every_ms": 7000, "active_ms": 2300, "gx": round(9 * _gsx, 2), "gy": round(4.5 * _gsy, 2), "arm_deg": 11, "lean_deg": 2}   # the eyes 9 / 4.5 bitmap px toward the tiles, the forearm 11 degrees up, the lean 2 degrees
 _vr_t3 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))   # vo_rec.py's whisper word times per recording
 _x3 = _vr_t3["vo_demo2_explain.wav"]; _x3_words = [w[0] for w in _x3["words"]]
 assert " ".join(_x3_words) == _x3["text"] == "यह एक सवाल है, सवाल के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।", _x3["text"]
@@ -1319,6 +1319,15 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       //    no intro line ([t3-scene] T3), the scene alone for data.open_ms (1 s) before the bubble pops
       let introDone = false;
       say(A(d.intro_audio), ()=>{ if(introDone) return; introDone = true; after(d.open_ms || 500, stage2); });
+      // [t3-look7] the first glance's GPU work done ahead: on a cold browser the first frame that draws the masked layers TILTED
+      // compiles the GPU's shaders (measured: a 33-117 ms frame as the arm began to lift, in 6 of 6 fresh browsers). The rig's
+      // layers are composited from mount (style.css: will-change), and here, in the still moment after the page's slide-in and
+      // before the bubble (560 ms in, open_ms 1 s), .warm tilts them by a thousandth of a degree / px for 150 ms — at most 4 levels
+      // on her pixels, measured — once her bitmap is drawn; later (her bitmap still loading), as soon as it is, if the glance has
+      // not begun
+      if(look){ const body = girl.querySelector(".dsc-gbody");
+        const warm = ()=>{ if(girl.classList.contains("look")) return; girl.classList.add("warm"); after(150, ()=> girl.classList.remove("warm")); };
+        after(560, ()=>{ if(!body || (body.complete && body.naturalWidth > 0)) warm(); else body.addEventListener("load", ()=>{ if(alive()) warm(); }, { once:true }); }); }
     }
   },
 
@@ -2738,7 +2747,22 @@ scene_css += r"""
 #   dscLookLean the whole figure shears from her feet toward the tiles (--look-lean) over 0.5 s, holds, back by 2.3 s;
 #   dscLookArm  the forearm turns about the elbow up to --look-arm by 0.5 s (a touch past, settling), bobs twice (to 65 % and
 #               back) over the next second, and is down by 2.2 s — never below 0, so its kept band under the braid never shows;
-# the rest of the cycle (2.3 s .. every_ms) is the painting. The percentages are of a 5 s cycle (data.girl_look.every_ms).
+# the rest of the cycle (2.3 s .. every_ms) is the painting. [t3-look7] (asked 2026-11-02): the cycle 7 s (was 5 s); the keyframes
+# are now written from the gesture's times in ms (_KF) as percentages of LOOK["every_ms"], so the gesture is the 5 s build's to the
+# millisecond and only the rest after it grows (2.7 s -> 4.7 s).
+def _look_kf():
+    """[t3-look7] the glance's three keyframe sets, their stops given in ms of the gesture and written as % of the cycle"""
+    ev = LOOK["every_ms"]; pc = lambda t: f"{100 * t / ev:.4g}%"
+    assert LOOK["active_ms"] == 2300 and ev >= LOOK["active_ms"] + 500, LOOK
+    A = lambda k: f"rotate(calc(var(--look-arm,0deg) * {k}))"
+    eye = [((0,), "translate(0,0)", "cubic-bezier(.4,0,.2,1)"), ((250, 1750), "translate(var(--look-gx,0px),var(--look-gy,0px))", "cubic-bezier(.4,0,.3,1)"), ((2050, ev), "translate(0,0)", None)]
+    lean = [((0,), "skewX(0deg)", "cubic-bezier(.4,0,.2,1)"), ((500, 1700), "skewX(calc(var(--look-lean,0deg) * -1))", "cubic-bezier(.4,0,.2,1)"), ((2300, ev), "skewX(0deg)", None)]
+    arm = [((0, 100), "rotate(0deg)", "cubic-bezier(.3,.9,.4,1.25)"), ((500,), A(-1), "ease-in-out"), ((800,), A(-.65), "ease-in-out"), ((1100,), A(-1.05), "ease-in-out"),
+           ((1400,), A(-.65), "ease-in-out"), ((1650,), A(-.9), "cubic-bezier(.4,0,.3,1)"), ((2200, ev), "rotate(0deg)", None)]
+    def kf(name, stops):
+        body = "".join(",".join(pc(t) for t in ts) + "{transform:" + tf + ";" + (f"animation-timing-function:{fn};" if fn else "") + "}" for ts, tf, fn in stops)
+        return "@keyframes " + name + "{" + body + "}\n"
+    return kf("dscLookEye", eye) + kf("dscLookLean", lean) + kf("dscLookArm", arm)
 _RIG_DIR = SCR / "demo2_assets" / "girl_rig"
 _rig_sheets = [f"demo2_girl_{k}.png" for k in ("body_mask", "arm_mask", "patch_mask", "eye1_mask", "eye2_mask", "iris1", "iris2")]
 assert all((_RIG_DIR / v).exists() for v in _rig_sheets), "missing rig sheets: run girl_rig.py"
@@ -2761,13 +2785,12 @@ scene_css += ("\n/* ===== [t3-look] the girl in layers and her glance at the til
     f".dsc-garm{{--m:{_durl('demo2_girl_arm_mask.png')};transform-origin:{_px(_piv[0] * _gsx)} {_px(_piv[1] * _gsy)};}}   /* the elbow */\n"
     f".dsc-gpatch{{--m:{_durl('demo2_girl_patch_mask.png')};}}\n"
     + _eye_css +
-    ".dsc-girl.look .dsc-grig,.dsc-girl.look .dsc-giris,.dsc-girl.look .dsc-garm{will-change:transform;}\n"
+    ".dsc-grig,.dsc-giris,.dsc-garm{will-change:transform;}   /* [t3-look7] composited from mount (was from .look): the glance's start no longer switches how she is drawn */\n"
+    ".dsc-girl.warm .dsc-grig{transform:skewX(-.001deg);} .dsc-girl.warm .dsc-giris{transform:translate(.001px,.001px);} .dsc-girl.warm .dsc-garm{transform:rotate(-.001deg);}   /* [t3-look7] the GPU warm-up (see the module) */\n"
     ".dsc-girl.look .dsc-grig{animation:dscLookLean var(--look-ms,5000ms) linear infinite;}\n"
     ".dsc-girl.look .dsc-giris{animation:dscLookEye var(--look-ms,5000ms) linear infinite;}\n"
     ".dsc-girl.look .dsc-garm{animation:dscLookArm var(--look-ms,5000ms) linear infinite;}\n"
-    "@keyframes dscLookEye{0%{transform:translate(0,0);animation-timing-function:cubic-bezier(.4,0,.2,1);}5%,35%{transform:translate(var(--look-gx,0px),var(--look-gy,0px));animation-timing-function:cubic-bezier(.4,0,.3,1);}41%,100%{transform:translate(0,0);}}\n"
-    "@keyframes dscLookLean{0%{transform:skewX(0deg);animation-timing-function:cubic-bezier(.4,0,.2,1);}10%,34%{transform:skewX(calc(var(--look-lean,0deg) * -1));animation-timing-function:cubic-bezier(.4,0,.2,1);}46%,100%{transform:skewX(0deg);}}\n"
-    "@keyframes dscLookArm{0%,2%{transform:rotate(0deg);animation-timing-function:cubic-bezier(.3,.9,.4,1.25);}10%{transform:rotate(calc(var(--look-arm,0deg) * -1));animation-timing-function:ease-in-out;}16%{transform:rotate(calc(var(--look-arm,0deg) * -.65));animation-timing-function:ease-in-out;}22%{transform:rotate(calc(var(--look-arm,0deg) * -1.05));animation-timing-function:ease-in-out;}28%{transform:rotate(calc(var(--look-arm,0deg) * -.65));animation-timing-function:ease-in-out;}33%{transform:rotate(calc(var(--look-arm,0deg) * -.9));animation-timing-function:cubic-bezier(.4,0,.3,1);}44%,100%{transform:rotate(0deg);}}\n")
+    + _look_kf())
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
    has no card — its title bar, picture, sentence bar and mark tiles sit on the plain #F2F7FA stage — so the tutorial

@@ -8,7 +8,7 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    [t3-look] T3's girl is her bitmap in layers (.dsc-grig: the body, two eyes, the forearm, the braid tip, each masked by a data-URI
    sheet) and, as the FIRST tile pops, .look starts her glance: the forearm up to 11 degrees by ~0.5 s and bobbing, the irises
    2.26 / 1.13 px toward the tiles within 0.3 s, the figure sheared 2 degrees from her feet; everything back at identity by 2.35 s
-   and still until the cycle repeats 5 s after its start; smooth (no frame-to-frame jump); after the tap the class leaves only in
+   and still until the cycle repeats 7 s after its start ([t3-look7]; was 5 s); smooth (no frame-to-frame jump); after the tap the class leaves only in
    a rest phase (every transform identity in that frame); her pixels at rest = the frame's bitmap (the rig paused at 3 s).
    before it has ended; 0.5 s after it the slot pops in and the sentence rises in whole in the same frame, with T1's text pop (the
    reference's sfxPopSoft: _tone 720 sine 0.10 / 0.07) in that frame.
@@ -84,7 +84,7 @@ C = {
              BY_DESIGN=[(902, 169, 971, 279), (472, 184, 904, 266), (501, 476, 546, 536), (725, 474, 775, 534), (962, 496, 1002, 526)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 241, 182)", blink_fill="rgb(250, 214, 146)",
              slot_in=dict(rgb=(255, 241, 182), row_y=224, xs=(895, 980), col_x=936, ys=(165, 285), want=(909, 964, 176, 272)), first_word="तुम्हारा",
-             look=dict(every_ms=5000, active_ms=2300, gx=2.26, gy=1.13, arm_deg=11, lean_deg=2)),   # [t3-look]
+             look=dict(every_ms=7000, active_ms=2300, gx=2.26, gy=1.13, arm_deg=11, lean_deg=2)),   # [t3-look]; [t3-look7] every 7 s (was 5 s)
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
 WHOLE = (80, 90, 1200, 640)
@@ -116,7 +116,7 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     bubIn: !!bub && bub.classList.contains('in'), bubTf: bub ? getComputedStyle(bub).transform : null, bubOp: bub ? +(+getComputedStyle(bub).opacity).toFixed(3) : null, bubAn: bub ? getComputedStyle(bub).animationName : null,
     gone: !!slot && slot.classList.contains('gone'), markIn: !!q('.dsc-mark.in'),
     pop: !!g && g.classList.contains('pop'), gOp: gc ? +(+gc.opacity).toFixed(3) : null, gTf: gc ? gc.transform : null,
-    look: !!g && g.classList.contains('look'), arm: q('.dsc-garm') ? getComputedStyle(q('.dsc-garm')).transform : null, iris: q('.dsc-giris') ? getComputedStyle(q('.dsc-giris')).transform : null, lean: q('.dsc-grig') ? getComputedStyle(q('.dsc-grig')).transform : null,
+    look: !!g && g.classList.contains('look'), warm: !!g && g.classList.contains('warm'), arm: q('.dsc-garm') ? getComputedStyle(q('.dsc-garm')).transform : null, iris: q('.dsc-giris') ? getComputedStyle(q('.dsc-giris')).transform : null, lean: q('.dsc-grig') ? getComputedStyle(q('.dsc-grig')).transform : null,
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
     tTf: [...qa('.dsc-tile')].map(t => getComputedStyle(t).transform), tAn: [...qa('.dsc-tile')].map(t => getComputedStyle(t).animationName),
     faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
@@ -174,7 +174,7 @@ with sync_playwright() as p:
           {k: d.get(k) for k in ("intro_audio", "open_ms", "bg_id", "image_id", "bubble_id", "box_sfx", "slot_w", "slot_h", "mark", "pic_sfx_ms", "blink_ms", "blink_cycle_ms", "tiles_gap_ms")})
     if C["look"]:   # [t3-look]
         LK = C["look"]; gl = d.get("girl_look") or {}
-        check("[t3-look] the page's data: girl_rig and girl_look (every 5 s, the gesture 2.3 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2 degrees)",
+        check(f"[t3-look] the page's data: girl_rig and girl_look (every {C['look']['every_ms'] / 1000:g} s, the gesture 2.3 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2 degrees)",
               d.get("girl_rig") is True and all(abs(gl.get(k, -1) - v) < 0.01 for k, v in LK.items()), gl)
         rig = pg.evaluate("""() => { const q = (s) => document.querySelector(s), L = [...document.querySelectorAll('.dsc-grig > *')];
           return { n: L.length, cls: L.map(e => e.className.split(' ')[0]), masked: L.map(e => { const c = getComputedStyle(e); return (c.maskImage || c.webkitMaskImage || '').startsWith('url("data:image/png') && (c.maskSize || c.webkitMaskSize) === '100% 100%'; }),
@@ -182,11 +182,12 @@ with sync_playwright() as p:
             box: [...document.querySelectorAll('.dsc-grig, .dsc-grig > *')].every(e => Math.abs(e.getBoundingClientRect().width - q('.dsc-girl').getBoundingClientRect().width) < 0.5 && Math.abs(e.getBoundingClientRect().height - q('.dsc-girl').getBoundingClientRect().height) < 0.5),
             fills: [...document.querySelectorAll('.dsc-gfill')].map(e => getComputedStyle(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-giris')].map(e => getComputedStyle(e).backgroundImage.startsWith('url("data:image/png')),
             origin: getComputedStyle(q('.dsc-garm')).transformOrigin, leanOrigin: getComputedStyle(q('.dsc-grig')).transformOrigin, plainImg: !!q('.dsc-girl > img'),
-            still: ['.dsc-garm', '.dsc-giris', '.dsc-grig'].every(s => getComputedStyle(q(s)).transform === 'none' || getComputedStyle(q(s)).transform === 'matrix(1, 0, 0, 1, 0, 0)'), look: !!q('.dsc-girl.look') }; }""")
-        check("[t3-look] the rig: five layers in .dsc-grig (the body, two eyes, the forearm, the braid tip), every one her box's size, masked by a data-URI sheet at 100% 100%; every window the same bitmap; the sclera discs and the irises in place; the forearm's origin at the elbow, the lean's at her feet; no plain image; all at identity before the tiles",
+            still: ['.dsc-garm', '.dsc-giris', '.dsc-grig'].every(s => getComputedStyle(q(s)).transform === 'none' || getComputedStyle(q(s)).transform === 'matrix(1, 0, 0, 1, 0, 0)'), look: !!q('.dsc-girl.look'),
+            promoted: ['.dsc-garm', '.dsc-giris', '.dsc-grig'].every(s => getComputedStyle(q(s)).willChange === 'transform') }; }""")
+        check("[t3-look] the rig: five layers in .dsc-grig (the body, two eyes, the forearm, the braid tip), every one her box's size, masked by a data-URI sheet at 100% 100%; every window the same bitmap; the sclera discs and the irises in place; the forearm's origin at the elbow, the lean's at her feet; no plain image; all at identity at mount, and composited from mount (will-change: transform, [t3-look7])",
               rig["n"] == 5 and rig["cls"] == ["dsc-gbody", "dsc-geye", "dsc-geye", "dsc-garm", "dsc-gpatch"] and all(rig["masked"]) and rig["wins"] == 5 and rig["same"] and rig["box"]
               and len(rig["fills"]) == 2 and all(f.startswith("rgb(25") for f in rig["fills"]) and rig["irises"] == [True, True] and rig["origin"] == "188.91px 143.89px" and rig["leanOrigin"] == "128.5px 378.84px"
-              and not rig["plainImg"] and rig["still"] and not rig["look"], rig)
+              and not rig["plainImg"] and rig["still"] and not rig["look"] and rig["promoted"], rig)
     if C["intro"]:
         pg.wait_for_function("isPlaying && currentAudio && currentAudio.src.includes('vo_demo1_intro.') && currentAudio.currentTime > 0.7", timeout=10000, polling=20)
     else: pg.wait_for_timeout(600)
@@ -323,11 +324,18 @@ with sync_playwright() as p:
         eye = lambda s_: tuple(num(s_["iris"])[4:6])
         lean = lambda s_: math.degrees(math.atan(-num(s_["lean"])[2]))                     # skewX(a): matrix(1, 0, tan a, 1)
         i_t1 = first(lambda s_: s_["tilesIn"] >= 1); i_lk = first(lambda s_: s_["look"])
-        check("[t3-look] .look starts in the frame the FIRST tile pops (no glance before it)", abs(i_lk - i_t1) <= 1 and not any(s_["look"] for s_ in samples[:i_t1]) and all(arm(s_) == 0 and eye(s_) == (0, 0) and lean(s_) == 0 for s_ in samples[:i_t1]), (round(ms(i_lk) - ms(i_t1)), i_t1, i_lk))
+        tiny = lambda s_: abs(arm(s_)) < 0.01 and max(abs(v) for v in eye(s_)) < 0.01 and abs(lean(s_)) < 0.01
+        check("[t3-look] .look starts in the frame the FIRST tile pops (no glance before it: every transform identity, or the warm-up's thousandths)", abs(i_lk - i_t1) <= 1 and not any(s_["look"] for s_ in samples[:i_t1])
+              and all(tiny(s_) for s_ in samples[:i_t1]) and all(arm(s_) == 0 and eye(s_) == (0, 0) and lean(s_) == 0 for s_ in samples[:i_t1] if not s_["warm"]), (round(ms(i_lk) - ms(i_t1)), i_t1, i_lk))
+        wf = [k for k in range(i_t1) if samples[k]["warm"]]
+        runs_w = sum(1 for k in wf if k - 1 not in wf)
+        check("[t3-look7] the GPU warm-up: .warm once, in the still moment after the slide-in and before the bubble (0.5-1 s after the page's first frame), 0.1-0.25 s long, the layers tilted by thousandths only (under 0.01 degree / px)",
+              bool(wf) and runs_w == 1 and 500 <= ms(wf[0]) - ms(0) and ms(wf[-1]) < ms(i_slot) and 100 <= ms(wf[-1]) - ms(wf[0]) <= 250 and all(tiny(samples[k]) for k in wf) and any(arm(samples[k]) != 0 for k in wf),
+              (round(ms(wf[0]) - ms(0)) if wf else None, round(ms(wf[-1]) - ms(wf[0])) if wf else None, runs_w, round(ms(i_slot) - ms(0))))
         t0 = ms(i_lk)
         cyc1 = [(ms(i) - t0, samples[i]) for i in range(i_lk, len(samples)) if ms(i) - t0 < EV]
         peak = min(arm(s_) for t_, s_ in cyc1 if 300 <= t_ <= 700); peak_t = next(t_ for t_, s_ in cyc1 if arm(s_) == peak)
-        held = [arm(s_) for t_, s_ in cyc1 if 650 <= t_ <= 1500]; back = [(t_, arm(s_), eye(s_), lean(s_)) for t_, s_ in cyc1 if 2350 <= t_ <= 4950]
+        held = [arm(s_) for t_, s_ in cyc1 if 650 <= t_ <= 1500]; back = [(t_, arm(s_), eye(s_), lean(s_)) for t_, s_ in cyc1 if 2350 <= t_ <= EV - 50]
         ret_t = next((t_ for t_, s_ in cyc1 if t_ > 1500 and abs(arm(s_)) < 0.05 and eye(s_) == (0, 0) and abs(lean(s_)) < 0.01), None)
         check(f"[t3-look] the arm: up to -{LK['arm_deg']} degrees (a touch past) within 0.3-0.7 s, between -6 and -12 while it bobs (0.65-1.5 s), back at 0 by 2.35 s and 0 to the cycle's end",
               -LK["arm_deg"] - 1.5 <= peak <= -LK["arm_deg"] + 0.3 and held and all(-12 <= a <= -6 for a in held) and ret_t is not None and ret_t <= 2350 and back and all(a == 0 and e == (0, 0) and l == 0 for t_, a, e, l in back),
@@ -341,14 +349,19 @@ with sync_playwright() as p:
         mx = max(st[0] for st in steps); me = max(st[1] for st in steps); ml = max(st[2] for st in steps)
         check("[t3-look] smooth: frame to frame the arm never turns more than 1.6 degrees, an iris never slides more than 0.45 px, the lean never changes more than 0.3 degrees; the arm never goes below 0 (its kept band under the braid would show)",
               mx <= 1.6 and me <= 0.45 and ml <= 0.3 and all(arm(s_) <= 0.001 for t_, s_ in cyc1), (round(mx, 2), round(me, 3), round(ml, 3), len(steps)))
-        onsets = [ms(i) - t0 for i in range(i_lk + 1, len(samples)) if arm(samples[i]) < -1 and arm(samples[i - 1]) >= -1]
+        on_i = [i for i in range(i_lk + 1, len(samples)) if arm(samples[i]) < -1 and arm(samples[i - 1]) >= -1]
+        onsets = [ms(i) - t0 for i in on_i]; slack = [ms(i) - ms(i - 1) for i in on_i]   # an onset is seen up to one frame late: that frame's length
         gaps_on = [round(b_ - a_) for a_, b_ in zip(onsets, onsets[1:])]
-        check(f"[t3-look] the glance repeats every {EV} ms (its lift's onset {EV} +- 60 ms apart, at least twice more before the tap)", len(onsets) >= 3 and all(abs(g - EV) <= 60 for g in gaps_on), (len(onsets), gaps_on[:6]))
+        check(f"[t3-look] the glance repeats every {EV} ms (its lift's onsets {EV} ms apart within 20 ms plus the frame each was seen in, at least once more before the tap)", len(onsets) >= 2 and all(abs(g - EV) <= 20 + max(sa, sb) for g, sa, sb in zip(gaps_on, slack, slack[1:])), (len(onsets), gaps_on[:6], [round(x) for x in slack[:6]]))
+        # [t3-look7] the first glance on a cold browser (this check's browser is fresh): the warm-up keeps its start under 75 ms a frame
+        # (without it: 83-117 ms frames as the arm began to lift; with it, measured 33-51 ms; a warm browser: 17 ms)
+        long0 = [round(ms(i) - ms(i - 1)) for i in range(i_lk + 1, len(samples)) if ms(i) - t0 <= 400 and ms(i) - ms(i - 1) > 25]
+        check("[t3-look7] the first glance's start on this (cold) browser: no frame over 75 ms in its first 0.4 s", all(x <= 75 for x in long0), long0)
         i_lke = first(lambda s_: not s_["look"], i_lk)
         rest_at_off = all(arm(samples[k]) == 0 and eye(samples[k]) == (0, 0) and lean(samples[k]) == 0 for k in (i_lke - 1, i_lke, i_lke + 1) if 0 <= k < len(samples))
         ph = (ms(i_done) - t0) % EV
         check(f"[t3-look] after the tap the class leaves only in a REST phase: every transform at identity in the frames around its going, which comes {'at once' if ph >= AC else 'once the running gesture has ended'} (within active_ms + 120 ms of the tap) and before the page leaves",
-              i_lke > i_done and rest_at_off and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["look"] for s_ in samples[i_lke:]), (round(ms(i_lke) - ms(i_done)), round(ph), rest_at_off))
+              i_lke >= i_done and rest_at_off and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["look"] for s_ in samples[i_lke:]), (round(ms(i_lke) - ms(i_done)), round(ph), rest_at_off))
     check("the pulse: dscPulse, infinite, on the whole tile, its face glowing (dscGlow) with a 3px orange border, its mark the words' orange; the dim tiles at .6 ([t2-scene2])",
           look[0] == "dscPulse" and look[1] == "infinite" and look[2] == "dscGlow" and look[3] == "rgb(232, 106, 0)" and look[4] == "3px" and look[5] == "rgb(232, 106, 0)" and look[6] == "0.6", look)
     ga = [float(m.group(1)) for s_ in samples[i_pulse:i_done] if s_["faceGlow"] for m in [re.search(r"rgba\(232, 106, 0, ([\d.]+)\)", s_["faceGlow"])] if m]
