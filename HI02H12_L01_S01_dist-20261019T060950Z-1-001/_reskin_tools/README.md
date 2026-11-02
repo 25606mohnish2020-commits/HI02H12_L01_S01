@@ -2238,6 +2238,32 @@ Page 7 T3: the girl looks at the options ([t3-look], 2026-11-02)
   control (app.js) and the appended rig CSS (style.css); no new asset files.
   `../_before_t3_look/` holds the [t3-girl] dist, build.py, README and scene_check.py.
 
+Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
+- Asked: "the animation of the girl should repeat after every 7 seconds instead of 5 seconds; rest exactly the same."
+- Built (build.py [t3-look7]): data.girl_look.every_ms 5000 -> 7000. The keyframes had been written as percentages of a 5 s cycle,
+  so a longer cycle alone would have slowed the gesture by 40 %; they are now generated (_look_kf) from the gesture's own times in
+  ms (the eyes 250 / 1750 / 2050, the lean 500 / 1700 / 2300, the arm 100 / 500 / 800 / 1100 / 1400 / 1650 / 2200) as percentages
+  of every_ms: the gesture is the 5 s build's to the millisecond, back at rest by 2.3 s; only the rest after it grows (2.7 -> 4.7 s).
+- Found on the way and fixed (a fault of [t3-look], invisible): on a COLD browser the first glance stuttered — a 83-117 ms frame
+  as the arm began to lift, in 6 of 6 fresh browsers (a page without the glance: never over 17 ms). The trace: the GPU compiling
+  shaders and re-rastering for the first frame that draws the masked layers tilted. Two changes: (1) the rig's three animated
+  elements are composited from mount (will-change: transform; was only while .look) — the glance's start no longer switches how
+  she is drawn (that switch had moved her edges by up to 46 levels at 2x, mean 0.47; now at most 1 level); (2) a warm-up: 560 ms
+  after the mount (the slide-in is over, the bubble comes at 1 s — nothing moves) .warm tilts the layers by 0.001 degree / px
+  for 150 ms (her pixels: at most 4 levels at 3x, mean 0.02), once her bitmap is drawn (if it is still loading, as soon as it is,
+  unless the glance has begun). Result, fresh browsers: the first glance's worst frame 33-62 ms (one or two dropped frames)
+  instead of 83-117 ms; later glances 17 ms. NOT removed entirely: what remains is raster work for the real motion's scale that
+  an invisible warm-up cannot reach (it would need the lean built differently). A browser that has drawn the page once keeps
+  its compiled shaders, so a returning child does not see even that.
+- Checked: scene_check.py T3 47/47 ALL PASS (the cycle 7 s; the arm, eyes and lean on the gesture's old times; smooth; the lift's
+  onsets 7000 / 7001 ms apart, each within the frame it was seen in — the first cut of this check failed on a cold-start frame
+  that delayed the first onset's sample by 70 ms; the warm-up once at 539 ms for 150 ms, thousandths only; the composited layers
+  from mount; the first glance's frames under 75 ms on the check's cold browser — 62; after the tap the class leaves in a rest
+  phase, in the tap's own frame when the tap falls in one — the old check wanted a later frame; her pixels at rest vs the render
+  mean 3.95 levels). T2 38/38 ALL PASS. word_sync_check T2 T3 OK. smoke.py 51/51 passed on the new build.
+  The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
+  the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
