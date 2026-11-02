@@ -2264,6 +2264,28 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Page 9 G1: the sentence read once, no pop-in after a wrong tap's wiggle ([g1-quiet], 2026-11-02, after [g1-scene])
+- Asked: "At page 9 G1 once the VO of the sentence is over then the VO and the highlight animation of the sentence should not
+  repeat after once, and also when the user taps on any wrong option then why the incorrect option is showing an appearing
+  animation every time the user taps on any wrong option? Fix this. Rest keep everything exactly the same."
+- The repeat was the engine's idle reminder (one per guided page, 7 s after the last quiet moment — armIdleVo): on the [g1-scene]
+  page the tiles are the child's from the first tile's pop, so its 7 s of quiet ran out right as the slot's blink ended and
+  state.replayAudio read the sentence again, words lit. Built: G1's data.no_idle_vo true and the engine's armIdleVo skips a page
+  whose data says so (next to its type exclusions: SENT_PICK, LETTER_STORY, STAMP_DEMO) — the sentence's clip and its word light
+  play ONCE by the page; the 🔊 chip still reads it again on a tap (the child's own ask; the chip is live on every page of the
+  lesson). G2 / G3 keep their idle reminder (no flag). The pop-in: a wrong tile's wiggle (.dsc-tile.wiggle = animation wgNo)
+  had REPLACED the tile's animation list, so as the wiggle's class left the list went back to dscTileIn and the pop-in ran again
+  (the [t2-scene5] gotcha with the blink); the rule is .dsc-tile.in.wiggle{animation:dscTileIn .45s ease-out,wgNo ...} — the
+  pop-in stays first and is never restarted (the press .in.on the same way). That fix went into the dist with [g1-scene]'s last
+  rebuild, before the question was asked; the dist the question was asked on was the earlier one.
+- Checked: scene_check.py G1 — the data flag; after each wrong tap both wiggled tiles at the identity transform through the second
+  after the wiggle's class leaves and the sentence's clip started exactly twice (the page's reading + the chip's); the hand run
+  waits 8.5 s of quiet with the tiles the child's first: the sentence's clip has sounded once, no word lit, nothing speaking, the
+  idle ticker not running: [[G1_TALLY]] smoke.py [[SMOKE]]; word_sync_check G1 [[WS]]. T2 / T3 / T4 / G2 / G3 untouched by this
+  (the engine patch adds a data condition only): their [g1-scene] runs stand. `../_before_g1_quiet/` holds the [g1-scene] dist's
+  three files and README, build.py with this entry's two code changes undone (its comments carry both entries), and scene_check.py
+  with this entry's checks (they only add).
+
 Page 9 G1: the room scene from Figma 715:856 on T2's module, the tiles the child's ([g1-scene], 2026-11-02)
 - Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=715-856 — at page 9 G1 make this exact same layout;
   after the instruction VO in the bg, first the image inside the blue frame along with the girl, then the sentence along with the

@@ -233,13 +233,13 @@ with sync_playwright() as p:
     d = pg.evaluate("CARD.slides[state.idx].data"); ST = d["sentence"]["word_times"]; SE = d["sentence"].get("word_end")
     XT = d["explain"]["word_times"] if not PICKM else []; CUE = XT[d["explain"]["cue_word"]] if not PICKM else None   # [g1-scene] the pick has no explanation
     if PICKM:
-        check(f"[g1-scene] the page's data: PUNCT_PICK with data.scene (variant \"pick\"), the intro line {C['intro_clip']}, the picture and the girl (still, no pop, no sound), the sentence (its clip and {C['nwords']} word times), the marks {C['opts']}, the answer \"{C['mark']}\", no explanation, no bubble, the 53x90 slot, T2's blink and tiles; the hint lines {C['hints']}, the praise {C['ok_clip']}, no hint 3 line",
+        check(f"[g1-scene] the page's data: PUNCT_PICK with data.scene (variant \"pick\"), the intro line {C['intro_clip']}, the picture and the girl (still, no pop, no sound), the sentence (its clip and {C['nwords']} word times), the marks {C['opts']}, the answer \"{C['mark']}\", no explanation, no bubble, the 53x90 slot, T2's blink and tiles; the hint lines {C['hints']}, the praise {C['ok_clip']}, no hint 3 line; the idle re-read off ([g1-quiet] no_idle_vo)",
               pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_PICK" and d.get("scene") is True and d.get("variant") == "pick" and d.get("intro_audio") == C["intro_clip"] and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"]
               and d.get("girl_pop") is False and not d.get("pic_sfx") and not d.get("bubble_id") and not d.get("box_sfx") and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"] and not d.get("explain")
               and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
               and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350
-              and [d.get("hint1_audio"), d.get("hint2_audio")] == C["hints"] and d.get("ok_audio") == C["ok_clip"] and d.get("hint3_audio") is None,
-              {k: d.get(k) for k in ("scene", "variant", "intro_audio", "bg_id", "image_id", "girl_pop", "slot_w", "mark", "blink_ms", "hint1_audio", "hint2_audio", "ok_audio", "hint3_audio")})
+              and [d.get("hint1_audio"), d.get("hint2_audio")] == C["hints"] and d.get("ok_audio") == C["ok_clip"] and d.get("hint3_audio") is None and d.get("no_idle_vo") is True,   # [g1-quiet]
+              {k: d.get(k) for k in ("scene", "variant", "intro_audio", "bg_id", "image_id", "girl_pop", "slot_w", "mark", "blink_ms", "hint1_audio", "hint2_audio", "ok_audio", "hint3_audio", "no_idle_vo")})
     else:
         check(f"the page's data: PUNCT_SCENE with {'the intro line' if C['intro'] else 'no intro line (open_ms ' + str(C['open_ms']) + ')'}, the picture and the girl, {'the bubble and the box sound, ' if C['bubble'] else ''}the sentence (its clip and word times), the explanation with its cue word \"{C['cue']}\", the marks {C['opts']}, the answer \"{C['mark']}\", the sound / blink / pop",
               pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_SCENE" and d.get("intro_audio") == ("vo_demo1_intro" if C["intro"] else None) and (C["intro"] or d.get("open_ms") == C["open_ms"])
@@ -437,6 +437,10 @@ with sync_playwright() as p:
         i_w2 = first(lambda s: s["wig"][W2], i_rre); i_h2 = start_of(H2, i_w2); i_h2e = end_of(H2, i_h2)
         check(f"[g1-scene] the second wrong tap (tile {W2 + 1}): the wiggle, the buzz in its frame, attempt 2, hint 2 ({C['hints'][1]}) 0.5 s after; no hand (that is the third tap's)",
               "wrong2" in taps and samples[i_w2 + 1]["att"] == 2 and len(buzz) == 2 and abs(buzz[1]["ms"] - ms(i_w2)) <= 50 and 400 <= ms(i_h2) - ms(i_w2) <= 800 and not any(s["hand"] for s in samples), (round(ms(i_h2) - ms(i_w2)), len(buzz)))
+        i_w2e = first(lambda s: not s["wig"][W2], i_w2)
+        still = [(k, round(ms(j) - ms(e)), samples[j]["tTf"][k]) for k, e in ((W1, i_w1e), (W2, i_w2e)) for j in range(e, len(samples)) if ms(j) - ms(e) <= 1000 and j < i_on and samples[j]["tTf"][k] not in IDENT]
+        check("[g1-quiet] a wrong tile's pop-in (dscTileIn) does NOT run again as its wiggle ends: both wiggled tiles at their size (the identity transform) through the second after the wiggle's class has left; the sentence's clip never replays by itself (once, plus the chip's reading)",
+              not still and starts("sent") == 2, (still[:4], starts("sent")))
         i_done = i_on; i_mark = first(lambda s: s["markIn"], i_live)
         corr = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_correct_new.ogg"]; cel = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_celebrate.ogg"]
         i_ok = start_of(OKC, i_on); i_oke = end_of(OKC, i_ok)
@@ -550,6 +554,9 @@ with sync_playwright() as p:
         pg.wait_for_function("document.querySelectorAll('.dsc-tile.live').length === 3", timeout=40000, polling=20)
         def quiet_(): pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=20000, polling=20); pg.wait_for_timeout(300)
         def T(k): pg.click(f".dsc-tile.t{k + 1}", force=True)
+        pg.wait_for_timeout(8500)   # [g1-quiet] 8.5 s of quiet with the tiles the child's: the engine's 7 s idle reminder must NOT re-read the sentence
+        idle = pg.evaluate("[window._snd.filter(e => e.kind === 'media' && e.src === 'vo_g1_sent.ogg').length, document.querySelectorAll('.dsc-sent .hot').length, isPlaying, !!_idleVoTimer]")
+        check("[g1-quiet] 8.5 s of quiet once the tiles are the child's: the sentence's clip has sounded ONCE (no idle re-read), no word lit, nothing speaking, the idle ticker not running", idle[0] == 1 and idle[1] == 0 and not idle[2] and not idle[3], idle)
         T(W1); quiet_(); T(W2); quiet_(); T(W1); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "h_hand_1333.png"))
         hand = pg.evaluate(f"""() => {{ const h = document.querySelector('.slide-stage .reveal-hand.dmf-hand'), t = document.querySelectorAll('.dsc-tile')[{PICK}]; if (!h) return null; const r = h.getBoundingClientRect(), tr = t.getBoundingClientRect();
           return [state.attempts, +(r.left + r.width / 2 - (tr.left + tr.width / 2)).toFixed(2), +(r.top - tr.bottom).toFixed(2), [...document.querySelectorAll('.dsc-tile')].map(x => [x.classList.contains('off'), x.classList.contains('live'), getComputedStyle(x).pointerEvents]), !!document.querySelector('.dsc-tile.on'), r.width]; }}""")

@@ -457,16 +457,20 @@ assert _g1["type"] == "BUILD_PUNCT" and _g1["phase"] == "guided" and not _g1["da
 # under the right tile, the other two dead and dim, no line — [hand-quiet]); the right one is pressed (dmfTap, its colours kept),
 # its mark lands in the slot in that frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (vo_ok)
 # sounds and PACE.tail (1 s) later the page moves on to G2 (after the hand: no line, 1.7 s); [tap-lock] no tile answers while a
-# feedback sound or line plays; the idle reminder and the 🔊 chip read the sentence again (words lit) while the tiles are the
-# child's. The clips are the ones in use before: vo_g1_intro and the hint / praise lines recorded ([vo-rec]), vo_g1_sent the TTS
-# take (the recording says राजू).
+# feedback sound or line plays; the 🔊 chip reads the sentence again (words lit) while the tiles are the child's — the engine's
+# idle reminder does NOT ([g1-quiet], data.no_idle_vo: asked the same day, "once the VO of the sentence is over, the VO and the
+# highlight animation should not repeat"; it had re-read the sentence 7 s after the tiles went live, right as the blink ended).
+# The clips are the ones in use before: vo_g1_intro and the hint / praise lines recorded ([vo-rec]), vo_g1_sent the TTS take
+# (the recording says राजू). [g1-quiet] also: a wrong tile's wiggle had replayed its pop-in (dscTileIn) as the wiggle's class left
+# — the animation list keeps dscTileIn first (style.css; the [t2-scene5] gotcha), fixed before the question was asked.
 card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
     "data": {"scene": True, "variant": "pick", "intro_audio": "vo_g1_intro", "bg_id": "img_g1_room", "image_id": "img_g1_girl_ball2", "girl_pop": False,   # the frame's room and girl, standing from the first frame
              "sentence": {"text_hi": gl["sent"]["shown"], "audio": "vo_g1_sent", "word_times": [t[0] for t in gl["sent"]["word_times"]], "word_end": gl["sent"]["word_times"][-1][1]},
              "mark": "।", "mark_audio": "vo_demo1_purn",   # ([vo-rec] sets the name, the praise and the hint lines below)
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
+             "no_idle_vo": True},   # [g1-quiet] (asked 2026-11-02): the sentence's clip and its word light play ONCE — the engine's idle reminder (after 7 s of quiet once the tiles are the child's, which fell right at the blink's end) is off on this page; the 🔊 chip still reads it again on a tap
     "signals": {"on_complete": ["punct_build_done"]}}
 for k in G1_KEYS:
     card["assets"]["audio"][f"vo_g1_{k}"] = f"assets/Audio/vo_g1_{k}.ogg"
@@ -1216,7 +1220,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
         frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
         page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
-        idle reminder and the 🔊 chip read the sentence again. ===== */
+        🔊 chip reads the sentence again (the engine's idle reminder is off on G1: data.no_idle_vo, [g1-quiet]). ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -1385,8 +1389,9 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
       // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
       // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
-      // no tile answers while a feedback sound or line plays; the idle re-read (state.replayAudio, the engine's one per page after
-      // 7 s of quiet) and the 🔊 chip read the sentence again, words lit — a tap cuts that reading short and answers at once
+      // no tile answers while a feedback sound or line plays; the 🔊 chip reads the sentence again, words lit (state.replayAudio —
+      // the engine's idle reminder would use it too, but G1's data.no_idle_vo keeps that off: [g1-quiet], the sentence is read
+      // once by the page) — a tap cuts that reading short and answers at once
       let live = false, fbAudio = null, hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
@@ -2366,7 +2371,7 @@ js = sub1(js, r'  SEQUENCE_DRAG: "drag",',
 # [sent-fig] G4, P1 + P2 (SENT_PICK) repeat their instruction after every 5 s of quiet itself (the reference P4's rule), so the engine's
 # one-off 7 s idle reminder stays off there; and the stage carries .sent-page for P4's look (style.css [sent-fig])
 js = sub1(js, r"if\(\['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG'\]\.includes\(",
-          "if(['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG','SENT_PICK','LETTER_STORY','STAMP_DEMO'].includes(", 0, "armIdleVo exclusions (sent, letter, stamp)")   # [letter-fig] no idle reminder on the story page
+          "if((CARD.slides[state.idx]?.data || {}).no_idle_vo || ['MATCH_THE_PAIR','MATCH_VACHAN_PAIRS','FILL_VACHAN_DRAG','SENT_PICK','LETTER_STORY','STAMP_DEMO'].includes(", 0, "armIdleVo exclusions (sent, letter, stamp)")   # [letter-fig] no idle reminder on the story page; [g1-quiet] nor on a page whose data says no_idle_vo (G1: its sentence is read once)
 js = sub1(js, r'  document\.body\.classList\.toggle\("tut-page", isTut\);\n',
           lambda m: m.group(0) + '  $("stage").classList.toggle("sent-page", slide.type === "SENT_PICK");   // [sent-fig] G4, P1 + P2: the reference P4\'s header + page look\n',
           0, "mountSlide sent-page")
