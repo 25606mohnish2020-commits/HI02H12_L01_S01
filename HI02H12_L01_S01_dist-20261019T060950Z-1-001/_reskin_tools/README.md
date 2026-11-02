@@ -2264,6 +2264,45 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
   The dist differs from `../_before_t3_look7/` (the [t3-look] 5 s build, build.py, README, scene_check.py) only in T3's every_ms,
   the three keyframe rules, the will-change rule, the .warm rule and the module's warm-up lines.
 
+Page 10 G2: the street scene from Figma 716:1058, G1's pick with the "?" ([g2-scene], 2026-11-02)
+- Asked: "https://www.figma.com/design/R6YdoMpD5l2tL0rcT8pXiE/FLN-by-MJ?node-id=716-1058 — at page 10 G2 make the exact same layout
+  as this figma reference and follow the exact same flow as page 9 G1 for the correct answer as the (?) sign; rest keep the flow the
+  same as page 9 G1; rest keep everything exactly the same."
+- The frame (716:1058 "10 G2"): T2's card (96,106 1088x508) filled by a street picture ("image 266", 1815x866 — the same SIZE as
+  T4's park bitmap but a different picture; drawn WHOLE at -34,-5 1152.714x550 of the card, the box with the bitmap's aspect); the
+  girl with the yellow bag, walking ("image 275", 1024x1536, at 934,227 236x354 of the STAGE — a child of the frame, not of the
+  card, its last node; her box lies inside the card's padding box and her ink clear of the tiles, so she is drawn inside the card's
+  clip as the other scenes' girls are) on her ellipse (750:2551, 969,534 145x38, #E99560 .41); the sentence 724:2257 "तुम कहाँ जा रहे
+  हो" (Baloo 2 ExtraBold 55 #012F76, centred in a 479 box at 363,189); the white slot 724:2258 59x100 (T3's size) at 791,184 (2px
+  dashed rgba(86,86,86,.85), 8px corners); the tiles । , ? (T2's order, faces and mark offsets) at 334.09 / 561 / 791.82, 426 —
+  NO ellipses under them in this frame; its own Swiftie 716:1250 (not used: T1's standing Swiftie and chip, as T2-T4 / G1); a hidden
+  title bar, a hidden "image 218", and a stray copy of the whole T3 frame parked inside at y -3415 (outside the frame's bounds —
+  not drawn, not used).
+- Built (build.py [g2-scene]): G2's card entry = G1's ([g1-scene] + [g1-quiet]: type PUNCT_PICK, data.scene, no_idle_vo) with
+  data.variant "pick2" (card class dsc-v-pick2), the frame's slot size (data.slot_w 59 / slot_h 100), its sentence vo_g2_sent (the
+  [vo-rec] recording, whisper word times) and "?" as data.mark — the third tile the answer; the instruction line G1's vo_g1_intro
+  as before; the [vo-rec] hooks on G2's data unchanged (the name vo_recap_prashn_name, the praise vo_ok, hint 1 / 2; hint 3's line
+  vo_g2_hint3 stays registered — unspoken since [hand-quiet], as on the demo-module page). In place of the [g2-girl] page on the
+  PUNCT_DEMO module (frame 600:197's title bar, picture box, sentence bar and data.layout go with it; img_g2_girl_bag and
+  img_g2_boy_bag stay in the dist, unused). The flow is G1's to the letter — the module unchanged: the instruction line over the
+  picture and the girl, standing; 0.5 s later the sentence rising whole with the slot popping in and T1's text pop; the recorded
+  clip with the words lit, once; 0.3 s later the 7 s blink with the tiles popping in one by one, each the child's as it pops; a
+  wrong tile's wiggle (the pop-in kept first in its animation list) + the buzz + hint 1 / hint 2 / the hand; the right tile ("?")
+  pressed, its mark in the slot in that frame with the correct sound, the confetti and "शाबाश!", G3 1 s later; the chip says the
+  instruction line again; no idle re-read. CSS .dsc-v-pick2: the picture -46,-17 1152.714x550 of the padding box; the sentence
+  centred on 495,118 (the box's centre 494.5,115: measured word by word against the render); the slot 683,66 59x100; the
+  tiles 226.09 / 453 / 683.82 at 308; .dsc-tshade display none; the girl 826,109 236x354, her ellipse 35,307 145x38 at
+  rgba(233,149,96,.41). Assets (from the Figma connector, downloaded into the scratchpad first): g2_assets/img_g2_street.webp
+  (image 266's fill, q90, 37 KB), img_g2_girl_bag2.webp (image 275's fill, q90, alpha exact, 181 KB); g2b_figma_render_1280x720.png
+  = the frame's 1x export. Nothing else in the dist changed: the card's G2 entry + two image entries; style.css the .dsc-v-pick2
+  block; app.js two comments (the alias's and the module's).
+- Checked: scene_check.py G2 (new config on the pick-mode branches — the same taps and checks as G1 with the "?" the answer, the
+  wrong tiles the first two; the clip names in its sample now mapped from the page's own intro / sentence clips, since G2's intro
+  line is G1's file; a frame without tile ellipses: .dsc-tshade display none): [[G2_TALLY]] scene_check G1 (its next page now the
+  G2 scene) [[G1_TALLY]]. smoke.py [[SMOKE]] (the G1 -> G2 step expects the scene card; G2's taps on .dsc-tile; G2 -> G3 as before).
+  word_sync_check G1 G2 [[WS]]. pick_check.py refuses G2 now too (G3 is its only page). `../_before_g2_scene/` holds the [g1-quiet]
+  dist's three files, build.py, README, scene_check.py, smoke.py and pick_check.py.
+
 Page 9 G1: the sentence read once, no pop-in after a wrong tap's wiggle ([g1-quiet], 2026-11-02, after [g1-scene])
 - Asked: "At page 9 G1 once the VO of the sentence is over then the VO and the highlight animation of the sentence should not
   repeat after once, and also when the user taps on any wrong option then why the incorrect option is showing an appearing

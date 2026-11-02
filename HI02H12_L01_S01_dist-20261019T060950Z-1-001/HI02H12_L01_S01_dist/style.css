@@ -3254,6 +3254,15 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
    dmfTap) and keeps its colours — no green, no glow (the pick page's look, as before) */
 .dsc-tile.in.wiggle{animation:dscTileIn .45s ease-out,wgNo var(--fx-beat) ease-in-out both;}
 .dsc-tile.in.on{animation:dscTileIn .45s ease-out,dmfTap .45s ease-out;}
+/* ===== [g2-scene] G2 = frame 716:1058 "10 G2" on the scene module: the "pick2" variant (.dsc-v-pick2) — G1's page with the frame's own geometry ===== */
+.dsc-v-pick2 .dsc-bg > img{left:-46px;top:-17px;width:1152.714px;height:550px;}   /* the street, drawn whole (the box has the bitmap's aspect) */
+.dsc-v-pick2 .dsc-sent{left:495px;top:118px;}   /* the box's centre 494.5,115 of the padding box: Chrome's Baloo ink sat 0.5 px right and 3 px above the render's there (measured, word by word) */
+.dsc-v-pick2 .dsc-slot{left:683px;top:66px;width:59px;height:100px;}   /* T3's 59x100 slot, white */
+.dsc-v-pick2 .dsc-tile{top:308px;} .dsc-v-pick2 .dsc-tile.t1{left:226.09px;} .dsc-v-pick2 .dsc-tile.t2{left:453px;} .dsc-v-pick2 .dsc-tile.t3{left:683.82px;}
+.dsc-v-pick2 .dsc-tshade{display:none;}   /* no ellipses under the tiles in this frame */
+.dsc-v-pick2 .dsc-girl{left:826px;top:109px;width:236px;height:354px;}
+.dsc-v-pick2 .dsc-girl > img{width:236px;height:354px;}
+.dsc-v-pick2 .dsc-shade{left:35px;top:307px;width:145px;height:38px;background:rgba(233,149,96,.41);}   /* her ellipse 750:2551: #E99560 at .41 */
 
 /* ===== [t3-look] the girl in layers and her glance at the tiles (girl_rig.py; see build.py) ===== */
 .dsc-grig{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 98.4%;}   /* the lean shears from her feet */

@@ -1,7 +1,11 @@
 """Verify a PUNCT_SCENE page — T2, the hallway scene ([t2-scene] 2026-11-01, FLN-by-MJ frame 706:188 "2 T0B"), or T3, the classroom
 scene ([t3-scene] the same day, frame 724:2016 "7 T3") — against its frame and its timing.
-usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4|G1]     (default T2)
-       renders: demo1b_figma_render_1280x720.png (T2), demo2b_figma_render_1280x720.png (T3), demo3b_... (T4), g1b_... (G1)
+usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outdir> [T2|T3|T4|G1|G2]     (default T2)
+       renders: demo1b_figma_render_1280x720.png (T2), demo2b_figma_render_1280x720.png (T3), demo3b_... (T4), g1b_... (G1), g2b_... (G2)
+   [g2-scene] G2 (frame 716:1058 "10 G2") = G1's pick with the frame's own geometry: the street picture drawn whole at -34,-5
+   1152.714x550 of the card, the girl with the bag 934,227 236x354 on her ellipse 969,534 145x38, T3's 59x100 white slot at
+   791,184, the tiles 334.09 / 561 / 791.82 at 426 with NO ellipses under them, the "?" (the third tile) the answer, the sentence
+   clip vo_g2_sent (the recording), the instruction G1's; the same taps and checks as G1.
    [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene) runs the scene as the CHILD's pick: stages 1, 2 and 4 as
    T2's (the intro line vo_g1_intro, the sentence + the white slot, the 7 s blink with the tiles popping in), each tile live from
    the frame it pops in, no explanation / lit tile / pulse; the taps made in the page: the chip during the intro and a tile during
@@ -116,7 +120,7 @@ C = {
   "G1": dict(prefix="g1", pick_mode=True, intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g1_room", girl="img_g1_girl_ball2", beat=False, GIRL=(229, 163, 481, 541), bubble=None, box_sfx=None, slot=(53, 90),
              sent="पिंकी गेंद से खेल रही थी", sent_clip="vo_g1_sent", nwords=6, explain_clip=None, cue=None, opts=["।", ",", "?"], mark="।", pick=0,
              wrong=[1, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok",
-             next="G2", next_ok="CARD.slides[state.idx].id === 'G2' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')", next_what="G2 (PUNCT_PICK, the title-bar page)",
+             next="G2", next_ok="CARD.slides[state.idx].id === 'G2' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick2 .dsc-bg')", next_what="G2 (the scene pick, [g2-scene])",
              FRAME={".dsc-bg > img": (CX - 3, CY - 3, 1095, 514.872), ".dsc-slot": (995, 186, 53, 90), ".dsc-girl": (229, 163, 252, 378), ".dsc-shade": (250, 501, 158, 34),
                     ".dsc-tile.t1": (494.0908, 397) + TILE, ".dsc-tile.t2": (721, 397) + TILE, ".dsc-tile.t3": (951.8184, 397) + TILE,
                     ".t1 .dsc-face": (495.1289, 398.3789) + FACE, ".t1 .dsc-tshade": (493, 496, 118, 26), ".t3 .dsc-tshade": (951.8184, 496.498, 118, 26)},
@@ -124,9 +128,22 @@ C = {
              BY_DESIGN=[(990, 181, 1053, 281), (490, 188, 992, 260), (530, 420, 575, 480), (760, 440, 800, 470), (985, 418, 1035, 478)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=dict(rgb=(255, 255, 255), row_y=231, xs=(982, 1062), col_x=1022, ys=(174, 289), want=(997, 1046, 188, 274)), first_word="पिंकी", look=None),
+  # [g2-scene] G2 = frame 716:1058 (render g2b_figma_render_1280x720.png): G1's pick, the "?" the answer, the frame's own geometry
+  "G2": dict(prefix="g2", pick_mode=True, intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g2_street", girl="img_g2_girl_bag2", beat=False, GIRL=(934, 227, 1170, 581), bubble=None, box_sfx=None, slot=(59, 100),
+             sent="तुम कहाँ जा रहे हो", sent_clip="vo_g2_sent", nwords=5, explain_clip=None, cue=None, opts=["।", ",", "?"], mark="?", pick=2,
+             wrong=[0, 1], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", no_tshade=True,
+             next="G3", next_ok="CARD.slides[state.idx].id === 'G3' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')", next_what="G3 (PUNCT_PICK, the title-bar page)",
+             FRAME={".dsc-bg > img": (CX - 34, CY - 5, 1152.714, 550), ".dsc-slot": (791, 184, 59, 100), ".dsc-girl": (934, 227, 236, 354), ".dsc-shade": (969, 534, 145, 38),
+                    ".dsc-tile.t1": (334.0898, 426) + TILE, ".dsc-tile.t2": (561, 426) + TILE, ".dsc-tile.t3": (791.8203, 426) + TILE,
+                    ".t1 .dsc-face": (335.1289, 427.3789) + FACE},
+             INK={"sentence": (340, 175, 789, 285), "mark1": (344, 434, 442, 534), "mark2": (571, 434, 669, 534), "mark3": (802, 434, 900, 534)},
+             BY_DESIGN=[(786, 179, 855, 289), (345, 185, 790, 265), (370, 449, 415, 509), (600, 469, 640, 499), (825, 447, 875, 507)],   # the slot, the ink bands
+             girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
+             slot_in=dict(rgb=(255, 255, 255), row_y=234, xs=(778, 865), col_x=820, ys=(172, 297), want=(793, 848, 186, 282)), first_word="तुम", look=None),
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
 PICKM = bool(C.get("pick_mode")); INTRO_CLIP = C.get("intro_clip", "vo_demo1_intro")   # [g1-scene] the child's pick on the scene
+NAMES = {f"{INTRO_CLIP}.ogg": "intro", f"{C['sent_clip']}.ogg": "sent"} | ({f"{C['explain_clip']}.ogg": "explain"} if C.get("explain_clip") else {})   # [g2-scene] the sample's clip names (G2's intro line is G1's clip)
 WHOLE = (80, 90, 1200, 640)
 OWN_T0 = [(25, 400, 290, 720)]                                   # Swiftie + the chip (T1's, not the frame's)
 GIRL = C["GIRL"]
@@ -146,10 +163,10 @@ SOUNDS = """() => { window._snd = []; const T = window._tone;
   HTMLMediaElement.prototype.play = function(){ window._snd.push({ ms: performance.now(), kind: 'media', src: decodeURIComponent(String(this.currentSrc || this.src).split('/').pop()), vol: +this.volume.toFixed(3), slide: (typeof CARD !== 'undefined' && CARD.slides[state.idx]) ? CARD.slides[state.idx].id : null });
     return P.apply(this, arguments); }; }"""
 # one frame of the page
-SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', m = src.match(/vo_PREFIX_(\w+)\.ogg/) || src.match(/vo_(\w+)\.ogg/), q = (s) => document.querySelector(s), qa = (s) => document.querySelectorAll(s);
+SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : '', nm = NAMES, m = src.match(/vo_PREFIX_(\w+)\.ogg/) || src.match(/vo_(\w+)\.ogg/), q = (s) => document.querySelector(s), qa = (s) => document.querySelectorAll(s);
   const g = q('.dsc-girl'), gc = g ? getComputedStyle(g) : null, slot = q('.dsc-slot'), ring = q('.dsc-dash rect'), lit = [...qa('.dsc-tile')].findIndex(t => t.classList.contains('lit')), bub = q('.dsc-bubble');
   const sfx = _kitSfx.scenePic;
-  return { ms: performance.now(), slide: CARD.slides[state.idx] ? CARD.slides[state.idx].id : null, clip: m ? m[1] : null, t: a ? a.currentTime : null, playing: isPlaying,
+  return { ms: performance.now(), slide: CARD.slides[state.idx] ? CARD.slides[state.idx].id : null, clip: nm[src] || (m ? m[1] : null), t: a ? a.currentTime : null, playing: isPlaying,
     ready: !!q('.dsc-bg'), bgLoaded: !!q('.dsc-bg > img') && q('.dsc-bg > img').complete && q('.dsc-bg > img').naturalWidth > 0,
     shown: qa('.dsc-sent .sfig-w.on').length, hot: [...qa('.dsc-sent .sfig-w')].map((w, i) => w.classList.contains('hot') ? i : -1).filter(i => i >= 0), rise: !!q('.dsc-sent.sfig-rise'),
     slotIn: !!slot && slot.classList.contains('in'), blink: !!slot && slot.classList.contains('blink'), glow: slot ? getComputedStyle(slot).boxShadow : null, slotBg: slot ? getComputedStyle(slot).backgroundColor : null, slotOp: slot ? +(+getComputedStyle(slot).opacity).toFixed(3) : null, slotTf: slot ? getComputedStyle(slot).transform : null, ringStroke: ring ? getComputedStyle(ring).stroke : null,
@@ -164,7 +181,7 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
     tilesIn: qa('.dsc-tile.in').length, lit, off: qa('.dsc-tile.off').length, pulse: !!q('.dsc-tile.pulse'), live: !!q('.dsc-tile.live'), done: !!q('.dsc-tile.done'),
     liveN: qa('.dsc-tile.live').length, wig: [...qa('.dsc-tile')].map(t => t.classList.contains('wiggle')), on: !!q('.dsc-tile.on'), att: state.attempts, hand: !!q('.slide-stage .reveal-hand.dmf-hand'), conf: !!q('.fx-confetti'), demo: !!state.demoRunning,
-    nav: getComputedStyle(document.getElementById('navBtn')).display }; }""".replace("PREFIX", C["prefix"])
+    nav: getComputedStyle(document.getElementById('navBtn')).display }; }""".replace("PREFIX", C["prefix"]).replace("NAMES", json.dumps(NAMES))
 # the timeline sampled in the page every frame; the taps made in the page at their moments: the chip 1 s into the first clip (ignored),
 # the right tile 0.5 s into the explanation (ignored), the chip 0.3 s after the tile is live (the sentence again), the tile 0.3 s
 # after that reading has ended
@@ -418,8 +435,9 @@ with sync_playwright() as p:
               all(samples[i]["liveN"] == k + 1 for k, i in enumerate(i_tk)) and i_live == i_t1 and not samples[i_live]["demo"] and samples[i_live - 1]["demo"]
               and not any(s["lit"] >= 0 or s["pulse"] or s["off"] or s["hand"] for s in before) and all(s["liveN"] == 3 for s in samples[i_tk[2]:i_on]) and i_ble < i_on and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120,
               ([samples[i]["liveN"] for i in i_tk], samples[i_live - 1]["demo"], round(ms(i_ble) - ms(i_bl))))
-        check("the early tap (a tile 0.5 s into the sentence's clip) and 🔊 during the intro line were ignored: no wiggle and no attempt before the tiles are live, the intro line once",
-              "early" in taps and "intro" in taps and not any(any(s["wig"]) or s["att"] for s in samples[:i_live]) and starts("intro") == 1, (taps[:2], starts("intro")))
+        intro_before = sum(1 for i, s in enumerate(samples[:i_live]) if s["clip"] == "intro" and s["playing"] and (i == 0 or not (samples[i - 1]["clip"] == "intro" and samples[i - 1]["playing"])))
+        check("the early tap (a tile 0.5 s into the sentence's clip) and 🔊 during the intro line were ignored: no wiggle and no attempt before the tiles are live, the intro line once before they are (the chip says it again later: [g1-quiet])",
+              "early" in taps and "intro" in taps and not any(any(s["wig"]) or s["att"] for s in samples[:i_live]) and intro_before == 1, (taps[:2], intro_before))
         buzz = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_wrong_new.ogg"]
         i_w1 = first(lambda s: s["wig"][W1], i_live); i_w1e = first(lambda s: not s["wig"][W1], i_w1)
         i_h1 = start_of(H1, i_w1); i_h1e = end_of(H1, i_h1)
@@ -554,7 +572,7 @@ with sync_playwright() as p:
         def quiet_(): pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=20000, polling=20); pg.wait_for_timeout(300)
         def T(k): pg.click(f".dsc-tile.t{k + 1}", force=True)
         pg.wait_for_timeout(8500)   # [g1-quiet] 8.5 s of quiet with the tiles the child's: the engine's 7 s idle reminder must NOT re-read the sentence
-        idle = pg.evaluate("[window._snd.filter(e => e.kind === 'media' && e.src === 'vo_g1_sent.ogg').length, document.querySelectorAll('.dsc-sent .hot').length, isPlaying, !!_idleVoTimer]")
+        idle = pg.evaluate(f"[window._snd.filter(e => e.kind === 'media' && e.src === '{C['sent_clip']}.ogg').length, document.querySelectorAll('.dsc-sent .hot').length, isPlaying, !!_idleVoTimer]")
         check("[g1-quiet] 8.5 s of quiet once the tiles are the child's: the sentence's clip has sounded ONCE (no idle re-read), no word lit, nothing speaking, the idle ticker not running", idle[0] == 1 and idle[1] == 0 and not idle[2] and not idle[3], idle)
         T(W1); quiet_(); T(W2); quiet_(); T(W1); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "h_hand_1333.png"))
         hand = pg.evaluate(f"""() => {{ const h = document.querySelector('.slide-stage .reveal-hand.dmf-hand'), t = document.querySelectorAll('.dsc-tile')[{PICK}]; if (!h) return null; const r = h.getBoundingClientRect(), tr = t.getBoundingClientRect();
@@ -585,7 +603,9 @@ with sync_playwright() as p:
     for sel, exp in FRAME.items():
         got = boxes[sel]; dd = max(abs(g - e) for g, e in zip(got, exp)) if got else 99; worst = max(worst, dd)
         print(f"  {sel:16s} got {[round(v,2) for v in got] if got else None}  frame {[round(v, 3) for v in exp]}  max|d|={dd:.2f}")
-    check("the picture, " + ("the bubble, " if C["bubble"] else "") + "the slot, the girl and her shadow, the tiles, their faces and shadows within 1 px of the frame's nodes", worst <= 1.0, f"worst {worst:.2f}px")
+    check("the picture, " + ("the bubble, " if C["bubble"] else "") + "the slot, the girl and her shadow, the tiles, their faces" + ("" if C.get("no_tshade") else " and shadows") + " within 1 px of the frame's nodes", worst <= 1.0, f"worst {worst:.2f}px")
+    if C.get("no_tshade"):   # [g2-scene] the frame draws no ellipses under its tiles
+        check("[g2-scene] no ellipse under the tiles (the frame has none): every .dsc-tshade display none", pg.evaluate("[...document.querySelectorAll('.dsc-tshade')].every(e => getComputedStyle(e).display === 'none')"))
     st = pg.evaluate("""() => { const c = (s) => getComputedStyle(document.querySelector(s)); return [c('.dsc-bg').borderTopLeftRadius, c('.dsc-bg').overflow, c('.dsc-slot').borderRadius, c('.dsc-slot').backgroundColor,
       c('.dsc-dash').stroke, c('.dsc-dash').strokeWidth, c('.t1 .dsc-face').borderTopWidth, c('.t1 .dsc-face').borderTopColor, c('.t1 .dsc-face').borderRadius, c('.dsc-base').backgroundColor, c('.dsc-base').boxShadow]; }""")
     check(f"the picture clipped to the card's padding box with its inner corners; the slot {C['slot_fill']}, 8px corners, a 2px rgba(86,86,86,.85) dashed ring; the tiles' faces 2.386px #D5D8DF, 18px corners, on a #D9D9D9 base with its 0 4 4 shadow",

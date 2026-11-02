@@ -120,14 +120,14 @@ with sync_playwright() as p:
     quiet(pg); pg.click(".dsc-tile.t1", force=True); pg.wait_for_timeout(600)
     check("G1: the right tile (पूर्ण विराम) presses and puts its mark in the slot, with the confetti", pg.evaluate("document.querySelector('.dsc-tile.t1').classList.contains('on') && !!document.querySelector('.dsc-slot .dsc-mark.in') && document.querySelector('.dsc-mark').textContent==='।' && !!document.querySelector('.fx-confetti')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G2'", timeout=15000)
-    check("G1 then moves on to G2 by itself, the second Figma tap page",
-          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-band')"))
-    # G2: a wrong tile, then the right one (प्रश्नवाचक चिह्न) -> "?" in the slot -> G3
-    pg.wait_for_function("!!document.querySelector('.sfig-in.dmf-live')", timeout=30000)
-    pg.click(".dmf-tile.t1"); pg.wait_for_timeout(150)
-    check("G2: a wrong tile wiggles, no mark", pg.evaluate("document.querySelector('.dmf-tile.t1').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dmf-mark.in')"))
-    quiet(pg); pg.click(".dmf-tile.t3"); pg.wait_for_timeout(600)
-    check("G2: the right tile puts its \"?\" in the slot", pg.evaluate("!!document.querySelector('.dmf-blank .dmf-mark.in') && document.querySelector('.dmf-mark').textContent==='?'"))
+    check("G1 then moves on to G2 by itself, the second Figma pick page ([g2-scene]: the scene module's card)",
+          pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick2 .dsc-bg')"))
+    # G2 ([g2-scene]: G1's scene pick, the "?" the answer): a wrong tile, then the right one (प्रश्नवाचक चिह्न) -> "?" in the slot -> G3
+    pg.wait_for_function("document.querySelectorAll('.dsc-tile.live').length === 3", timeout=30000)
+    pg.click(".dsc-tile.t1", force=True); pg.wait_for_timeout(150)
+    check("G2: a wrong tile wiggles, no mark", pg.evaluate("document.querySelector('.dsc-tile.t1').classList.contains('wiggle') && state.attempts===1 && !document.querySelector('.dsc-mark.in')"))
+    quiet(pg); pg.click(".dsc-tile.t3", force=True); pg.wait_for_timeout(600)
+    check("G2: the right tile presses and puts its \"?\" in the slot, with the confetti", pg.evaluate("document.querySelector('.dsc-tile.t3').classList.contains('on') && !!document.querySelector('.dsc-slot .dsc-mark.in') && document.querySelector('.dsc-mark').textContent==='?' && !!document.querySelector('.fx-confetti')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G3'", timeout=15000)
     check("G2 then moves on to G3 by itself, the third Figma tap page (one small slot)",
           pg.evaluate("CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-full .dmf-blank.dmf-own')"))

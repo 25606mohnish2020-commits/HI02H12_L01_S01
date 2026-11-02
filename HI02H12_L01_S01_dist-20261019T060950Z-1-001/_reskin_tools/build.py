@@ -498,19 +498,39 @@ i_g2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "G2")
 _g2 = card["slides"][i_g2]
 assert _g2["type"] == "BUILD_PUNCT" and _g2["phase"] == "guided" and [m["mark"] for m in _g2["data"]["marks"]] == ["?"], "G2 is not the question-mark builder"
 assert " ".join(_g2["data"]["words"]) == gl2["shown"], "G2's sentence is not the frame's"
+# [g2-scene] (asked 2026-11-02): G2 is now frame 716:1058 "10 G2" — G1's scene pick ([g1-scene]: the PUNCT_SCENE module's pick
+# mode, type PUNCT_PICK + data.scene, variant "pick2", card class dsc-v-pick2) with the "?" the answer, in place of the [g2-girl]
+# page on the PUNCT_DEMO module (frame 600:197's title bar, picture box, sentence bar and data.layout go with it; img_g2_girl_bag
+# and img_g2_boy_bag stay in the dist, unused). The frame: T2's card (96,106 1088x508) filled by a street picture ("image 266",
+# 1815x866 — the same size as T4's park bitmap but a different picture, drawn WHOLE at -34,-5 1152.714x550 of the card: the box
+# has the bitmap's aspect); the girl with the yellow bag, walking ("image 275", 1024x1536, at 934,227 236x354 of the STAGE — a
+# child of the frame, not the card, drawn last; her box lies inside the card's padding box, and her ink clear of the tiles) on her
+# ellipse (750:2551, 969,534 145x38, #E99560 .41); the sentence 724:2257 "तुम कहाँ जा रहे हो" (Baloo 2 ExtraBold 55 #012F76, centred
+# in a 479 box at 363,189 of the stage); the white slot 724:2258 59x100 (T3's size) at 791,184; the tiles । , ? (T2's order, faces
+# and mark offsets) at 334.09 / 561 / 791.82, 426 — NO ellipses under them in this frame; its own Swiftie 716:1250 (not used: T1's
+# standing Swiftie and chip, as T2-T4 / G1); a hidden title bar, a hidden "image 218" and a stray copy of the T3 frame parked at
+# y -3415 (outside the frame: not drawn). The flow is G1's to the letter (the same data keys): the instruction line vo_g1_intro
+# over the picture and the girl; the sentence rising with the slot popping in and T1's text pop; its RECORDED clip vo_g2_sent with
+# the words lit, once ([g1-quiet]: no idle re-read, the chip says the instruction line again); the 7 s blink with the tiles popping
+# in one by one, each the child's as it pops; a wrong tile's wiggle + buzz + the hint ladder (hint 1, hint 2, the hand on the 3rd);
+# the right tile ("?", the third) pressed, its mark in the slot with the correct sound, the confetti and "शाबाश!", G3 1 s later.
 card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type": "PUNCT_PICK",
     "prompt_hi": gl["intro"]["shown"], "audio": {"prompt": "vo_g1_intro"},
-    "data": {"band_hi": gl["intro"]["shown"], "intro_audio": "vo_g1_intro", "image_id": "img_g2_girl_bag",   # [g2-girl]; [band-title] the bar's text is G3's (the instruction line)
+    "data": {"scene": True, "variant": "pick2", "intro_audio": "vo_g1_intro", "bg_id": "img_g2_street", "image_id": "img_g2_girl_bag2", "girl_pop": False,   # the frame's street and girl, standing from the first frame
+             "slot_w": 59, "slot_h": 100,   # the frame's slot (T3's size)
              "sentence": {"text_hi": gl2["shown"], "audio": "vo_g2_sent", "word_times": [t[0] for t in gl2["word_times"]], "word_end": gl2["word_times"][-1][1]},
-             "mark": "?", "mark_audio": "vo_demo2_prashn",
-             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
-             "blink_ms": 3500,
-             "layout": {"sent": SENT50, "img": [223, 216, 88, 132], "slot": [498, 20]}},   # [baloo-font] slot 496 -> 498 ("हो" +2 px);   # [g2-girl] the picture at its native size, centred in the box; [sent-50] the sentence at 50px centred (was the 64px box at 120), the slot 4px after its ink (was 573)
+             "mark": "?", "mark_audio": "vo_demo2_prashn",   # ([vo-rec] sets the name, the praise and the hint lines below)
+             "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
+             "no_idle_vo": True},   # [g1-quiet] as G1: the sentence's clip and its word light play once
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g2_sent"] = "assets/Audio/vo_g2_sent.ogg"
 card["assets"]["audio_text"]["vo_g2_sent"] = gl2["text"]
 card["assets"]["image"]["img_g2_girl_bag"] = "assets/Images/img_g2_girl_bag.webp"   # [g2-girl]
 card["_emoji_fallback"]["img_g2_girl_bag"] = "✏️"
+card["assets"]["image"]["img_g2_street"] = "assets/Images/img_g2_street.webp"   # [g2-scene] the frame's "image 266" fill (1815x866, q90)
+card["assets"]["image"]["img_g2_girl_bag2"] = "assets/Images/img_g2_girl_bag2.webp"   # [g2-scene] the frame's "image 275" fill (1024x1536, q90, alpha exact)
+card["_emoji_fallback"]["img_g2_street"] = "🏫"; card["_emoji_fallback"]["img_g2_girl_bag2"] = "✏️"
 # [pick-fig] G3 = the Figma frame 528:424 "9 G3", G1's page and flow for "बाग में गुलाब, गेंदा और चमेली के फूल हैं ।" in place of
 # the ported EVIDENCE_QA pick ("आज सोमवार है कल मंगलवार होगा", choose the right reading): the अल्प विराम tile is the right one.
 # The title bar is G1's to the pixel (its text is the instruction it plays); the tiles are T3's / T4's; the middle row is laid
@@ -1213,7 +1233,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         .dsc-slot sN, placed by the variant's CSS) inside the sentence — the words before them (data.sentence.gaps) carry the gaps
         (.dsc-gap) — that pop in, blink and fill together; on the tap the mark lands in each in turn, data.mark_stagger_ms apart,
         each box going 0.45 s after its mark, the page moving on 1.2 s after the last. One slot (T2, T3): as before.
-     [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene, variant "pick") runs on this module as the CHILD's pick:
+     [g1-scene] G1 (frame 715:856 "9 G1", type PUNCT_PICK with data.scene, variant "pick") runs on this module as the CHILD's pick
+        — and since [g2-scene] G2 too (frame 716:1058 "10 G2", variant "pick2", the "?" the answer; its geometry the CSS's):
         stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
         frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
         the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
@@ -2370,7 +2391,7 @@ js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: stamp_mod + m.group(0), re.M
 js = sub1(js, r"^SlideModules\.MATCH_PAIRS           = SlideModules\.MATCH_THE_PAIR;",
           lambda m: m.group(0) + "\nSlideModules.SORT_WORDS            = SlideModules.SORT_QTYPE;   // [reskin] generic two-box word sort (custom data.bins), r4n", re.M, "alias block")
 js = sub1(js, r"^SlideModules\.SORT_WORDS .*$",
-          lambda m: m.group(0) + "\nSlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] G2 / G3: the run-on demo's page with the tap left to the child; [g1-scene] G1 (data.scene): the scene module's page, its tiles the child's", re.M, "alias block (pick)")
+          lambda m: m.group(0) + "\nSlideModules.PUNCT_PICK            = { mount(host, slide){ return ((slide.data || {}).scene ? SlideModules.PUNCT_SCENE : SlideModules.PUNCT_DEMO).mount(host, slide); } };   // [pick-fig] G3: the run-on demo's page with the tap left to the child; [g1-scene] G1 — and [g2-scene] G2 — (data.scene): the scene module's page, its tiles the child's", re.M, "alias block (pick)")
 js = sub1(js, r'  SEQUENCE_DRAG: "drag",',
           lambda m: m.group(0) + '\n  EVIDENCE_QA: "mcq", BUILD_PUNCT: "build", SORT_QTYPE: "drag", SORT_WORDS: "drag", PUNCT_PICK: "mcq", SENT_PICK: "mcq",   /* [reskin] this lesson\'s answerable types */', 0, "QUESTION_FORMAT")
 # [sent-fig] G4, P1 + P2 (SENT_PICK) repeat their instruction after every 5 s of quiet itself (the reference P4's rule), so the engine's
@@ -2897,7 +2918,16 @@ scene_css += r"""
    dmfTap) and keeps its colours — no green, no glow (the pick page's look, as before) */
 .dsc-tile.in.wiggle{animation:dscTileIn .45s ease-out,wgNo var(--fx-beat) ease-in-out both;}
 .dsc-tile.in.on{animation:dscTileIn .45s ease-out,dmfTap .45s ease-out;}
-""".replace("__GAP__", "33").replace("__PSX__", "635.5").replace("__PSY__", "116")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
+/* ===== [g2-scene] G2 = frame 716:1058 "10 G2" on the scene module: the "pick2" variant (.dsc-v-pick2) — G1's page with the frame's own geometry ===== */
+.dsc-v-pick2 .dsc-bg > img{left:-46px;top:-17px;width:1152.714px;height:550px;}   /* the street, drawn whole (the box has the bitmap's aspect) */
+.dsc-v-pick2 .dsc-sent{left:__QSX__px;top:__QSY__px;}   /* the box's centre 494.5,115 of the padding box: Chrome's Baloo ink sat 0.5 px right and 3 px above the render's there (measured, word by word) */
+.dsc-v-pick2 .dsc-slot{left:683px;top:66px;width:59px;height:100px;}   /* T3's 59x100 slot, white */
+.dsc-v-pick2 .dsc-tile{top:308px;} .dsc-v-pick2 .dsc-tile.t1{left:226.09px;} .dsc-v-pick2 .dsc-tile.t2{left:453px;} .dsc-v-pick2 .dsc-tile.t3{left:683.82px;}
+.dsc-v-pick2 .dsc-tshade{display:none;}   /* no ellipses under the tiles in this frame */
+.dsc-v-pick2 .dsc-girl{left:826px;top:109px;width:236px;height:354px;}
+.dsc-v-pick2 .dsc-girl > img{width:236px;height:354px;}
+.dsc-v-pick2 .dsc-shade{left:35px;top:307px;width:145px;height:38px;background:rgba(233,149,96,.41);}   /* her ellipse 750:2551: #E99560 at .41 */
+""".replace("__GAP__", "33").replace("__QSX__", "495").replace("__QSY__", "118").replace("__PSX__", "635.5").replace("__PSY__", "116")   # measured: each gap 40 + the space (11) = 7 px wider than the render's at 40
 # [t3-look] the girl's layers: every layer fills her box and windows her bitmap (so at rest the composite IS the painting), each
 # masked by its sheet from girl_rig.py (demo2_assets/girl_rig/, inlined here); the eyes' discs / irises and the elbow pivot in her
 # box px (the 257x385 box over the 1024x1535 bitmap). The glance = three CSS animations on .look, all every_ms long and in step:
@@ -3977,7 +4007,7 @@ for name, sub in [(f"vo_g1_{k}.ogg", "Audio") for k in G1_KEYS] + [("img_g1_girl
 # ---------- 7h. [pick-fig] G2's sentence clip and picture (g2_assets/: recap_vo.py g2; the frame's "image 239"; its title bar is
 #               T4's to the pixel, its instruction G1's vo_g1_intro, its name on the right tap T3's vo_demo2_prashn) ----------
 G2_SRC = SCR / "g2_assets"
-for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_girl_bag.webp", "Images")):
+for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_girl_bag.webp", "Images"), ("img_g2_street.webp", "Images"), ("img_g2_girl_bag2.webp", "Images")):   # [g2-scene] + the frame's street and girl
     f, dst = G2_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing G2 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
