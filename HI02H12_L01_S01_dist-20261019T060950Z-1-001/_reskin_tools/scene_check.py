@@ -7,7 +7,7 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    the frame it pops in, no explanation / lit tile / pulse; the taps made in the page: the chip during the intro and a tile during
    the sentence's clip (ignored), a wrong tile 0.3 s after all three are live (the wiggle wgNo + the kit's wrong buzz in that frame,
    hint 1 vo_build_hint1 0.5 s after), the right tile 0.2 s after that (ignored: [tap-lock], the buzz sounds), the chip after hint
-   1 (the sentence again, words lit), the other wrong tile after it (the wiggle, the buzz, hint 2 vo_build_hint2), the right tile
+   1 (the instruction line again — never the sentence: [g1-quiet]), the other wrong tile after it (the wiggle, the buzz, hint 2 vo_build_hint2), the right tile
    after hint 2 (the press dmfTap with its colours kept, the mark in the slot in that frame, the correct sound, the confetti and its
    sound, "शाबाश!" vo_ok at once, G2 1 s after it; the slot's box stays). A second run: three wrong taps -> the pointing hand under
    the right tile, the other two dead and dim, a dead tile's tap nothing, the guided tap: the press, the mark, the confetti, no line,
@@ -193,8 +193,8 @@ TIMELINE_PICK = ("(sample) => { window._tl = []; window._taps = []; const S = ev
     " if (window._taps.includes('wrong1') && s.clip === 'H1' && s.playing) h1Seen = true;"
     " if (h1Seen && !h1End && !(s.clip === 'H1' && s.playing)) h1End = s.ms;"
     " if (chip && h1End && !window._taps.includes('chip') && s.ms - h1End > 300) { window._taps.push('chip'); chip.click(); }"
-    " if (window._taps.includes('chip') && s.clip === 'sent' && s.playing) rrSeen = true;"
-    " if (rrSeen && !rrEnd && !(s.clip === 'sent' && s.playing)) rrEnd = s.ms;"
+    " if (window._taps.includes('chip') && s.clip === 'intro' && s.playing) rrSeen = true;"
+    " if (rrSeen && !rrEnd && !(s.clip === 'intro' && s.playing)) rrEnd = s.ms;"
     " if (rrEnd && !window._taps.includes('wrong2') && s.ms - rrEnd > 300) { window._taps.push('wrong2'); T(W2).click(); }"
     " if (window._taps.includes('wrong2') && s.clip === 'H2' && s.playing) h2Seen = true;"
     " if (h2Seen && !h2End && !(s.clip === 'H2' && s.playing)) h2End = s.ms;"
@@ -429,18 +429,17 @@ with sync_playwright() as p:
               (round(ms(i_w1e) - ms(i_w1)), [(round(e["ms"] - ms(i_w1)), e["vol"]) for e in buzz[:1]], round(ms(i_h1) - ms(i_w1))))
         check("[tap-lock] the right tile tapped 0.2 s after the wrong one (the buzz still sounding) was ignored: no press, no mark, the attempt count unchanged through hint 1",
               "locked" in taps and not any(s["on"] or s["markIn"] for s in samples[:i_h1e]) and all(s["att"] == 1 for s in samples[i_w1 + 2:i_h1e]), (samples[i_h1e - 1]["att"],))
-        i_rr = start_of("sent", i_h1e); i_rre = end_of("sent", i_rr)
-        rr = [s for s in samples[i_rr:i_rre] if s["clip"] == "sent" and s["playing"] and s["t"] is not None]
-        off2 = [s for s in rr if s["hot"] not in (lit_want(ST, SE, s["t"]), lit_want(ST, SE, s["t"] - 0.05))]
-        check("🔊 after hint 1 reads the sentence again, each word lit, the three tiles the child's and nothing else changing",
-              "chip" in taps and i_rr > i_h1e and len(rr) > 20 and not off2 and all(s["liveN"] == 3 and not s["on"] and not s["markIn"] and s["off"] == 0 for s in rr), f"{len(rr)} samples, {len(off2)} off")
+        i_rr = start_of("intro", i_h1e); i_rre = end_of("intro", i_rr)
+        rr = [s for s in samples[i_rr:i_rre] if s["clip"] == "intro" and s["playing"] and s["t"] is not None]
+        check("[g1-quiet] 🔊 after hint 1 says the instruction line again (vo_g1_intro) — NOT the sentence: no word lit, the three tiles the child's and nothing else changing",
+              "chip" in taps and i_rr > i_h1e and len(rr) > 20 and all(not s["hot"] and s["liveN"] == 3 and not s["on"] and not s["markIn"] and s["off"] == 0 for s in rr), f"{len(rr)} samples")
         i_w2 = first(lambda s: s["wig"][W2], i_rre); i_h2 = start_of(H2, i_w2); i_h2e = end_of(H2, i_h2)
         check(f"[g1-scene] the second wrong tap (tile {W2 + 1}): the wiggle, the buzz in its frame, attempt 2, hint 2 ({C['hints'][1]}) 0.5 s after; no hand (that is the third tap's)",
               "wrong2" in taps and samples[i_w2 + 1]["att"] == 2 and len(buzz) == 2 and abs(buzz[1]["ms"] - ms(i_w2)) <= 50 and 400 <= ms(i_h2) - ms(i_w2) <= 800 and not any(s["hand"] for s in samples), (round(ms(i_h2) - ms(i_w2)), len(buzz)))
         i_w2e = first(lambda s: not s["wig"][W2], i_w2)
         still = [(k, round(ms(j) - ms(e)), samples[j]["tTf"][k]) for k, e in ((W1, i_w1e), (W2, i_w2e)) for j in range(e, len(samples)) if ms(j) - ms(e) <= 1000 and j < i_on and samples[j]["tTf"][k] not in IDENT]
-        check("[g1-quiet] a wrong tile's pop-in (dscTileIn) does NOT run again as its wiggle ends: both wiggled tiles at their size (the identity transform) through the second after the wiggle's class has left; the sentence's clip never replays by itself (once, plus the chip's reading)",
-              not still and starts("sent") == 2, (still[:4], starts("sent")))
+        check("[g1-quiet] a wrong tile's pop-in (dscTileIn) does NOT run again as its wiggle ends: both wiggled tiles at their size (the identity transform) through the second after the wiggle's class has left; the sentence's clip sounded ONCE on the page (the intro line twice: the page's and the chip's), every word's light only during that one reading",
+              not still and starts("sent") == 1 and starts("intro") == 2 and not any(s["hot"] for s in samples[i_sente:]), (still[:4], starts("sent"), starts("intro")))
         i_done = i_on; i_mark = first(lambda s: s["markIn"], i_live)
         corr = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_correct_new.ogg"]; cel = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_celebrate.ogg"]
         i_ok = start_of(OKC, i_on); i_oke = end_of(OKC, i_ok)

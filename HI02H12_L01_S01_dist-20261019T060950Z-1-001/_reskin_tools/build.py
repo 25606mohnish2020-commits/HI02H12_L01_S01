@@ -457,9 +457,10 @@ assert _g1["type"] == "BUILD_PUNCT" and _g1["phase"] == "guided" and not _g1["da
 # under the right tile, the other two dead and dim, no line — [hand-quiet]); the right one is pressed (dmfTap, its colours kept),
 # its mark lands in the slot in that frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (vo_ok)
 # sounds and PACE.tail (1 s) later the page moves on to G2 (after the hand: no line, 1.7 s); [tap-lock] no tile answers while a
-# feedback sound or line plays; the 🔊 chip reads the sentence again (words lit) while the tiles are the child's — the engine's
-# idle reminder does NOT ([g1-quiet], data.no_idle_vo: asked the same day, "once the VO of the sentence is over, the VO and the
-# highlight animation should not repeat"; it had re-read the sentence 7 s after the tiles went live, right as the blink ended).
+# feedback sound or line plays; the sentence's clip and its word light play ONCE ([g1-quiet], asked twice the same day: "once the
+# VO of the sentence is over, the VO and the highlight animation should not repeat") — the engine's idle reminder is off here
+# (data.no_idle_vo; it had re-read the sentence 7 s after the tiles went live, right as the blink ended) and the 🔊 chip, while the
+# tiles are the child's, says the instruction line vo_g1_intro again instead (as the chip does on the lesson's ordinary pages).
 # The clips are the ones in use before: vo_g1_intro and the hint / praise lines recorded ([vo-rec]), vo_g1_sent the TTS take
 # (the recording says राजू). [g1-quiet] also: a wrong tile's wiggle had replayed its pop-in (dscTileIn) as the wiggle's class left
 # — the animation list keeps dscTileIn first (style.css; the [t2-scene5] gotcha), fixed before the question was asked.
@@ -470,7 +471,7 @@ card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type"
              "mark": "।", "mark_audio": "vo_demo1_purn",   # ([vo-rec] sets the name, the praise and the hint lines below)
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
              "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
-             "no_idle_vo": True},   # [g1-quiet] (asked 2026-11-02): the sentence's clip and its word light play ONCE — the engine's idle reminder (after 7 s of quiet once the tiles are the child's, which fell right at the blink's end) is off on this page; the 🔊 chip still reads it again on a tap
+             "no_idle_vo": True},   # [g1-quiet] (asked 2026-11-02): the sentence's clip and its word light play ONCE — the engine's idle reminder (after 7 s of quiet once the tiles are the child's, which fell right at the blink's end) is off on this page, and the 🔊 chip says the instruction line again (the module)
     "signals": {"on_complete": ["punct_build_done"]}}
 for k in G1_KEYS:
     card["assets"]["audio"][f"vo_g1_{k}"] = f"assets/Audio/vo_g1_{k}.ogg"
@@ -1220,7 +1221,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
         frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
         page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
-        🔊 chip reads the sentence again (the engine's idle reminder is off on G1: data.no_idle_vo, [g1-quiet]). ===== */
+        🔊 chip says the instruction line again — the sentence and its word light play once on G1 ([g1-quiet]; the engine's
+        idle reminder is off there: data.no_idle_vo). ===== */
   PUNCT_SCENE: {
     mount(host, slide){
       const d = slide.data || {}, S = d.sentence || {}, X = d.explain || {}, opts = d.options || [];
@@ -1389,9 +1391,9 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
       // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
       // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
-      // no tile answers while a feedback sound or line plays; the 🔊 chip reads the sentence again, words lit (state.replayAudio —
-      // the engine's idle reminder would use it too, but G1's data.no_idle_vo keeps that off: [g1-quiet], the sentence is read
-      // once by the page) — a tap cuts that reading short and answers at once
+      // no tile answers while a feedback sound or line plays; the 🔊 chip says the instruction line again (state.replayAudio; the
+      // sentence and its word light play ONCE on this page — [g1-quiet]; the engine's idle reminder is off here: data.no_idle_vo)
+      // — a tap cuts that line short and answers at once
       let live = false, fbAudio = null, hintHand = null;
       const placeHintHand = ()=>{ if(!hintHand || !hintHand.parentNode) return; const st = document.querySelector(".slide-stage"), r = tiles[pick].getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1; hintHand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px"; hintHand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - 96) + "px"; };
@@ -1405,7 +1407,10 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       };
       function armTile(k){
         if(!live){ live = true; state.demoRunning = false; setSwMood("point");
-          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; sfigNarrate(L, alive, ()=>{}); }; }
+          // [g1-quiet] the 🔊 chip: the instruction line (data.intro_audio) again — NOT the sentence: its clip and its word light play
+          // once on this page (asked twice: "the VO and the highlight animation of the sentence should not repeat"); the engine's
+          // idle reminder, which would call this too, is off here (data.no_idle_vo)
+          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; say(A(d.intro_audio), ()=>{}); }; }
         const t = tiles[k]; t.classList.add("live"); t.onclick = ()=> pickTap(k);
         t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); };
       }

@@ -2267,19 +2267,23 @@ Page 7 T3: the girl's glance every 7 seconds ([t3-look7], 2026-11-02)
 Page 9 G1: the sentence read once, no pop-in after a wrong tap's wiggle ([g1-quiet], 2026-11-02, after [g1-scene])
 - Asked: "At page 9 G1 once the VO of the sentence is over then the VO and the highlight animation of the sentence should not
   repeat after once, and also when the user taps on any wrong option then why the incorrect option is showing an appearing
-  animation every time the user taps on any wrong option? Fix this. Rest keep everything exactly the same."
+  animation every time the user taps on any wrong option? Fix this. Rest keep everything exactly the same." — and again, before
+  the rebuild: "once the VO of the sentence is over with the highlight synced then the VO and the highlight animation of the
+  sentence should not repeat again with the same highlight animation."
 - The repeat was the engine's idle reminder (one per guided page, 7 s after the last quiet moment — armIdleVo): on the [g1-scene]
   page the tiles are the child's from the first tile's pop, so its 7 s of quiet ran out right as the slot's blink ended and
   state.replayAudio read the sentence again, words lit. Built: G1's data.no_idle_vo true and the engine's armIdleVo skips a page
   whose data says so (next to its type exclusions: SENT_PICK, LETTER_STORY, STAMP_DEMO) — the sentence's clip and its word light
-  play ONCE by the page; the 🔊 chip still reads it again on a tap (the child's own ask; the chip is live on every page of the
-  lesson). G2 / G3 keep their idle reminder (no flag). The pop-in: a wrong tile's wiggle (.dsc-tile.wiggle = animation wgNo)
+  play ONCE on the page, full stop: the 🔊 chip, live while the tiles are the child's, says the instruction line vo_g1_intro again
+  instead of the sentence (the module's pick mode: state.replayAudio = the intro line; as the chip does on the lesson's ordinary
+  pages, which replay their prompt). G2 / G3 keep their idle reminder and their chip's sentence re-read (no flag, their own module). The pop-in: a wrong tile's wiggle (.dsc-tile.wiggle = animation wgNo)
   had REPLACED the tile's animation list, so as the wiggle's class left the list went back to dscTileIn and the pop-in ran again
   (the [t2-scene5] gotcha with the blink); the rule is .dsc-tile.in.wiggle{animation:dscTileIn .45s ease-out,wgNo ...} — the
   pop-in stays first and is never restarted (the press .in.on the same way). That fix went into the dist with [g1-scene]'s last
   rebuild, before the question was asked; the dist the question was asked on was the earlier one.
 - Checked: scene_check.py G1 — the data flag; after each wrong tap both wiggled tiles at the identity transform through the second
-  after the wiggle's class leaves and the sentence's clip started exactly twice (the page's reading + the chip's); the hand run
+  after the wiggle's class leaves; the sentence's clip started exactly ONCE on the page and no word lit after that reading (the
+  chip's tap after hint 1 says the instruction line again, no word lit; the intro line twice: the page's and the chip's); the hand run
   waits 8.5 s of quiet with the tiles the child's first: the sentence's clip has sounded once, no word lit, nothing speaking, the
   idle ticker not running: [[G1_TALLY]] smoke.py [[SMOKE]]; word_sync_check G1 [[WS]]. T2 / T3 / T4 / G2 / G3 untouched by this
   (the engine patch adds a data condition only): their [g1-scene] runs stand. `../_before_g1_quiet/` holds the [g1-scene] dist's
