@@ -2644,6 +2644,21 @@ Page 15 L1: the letter page's new flow on Figma 792:1257 / 792:1245 / 792:1249 (
   fixed to 17 like letter_check's. `../_before_l1_fig/` holds the dist's three files, build.py, letter_check.py, gate_check.py,
   stamp_check.py, README.md and smoke.py from before.
 
+Page 15 L1: no "aahaha", the grandfather longer, the letter in the narration's last 2 s ([l1-late], 2026-11-03)
+- Asked: "remove the aahahaha sound effect and keep the grandpa cloud for a few more seconds and the letter envelope in the cloud
+  will appear in the last 2 seconds of the end of the VO."
+- vo_letter_intro is 11.37 s; its speech ends at 11.07 s (ffmpeg silencedetect -45 dB: the rest is silence), so pace.letter =
+  9070 ms on its clock (was 4300). The letter's moment is otherwise as before — the girl pensive (792:1249: in the user's [l1-fig]
+  flow that picture came WITH the letter, so it moves with it), the white cloud over the grandfather, the letter growing in it —
+  but now all in the cue's own frame, with no sound: sfx_letter_aha is out of the card, the module's preload and data.sfx, and
+  pace.aha_lead is gone (the file stays in the dist, unused). The grandfather cloud now stands whole from ~3 s to 9.07 s on the
+  narration's clock (it was gone at 4.3 s). Ready (pulse, tappable) as before: the narration over (+300 ms) and the letter grown.
+- Checked: letter_check.py 47/47 (new: the moment = 2 s before the speech's end; pensive + white + letter in one frame at 9.08 s,
+  the grandfather off 517 ms later; the grandfather whole in all 364 frames from 3.02 s to 9.08 s; no sound starting from 0.3 s
+  before the moment to 1.5 s after, sfx_letter_aha never and not in the card; the page's sounds 5, not 6). The build changes only
+  L1 (the card's letter / aha / aha_lead / asset, the module, three CSS comments). `../_before_l1_late/` holds the dist's three
+  files, build.py, letter_check.py and README.md from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

@@ -781,9 +781,14 @@ assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.ge
 # is the old one carried onto the new girl: anchored at her head's right edge (x 730, between 792:1245's braid at 737 and
 # 792:1249's at 717) at her right eye's height (y 240), scaled 1.12 (her eye spacing / the old girl's): new = (730, 240) + 1.12 x
 # (old - (808, 245)) — the cloud's visible top 17 px inside the frame.
+# [l1-late] (asked 2026-11-03): "remove the aahahaha sound effect and keep the grandpa cloud for a few more seconds and the letter
+# envelope in the cloud will appear in the last 2 seconds of the end of the VO": no "aahaha" (sfx_letter_aha out of the card; the
+# file stays in the dist, unused); the letter's moment (the girl pensive, the white cloud over the grandfather, the letter growing
+# in it — the picture of 792:1249 came WITH the letter in the user's flow, so it moves with it) at 9.07 s on the narration's clock:
+# its speech ends at 11.07 s (the clip 11.37 s, the rest silence), so the grandfather stands from ~2 s to 9.07 s (was to 4.3 s).
 LETTER_IMGS = {"img_letter_scene_w": "✏️", "img_letter_scene_t": "🤔", "img_letter_scene_p": "🤔", "img_letter_blur_p": "✏️", "img_letter_cloud_grandpa": "💭",
                "img_letter_cloud_white": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}   # [l1-fig] (the old scene_a / _b / _c and blur stay in the dist, unused)
-LETTER_SND = ["sfx_letter_magic", "sfx_letter_aha", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]   # [l1-fig] the "aahaha" clip in place of the whole chime
+LETTER_SND = ["sfx_letter_magic", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]   # [l1-late] no "aahaha" (sfx_letter_aha stays in the dist, unused)
 _lt = lambda v: [round(730 + 1.12 * (v[0] - 808), 2), round(240 + 1.12 * (v[1] - 245), 2)] + [round(1.12 * x, 2) for x in v[2:]]   # [l1-fig] the old thought onto the new girl
 for k, emo in LETTER_IMGS.items():
     card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
@@ -795,17 +800,18 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
     "data": {"scenes": {"w": "img_letter_scene_w", "t": "img_letter_scene_t", "p": "img_letter_scene_p"}, "blur": "img_letter_blur_p",   # [l1-fig] 792:1257 / 792:1245 / 792:1249
              "cloud": "img_letter_cloud_grandpa", "cloud_white": "img_letter_cloud_white",
              "env": {"body": "img_letter_env_body", "flap": "img_letter_env_flap", "inner": "img_letter_env_inner", "heart": "img_letter_env_heart"},
-             "sfx": {"magic": "sfx_letter_magic", "aha": "sfx_letter_aha", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},
+             "sfx": {"magic": "sfx_letter_magic", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},   # [l1-late] no "aha"
              "music": "bgm_letter_nostalgia",
              "layout": {"scenes": {"w": [-262, -91, 1563, 880], "t": [-231, -42, 1516, 853], "p": [-237, -38, 1520, 856]},   # [l1-fig] each frame's picture box (cover)
                         "cloud": _lt([862.09, 8.61, 314.5]), "bubbles": [_lt(b) for b in ([814.7, 242.8, 8], [831.4, 230.5, 16], [854.0, 211.2, 26])],
                         "letter": _lt([1020, 166, 189]), "full": [71, -50, 1138, 758], "mouth": [568.8, 292.4]},
              # [l1-fig] ms: w_in = the first picture's entrance (from the magic's first frame), vo_at = the narration after the magic's
-             # start; on the narration's clock: dada (its "दादाजी", read off the clip: 0.84 s), letter (the first sentence's end, 4.26 s);
-             # from "दादाजी": xfade (the picture), bub_after / bub_gap (the bubbles), cloud_after (the cloud's entrance, 1.2 / 1.6 s as
-             # before); aha_lead = the "aahaha" inside its clip; white = the grandfather to white; ready_after = after the narration
-             "pace": {"w_in": 900, "vo_at": 1200, "music_vol": 0.2, "music_in": 1200, "dada": 840, "letter": 4300, "xfade": 650, "bub_after": 300, "bub_gap": 230,
-                      "cloud_after": 1000, "aha_lead": 60, "white": 500, "ready_after": 300,
+             # start; on the narration's clock: dada (its "दादाजी", read off the clip: 0.84 s), letter ([l1-late] 2 s before its speech
+             # ends at 11.07 s: 9.07 s; was the first sentence's end, 4.3 s); from "दादाजी": xfade (the picture), bub_after / bub_gap
+             # (the bubbles), cloud_after (the cloud's entrance, 1.2 / 1.6 s as before); white = the grandfather to white; ready_after =
+             # after the narration
+             "pace": {"w_in": 900, "vo_at": 1200, "music_vol": 0.2, "music_in": 1200, "dada": 840, "letter": 9070, "xfade": 650, "bub_after": 300, "bub_gap": 230,
+                      "cloud_after": 1000, "white": 500, "ready_after": 300,
                       "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2, "veil_at": 1900, "done_at": 2450}}})
 # [stamp-fig] L2 = the Figma frame 565:28 "G3 guided story question" (the stamp page), after the letter page: the letter's sentence on a
 # sheet on a wooden table, a tray with two stamps (। and ?), the demos' title bar. It drives itself: the table (under the letter
@@ -2119,16 +2125,16 @@ js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: sent_mod + m.group(0), re.M,
 letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after P2's round gate. [l1-fig] (2026-11-03) the user's flow on Figma 792:1257
      -> 792:1245 -> 792:1249: 1. the girl writing comes in full screen on the magic shimmer's first frame; 2. then the narration
      (data.intro_audio) with the mild piano bed; on the narration's own clock: 3. on "दादाजी" (pace.dada) the girl thinking fades in
-     and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. at the first
-     sentence's end (pace.letter) the girl pensive fades in and, on the "aahaha" (sfx.aha), the grandfather fades to the white cloud
-     as the letter grows in it, where it stands; 5. once the narration has ended (and the letter has grown) it pulses and waits — the
+     and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. [l1-late] 2 s
+     before the narration's speech ends (pace.letter) the girl pensive fades in and the grandfather fades to the white cloud as the
+     letter grows in it, where it stands (no sound); 5. once the narration has ended (and the letter has grown) it pulses and waits — the
      only tap: the pop, the envelope zooms to 610:6 over the blurred room, the seal pops, the flap swings open on the paper crackle,
      the sheet rises, the view dives into it, a veil — then the next page. Self-driving, no आगे. Timings in data.pace (ms), places
      in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
-      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 4300,
-        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, aha_lead: 60, white: 500, ready_after: 300,
+      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 9070,
+        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, white: 500, ready_after: 300,
         zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {}, sc = d.scenes || {}, SB = L.scenes || {};
@@ -2174,7 +2180,7 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
       const sounds = []; let fadeFrame = 0;
       // every sound of the page is fetched and decoded now, at mount, so that later play() starts it on its beat — online too
       const pre = {};
-      [sfx.magic, sfx.aha, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
+      [sfx.magic, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
         try{ const a = new Audio(src); a.preload = "auto"; a.load(); pre[id] = a; sounds.push(a); }catch(e){} });
       try{ const v = A(d.intro_audio); if(v) new Audio(v).load(); }catch(e){}   // [l1-fig] the narration too: it starts 1.2 s in
       // a sound; onStart runs when it is actually heard (or 150 ms in, if the browser gives no "playing" / refuses to play)
@@ -2223,12 +2229,11 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
       cues.push({ ms: P.dada, fn: ()=>{ root.classList.add("t-in");
         bubEls.forEach((b, k)=> at(P.bub_after + k * P.bub_gap, ()=> b.classList.add("in")));
         at(P.cloud_after, ()=> cloud.classList.add("in")); } });
-      // 4. at the first sentence's end: the girl pensive (792:1249) fades in, and on the "aahaha" (aha_lead into its clip) the white
-      //    cloud comes over the grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s)
-      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in");
-        sound(sfx.aha, 0.7, ()=> at(P.aha_lead, ()=>{ cloud.classList.add("white"); root.classList.add("letter-in");
-          at(P.white + 20, ()=> cloud.classList.add("white2"));
-          at(900, ()=>{ grown = true; tryReady(); }); })); } });
+      // 4. [l1-late] 2 s before the speech ends: the girl pensive (792:1249) fades in, and with her the white cloud comes over the
+      //    grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s) — no sound
+      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in"); cloud.classList.add("white"); root.classList.add("letter-in");
+        at(P.white + 20, ()=> cloud.classList.add("white2"));
+        at(900, ()=>{ grown = true; tryReady(); }); } });
       // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
@@ -3400,13 +3405,13 @@ letter_css = """
 .ltr-cloud.in{opacity:1;transform:none;}
 .ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;}
 .ltr-cloud .ltr-cw{opacity:.005;transition:opacity .5s ease-in-out;}                    /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
-.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* [l1-fig] on the "aahaha" the same cloud, white (558:2), comes OVER the grandfather (same alpha: no dip) ... */
+.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* [l1-fig] at the letter's moment ([l1-late]: 2 s before the speech ends) the same cloud, white (558:2), comes OVER the grandfather (same alpha: no dip) ... */
 .ltr-cloud.white2 .ltr-cg{opacity:0;}                                                    /* ... and he goes from under it once it is whole */
 .ltr-blur{left:0;top:0;width:1280px;height:720px;opacity:0;transition:opacity .9s ease-in-out;}   /* 610:6's backdrop, flattened */
 .ltr.zoom .ltr-blur{opacity:1;}
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}
 .ltr.zoom .ltr-env-pos{transform:none;}                                                  /* = 610:6's envelope box */
-/* [l1-fig] the letter grows in on the "aahaha" in the STANDING cloud, where it stands: a wrapper inside the icon, about the box's
+/* [l1-fig] the letter grows in at its moment ([l1-late]) in the STANDING cloud, where it stands: a wrapper inside the icon, about the box's
    centre (--ltr-go, set by the module; --ltr-gt 0), from half its size to a touch past it and home (.9 s), fading in over .45 s;
    none after, so the zoom and the dive see nothing of it. Its resting opacity is 1/255, not 0, and it has its own layer from mount
    (will-change): a layer at 0 is never rasterised, so the envelope's four lossless layers (6 MP) would be decoded on the beat itself
@@ -3415,7 +3420,7 @@ letter_css = """
 .ltr-env-grow{position:absolute;inset:0;transform-origin:var(--ltr-go,0 0);opacity:.005;transform:scale(.5) translate(var(--ltr-gt,0px,0px));
   will-change:transform,opacity;transition:opacity .45s ease-out,transform .9s cubic-bezier(.3,1.35,.5,1);}
 .ltr.letter-in .ltr-env-grow{opacity:1;transform:none;}
-.ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;}                /* hidden by the grow wrapper until the "aahaha" */
+.ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;}                /* hidden by the grow wrapper until the letter's moment */
 .ltr.ready .ltr-env-pos{pointer-events:auto;cursor:pointer;}
 .ltr.ready .ltr-env-pulse{opacity:1;animation:ltrPulse 1.2s ease-in-out infinite;}
 .ltr.zoom .ltr-env-pulse{opacity:1;animation:none;}

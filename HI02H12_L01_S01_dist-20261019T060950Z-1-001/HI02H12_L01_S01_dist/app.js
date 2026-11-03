@@ -7192,16 +7192,16 @@ const SlideModules = {
   /* ===== [letter-fig] LETTER_STORY — the letter page, after P2's round gate. [l1-fig] (2026-11-03) the user's flow on Figma 792:1257
      -> 792:1245 -> 792:1249: 1. the girl writing comes in full screen on the magic shimmer's first frame; 2. then the narration
      (data.intro_audio) with the mild piano bed; on the narration's own clock: 3. on "दादाजी" (pace.dada) the girl thinking fades in
-     and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. at the first
-     sentence's end (pace.letter) the girl pensive fades in and, on the "aahaha" (sfx.aha), the grandfather fades to the white cloud
-     as the letter grows in it, where it stands; 5. once the narration has ended (and the letter has grown) it pulses and waits — the
+     and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. [l1-late] 2 s
+     before the narration's speech ends (pace.letter) the girl pensive fades in and the grandfather fades to the white cloud as the
+     letter grows in it, where it stands (no sound); 5. once the narration has ended (and the letter has grown) it pulses and waits — the
      only tap: the pop, the envelope zooms to 610:6 over the blurred room, the seal pops, the flap swings open on the paper crackle,
      the sheet rises, the view dives into it, a veil — then the next page. Self-driving, no आगे. Timings in data.pace (ms), places
      in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
-      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 4300,
-        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, aha_lead: 60, white: 500, ready_after: 300,
+      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 9070,
+        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, white: 500, ready_after: 300,
         zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {}, sc = d.scenes || {}, SB = L.scenes || {};
@@ -7247,7 +7247,7 @@ const SlideModules = {
       const sounds = []; let fadeFrame = 0;
       // every sound of the page is fetched and decoded now, at mount, so that later play() starts it on its beat — online too
       const pre = {};
-      [sfx.magic, sfx.aha, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
+      [sfx.magic, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
         try{ const a = new Audio(src); a.preload = "auto"; a.load(); pre[id] = a; sounds.push(a); }catch(e){} });
       try{ const v = A(d.intro_audio); if(v) new Audio(v).load(); }catch(e){}   // [l1-fig] the narration too: it starts 1.2 s in
       // a sound; onStart runs when it is actually heard (or 150 ms in, if the browser gives no "playing" / refuses to play)
@@ -7296,12 +7296,11 @@ const SlideModules = {
       cues.push({ ms: P.dada, fn: ()=>{ root.classList.add("t-in");
         bubEls.forEach((b, k)=> at(P.bub_after + k * P.bub_gap, ()=> b.classList.add("in")));
         at(P.cloud_after, ()=> cloud.classList.add("in")); } });
-      // 4. at the first sentence's end: the girl pensive (792:1249) fades in, and on the "aahaha" (aha_lead into its clip) the white
-      //    cloud comes over the grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s)
-      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in");
-        sound(sfx.aha, 0.7, ()=> at(P.aha_lead, ()=>{ cloud.classList.add("white"); root.classList.add("letter-in");
-          at(P.white + 20, ()=> cloud.classList.add("white2"));
-          at(900, ()=>{ grown = true; tryReady(); }); })); } });
+      // 4. [l1-late] 2 s before the speech ends: the girl pensive (792:1249) fades in, and with her the white cloud comes over the
+      //    grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s) — no sound
+      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in"); cloud.classList.add("white"); root.classList.add("letter-in");
+        at(P.white + 20, ()=> cloud.classList.add("white2"));
+        at(900, ()=>{ grown = true; tryReady(); }); } });
       // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{

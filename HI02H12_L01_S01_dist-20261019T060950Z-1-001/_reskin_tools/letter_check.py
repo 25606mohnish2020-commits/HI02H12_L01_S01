@@ -2,8 +2,8 @@
 itself on the narration's clock and its sounds start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens
 and hands over to the stamp page. [l1-fig]: the girl writing (Figma 792:1257) comes in on the magic shimmer's first frame; the
 narration (vo_letter_intro) 1.2 s later with the piano bed (.2); on its "दादाजी" (0.84 s) the girl thinking (792:1245), the bubbles,
-the grandfather cloud; at its first sentence's end (4.30 s) the girl pensive (792:1249) and, on the "aahaha" (sfx_letter_aha), the
-white cloud over the grandfather with the letter growing in it; once the narration has ended the letter pulses, tappable.
+the grandfather cloud; [l1-late] 2 s before its speech ends (9.07 s) the girl pensive (792:1249) and the white cloud over the
+grandfather with the letter growing in it, no sound (the "aahaha" removed); once the narration has ended the letter pulses, tappable.
 usage: python -I -X utf8 letter_check.py <index.html> <outdir> [<dir with render_610-6.png>]
 Screenshots: l1_write.png (792:1257), l1_grandpa.png (792:1245 + the cloud), l1_letter.png (792:1249 + the letter), l1_zoom.png
 (610:6), l1_flap.png, l1_open.png, l1_end.png; against the frames' renders (letter_assets/fig_792-*_render.png) outside the thought.
@@ -72,6 +72,7 @@ def compare(a, ref, name, region=None, mask=None, outside=None):
     return res
 def first(pl, prefix, since=0): return next((x for x in pl if x["src"].startswith(prefix) and x["t"] >= since), None)
 THOUGHT = (715, 0, 1190, 310)   # [l1-fig] the bubbles, the cloud and the letter (frame px): the renders have none
+SPEECH_END = 11.07   # [l1-late] vo_letter_intro's last sound (s; ffmpeg silencedetect -45 dB: silence from 11.072 to the clip's end, 11.37)
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--autoplay-policy=no-user-gesture-required", "--mute-audio", "--allow-file-access-from-files"])
@@ -130,17 +131,24 @@ with sync_playwright() as p:
     check("the cloud in its place on the new girl (layout.cloud = the old thought carried onto her head: x 1.12 about (808,245) -> (730,240)) and its visible top inside the frame",
           abs(cr["x"] - lc[0]) < 1 and abs(cr["y"] - lc[1]) < 1 and abs(cr["w"] - lc[2]) < 1 and lc[1] + 98 / 820 * lc[2] > 0, ({k: round(v, 1) for k, v in cr.items()}, lc))
     if c2: check("the girl thinking against Figma's 792:1245 render outside the thought (mean < 8 of 765)", c2["outside_mean"] < 8, c2)
-    # 4. at the first sentence's end (4.30 s): the girl pensive, the "aahaha", the white cloud over the grandfather, the letter growing in
+    # 4. [l1-late] 2 s before the narration's speech ends (9.07 s): the girl pensive, the white cloud over the grandfather, the letter
+    #    growing in — no sound
     pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=20000, polling=20)
     t_ready = pg.evaluate("performance.now()"); until(t_ready, 600); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS)
-    tin = pg.evaluate("window.__tin"); aha = first(pl, "sfx_letter_aha")
+    tin = pg.evaluate("window.__tin")
     f_p = at(lambda f: "p-in" in f["cls"]); f_l = at(lambda f: "letter-in" in f["cls"]); f_w2 = at(lambda f: "white2" in f["cloudCls"])
-    check(f"the girl pensive (792:1249) at the first sentence's end ({PC['letter'] / 1000} s on the narration's clock, its first frame within 50 ms after) and the \"aahaha\" clip started in that frame",
-          f_p is not None and f_p["voT"] is not None and 0 <= f_p["voT"] - PC["letter"] / 1000 <= 0.05 and aha is not None and abs(aha["t"] - f_p["t"]) <= 40,
-          (round(f_p["voT"], 3) if f_p and f_p["voT"] is not None else None, round(aha["t"] - f_p["t"]) if (aha and f_p) else None))
-    check(f"on the \"aahaha\" ({PC['aha_lead']} ms into its clip: its first frame 40-200 ms after the clip's start, the browser's start latency included) the white cloud comes over the grandfather and the letter begins to grow, together; the grandfather goes from under it {PC['white']} ms later",
-          f_l is not None and aha is not None and 40 <= f_l["t"] - aha["t"] <= 200 and "white" in f_l["cloudCls"] and f_w2 is not None and abs(f_w2["t"] - f_l["t"] - PC["white"] - 20) <= 60,
-          (round(f_l["t"] - aha["t"]) if (f_l and aha) else None, round(f_w2["t"] - f_l["t"]) if (f_w2 and f_l) else None))
+    check(f"the letter's moment = 2 s before the narration's speech ends ({SPEECH_END} s: pace.letter {PC['letter'] / 1000} s)", abs(SPEECH_END - 2 - PC["letter"] / 1000) < 0.03, PC["letter"])
+    check(f"the girl pensive (792:1249) at the letter's moment ({PC['letter'] / 1000} s on the narration's clock, its first frame within 50 ms after), and in that same frame the white cloud comes over the grandfather and the letter begins to grow; the grandfather goes from under it {PC['white']} ms later",
+          f_p is not None and f_p["voT"] is not None and 0 <= f_p["voT"] - PC["letter"] / 1000 <= 0.05 and f_l is f_p and "white" in f_p["cloudCls"] and f_w2 is not None and abs(f_w2["t"] - f_l["t"] - PC["white"] - 20) <= 60,
+          (round(f_p["voT"], 3) if f_p and f_p["voT"] is not None else None, f_l is f_p, round(f_w2["t"] - f_l["t"]) if (f_w2 and f_l) else None))
+    f_full = at(lambda f: f["cloud"] > 0.99 and f["cg"] > 0.99); stand = [f for f in tin if f_full and f_p and f_full["t"] <= f["t"] < f_p["t"]]
+    check("the grandfather cloud stays, whole, from its entrance to the letter's moment (over 6 s; it was ~2 s): the cloud and he at 1, no white, the girl thinking",
+          len(stand) > 300 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cw"] < 0.01 and f["p"] < 0.01 and "letter-in" not in f["cls"] for f in stand) and f_p["voT"] - f_full["voT"] > 6,
+          (len(stand), round(f_full["voT"], 2) if f_full and f_full["voT"] is not None else None, round(f_p["voT"], 2) if f_p and f_p["voT"] is not None else None))
+    near = [x["src"] for x in pl if f_p and f_p["t"] - 300 <= x["t"] <= f_p["t"] + 1500]
+    check("no sound with the letter: nothing starts from 0.3 s before its moment to 1.5 s after, the \"aahaha\" never (and out of the card)",
+          f_p is not None and not near and not any(x["src"].startswith("sfx_letter_aha") for x in pl) and "aha" not in D["sfx"]
+          and not pg.evaluate("'sfx_letter_aha' in CARD.assets.audio"), (near, D["sfx"]))
     swap = [f for f in tin if f_l and f_w2 and f_l["t"] <= f["t"] < f_w2["t"]]
     check("no dip as the cloud whitens: the grandfather stays whole under the white one until it is whole, the cloud itself at 1 throughout",
           len(swap) > 10 and all(f["cg"] == 1 and f["cloud"] == 1 for f in swap) and swap[-1]["cw"] > 0.97, (len(swap), min((f["cg"] for f in swap), default=None), swap[-1]["cw"] if swap else None))
@@ -153,7 +161,7 @@ with sync_playwright() as p:
     check("then the white cloud stands with the letter in it (its growth done), the grandfather gone, pulsing and tappable",
           s["cloudOp"] > 0.99 and s["cgOp"] == 0 and s["cwOp"] == 1 and s["growOp"] == 1 and settled and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"],
           (s["cloudOp"], s["cgOp"], s["cwOp"], s["growOp"], s["growTf"], s["cls"]))
-    check("the \"aahaha\" plays once, the narration once, the old chime never", sum(1 for x in pl if x["src"].startswith("sfx_letter_aha")) == 1 and sum(1 for x in pl if x["src"].startswith("vo_letter_intro")) == 1
+    check("the narration plays once, the old chime never", sum(1 for x in pl if x["src"].startswith("vo_letter_intro")) == 1
           and not any(x["src"].startswith("sfx_letter_idea") for x in pl), [x["src"] for x in pl if "letter" in x["src"]])
     ts = [f["t"] for f in tin]; gaps = [y - x for x, y in zip(ts, ts[1:]) if x - t0 > 600]
     check("the beats run smoothly on the page's own frames (from 0.6 s to the letter's readiness: no gap over 100 ms)", len(gaps) > 200 and max(gaps) < 100,
@@ -252,7 +260,7 @@ with sync_playwright() as p:
     bq = pg.evaluate("window.__bgm ? [window.__bgm.wanted, window.__bgm.el ? window.__bgm.el.paused : null, window.__bgm.target, +window.__bgm.level.toFixed(3)] : null")   # [l1-quiet]
     check("the bed starts again as the stamp page mounts, once the dive and the veil are over: wanted, playing, its target up (0.13, or the duck under L2's line) 0.8 s in ([l1-quiet])",
           bq is not None and bq[0] is True and bq[1] is False and bq[2] > 0, bq)
-    check("leaving the page stopped every one of its sounds (the narration too) and the music bed runs on (ducked under the next page's line)", len(page_sounds) == 6 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),
+    check("leaving the page stopped every one of its sounds (the narration too) and the music bed runs on (ducked under the next page's line) — 5: the magic, the piano, the narration, the pop, the paper ([l1-late] no \"aahaha\")", len(page_sounds) == 5 and all(x["paused"] for x in page_sounds) and (bgm is None or bgm > 0.05),
           ([(x["src"], x["paused"]) for x in page_sounds], bgm))
     check("no round gate between the letter page and the stamp page", not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"))
     shot(pg, "l1_end.png")
