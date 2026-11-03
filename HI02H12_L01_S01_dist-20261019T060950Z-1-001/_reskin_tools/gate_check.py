@@ -64,8 +64,8 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE); pg.evaluate(GATE_LOG)
     check("the card asks for the round-3 gate after P2", pg.evaluate("CARD.round3_gate_after") == "P2")
     ids = pg.evaluate("CARD.slides.map(s => s.id)")
-    check("the pages: ... G4, P1, P2, L1 (the letter page), L2 (the stamp page), then the end screen (15 in all; the ported P3-P6 gone)",
-          ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
+    check("the pages: ... G4, P1, P2, L1 (the letter page), L2 (the stamp page), then the end screen (17 in all; the ported P3-P6 gone, T1B/T1C added)",
+          ids == ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
     # 1. G4 -> P1: a plain page change, no gate (the guided -> practice boundary no longer opens one)
     right_tap(pg, "G4", "लड़की पतंग उड़ा रही है ।")
     pg.wait_for_function("CARD.slides[state.idx].id === 'P1'", timeout=30000); pg.wait_for_timeout(200)

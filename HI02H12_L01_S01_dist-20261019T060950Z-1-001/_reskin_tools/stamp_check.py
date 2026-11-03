@@ -103,7 +103,7 @@ with sync_playwright() as p:
         for i in range(1, steps + 1): pg.mouse.move(x0 + (x1 - x0) * i / steps, y0 + (y1 - y0) * i / steps); pg.wait_for_timeout(16)
         pg.wait_for_timeout(60); pg.mouse.up()
     ids = pg.evaluate("CARD.slides.map(s => s.id)")
-    check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (15)", ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
+    check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (17)", ids == ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
     D = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data"); P = D["pace"]; RS = D["rounds"]
     slots_of = lambda R: R.get("slots") or [R["slot"]]
     check("five rounds: 565:28 (the ? for the letter's sentence, with the guidance), 579:47 (the comma for the birthday sentence on two rows), 592:89 (the danda for 'मुझे उपहार बहुत पसंद हैं', three stamps), 593:130 (the ? for two questions on two rows: TWO slots), 593:151 (the letter's closing lines on five rows: FOUR slots — the comma, the ?, the danda twice — and the sign-off) — no guidance after the first",

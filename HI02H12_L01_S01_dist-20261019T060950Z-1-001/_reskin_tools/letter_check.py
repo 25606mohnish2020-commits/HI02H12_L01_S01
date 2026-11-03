@@ -1,14 +1,18 @@
-"""The letter page L1 ([letter-fig]): mounted straight (as the dev nav would), the whole scene plays by itself and its sounds
-start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens and hands over to the end screen. [vo-rec] the narration
-(vo_letter_intro) sounds first; the scene's clock starts when it ends.
-usage: python -I -X utf8 letter_check.py <index.html> <outdir> [<dir with render_538-39.png render_558-2.png render_610-6.png>]
-Screenshots: l1_a.png (538:2), l1_b.png (538:35), l1_grandpa.png (538:39), l1_hum.png (the chime's "ummm": the pensive girl, no cloud),
-l1_grow.png (0.5 s after its "aahaha": the white cloud and the letter growing in together), l1_letter.png (558:2), l1_zoom.png (610:6), l1_open.png, l1_end.png; with the renders, *_diff.png and the pixel numbers. Samples are taken at set moments of the PAGE's clock
-(performance.now() since the mount), so screenshot time does not drift them."""
+"""The letter page L1 ([letter-fig], the flow [l1-fig] 2026-11-03): mounted straight (as the dev nav would), the whole scene plays by
+itself on the narration's clock and its sounds start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens
+and hands over to the stamp page. [l1-fig]: the girl writing (Figma 792:1257) comes in on the magic shimmer's first frame; the
+narration (vo_letter_intro) 1.2 s later with the piano bed (.2); on its "दादाजी" (0.84 s) the girl thinking (792:1245), the bubbles,
+the grandfather cloud; at its first sentence's end (4.30 s) the girl pensive (792:1249) and, on the "aahaha" (sfx_letter_aha), the
+white cloud over the grandfather with the letter growing in it; once the narration has ended the letter pulses, tappable.
+usage: python -I -X utf8 letter_check.py <index.html> <outdir> [<dir with render_610-6.png>]
+Screenshots: l1_write.png (792:1257), l1_grandpa.png (792:1245 + the cloud), l1_letter.png (792:1249 + the letter), l1_zoom.png
+(610:6), l1_flap.png, l1_open.png, l1_end.png; against the frames' renders (letter_assets/fig_792-*_render.png) outside the thought.
+Samples come from the page's OWN frames (rAF) and the clip's own clock, so screenshot time does not drift them."""
 import sys, json, pathlib
 from playwright.sync_api import sync_playwright
 html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).resolve(); out.mkdir(parents=True, exist_ok=True)
 refs = pathlib.Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else None
+FIG = pathlib.Path(__file__).resolve().parent / "letter_assets"   # [l1-fig] the three frames' renders
 fails = []
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
@@ -22,33 +26,40 @@ HOOK = """(() => { window._plays = []; const P = HTMLMediaElement.prototype.play
 STATE = """() => { const r = document.querySelector('.ltr'); if(!r) return null; const cs = (sel, p) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[p] : null; };
   const env = document.querySelector('.ltr-env-pos'), st = document.getElementById('stage'), sr = st.getBoundingClientRect(), k = sr.width / 1333;
   const fr = (e) => { const b = e.getBoundingClientRect(); const s = 1333 / 1280 * k; return { x: (b.left - sr.left) / s, y: (b.top - sr.top) / s, w: b.width / s, h: b.height / s }; };
-  return { cls: r.className, slide: CARD.slides[state.idx].id, bOp: +cs('.ltr-scene.b', 'opacity'), cOp: +cs('.ltr-scene.c', 'opacity'), cloudOp: +cs('.ltr-cloud', 'opacity'),
-    cloudCls: (document.querySelector('.ltr-cloud') || {}).className || '', growOp: +cs('.ltr-env-grow', 'opacity'), growTf: cs('.ltr-env-grow', 'transform'),
+  return { cls: r.className, slide: CARD.slides[state.idx].id, wOp: +cs('.ltr-scene.w', 'opacity'), tOp: +cs('.ltr-scene.t', 'opacity'), pOp: +cs('.ltr-scene.p', 'opacity'),
+    cloudOp: +cs('.ltr-cloud', 'opacity'), cloudCls: (document.querySelector('.ltr-cloud') || {}).className || '', growOp: +cs('.ltr-env-grow', 'opacity'), growTf: cs('.ltr-env-grow', 'transform'),
     cgOp: +cs('.ltr-cloud .ltr-cg', 'opacity'), cwOp: +cs('.ltr-cloud .ltr-cw', 'opacity'), blurOp: +cs('.ltr-blur', 'opacity'),
     bubs: [...document.querySelectorAll('.ltr-bub')].map(b => +getComputedStyle(b).opacity), pulseOp: +cs('.ltr-env-pulse', 'opacity'),
     pulseTf: cs('.ltr-env-pulse', 'transform'), envRect: env ? fr(env) : null, heartOp: +cs('.ltr-heart', 'opacity'), flapTf: cs('.ltr-flap', 'transform'),
+    scenes: ['w', 't', 'p'].map(k => fr(document.querySelector('.ltr-scene.' + k))), cloudRect: fr(document.querySelector('.ltr-cloud')),
     veilOp: +cs('.ltr-veil', 'opacity'), isEnd: document.body.classList.contains('is-end'), nav: getComputedStyle(document.getElementById('navBtn')).display,
     bgm: (typeof backgroundMusic !== 'undefined' && backgroundMusic) ? +backgroundMusic.volume.toFixed(3) : null, demo: state.demoRunning,
     cleanup: typeof window.oceanCleanup === 'function' }; }"""
-# the page's own frames (rAF) from the chime to the letter's readiness: the moment and the cloud's opacity — smoothness, and the
-# cloud's return never faltering
-TRACE_IN = """() => { window.__tin = []; (function loop(){ const r = document.querySelector('.ltr'); if(!r || r.classList.contains('ready')) return;
-  const c = document.querySelector('.ltr-cloud'); window.__tin.push({ t: performance.now(), cloud: +getComputedStyle(c).opacity, cls: r.className }); requestAnimationFrame(loop); })(); }"""
+# [l1-fig] the page's own frames (rAF) from the mount to the letter's readiness: the moment, the narration's clock, the classes and
+# the opacities — every beat is read off these, on the clip's clock where it hangs on it
+TRACE_IN = """() => { window.__tin = []; (function loop(){ const r = document.querySelector('.ltr'); if(!r) return; const q = (s) => document.querySelector(s), o = (s) => +getComputedStyle(q(s)).opacity;
+  const a = currentAudio, vo = !!a && String(a.src).includes('vo_letter_intro');
+  window.__tin.push({ t: performance.now(), voT: vo ? a.currentTime : null, cls: r.className, cloudCls: q('.ltr-cloud').className, bubs: document.querySelectorAll('.ltr-bub.in').length,
+    w: o('.ltr-scene.w'), tO: o('.ltr-scene.t'), p: o('.ltr-scene.p'), cloud: o('.ltr-cloud'), cg: o('.ltr-cg'), cw: o('.ltr-cw'), grow: o('.ltr-env-grow') });
+  if(!r.classList.contains('ready') || window.__tin.length < 3) requestAnimationFrame(loop); })(); }"""
 PLAYS = "() => window._plays.map(p => ({ src: p.src, t: p.t, loop: p.loop, paused: p.el.paused, cur: p.el.currentTime, vol: +p.el.volume.toFixed(3) }))"
 
 def shot(pg, name): pg.screenshot(path=str(out / name)); return out / name
-def compare(a, ref, name, region=None, mask=None):
-    """mean |diff| over the 1280x720 frame (the 1333x750 shot scaled down), over a region (frame px) if given, and inside a
-    mask (an alpha picture placed in a [x, y, size] box, frame px) if given — the cloud's own pixels, whatever the room behind"""
-    if not refs or not (refs / ref).exists(): return None
+def compare(a, ref, name, region=None, mask=None, outside=None):
+    """mean |diff| (sum of the three channels) over the 1280x720 frame (the 1333x750 shot scaled down), over a region (frame px) if given,
+    inside a mask (an alpha picture placed in a [x, y, size] box, frame px) if given, and outside a box (the thought) if given"""
+    path = (refs / ref) if refs and (refs / ref).exists() else (FIG / ref if (FIG / ref).exists() else None)
+    if not path: return None
     from PIL import Image, ImageChops
     import numpy as np
-    A = Image.open(a).convert("RGB").resize((1280, 720), Image.LANCZOS); B = Image.open(refs / ref).convert("RGB")
+    A = Image.open(a).convert("RGB").resize((1280, 720), Image.LANCZOS); B = Image.open(path).convert("RGB")
     d = np.asarray(ImageChops.difference(A, B)).astype(float).sum(axis=2)
     Image.fromarray(np.clip(d * 2, 0, 255).astype("uint8")).save(out / (name + "_diff.png"))
     res = {"mean": round(float(d.mean()), 2), "px_gt60": int((d > 60).sum())}
     if region:
         x0, y0, x1, y1 = region; r = d[y0:y1, x0:x1]; res["region_mean"] = round(float(r.mean()), 2); res["region_px_gt60"] = int((r > 60).sum())
+    if outside:
+        x0, y0, x1, y1 = outside; m = np.ones(d.shape, bool); m[y0:y1, x0:x1] = False; res["outside_mean"] = round(float(d[m].mean()), 2); res["outside_px_gt60"] = int((d[m] > 60).sum())
     if mask:
         mp, box = mask; mx, my, mw = box[0], box[1], box[2]; mh = box[3] if len(box) > 3 else mw; n, nh = int(round(mw)), int(round(mh))
         al = np.zeros((nh, n), bool)
@@ -60,6 +71,7 @@ def compare(a, ref, name, region=None, mask=None):
         res["mask_mean"] = round(float(d[M].mean()), 2); res["mask_px_gt60"] = int((d[M] > 60).sum())
     return res
 def first(pl, prefix, since=0): return next((x for x in pl if x["src"].startswith(prefix) and x["t"] >= since), None)
+THOUGHT = (715, 0, 1190, 310)   # [l1-fig] the bubbles, the cloud and the letter (frame px): the renders have none
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--autoplay-policy=no-user-gesture-required", "--mute-audio", "--allow-file-access-from-files"])
@@ -68,83 +80,91 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
     def until(base, ms): pg.wait_for_function(f"performance.now() - {base} >= {ms}", timeout=ms + 8000, polling=20)
     ids = pg.evaluate("CARD.slides.map(s => s.id)")
-    check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (15)", ids == ["T0", "T0B", "T1", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
-    t0 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()")
-    # 1. scene A with the magic shimmer, no आगे, no header
+    check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (17)", ids == ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
+    D = pg.evaluate("CARD.slides.find(s => s.id === 'L1').data"); LY, PC = D["layout"], D["pace"]
+    t0 = pg.evaluate("(() => { const t = performance.now(); mountSlide(CARD.slides.findIndex(s => s.id === 'L1')); return t; })()"); pg.evaluate(TRACE_IN)
+    # 1. [l1-fig] the girl writing (792:1257) comes in on the magic shimmer's first frame, full screen; no आगे, no header
     until(t0, 500); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); magic = first(pl, "sfx_letter_magic")
     bq = pg.evaluate("window.__bgm ? [window.__bgm.wanted, window.__bgm.el ? window.__bgm.el.paused : null, window.__bgm.target] : null")   # [l1-quiet]
     check("the music bed is off on this page: not wanted, its target 0, the element paused ([l1-quiet])", bq is not None and bq[0] is False and bq[1] is True and bq[2] == 0, bq)
-    check("mounts as a whole-stage page: no आगे, the first scene (538:2) alone (the letter's wrapper at 1/255: painted so decoded, unseen), the cleanup hook set", s and s["nav"] == "none" and s["bOp"] == 0 and s["cloudOp"] == 0 and s["growOp"] < 0.01 and s["cleanup"],
-          {k: s[k] for k in ("nav", "bOp", "cloudOp", "growOp", "cleanup")} if s else s)
-    check("the magic shimmer sounds as the page opens", magic is not None and magic["t"] - t0 < 300, round(magic["t"] - t0) if magic else None)
-    shot(pg, "l1_a.png")
+    check("mounts as a whole-stage page: no आगे, the girl writing coming in (.w-in), the other two pictures, the letter's wrapper at 1/255 (painted so decoded, unseen), no cloud, the cleanup hook set",
+          s and s["nav"] == "none" and "w-in" in s["cls"] and s["wOp"] > 0.2 and s["tOp"] < 0.01 and s["pOp"] < 0.01 and s["cloudOp"] == 0 and s["growOp"] < 0.01 and s["cleanup"],
+          {k: s[k] for k in ("nav", "cls", "wOp", "tOp", "pOp", "cloudOp", "growOp", "cleanup")} if s else s)
+    tin = pg.evaluate("window.__tin"); w_first = next((f for f in tin if "w-in" in f["cls"]), None)
+    check("the magic shimmer sounds as the page opens and the picture starts to come in with it (its first frame within 300 ms of the sound's start: the module waits for its \"playing\")",
+          magic is not None and magic["t"] - t0 < 300 and w_first is not None and -20 <= w_first["t"] - magic["t"] <= 300 and not any(f["w"] > 0.01 for f in tin if f["t"] < magic["t"]),
+          (round(magic["t"] - t0) if magic else None, round(w_first["t"] - magic["t"]) if (w_first and magic) else None))
+    want = [LY["scenes"][k] for k in ("w", "t", "p")]
+    check("each picture is its frame's own box (792:1257 -262,-91 1563x880; 792:1245 -231,-42 1516x853; 792:1249 -237,-38 1520x856), within 1 px",
+          all(abs(g[k2] - w_[i]) < 1 for g, w_ in zip(s["scenes"][1:], want[1:]) for i, k2 in enumerate(("x", "y", "w", "h"))), [{k: round(v, 1) for k, v in g.items()} for g in s["scenes"]])
     check("the envelope is the drawing's own layers: the body (the pocket), ONE flap, the inside, the heart — no re-cut side flaps",
           pg.evaluate("!!document.querySelector('.ltr-body') && document.querySelectorAll('.ltr-flap').length === 1 && !document.querySelector('.ltr-fl, .ltr-fr, .ltr-fb')"))
-    # [vo-rec] the page's narration first (vo_letter_intro, "पिंकी अपने दादाजी को पत्र में ..."), over the girl writing; the scene's
-    # beats start the moment it ends — from here the page's clock (t0) is the scene's
-    pg.wait_for_function("currentAudio && currentAudio.src.includes('vo_letter_intro') && isPlaying", timeout=8000, polling=10); t_nar = pg.evaluate("performance.now()")
-    pg.wait_for_function("!isPlaying", timeout=40000, polling=10); t_scene = pg.evaluate("performance.now()"); s = pg.evaluate(STATE)
-    check("the narration (vo_letter_intro) sounds first, over the girl writing — the first scene standing still, no cloud, until it ends (then the beats start)",
-          t_nar - t0 < 1500 and t_scene - t_nar > 5000 and s["bOp"] == 0 and s["cloudOp"] == 0, (round(t_nar - t0), round(t_scene - t_nar), s["bOp"], s["cloudOp"]))
-    t0 = t_scene
-    # 2. after 2 s the thinking girl (538:35) fades in
-    until(t0, 1850); s = pg.evaluate(STATE); check("at 1.85 s the first scene still stands alone", s["bOp"] == 0, s["bOp"])
-    until(t0, 2900); s = pg.evaluate(STATE); check("by 2.9 s the thinking girl (538:35) has faded in", s["bOp"] > 0.97, s["bOp"]); shot(pg, "l1_b.png")
-    # 3. bubbles, then the cloud; the piano loop starts with the cloud, the engine's music ducks
-    until(t0, 3650); s = pg.evaluate(STATE)
-    check("at 3.65 s the three thought bubbles have popped and the cloud is growing in", len(s["bubs"]) == 3 and all(o > 0.9 for o in s["bubs"]) and 0.05 < s["cloudOp"] < 0.8, (s["bubs"], s["cloudOp"]))
-    until(t0, 6000); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); music = first(pl, "bgm_letter")
-    check("by 6 s the grandfather cloud stands (538:39; its white twin at 1/255, painted so decoded, unseen)", s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cwOp"] < 0.01, (s["cloudOp"], s["cgOp"], s["cwOp"]))
-    check("the piano loop started with the cloud (3.3 s), loops, is sounding and has faded up", music is not None and 3200 < music["t"] - t0 < 3600 and music["loop"] and not music["paused"] and music["cur"] > 1 and music["vol"] > 0.4,
-          (round(music["t"] - t0), music["loop"], music["paused"], round(music["cur"], 2), music["vol"]) if music else None)
-    check("the engine's own background music is ducked under the loop", s["bgm"] is None or s["bgm"] <= 0.03, s["bgm"])
-    cloud_box = pg.evaluate("CARD.slides.find(s => s.id === 'L1').data.layout.cloud")
-    g = shot(pg, "l1_grandpa.png"); cmp_g = compare(g, "render_538-39.png", "l1_grandpa", region=(780, 0, 1280, 360),
-                                                    mask=(html.parent / "assets" / "Images" / "img_letter_cloud_grandpa.webp", cloud_box))
-    # the room pictures are the user's own versions (2026-10-26), not the frames' bitmaps, so only the cloud's own opaque pixels are
-    # judged: 24.3 / 765 with the old room art and 24.3 with the new (the browser's downscale of the 820 px cloud against Figma's
-    # render of the baked-in one); a wrong size or place would read far higher
-    if cmp_g: check("the grandfather cloud against Figma's 538:39 render: close inside the cloud (mean < 30; frame and region are informative, the room art differs)", cmp_g["mask_mean"] < 30, cmp_g)
-    # 4. [letter-idea] the chime, the moment the hold ends (7.5 s): on its "ummm" the cloud and the bubbles leave and the pensive
-    #    girl (scene C) shows, no cloud; on its "aahaha" (2.37 s in) she brightens again and the SAME cloud grows in again, white,
-    #    with the letter growing in it; then it pulses and waits
-    until(t0, 7350); s = pg.evaluate(STATE)
-    check("at 7.35 s, the end of the hold: the grandfather cloud still stands, the girl as before (scene C off)", s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cOp"] < 0.01 and "c-in" not in s["cls"], (s["cloudOp"], s["cgOp"], s["cOp"]))
-    until(t0, 8300); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); idea = first(pl, "sfx_letter_idea")
-    check("the chime sounded as the hold ended (7.5 s)", idea is not None and 7400 < idea["t"] - t0 < 7800, round(idea["t"] - t0) if idea else None)
-    check("at 8.3 s, the chime's \"ummm\": no cloud (gone back into its corner), no bubbles, the pensive girl (the user's 1.png) over the room, no letter yet",
-          s["cloudOp"] == 0 and "out" in s["cloudCls"].split() and all(o == 0 for o in s["bubs"]) and s["cOp"] > 0.97 and "letter-in" not in s["cls"] and s["growOp"] < 0.01,
-          (s["cloudOp"], s["cloudCls"], s["bubs"], s["cOp"], s["cls"], s["growOp"]))
-    shot(pg, "l1_hum.png")
-    t_idea = idea["t"] if idea else t0 + 7500
-    pg.evaluate(TRACE_IN)
-    until(t_idea, 2250); s = pg.evaluate(STATE)
-    check("2.25 s into the chime (the silence before the \"aahaha\"): still no cloud, the bubbles popping again ahead of it, the girl still pensive",
-          s["cloudOp"] == 0 and sum(1 for o in s["bubs"] if o > 0.5) >= 2 and "letter-in" not in s["cls"] and s["cOp"] > 0.97, (s["cloudOp"], s["bubs"], s["cls"], s["cOp"]))
-    until(t_idea, 2850); s = pg.evaluate(STATE)
-    check("0.45 s after the \"aahaha\" (2.37 s into the chime): the girl bright again (scene C off), the same cloud growing in again — white, the grandfather off — with the letter growing in it, not yet tappable",
-          s["cOp"] < 0.05 and "in" in s["cloudCls"].split() and 0.05 < s["cloudOp"] < 0.85 and s["cgOp"] == 0 and s["cwOp"] == 1 and "letter-in" in s["cls"] and 0.05 < s["growOp"] < 0.85 and "ready" not in s["cls"],
-          (s["cOp"], s["cloudCls"], s["cloudOp"], s["cgOp"], s["cwOp"], s["growOp"], s["cls"]))
-    shot(pg, "l1_grow.png")   # the cloud and the letter in it growing together
-    until(t_idea, 4100); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS)
-    settled = s["growTf"] == "none" or (s["growTf"].startswith("matrix(") and float(s["growTf"][7:].split(",")[0]) > 0.999)   # the 1.6 s growth ends at 3.97 s
-    check("by 4.1 s into the chime the white cloud stands with the letter in it (its growth done), pulsing and tappable",
+    until(t0, 1900); s = pg.evaluate(STATE); wr = shot(pg, "l1_write.png"); c1 = compare(wr, "fig_792-1257_render.png", "l1_write")
+    check("by 1.9 s the girl writing stands, settled in 792:1257's box (its 1.6 s entrance over), alone", abs(s["scenes"][0]["x"] - want[0][0]) < 1 and abs(s["scenes"][0]["w"] - want[0][2]) < 1 and s["wOp"] == 1 and s["tOp"] < 0.01,
+          ({k: round(v, 1) for k, v in s["scenes"][0].items()}, s["wOp"]))
+    if c1: check("the girl writing against Figma's 792:1257 render (mean < 8 of 765: the browser's resampling)", c1["mean"] < 8, c1)
+    # 2. the narration 1.2 s after the picture began, the piano bed with it (mild, .2)
+    pg.wait_for_function("currentAudio && currentAudio.src.includes('vo_letter_intro') && isPlaying", timeout=8000, polling=10)
+    until(t0, 3200); pl = pg.evaluate(PLAYS); vo = first(pl, "vo_letter_intro"); music = first(pl, "bgm_letter")
+    check(f"the narration (vo_letter_intro) starts {PC['vo_at']} ms after the picture began (and the magic)", vo is not None and w_first is not None and abs(vo["t"] - w_first["t"] - PC["vo_at"]) < 200,
+          round(vo["t"] - w_first["t"]) if (vo and w_first) else None)
+    check(f"the piano loop starts with it, loops, sounds, faded up to the mild {PC['music_vol']}", music is not None and vo is not None and abs(music["t"] - vo["t"]) < 60 and music["loop"] and not music["paused"] and abs(music["vol"] - PC["music_vol"]) < 0.02,
+          (round(music["t"] - vo["t"]), music["loop"], music["paused"], music["vol"]) if (music and vo) else None)
+    # 3. on "दादाजी" (0.84 s on the narration's clock): the girl thinking fades in, the bubbles, the cloud — read off the page's frames
+    pg.wait_for_function(f"currentAudio && currentAudio.src.includes('vo_letter_intro') && currentAudio.currentTime >= {(PC['letter'] - 400) / 1000}", timeout=15000, polling=20)
+    s = pg.evaluate(STATE); g = shot(pg, "l1_grandpa.png"); c2 = compare(g, "fig_792-1245_render.png", "l1_grandpa", outside=THOUGHT)
+    tin = pg.evaluate("window.__tin")
+    def at(pred): return next((f for f in tin if pred(f)), None)
+    f_t = at(lambda f: "t-in" in f["cls"]); before = [f for f in tin if f["voT"] is not None and f["voT"] < PC["dada"] / 1000 - 0.02]
+    check(f"the girl thinking (792:1245) on \"दादाजी\" ({PC['dada'] / 1000} s on the narration's clock: its first frame within 50 ms after), nothing of her before",
+          f_t is not None and f_t["voT"] is not None and 0 <= f_t["voT"] - PC["dada"] / 1000 <= 0.05 and all("t-in" not in f["cls"] and f["tO"] < 0.01 for f in before),
+          round(f_t["voT"], 3) if f_t and f_t["voT"] is not None else None)
+    tb = [at(lambda f, n=n: f["bubs"] >= n) for n in (1, 2, 3)]; f_c = at(lambda f: " in" in f["cloudCls"])
+    dt = lambda f: round(f["t"] - f_t["t"]) if (f and f_t) else None
+    check(f"the bubbles pop one by one ({PC['bub_after']} / +{PC['bub_gap']} / +{PC['bub_gap']} ms after her, within 60) and the cloud begins to grow in {PC['cloud_after']} ms after her (within 60), as before",
+          all(x is not None for x in tb + [f_c]) and all(abs(dt(x) - (PC["bub_after"] + k * PC["bub_gap"])) <= 60 for k, x in enumerate(tb)) and abs(dt(f_c) - PC["cloud_after"]) <= 60,
+          ([dt(x) for x in tb], dt(f_c)))
+    check("the grandfather cloud stands before the letter's moment (opacity 1, its white twin at 1/255), the bubbles up, the girl thinking over the writing one",
+          s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cwOp"] < 0.01 and all(o > 0.99 for o in s["bubs"]) and s["tOp"] == 1 and s["pOp"] < 0.01, (s["cloudOp"], s["cgOp"], s["cwOp"], s["bubs"], s["tOp"]))
+    cr = s["cloudRect"]; lc = LY["cloud"]
+    check("the cloud in its place on the new girl (layout.cloud = the old thought carried onto her head: x 1.12 about (808,245) -> (730,240)) and its visible top inside the frame",
+          abs(cr["x"] - lc[0]) < 1 and abs(cr["y"] - lc[1]) < 1 and abs(cr["w"] - lc[2]) < 1 and lc[1] + 98 / 820 * lc[2] > 0, ({k: round(v, 1) for k, v in cr.items()}, lc))
+    if c2: check("the girl thinking against Figma's 792:1245 render outside the thought (mean < 8 of 765)", c2["outside_mean"] < 8, c2)
+    # 4. at the first sentence's end (4.30 s): the girl pensive, the "aahaha", the white cloud over the grandfather, the letter growing in
+    pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=20000, polling=20)
+    t_ready = pg.evaluate("performance.now()"); until(t_ready, 600); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS)
+    tin = pg.evaluate("window.__tin"); aha = first(pl, "sfx_letter_aha")
+    f_p = at(lambda f: "p-in" in f["cls"]); f_l = at(lambda f: "letter-in" in f["cls"]); f_w2 = at(lambda f: "white2" in f["cloudCls"])
+    check(f"the girl pensive (792:1249) at the first sentence's end ({PC['letter'] / 1000} s on the narration's clock, its first frame within 50 ms after) and the \"aahaha\" clip started in that frame",
+          f_p is not None and f_p["voT"] is not None and 0 <= f_p["voT"] - PC["letter"] / 1000 <= 0.05 and aha is not None and abs(aha["t"] - f_p["t"]) <= 40,
+          (round(f_p["voT"], 3) if f_p and f_p["voT"] is not None else None, round(aha["t"] - f_p["t"]) if (aha and f_p) else None))
+    check(f"on the \"aahaha\" ({PC['aha_lead']} ms into its clip: its first frame 40-200 ms after the clip's start, the browser's start latency included) the white cloud comes over the grandfather and the letter begins to grow, together; the grandfather goes from under it {PC['white']} ms later",
+          f_l is not None and aha is not None and 40 <= f_l["t"] - aha["t"] <= 200 and "white" in f_l["cloudCls"] and f_w2 is not None and abs(f_w2["t"] - f_l["t"] - PC["white"] - 20) <= 60,
+          (round(f_l["t"] - aha["t"]) if (f_l and aha) else None, round(f_w2["t"] - f_l["t"]) if (f_w2 and f_l) else None))
+    swap = [f for f in tin if f_l and f_w2 and f_l["t"] <= f["t"] < f_w2["t"]]
+    check("no dip as the cloud whitens: the grandfather stays whole under the white one until it is whole, the cloud itself at 1 throughout",
+          len(swap) > 10 and all(f["cg"] == 1 and f["cloud"] == 1 for f in swap) and swap[-1]["cw"] > 0.97, (len(swap), min((f["cg"] for f in swap), default=None), swap[-1]["cw"] if swap else None))
+    ready_vo = next((f for f in reversed(tin) if f["voT"] is not None), None)
+    pl_vo = first(pl, "vo_letter_intro")
+    check(f"tappable only once the narration has ended (~{PC['ready_after']} ms after) and the letter has grown: never before",
+          ready_vo is not None and ready_vo["voT"] > 11.2 and t_ready - (pl_vo["t"] if pl_vo else 0) > 11000 and not any("ready" in f["cls"] for f in tin[:-1]),
+          (round(ready_vo["voT"], 2) if ready_vo else None, round(t_ready - pl_vo["t"]) if pl_vo else None))
+    settled = s["growTf"] == "none" or (s["growTf"].startswith("matrix(") and abs(float(s["growTf"][7:].split(",")[0]) - 1) < 0.001)
+    check("then the white cloud stands with the letter in it (its growth done), the grandfather gone, pulsing and tappable",
           s["cloudOp"] > 0.99 and s["cgOp"] == 0 and s["cwOp"] == 1 and s["growOp"] == 1 and settled and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"],
-          (s["cloudOp"], s["growOp"], s["growTf"], s["cls"]))
-    check("the chime plays once (the narration vo_letter_intro is the page's other voice, before the scene)", sum(1 for x in pl if x["src"].startswith("sfx_letter_idea")) == 1 and sum(1 for x in pl if x["src"].startswith("vo_letter_intro")) == 1,
-          [x["src"] for x in pl if "letter" in x["src"]])
-    tr_in = pg.evaluate("window.__tin"); ts = [f["t"] - t_idea for f in tr_in]; gaps = [y - x for x, y in zip(ts, ts[1:])]
-    after = [f["cloud"] for f in tr_in if f["t"] - t_idea >= 2400]
-    check("the chime's beats run smoothly on the page's own frames (from the chime to the letter's readiness: no gap over 100 ms) and the cloud's return never falters (its opacity never falls after the \"aahaha\")",
-          len(gaps) > 60 and max(gaps) < 100 and len(after) > 10 and all(y >= x - 1e-6 for x, y in zip(after, after[1:])),
-          ("max gap %d ms over %d frames; %d frames after the aahaha" % (max(gaps), len(gaps) + 1, len(after))) if gaps else None)
-    r = s["envRect"]
-    check("the envelope icon: 558:2's size (189 px wide), centred in the cloud at (1020,166)", r and abs(r["w"] - 189) < 3 and abs(r["x"] + r["w"] / 2 - 1020) < 3 and abs(r["y"] + r["h"] / 2 - 166) < 3,
+          (s["cloudOp"], s["cgOp"], s["cwOp"], s["growOp"], s["growTf"], s["cls"]))
+    check("the \"aahaha\" plays once, the narration once, the old chime never", sum(1 for x in pl if x["src"].startswith("sfx_letter_aha")) == 1 and sum(1 for x in pl if x["src"].startswith("vo_letter_intro")) == 1
+          and not any(x["src"].startswith("sfx_letter_idea") for x in pl), [x["src"] for x in pl if "letter" in x["src"]])
+    ts = [f["t"] for f in tin]; gaps = [y - x for x, y in zip(ts, ts[1:]) if x - t0 > 600]
+    check("the beats run smoothly on the page's own frames (from 0.6 s to the letter's readiness: no gap over 100 ms)", len(gaps) > 200 and max(gaps) < 100,
+          ("max gap %d ms over %d frames, mean %.1f" % (max(gaps), len(gaps) + 1, sum(gaps) / len(gaps))) if gaps else None)
+    r = s["envRect"]; li = LY["letter"]
+    check(f"the envelope icon: {li[2]} px wide, centred in the cloud at ({li[0]}, {li[1]})", r and abs(r["w"] - li[2]) < 3 and abs(r["x"] + r["w"] / 2 - li[0]) < 3 and abs(r["y"] + r["h"] / 2 - li[1]) < 3,
           {k: round(v, 1) for k, v in r.items()} if r else r)
-    tf1 = s["pulseTf"]; until(t_idea, 4300); tf2 = pg.evaluate(STATE)["pulseTf"]
+    tf1 = s["pulseTf"]; until(t_ready, 900); tf2 = pg.evaluate(STATE)["pulseTf"]
     check("the envelope pulses (its scale changes over 0.3 s)", tf1 != tf2, (tf1, tf2))
-    l = shot(pg, "l1_letter.png"); cmp_l = compare(l, "render_558-2.png", "l1_letter", region=(780, 0, 1280, 360))
-    if cmp_l: print("INFO the letter stage against Figma's 558:2 render (the designer's cloud differs from the kept one; informative only):", cmp_l)
+    l = shot(pg, "l1_letter.png"); c3 = compare(l, "fig_792-1249_render.png", "l1_letter", outside=THOUGHT)
+    if c3: check("the girl pensive against Figma's 792:1249 render outside the thought (mean < 8 of 765)", c3["outside_mean"] < 8, c3)
     # 5. the tap: the pop, the zoom to 610:6, the loop fades out
     bb = pg.locator(".ltr-env-pos").bounding_box()
     pg.evaluate("(() => { const cs = completeSlide; completeSlide = function(){ window.__csT = performance.now(); return cs.apply(this, arguments); }; })()")   # the hand-over, on the page's own clock
@@ -169,7 +189,7 @@ with sync_playwright() as p:
     music = first(pl, "bgm_letter")
     check("the piano loop has faded out by then", music is not None and (music["paused"] or music["vol"] < 0.05), (music["paused"], music["vol"]) if music else None)
     z = shot(pg, "l1_zoom.png"); cmp_z = compare(z, "render_610-6.png", "l1_zoom")
-    if cmp_z: check("the full-screen envelope against Figma's 610:6 render: close (mean < 14)", cmp_z["mean"] < 14, cmp_z)   # its backdrop is 610:6's own blurred picture
+    if cmp_z: print("INFO the full-screen envelope against Figma's 610:6 render (its backdrop is the OLD room, blurred; [l1-fig] the page's is 792:1249's):", cmp_z)
     # the envelope AS DRAWN: the dist's own layers (inner, body, flap, heart) stacked over the blurred room at 610:6's box ARE the
     # drawing (make_env_layers_exact.py: lossless, the drawing's pixels); the shot is judged on the envelope's flat parts — inside
     # its silhouette eroded 4 px, off the drawing's own edges, outside the seal's box (its hard red edge resamples differently in
@@ -178,7 +198,7 @@ with sync_playwright() as p:
     import numpy as _np
     env_box = pg.evaluate("CARD.slides.find(s => s.id === 'L1').data.layout.full"); IM = html.parent / "assets" / "Images"
     bx, by, bw, bh = (int(round(v)) for v in env_box)
-    T = _Im.open(IM / "img_letter_blur.webp").convert("RGB").resize((1280, 720), _Im.LANCZOS)
+    T = _Im.open(IM / "img_letter_blur_p.webp").convert("RGB").resize((1280, 720), _Im.LANCZOS)
     for n in ("inner", "body", "flap", "heart"):
         Ly = _Im.open(IM / f"img_letter_env_{n}.webp").convert("RGBA").resize((bw, bh), _Im.LANCZOS); T.paste(Ly, (bx, by), Ly)
     sil = _np.zeros((720, 1280), bool)
@@ -214,7 +234,7 @@ with sync_playwright() as p:
           abs(f["t"] - t_tap - 3000) < 80 and f["env"][2] > 1138 * 3.5 and f["heart"] == 0 and f["veil"] < 0.05, (round(f["t"] - t_tap), round(f["env"][2]), f["heart"], f["veil"]))
     f = frame_at(t_shot)
     check("the shot there (%d ms; the veil %.2f): the sheet fills the screen (over 90 %% sheet pixels)" % (t_shot, f["veil"]), sheet > 0.9 or f["veil"] > 0.2, round(sheet, 3))
-    def fmt(f): return (round(f["t"] - t_tap), f["heart"], f["cls"].replace("ltr b-in letter-in ", ""), {k: [round(v) for v in f[k]] for k in ("apex", "hinge", "env") if f[k]})
+    def fmt(f): return (round(f["t"] - t_tap), f["heart"], f["cls"].replace("ltr w-in t-in p-in letter-in ", ""), {k: [round(v) for v in f[k]] for k in ("apex", "hinge", "env") if f[k]})
     f = frame_at(1700)
     check("1.7 s after the tap (the page's frame): the seal has popped off, the flap is lifting (its tip risen, still below its hinge), the sheet is rising, the view still 610:6's",
           abs(f["t"] - t_tap - 1700) < 80 and f["heart"] == 0 and "paper" in f["cls"] and "dive" not in f["cls"] and f["hinge"][1] + 20 < f["apex"][1] < 400, fmt(f))
@@ -239,10 +259,10 @@ with sync_playwright() as p:
     # 7. a re-run from the end screen (the dev nav), then leaving it mid-way: a clean restart, a clean stop
     pg.evaluate("window._plays = []")
     pg.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'L1'))")
-    pg.wait_for_function("currentAudio && currentAudio.src.includes('vo_letter_intro') && isPlaying", timeout=8000, polling=10)   # [vo-rec] the narration again first
-    pg.wait_for_function("!isPlaying", timeout=40000, polling=10); t1 = pg.evaluate("performance.now()")
-    until(t1, 4000); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); music = first(pl, "bgm_letter")
-    check("re-run from the stamp page: the narration again, then the scene restarts from the first picture, the loop starts again", s and "b-in" in s["cls"] and "letter-in" not in s["cls"] and "c-in" not in s["cls"] and music is not None and not music["paused"], (s["cls"] if s else s, music is not None))
+    pg.wait_for_function("currentAudio && currentAudio.src.includes('vo_letter_intro') && currentAudio.currentTime > 2.5", timeout=12000, polling=20)   # [l1-fig] the picture, the narration, its "दादाजी"
+    s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); music = first(pl, "bgm_letter")
+    check("re-run from the stamp page: the scene restarts from the first picture — the narration again, the girl thinking on its \"दादाजी\", no letter yet — and the loop starts again",
+          s and "w-in" in s["cls"] and "t-in" in s["cls"] and "p-in" not in s["cls"] and "letter-in" not in s["cls"] and music is not None and not music["paused"], (s["cls"] if s else s, music is not None))
     # the opening once more with nothing else going on (no screenshots, no polls): the page's own frame times = smoothness
     pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=15000)
     bb = pg.locator(".ltr-env-pos").bounding_box(); t2 = pg.evaluate("performance.now()"); pg.mouse.click(bb["x"] + bb["width"] / 2, bb["y"] + bb["height"] / 2)

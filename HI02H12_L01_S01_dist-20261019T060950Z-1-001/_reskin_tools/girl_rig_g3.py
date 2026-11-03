@@ -13,6 +13,13 @@ painting. The two eyes' covers share one sheet her bitmap's size and their irise
 them with her image's own box and cover — on her pixels exactly (each in its own small box they were snapped to the device pixels on
 their own: up to half a pixel off her painted eyes at rest, measured). Writes g3_assets/girl_rig/ (+ rig.json: the irises, the interiors' room, the sclera colours, in bitmap px) and, with
 --debug <dir>, overlays and the glance's composites. Run: python -I girl_rig_g3.py [--debug <dir>]
+[g3-screen] (2026-11-03): two poses now — the flowers (GAZE: down and to her left, the iris tucked under the right outline) and the
+screen (SCREEN: the irises 12 px to her right, centred in the openings — looking out at the child), where she rests between glances.
+The screen pose bares the right side of each eye, where the painted iris touched the outline: an iris reaching the skin or just past
+it (r_out - r_if down to -1, the lower right) now counts as touching too — before, those angles fell back to the opening's fitted
+curve 3-6 px inside, which left a dark blob of iris rim at the lower right (and a notch at eye1's 348 degrees) once the iris left.
+And the iris's light anti-aliased rim (within 1.5 px of the fit) now goes with the iris and is covered: it had stayed on the white
+as a dotted grey arc at the flowers pose. The rest composite is unchanged (max 3 levels).
 """
 import sys, json, pathlib, math
 import numpy as np
@@ -23,7 +30,8 @@ SRC = SCR / "g3_assets" / "img_g3_girl_point.webp"
 OUT = SCR / "g3_assets" / "girl_rig"; OUT.mkdir(exist_ok=True)
 DEBUG = pathlib.Path(sys.argv[sys.argv.index("--debug") + 1]) if "--debug" in sys.argv else None
 if DEBUG: DEBUG.mkdir(parents=True, exist_ok=True)
-GAZE = (4.0, 10.0)   # the glance at the plants, bitmap px: down and a little to her left (the plants lie below her eyes, to the right)
+GAZE = (4.0, 6.0)   # the glance at the flowers, bitmap px: a little down and to her left (they lie 7-20 degrees below her eyes, to the right; 10 down looked at the ground)
+SCREEN = (-12.0, 0.0)   # [g3-screen] at the child: both irises centred in their openings (eye1 2.6 px right of its centroid, eye2 2.6 px left)
 
 im = Image.open(SRC).convert("RGBA"); W, H = im.size
 assert (W, H) == (1024, 1536), (W, H)
@@ -63,7 +71,7 @@ def boundary(m):
 # image-left (her right eye, the nearer) and image-right; the iris's rough centre and radius, read off the bitmap
 EYES = [{"name": "eye1", "box": (400, 244, 504, 334), "guess": (468.0, 292.0, 22.0)},
         {"name": "eye2", "box": (538, 196, 624, 290), "guess": (591.0, 247.0, 20.0)}]
-report = {"bitmap": [W, H], "gaze": list(GAZE), "eyes": []}
+report = {"bitmap": [W, H], "gaze": list(GAZE), "screen": list(SCREEN), "eyes": []}
 for E in EYES:
     x0, y0, x1, y1 = E["box"]; bm = box_mask(x0, y0, x1, y1)
     gx_, gy_, gr = E["guess"]
@@ -146,7 +154,7 @@ for E in EYES:
         t2 = (-qb + math.sqrt(disc)) / (2 * qa)
         return t2 if t2 > 0 else float("inf")
     r_if = np.array([iris_far(th) for th in ang])
-    touch = np.isfinite(r_if) & (r_out - r_if <= 4.0) & (r_out - r_if >= 0.5)
+    touch = np.isfinite(r_if) & (r_out - r_if <= 4.0) & (r_out - r_if >= -1.0)   # [g3-screen] at or just past the skin too (was >= 0.5)
     guess = np.where(touch, r_if + 0.5, np.where(np.isfinite(r_ell), r_ell, r_out - 3.0))
     r_full = np.where(valid, r_in, np.minimum(guess, r_out - 1.5))
     r_full = np.minimum(r_full, r_out - 1.5)
@@ -195,6 +203,9 @@ for E in EYES:
     sclera_px = white[fy, fx] & ~core
     cand_p = (em > 0.5) & solid[fy, fx] & ~skin[fy, fx] & (((rr <= ir + 4) & ~white[fy, fx]) | ((rr <= ir + 2) & (mn[fy, fx] <= 235)) | core)
     pin = seen_from_centre(cand_p, sclera_px) | (core & (em > 0.5))
+    # [g3-screen] and its light anti-aliased rim on the white, within 1.5 px of the fit (near-white, so the rules above took it for
+    # sclera): left behind, it showed as a dotted grey arc on the white where the iris had been, once the iris went to the flowers
+    pin |= (rr <= ir + 1.5) & (em > 0.5) & solid[fy, fx] & ~skin[fy, fx] & (mn[fy, fx] > 150)
     # the layer = the painted iris + its continuation where it runs on UNDER the outline / lid: a pixel of the fitted ellipse (+1.5)
     # outside the painted iris joins only if the straight path to it from the iris's centre crosses no white outside the painted
     # iris (where a sliver of white lies between the iris and the outline — her eye2's top right — the fit runs past the iris:
@@ -217,7 +228,7 @@ for E in EYES:
     eo = {"name": E["name"], "iris": {"cx": round(float(icx), 2), "cy": round(float(icy), 2), "rx": round(float(irx), 2), "ry": round(float(iry), 2), "r": round(float(ir), 2), "fit_pts": int(ok.sum()), "fit_rms": round(float(np.sqrt((rs ** 2).mean())), 2), "hidden_px": hidden},
           "iris_box": [ox, oy, sz, sz], "centre": [round(c[0], 1), round(c[1], 1)],
           "interior_r": {"min": round(float(r_s.min()), 1), "max": round(float(r_s.max()), 1), "valid_angles": int(valid.sum()), "ellipse_fit_err": round(ell_err, 2)},
-          "sclera": [int(v_) for v_ in sc], "iris_shown": {"rest": round(shown(0, 0)), "glance": round(shown(*GAZE))}}
+          "sclera": [int(v_) for v_ in sc], "iris_shown": {"rest": round(shown(0, 0)), "glance": round(shown(*GAZE)), "screen": round(shown(*SCREEN))}}
     report["eyes"].append(eo)
     print(f"{E['name']}: iris c {icx:.1f},{icy:.1f} rx {irx:.1f} ry {iry:.1f} ({ok.sum()} pts, rms {eo['iris']['fit_rms']}), interior r {r_s.min():.1f}-{r_s.max():.1f} ({valid.sum()}/360 angles read, ellipse within {ell_err:.2f} px), sclera {eo['sclera']}, hidden {hidden} px, iris shown {eo['iris_shown']}")
     E["mask"] = eye_mask; E["out"] = eo; E["iris"] = iris; E["fill"] = fill
@@ -255,10 +266,10 @@ report["rest_diff"] = {"max": round(float(diff.max()), 1), "over8": int((diff > 
 print("rest composite vs the painting:", report["rest_diff"], "| sheets:", {k: f"{v / 1024:.1f}K" for k, v in report["sheets"].items()})
 (OUT / "rig.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
 if DEBUG:
-    gl = composite(*GAZE)
+    gl = composite(*GAZE); scr = composite(*SCREEN)   # [g3-screen] rest, the flowers, the screen
     for nm, (bx0, by0, bx1, by1) in (("eyes", (395, 190, 630, 340)),):
-        a = np.concatenate([rest[by0:by1, bx0:bx1, :3], gl[by0:by1, bx0:bx1, :3]], axis=0)
-        Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).resize(((bx1 - bx0) * 3, (by1 - by0) * 2 * 3), Image.LANCZOS).save(DEBUG / f"g3eyes_{nm}.png")
+        a = np.concatenate([rest[by0:by1, bx0:bx1, :3], gl[by0:by1, bx0:bx1, :3], scr[by0:by1, bx0:bx1, :3]], axis=0)
+        Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).resize(((bx1 - bx0) * 3, (by1 - by0) * 3 * 3), Image.LANCZOS).save(DEBUG / f"g3eyes_{nm}.png")
     for E in EYES:
         x0, y0, x1, y1 = E["box"]; big = Image.fromarray(np.clip(A[y0:y1, x0:x1, :3], 0, 255).astype(np.uint8)).resize(((x1 - x0) * 6, (y1 - y0) * 6), Image.NEAREST)
         d = ImageDraw.Draw(big); eo = E["out"]

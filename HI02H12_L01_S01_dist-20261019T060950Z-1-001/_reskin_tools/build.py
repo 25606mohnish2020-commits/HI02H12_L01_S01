@@ -632,6 +632,21 @@ card["_emoji_fallback"]["img_g3_garden"] = "🌳"; card["_emoji_fallback"]["img_
 # T4's "back to the screen in the exact same position") by 2.4 s and the rig fades out by 2.55 s; between glances her eyes are the
 # painting itself. The glance repeats every 7 s until the answer (lookOff: only in a rest phase). then_ms after the growth began the page goes on exactly as before: the instruction line,
 # 0.5 s, the sentence, the tiles (the glance's cycle runs on across them).
+# [g3-rope] (asked 2026-11-03): "replace the plant grow sound with this sound effect (floraphonic-stretch-rubber-rope-foley-21-209731.mp3)
+# and reduce this sound effect volume by 75%". The user's file is one 33.8 s take of a rope stretching (kept as
+# g3_assets/sfx_g3_rope_source.mp3); the growth is 1.9 s, so the page plays its first 1.875 s — from its first sound (0.205 s in) to
+# the quiet before its next creak (2.08 s), the last 0.13 s faded — as g3_assets/sfx_g3_rope.mp3 (the file's own level, not raised:
+# -27.3 LUFS, peak -5.2 dBFS). Of every 1.9 s window of the take, this one's loudness follows the old grow sound's best (r .69): the
+# stretch swelling under the rose, creaks under the marigold and the jasmine, the last as the jasmine settles. Played at .25 (75% down).
+# [g3-screen] (asked the same day): "the girl's eyes should look towards the flowers and then towards the screen instead of the
+# current animation". Her painted irises already sit at the right of her eyes (towards her finger and the flowers), so the old glance
+# (a 2 px dip and back to the painting) hardly showed and never looked at the child. Now two poses (girl_rig_g3.py): the flowers
+# (gaze: 4 / 6 bitmap px, a little down and to her left — they lie 7-20 degrees below her eyes) and the screen (screen: -12 / 0, the
+# irises centred in the openings, looking out at the child). The first glance, look_ms into the growth: the rig fades in over 0.15 s
+# with the irises as painted, they go to the flowers by 0.6 s, hold while the plants grow, and turn to the screen by 2.25 s — before
+# the instruction line — and stay there: every 7 s after it she glances at the flowers again (screen -> flowers 0.15-0.6 s, held to
+# 1.8 s, back to the screen by 2.25 s) and between glances looks at the child (the rig stays on: data.girl_look.hold puts .held on her
+# with lookOn, which keeps the screen pose once lookOff has taken .look off at the answer, in a rest phase as before).
 _prig3 = json.loads((SCR / "g3_assets" / "plant_rig" / "rig.json").read_text(encoding="utf-8"))
 _erig3 = json.loads((SCR / "g3_assets" / "girl_rig" / "rig.json").read_text(encoding="utf-8"))
 assert [q["name"] for q in _prig3["plants"]] == ["rose", "marigold", "jasmine"] and _prig3["bitmap"] == [1671, 941], _prig3["bitmap"]
@@ -640,9 +655,11 @@ assert _erig3["bitmap"] == [1024, 1536] and _erig3["rest_diff"]["max"] <= 4, "gi
 G3_BGS = 630 / 941; G3_BGX = -27 + (1117 - 1671 * G3_BGS) / 2; G3_BGY = -132   # the garden's cover in its 1117x630 box at -27,-132 (the height binds: 0.87 px off each side)
 G3_GS = 328 / 1536; G3_GX = (218 - 1024 * G3_GS) / 2                           # the girl's cover in her 218x328 box (0.33 px off each side)
 G3_BOX = (-27, -132, 1117, 630)   # the garden's box (the pick3 CSS: .dsc-bg > img), the growth's layers' too
-GROW3 = {"bare": "img_g3_garden_bare", "plants": [f"img_g3_plant_{q['name']}" for q in _prig3["plants"]], "sfx": "sfx_g3_grow.mp3", "sfx_vol": 0.9,
+GROW3 = {"bare": "img_g3_garden_bare", "plants": [f"img_g3_plant_{q['name']}" for q in _prig3["plants"]], "sfx": "sfx_g3_rope.mp3", "sfx_vol": 0.25,   # [g3-rope] the user's rope stretch at .25 (was sfx_g3_grow.mp3 at .9)
          "start_ms": 600, "dur_ms": 1000, "delays_ms": [0, 495, 770], "fade_ms": 200, "look_ms": 150, "then_ms": 2700}
-LOOK3 = {"every_ms": 7000, "fade_ms": 150, "active_ms": 2400, "anim": "dscEyesLook", "warm_ms": 380, "gaze": [round(_erig3["gaze"][0] * G3_GS, 3), round(_erig3["gaze"][1] * G3_GS, 3)]}
+assert _erig3["gaze"] == [4.0, 6.0] and _erig3["screen"] == [-12.0, 0.0], "girl_rig_g3.py: re-run it for the [g3-screen] poses"
+LOOK3 = {"every_ms": 7000, "fade_ms": 150, "active_ms": 2250, "anim": "dscEyesLook", "warm_ms": 380, "hold": True,   # [g3-screen] active: until the irises are at the screen; hold: .held keeps them there
+         "gaze": [round(_erig3["gaze"][0] * G3_GS, 3), round(_erig3["gaze"][1] * G3_GS, 3)], "screen": [round(_erig3["screen"][0] * G3_GS, 3), round(_erig3["screen"][1] * G3_GS, 3)]}
 assert card["slides"][i_g3]["data"]["bg_id"] == "img_g3_garden", "G3's garden is the painting itself"
 card["slides"][i_g3]["data"].update({"grow": GROW3, "girl_rig": "eyes", "girl_look": LOOK3, "girl_eyes": {"fill": "img_g3_girl_efill", "iris": "img_g3_girl_eiris"}})
 card["assets"]["image"]["img_g3_garden_bare"] = "assets/Images/img_g3_garden_bare.webp"; card["_emoji_fallback"]["img_g3_garden_bare"] = "🌳"
@@ -749,9 +766,25 @@ assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.ge
 # again just ahead of it); then it pulses and waits for the tap. pace: hum_at / aha_at = those two moments in the chime (ms),
 # rebub_gap = the bubbles' re-pop spacing ahead of the "aahaha", letter_in = the growth after which the letter is tappable. The
 # dissolve (the grandfather fading to white inside the standing cloud) and the letter's own pop-in are gone.
-LETTER_IMGS = {"img_letter_scene_a": "✏️", "img_letter_scene_b": "✏️", "img_letter_scene_c": "🤔", "img_letter_blur": "✏️", "img_letter_cloud_grandpa": "💭",
-               "img_letter_cloud_white": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}
-LETTER_SND = ["sfx_letter_magic", "sfx_letter_idea", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]
+# [l1-fig] (asked 2026-11-03): "remove the whole existing flow of the page and follow the exact flow": 1. the picture of Figma
+# 792:1257 (the girl writing) comes in full screen with the user's healing-magic sound (= sfx_letter_magic, the file's first 4 s)
+# synced; 2. then the narration (vo_letter_intro: "पिंकी अपने दादाजी को पत्र में ...") with the mild piano bed (= bgm_letter_nostalgia,
+# the user's file byte for byte, at .2: the old .45 less the engine's own -7.4 dB duck of its bed under a voice); 3. on "दादाजी" the
+# picture of 792:1245 (the girl thinking) full screen and the grandfather's memory cloud appearing as before (the bubbles pop, the
+# cloud grows in from their corner); 4. the user's choice (asked: "दादाजी" and "पत्र" are 1.1 s apart, the cloud's entrance takes 2.3 s)
+# — at the END of the first sentence ("... चाहती है ।", 4.26 s on the clip) the picture of 792:1249 (the girl pensive), the
+# grandfather fading to the white cloud as the same letter grows in it, on the "aahaha" of the user's idea sound (sfx_letter_aha:
+# the file cut at its "aahaha", 60 ms before it); 5. once the narration has ended the letter pulses and waits; its tap runs the
+# SAME opening transition (zoom, flap, dive, veil, L2) as before, over the room of 792:1249 blurred as 610:6's was (7.5 px, 90 % on
+# white: img_letter_blur_p). The frames are one picture each, larger than the frame (their Figma boxes, cover); the three are new
+# drawings (braided Pinki in a new room), stored lossless (img_letter_scene_w / _t / _p). The thought (bubbles, cloud, letter)
+# is the old one carried onto the new girl: anchored at her head's right edge (x 730, between 792:1245's braid at 737 and
+# 792:1249's at 717) at her right eye's height (y 240), scaled 1.12 (her eye spacing / the old girl's): new = (730, 240) + 1.12 x
+# (old - (808, 245)) — the cloud's visible top 17 px inside the frame.
+LETTER_IMGS = {"img_letter_scene_w": "✏️", "img_letter_scene_t": "🤔", "img_letter_scene_p": "🤔", "img_letter_blur_p": "✏️", "img_letter_cloud_grandpa": "💭",
+               "img_letter_cloud_white": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}   # [l1-fig] (the old scene_a / _b / _c and blur stay in the dist, unused)
+LETTER_SND = ["sfx_letter_magic", "sfx_letter_aha", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]   # [l1-fig] the "aahaha" clip in place of the whole chime
+_lt = lambda v: [round(730 + 1.12 * (v[0] - 808), 2), round(240 + 1.12 * (v[1] - 245), 2)] + [round(1.12 * x, 2) for x in v[2:]]   # [l1-fig] the old thought onto the new girl
 for k, emo in LETTER_IMGS.items():
     card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
 for k in LETTER_SND:
@@ -759,16 +792,21 @@ for k in LETTER_SND:
 i_p2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "P2")
 assert card["slides"][i_p2 + 1]["id"] == "CEL"
 card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic", "type": "LETTER_STORY", "prompt_hi": "", "audio": {},
-    "data": {"scene_a": "img_letter_scene_a", "scene_b": "img_letter_scene_b", "scene_c": "img_letter_scene_c", "blur": "img_letter_blur",
+    "data": {"scenes": {"w": "img_letter_scene_w", "t": "img_letter_scene_t", "p": "img_letter_scene_p"}, "blur": "img_letter_blur_p",   # [l1-fig] 792:1257 / 792:1245 / 792:1249
              "cloud": "img_letter_cloud_grandpa", "cloud_white": "img_letter_cloud_white",
              "env": {"body": "img_letter_env_body", "flap": "img_letter_env_flap", "inner": "img_letter_env_inner", "heart": "img_letter_env_heart"},
-             "sfx": {"magic": "sfx_letter_magic", "idea": "sfx_letter_idea", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},
+             "sfx": {"magic": "sfx_letter_magic", "aha": "sfx_letter_aha", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},
              "music": "bgm_letter_nostalgia",
-             "layout": {"cloud": [862.09, 8.61, 314.5], "bubbles": [[814.7, 242.8, 8], [831.4, 230.5, 16], [854.0, 211.2, 26]],
-                        "letter": [1020, 166, 189], "full": [71, -50, 1138, 758], "mouth": [568.8, 292.4]},
-             "pace": {"a_hold": 2000, "xfade": 650, "bub_start": 2600, "bub_gap": 230, "cloud_start": 3300, "cloud_in": 1600, "hold": 2600,
-                      "hum_at": 0, "aha_at": 2370, "rebub_gap": 160, "letter_in": 1300, "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2,
-                      "veil_at": 1900, "done_at": 2450}}})
+             "layout": {"scenes": {"w": [-262, -91, 1563, 880], "t": [-231, -42, 1516, 853], "p": [-237, -38, 1520, 856]},   # [l1-fig] each frame's picture box (cover)
+                        "cloud": _lt([862.09, 8.61, 314.5]), "bubbles": [_lt(b) for b in ([814.7, 242.8, 8], [831.4, 230.5, 16], [854.0, 211.2, 26])],
+                        "letter": _lt([1020, 166, 189]), "full": [71, -50, 1138, 758], "mouth": [568.8, 292.4]},
+             # [l1-fig] ms: w_in = the first picture's entrance (from the magic's first frame), vo_at = the narration after the magic's
+             # start; on the narration's clock: dada (its "दादाजी", read off the clip: 0.84 s), letter (the first sentence's end, 4.26 s);
+             # from "दादाजी": xfade (the picture), bub_after / bub_gap (the bubbles), cloud_after (the cloud's entrance, 1.2 / 1.6 s as
+             # before); aha_lead = the "aahaha" inside its clip; white = the grandfather to white; ready_after = after the narration
+             "pace": {"w_in": 900, "vo_at": 1200, "music_vol": 0.2, "music_in": 1200, "dada": 840, "letter": 4300, "xfade": 650, "bub_after": 300, "bub_gap": 230,
+                      "cloud_after": 1000, "aha_lead": 60, "white": 500, "ready_after": 300,
+                      "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2, "veil_at": 1900, "done_at": 2450}}})
 # [stamp-fig] L2 = the Figma frame 565:28 "G3 guided story question" (the stamp page), after the letter page: the letter's sentence on a
 # sheet on a wooden table, a tray with two stamps (। and ?), the demos' title bar. It drives itself: the table (under the letter
 # page's veil, which lifts) and the title bar on its line (vo_stamp_intro); the sheet settles and the tray slides up; the two
@@ -1396,7 +1434,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       if(look){ const v = (k, val)=> girl.style.setProperty(k, val);
         v("--look-ms", (look.every_ms || 5000) + "ms"); v("--look-gx", (look.gx || 0) + "px"); v("--look-gy", (look.gy || 0) + "px");
         v("--look-arm", (look.arm_deg || 0) + "deg"); v("--look-lean", (look.lean_deg || 0) + "deg"); }
-      const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); lookT0 = performance.now(); };
+      const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); if(look.hold) girl.classList.add("held"); lookT0 = performance.now(); };   // [g3-screen] look.hold: .held keeps her rest pose (the CSS's) once .look has gone
       const lookOff = ()=>{ if(lookT0 < 0) return; const every = look.every_ms || 5000, active = look.active_ms || 2300;
         let ph = (performance.now() - lookT0) % every; lookT0 = -1;
         try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === (look.anim || "dscLookArm")); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}   // [t4-basket] T4's clock: dscBasketLift
@@ -2078,29 +2116,28 @@ js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: sent_mod + m.group(0), re.M,
 # [letter-fig] LETTER_STORY: the thought-cloud letter page (see the card note above). The page is the frames' 1280x720 px in
 # the whole-stage frame (.sfig-full); every visual beat starts on its sound's "playing" event (or 150 ms in, if the browser
 # will not say), so picture and sound stay together; the piano loop ducks the engine's own background music while it plays.
-letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud letter page (FLN-by-MJ frames 538:2 -> 538:35 -> 538:39 -> 558:2 ->
-     610:6), after P2's round gate. Self-driving, no आगे: the only tap is the envelope. 1. the girl writing (538:2) with the
-     magic shimmer; after 2 s the thinking girl (538:35) fades in. 2. three thought bubbles pop, the grandfather cloud grows in
-     slowly (538:39) and the piano loop starts. 3. [letter-idea] the chime, as soon as the cloud has stood: on its "ummm" the
-     cloud and the bubbles leave and the girl is pensive (scene C, no cloud); on its "aahaha" she brightens again and the same
-     cloud grows in once more, white, with the letter (558:2's size) growing in it; it pulses and waits for the tap. 4. the tap:
-     the pop, the envelope zooms to 610:6 over the
-     blurred room, the seal pops, the flap swings open on the paper crackle, the sheet rises, a veil — then the next page. The
-     timings live in data.pace (ms), the places in data.layout (frame px). ===== */
+letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after P2's round gate. [l1-fig] (2026-11-03) the user's flow on Figma 792:1257
+     -> 792:1245 -> 792:1249: 1. the girl writing comes in full screen on the magic shimmer's first frame; 2. then the narration
+     (data.intro_audio) with the mild piano bed; on the narration's own clock: 3. on "दादाजी" (pace.dada) the girl thinking fades in
+     and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. at the first
+     sentence's end (pace.letter) the girl pensive fades in and, on the "aahaha" (sfx.aha), the grandfather fades to the white cloud
+     as the letter grows in it, where it stands; 5. once the narration has ended (and the letter has grown) it pulses and waits — the
+     only tap: the pop, the envelope zooms to 610:6 over the blurred room, the seal pops, the flap swings open on the paper crackle,
+     the sheet rises, the view dives into it, a veil — then the next page. Self-driving, no आगे. Timings in data.pace (ms), places
+     in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
-      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ a_hold: 2000, xfade: 650, bub_start: 2600, bub_gap: 230,
-        cloud_start: 3300, cloud_in: 1600, hold: 2600, hum_at: 0, aha_at: 2370, rebub_gap: 160, letter_in: 1300, zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700,
-        dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
+      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 4300,
+        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, aha_lead: 60, white: 500, ready_after: 300,
+        zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
-      const sfx = d.sfx || {}, env = d.env || {};
-      const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758],
+      const sfx = d.sfx || {}, env = d.env || {}, sc = d.scenes || {}, SB = L.scenes || {};
+      const cl = L.cloud || [790.58, -24.76, 352.24], bubs = L.bubbles || [], li = L.letter || [967.44, 151.52, 211.68], full = L.full || [71, -50, 1138, 758],
             mo = L.mouth || [568.8, 292.4];
+      const box = (b)=> b ? 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px' : '';
       const fig = sfigMount(host,
         '<div class="ltr">' +
-          '<img class="ltr-scene a" src="' + imgSrc(d.scene_a) + '" alt="" draggable="false">' +
-          '<img class="ltr-scene b" src="' + imgSrc(d.scene_b) + '" alt="" draggable="false">' +
-          '<img class="ltr-scene c" src="' + imgSrc(d.scene_c) + '" alt="" draggable="false">' +
+          ['w', 't', 'p'].map(k=> '<img class="ltr-scene ' + k + '" src="' + imgSrc(sc[k]) + '" alt="" draggable="false" style="' + box(SB[k]) + '">').join("") +   // each frame's picture in its own box
           bubs.map(b=> '<span class="ltr-bub" style="left:' + (b[0] - b[2] / 2) + 'px;top:' + (b[1] - b[2] / 2) + 'px;width:' + b[2] + 'px;height:' + b[2] + 'px"></span>').join("") +
           '<div class="ltr-cloud" style="left:' + cl[0] + 'px;top:' + cl[1] + 'px;width:' + cl[2] + 'px;height:' + cl[2] + 'px">' +
             '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cw" src="' + imgSrc(d.cloud_white) + '" alt="" draggable="false"></div>' +
@@ -2119,14 +2156,12 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
       const root = fig.querySelector(".ltr"), envPos = fig.querySelector(".ltr-env-pos"), cloud = fig.querySelector(".ltr-cloud"),
             bubEls = Array.from(fig.querySelectorAll(".ltr-bub"));
-      // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud at 558:2's size, so the zoom moves the same element
+      // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud, so the zoom moves the same element
       const s = li[2] / full[2];
       envPos.style.setProperty("--ltr-icon", "translate(" + (li[0] - li[2] / 2 - full[0]) + "px, " + (li[1] - (li[2] * full[3] / full[2]) / 2 - full[1]) + "px) scale(" + s + ")");
-      // [letter-idea] the letter grows in WITH the cloud: the cloud's entrance (the CSS: scale .55 and a (-30,40) slide about its
-      // 12% 92% corner) written in the box's own px — that corner and that slide at 1/s — on a wrapper inside the icon, so the
-      // cloud and the letter in it move as one
-      envPos.style.setProperty("--ltr-go", ((cl[0] + 0.12 * cl[2] - (li[0] - li[2] / 2)) / s) + "px " + ((cl[1] + 0.92 * cl[2] - (li[1] - (li[2] * full[3] / full[2]) / 2)) / s) + "px");
-      envPos.style.setProperty("--ltr-gt", (-30 / s) + "px, " + (40 / s) + "px");
+      // [l1-fig] the letter grows in where it stands, in the standing cloud: about the box's own centre, no slide
+      envPos.style.setProperty("--ltr-go", (full[2] / 2) + "px " + (full[3] / 2) + "px");
+      envPos.style.setProperty("--ltr-gt", "0px, 0px");
       // [letter-dive] the opening is a whole-screen transition: the view dives INTO the open envelope, onto the sheet — the box
       // scaled by dive_scale about the mouth's centre (layout.mouth, box px: the incentre of the triangle top edge / fold apex,
       // the sheet behind it), which lands on the frame's centre, so at the end only the sheet is on the screen
@@ -2139,8 +2174,9 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
       const sounds = []; let fadeFrame = 0;
       // every sound of the page is fetched and decoded now, at mount, so that later play() starts it on its beat — online too
       const pre = {};
-      [sfx.magic, sfx.idea, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
+      [sfx.magic, sfx.aha, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
         try{ const a = new Audio(src); a.preload = "auto"; a.load(); pre[id] = a; sounds.push(a); }catch(e){} });
+      try{ const v = A(d.intro_audio); if(v) new Audio(v).load(); }catch(e){}   // [l1-fig] the narration too: it starts 1.2 s in
       // a sound; onStart runs when it is actually heard (or 150 ms in, if the browser gives no "playing" / refuses to play)
       const sound = (id, vol, onStart, loop)=>{
         const src = A(id); let started = false;
@@ -2164,31 +2200,36 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the thought-cloud lett
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops, the music comes back
       window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); cancelAnimationFrame(fadeFrame);
         sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} }); bgmBack(); state.demoRunning = false; };
-      // 1. the girl writing (538:2) with the shimmer; after a_hold the thinking girl (538:35) fades in over her
-      sound(sfx.magic, 0.6, null);
-      at(P.a_hold, ()=> root.classList.add("b-in"));
-      // 2. the thought bubbles pop one by one (nearest the head first), then the cloud grows in slowly; the piano loop starts with it
-      bubEls.forEach((b, k)=> at(P.bub_start + k * P.bub_gap, ()=> b.classList.add("in")));
-      at(P.cloud_start, ()=>{
-        cloud.classList.add("in");
-        fadeBackgroundMusic(0.02);
-        music = sound(d.music, 0.0001, ()=> fadeTo(music, 0.45, 1200), true);
-      });
-      // 3. [letter-idea] the chime, the moment the cloud has stood its hold; its beats hang on the sound's own start: on the "ummm"
-      //    (hum_at) the cloud shrinks back into the bubbles' corner and the bubbles pop out while the girl's pensive face fades over
-      //    the room (scene C, no cloud); the bubbles pop again just ahead of the "aahaha", and on it (aha_at) her bright face is back
-      //    and the SAME cloud grows in again — swapped to white while it was out — with the letter growing in it; then it pulses
-      const tIdea = P.cloud_start + P.cloud_in + P.hold;
-      at(tIdea, ()=> sound(sfx.idea, 0.7, ()=>{
-        at(P.hum_at, ()=>{ cloud.classList.remove("in"); cloud.classList.add("out"); bubEls.forEach(b=> b.classList.remove("in")); root.classList.add("c-in"); });
-        bubEls.forEach((b, k)=> at(P.aha_at - (bubEls.length - k) * P.rebub_gap, ()=> b.classList.add("in")));
-        at(P.aha_at, ()=>{
-          cloud.classList.add("white"); cloud.classList.remove("out"); cloud.classList.add("in");   // the same entrance as the grandfather's, white
-          root.classList.remove("c-in"); root.classList.add("letter-in");                            // her bright face; the letter grows with the cloud
-        });
-        at(P.aha_at + P.letter_in + 100, ()=>{ root.classList.add("ready"); state.demoRunning = false; });
-      }));
-      // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
+      // [l1-fig] the narration's moments, each run once on ITS clock (the clip's currentTime; the time since it was started if the
+      // clip is not the one playing — it failed, or another took over); ready = the narration over AND the letter grown
+      const cues = []; let voA = null, voT0 = 0, voDone = false, grown = false;
+      const watch = ()=>{ if(!alive()) return;
+        const t = (voA && currentAudio === voA) ? voA.currentTime * 1000 : performance.now() - voT0;
+        cues.forEach(c=>{ if(!c.done && t >= c.ms){ c.done = true; c.fn(); } });
+        if(cues.some(c=> !c.done)) requestAnimationFrame(watch); };
+      const tryReady = ()=>{ if(!voDone || !grown || tapped || root.classList.contains("ready")) return; root.classList.add("ready"); state.demoRunning = false; };
+      // 1. the girl writing (792:1257) comes in full screen on the magic shimmer's first frame; 2. the narration vo_at after it, with
+      //    the piano bed fading in under it (mild: pace.music_vol)
+      sound(sfx.magic, 0.6, ()=>{ root.classList.add("w-in"); at(P.vo_at, ()=>{
+        music = sound(d.music, 0.0001, ()=> fadeTo(music, P.music_vol, P.music_in), true);
+        const src = A(d.intro_audio);
+        const ended = ()=>{ if(voDone || !alive()) return; voDone = true; at(P.ready_after, tryReady); };
+        voT0 = performance.now();
+        if(src){ play(src, ended); voA = currentAudio; setTimeout(()=>{ if(!voDone && alive()){ stopAudio(); ended(); } }, authoredVoHoldMs(src) + 10000); }
+        else at(P.letter + 1500, ended);
+        requestAnimationFrame(watch);
+      }); });
+      // 3. on "दादाजी": the girl thinking (792:1245) fades in over her, the bubbles pop one by one, the cloud grows in from their corner
+      cues.push({ ms: P.dada, fn: ()=>{ root.classList.add("t-in");
+        bubEls.forEach((b, k)=> at(P.bub_after + k * P.bub_gap, ()=> b.classList.add("in")));
+        at(P.cloud_after, ()=> cloud.classList.add("in")); } });
+      // 4. at the first sentence's end: the girl pensive (792:1249) fades in, and on the "aahaha" (aha_lead into its clip) the white
+      //    cloud comes over the grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s)
+      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in");
+        sound(sfx.aha, 0.7, ()=> at(P.aha_lead, ()=>{ cloud.classList.add("white"); root.classList.add("letter-in");
+          at(P.white + 20, ()=> cloud.classList.add("white2"));
+          at(900, ()=>{ grown = true; tryReady(); }); })); } });
+      // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
         if(tapped || !root.classList.contains("ready") || !alive()) return;
@@ -3183,9 +3224,10 @@ scene_css += ("\n/* ===== [t4-basket] T4's girl in layers and her look into the 
 # origin its stem's base; and G3's girl's eyes (girl_rig_g3.py: g3_assets/girl_rig/): each eye a mask sheet at her box (cover, as
 # her image, inlined), the covers and the irises on two sheets her image's size (files) with her image's box and cover. The growth:
 # dscPlantH (the height and the fade-in) on the image, dscPlantW (the width, a beat behind) on its box, both data.grow.dur_ms long,
-# each plant data.grow.delays_ms[k] late, then .done / .gone (the module); the glance: dscEyesOn (the rig in over fade_ms, out the
-# same way once the irises are home) and dscEyesLook (the irises to the gaze over 0.45 s from fade_ms, held 1.2 s, home 0.45 s
-# later), every_ms long.
+# each plant data.grow.delays_ms[k] late, then .done / .gone (the module); the glance ([g3-screen]): dscEyesOn (the rig in over
+# fade_ms, once, and on for good) and, on the irises, dscEyesFirst (once: as painted, to the gaze over 0.45 s from fade_ms, held
+# 1.2 s, to the screen 0.45 s later, held) then dscEyesLook from every_ms on (screen -> gaze -> screen on the same clock, repeating);
+# .held: the rig on and the irises at the screen when .look has gone.
 _R3 = SCR / "g3_assets" / "girl_rig"
 _r3_sheets = ["g3_girl_eye1_mask.png", "g3_girl_eye2_mask.png", "img_g3_girl_efill.png", "img_g3_girl_eiris.png"]
 assert all((_R3 / v).exists() for v in _r3_sheets), "missing rig sheets: run girl_rig_g3.py"
@@ -3207,14 +3249,17 @@ def _grow_kf():
          ((760,), "transform:scaleY(.965);", sw), ((900,), "transform:scaleY(1.012);", sw), ((D,), "transform:none;opacity:1;", None)]
     Wd = [((0,), "transform:scaleX(.22);", "cubic-bezier(.35,.25,.4,1)"), ((620,), "transform:scaleX(1.05);", sw), ((800,), "transform:scaleX(.985);", sw),
           ((930,), "transform:scaleX(1.004);", sw), ((D,), "transform:none;", None)]
-    ev = LOOK3["every_ms"]; gx, gy = LOOK3["gaze"]; F = LOOK3["fade_ms"]
-    assert LOOK3["active_ms"] == F + 2100 + F and ev >= LOOK3["active_ms"] + 500, LOOK3
-    E = [((0, F), "transform:translate(0px,0px);", "cubic-bezier(.4,0,.2,1)"), ((F + 450, F + 1650), f"transform:translate({gx}px,{gy}px);", "cubic-bezier(.4,0,.3,1)"), ((F + 2100, ev), "transform:translate(0px,0px);", None)]
-    On = [((0,), "opacity:0;", None), ((F, F + 2100), "opacity:1;", None), ((F + 2100 + F, ev), "opacity:0;", None)]   # the rig in with the irises home, out once they are home again
+    ev = LOOK3["every_ms"]; gx, gy = LOOK3["gaze"]; sx, sy = LOOK3["screen"]; F = LOOK3["fade_ms"]
+    assert LOOK3["active_ms"] == F + 2100 and ev >= LOOK3["active_ms"] + 500, LOOK3
+    tr = lambda x, y: f"transform:translate({x}px,{y}px);"
+    # [g3-screen] the first glance starts from the painting (0, 0); the later ones from the screen, where each one ends
+    E1 = [((0, F), tr(0, 0), "cubic-bezier(.4,0,.2,1)"), ((F + 450, F + 1650), tr(gx, gy), "cubic-bezier(.4,0,.3,1)"), ((F + 2100, ev), tr(sx, sy), None)]
+    E = [((0, F), tr(sx, sy), "cubic-bezier(.4,0,.2,1)"), ((F + 450, F + 1650), tr(gx, gy), "cubic-bezier(.4,0,.3,1)"), ((F + 2100, ev), tr(sx, sy), None)]
+    On = [((0,), "opacity:0;", None), ((F, ev), "opacity:1;", None)]   # the rig in with the irises as painted, then on for good
     def kf(name, stops, total):
         body = "".join(",".join(pc(t, total) for t in ts) + "{" + decl + (f"animation-timing-function:{fn};" if fn else "") + "}" for ts, decl, fn in stops)
         return "@keyframes " + name + "{" + body + "}\n"
-    return kf("dscPlantH", H, D) + kf("dscPlantW", Wd, D) + kf("dscEyesLook", E, ev) + kf("dscEyesOn", On, ev)
+    return kf("dscPlantH", H, D) + kf("dscPlantW", Wd, D) + kf("dscEyesFirst", E1, ev) + kf("dscEyesLook", E, ev) + kf("dscEyesOn", On, ev)
 scene_css += ("\n/* ===== [g3-grow] G3's plants growing out of their soil and the girl's glance at them (plant_rig_g3.py, girl_rig_g3.py; see build.py) ===== */\n"
     ".dsc-plants{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}\n"
     ".dsc-plant{position:absolute;left:0;top:0;width:100%;height:100%;}\n"
@@ -3224,14 +3269,15 @@ scene_css += ("\n/* ===== [g3-grow] G3's plants growing out of their soil and th
     f".dsc-plants.grow .dsc-plant > img{{animation:dscPlantH {GROW3['dur_ms']}ms linear var(--g-delay,0ms) both;}}\n"
     f".dsc-plants.done{{opacity:0;transition:opacity {GROW3['fade_ms']}ms linear;}} .dsc-plants.gone{{display:none;}}   /* grown: into the painting under them, then off the page */\n"
     + _plant_css +
-    ".dsc-erig{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;opacity:0;}   /* shown only for the glance: between glances her eyes are the painting */\n"
+    ".dsc-erig{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;opacity:0;}   /* shown from the first glance on ([g3-screen]): before it her eyes are the painting */\n"
     ".dsc-eeye{position:absolute;left:0;top:0;width:100%;height:100%;-webkit-mask:var(--m) 50% 50% / cover no-repeat;mask:var(--m) 50% 50% / cover no-repeat;}   /* her image's own cover */\n"
     ".dsc-v-pick3 .dsc-eeye > img{position:absolute;left:0;top:0;width:218px;height:328px;object-fit:cover;}   /* her image's own box and cover: on its pixels */\n"
     + _eye3_css +
     ".dsc-eiris{will-change:transform;}   /* composited from mount, as T3's / T4's irises */\n"
     ".dsc-girl.warm .dsc-erig{opacity:.01;} .dsc-girl.warm .dsc-eiris{transform:translate(.001px,.001px);}   /* the GPU warm-up (see the module): drawn, at 1% */\n"
-    ".dsc-girl.look .dsc-erig{animation:dscEyesOn var(--look-ms,7000ms) linear infinite;}\n"
-    ".dsc-girl.look .dsc-eiris{animation:dscEyesLook var(--look-ms,7000ms) linear infinite;}\n"
+    ".dsc-girl.look .dsc-erig{animation:dscEyesOn var(--look-ms,7000ms) linear both;}\n"
+    ".dsc-girl.look .dsc-eiris{animation:dscEyesFirst var(--look-ms,7000ms) linear both,dscEyesLook var(--look-ms,7000ms) linear var(--look-ms,7000ms) infinite;}   /* [g3-screen] the first glance, then the loop from every_ms */\n"
+    f".dsc-girl.held .dsc-erig{{opacity:1;}} .dsc-girl.held .dsc-eiris{{transform:translate({LOOK3['screen'][0]}px,{LOOK3['screen'][1]}px);}}   /* [g3-screen] at the child once .look has gone */\n"
     + _grow_kf())
 demo_css = """
 /* ===== [demo-fig] T2, the first run-on sentence demo (frame 519:32 "G3 guided story question", PUNCT_DEMO): the frame
@@ -3337,38 +3383,37 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 # transform transition. Its layers are the 1536x1024 picture cut up (img_letter_env_*), each stretched to the box: hinge =
 # the top edge TL(191,329)-TR(1263,87) -> (538.6,154.1) at 1138/1536, tilted -12.72 deg; the heart's centre (814,537) -> (603,398).
 letter_css = """
-/* ===== [letter-fig] LETTER_STORY: frames 538:2 / 538:35 / 538:39 / 558:2 / 610:6 as one animated scene ===== */
-.ltr{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;}
+/* ===== [letter-fig] LETTER_STORY: [l1-fig] frames 792:1257 / 792:1245 / 792:1249 (+ 610:6's envelope) as one animated scene ===== */
+.ltr{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;background:#fff;}
 .ltr > *{position:absolute;}
-.ltr-scene{left:0;top:0;width:1280px;height:720px;object-fit:cover;}                      /* 538:2: the picture at 0,0 1280x720 */
-.ltr-scene.b{top:-1px;height:721px;opacity:0;transition:opacity .65s ease-in-out;}       /* 538:35: image 235 at 0,-1 1280x721 */
-.ltr.b-in .ltr-scene.b{opacity:1;}
-.ltr-scene.c{top:-1px;height:721px;opacity:.005;transition:opacity .35s ease-in-out;}    /* [letter-idea] the pensive girl (the user's 1.png, the same room): over B on the chime's "ummm", off on its "aahaha"; at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would cost a 50-70 ms frame on the beat) */
-.ltr.c-in .ltr-scene.c{opacity:1;}
+.ltr-scene{object-fit:cover;}                                                             /* each frame's picture in its own Figma box (the module), cover: as Figma fills it */
+.ltr-scene.w{opacity:0;transform:scale(1.04);transition:opacity .9s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}   /* 792:1257, the girl writing: comes in on the magic's first frame, settling */
+.ltr.w-in .ltr-scene.w{opacity:1;transform:none;}
+.ltr-scene.t,.ltr-scene.p{opacity:.005;transition:opacity .65s ease-in-out;}               /* 792:1245 on "दादाजी", 792:1249 at the first sentence's end; at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would decode on the beat: [letter-idea]) */
+.ltr-scene.p{transition-duration:.35s;}                                                    /* only her face and hand change: quick, as the old pensive swap (.65 s showed both faces) */
+.ltr.t-in .ltr-scene.t,.ltr.p-in .ltr-scene.p{opacity:1;}
 .ltr-bub{border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(120,90,60,.15);transform:scale(0);opacity:0;
   transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .2s ease-out;}
 .ltr-bub.in{transform:none;opacity:1;}
 .ltr-cloud{opacity:0;transform:scale(.55) translate(-30px,40px);transform-origin:12% 92%;will-change:transform,opacity;
   transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly; its layer made at mount, not on the beat */
 .ltr-cloud.in{opacity:1;transform:none;}
-.ltr-cloud.out{opacity:0;transform:scale(.55) translate(-30px,40px);transition:opacity .45s ease-in,transform .6s cubic-bezier(.4,0,.7,.5);}   /* [letter-idea] on the chime's "ummm": back into the bubbles' corner, quickly */
 .ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;}
-.ltr-cloud .ltr-cw{opacity:.005;}                                                       /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
-.ltr-cloud.white .ltr-cg{opacity:0;}                                                     /* the same cloud, white (558:2): swapped while it is out (unseen), ... */
-.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* ... then grown in again (.in) on the "aahaha", the letter growing in it */
+.ltr-cloud .ltr-cw{opacity:.005;transition:opacity .5s ease-in-out;}                    /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
+.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* [l1-fig] on the "aahaha" the same cloud, white (558:2), comes OVER the grandfather (same alpha: no dip) ... */
+.ltr-cloud.white2 .ltr-cg{opacity:0;}                                                    /* ... and he goes from under it once it is whole */
 .ltr-blur{left:0;top:0;width:1280px;height:720px;opacity:0;transition:opacity .9s ease-in-out;}   /* 610:6's backdrop, flattened */
 .ltr.zoom .ltr-blur{opacity:1;}
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}
 .ltr.zoom .ltr-env-pos{transform:none;}                                                  /* = 610:6's envelope box */
-/* [letter-idea] the letter grows in WITH the cloud on the chime's "aahaha": the cloud's own entrance (opacity 1.2 s; the scale and
-   the slide from the bubbles' corner, 1.6 s) on a wrapper inside the icon, in the box's px (--ltr-go / --ltr-gt, set by the module:
-   that corner and that slide at 1/s), so the cloud and the letter in it are one growing thought; none after, so the zoom and the
-   dive see nothing of it. Its resting opacity is 1/255, not 0, and it has its own layer from mount (will-change): a layer at 0 is
-   never rasterised, so the envelope's four lossless layers (6 MP) would be decoded on the beat itself — a 120-150 ms frame right
-   on the "aahaha" (measured on the page's own frames) — while at 1/255 they are drawn (unseen: under a level) and so decoded with
-   the page's first frame; the raster then is at the icon's small scale, cheap */
-.ltr-env-grow{position:absolute;inset:0;transform-origin:var(--ltr-go,0 0);opacity:.005;transform:scale(.55) translate(var(--ltr-gt,0px,0px));
-  will-change:transform,opacity;transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}
+/* [l1-fig] the letter grows in on the "aahaha" in the STANDING cloud, where it stands: a wrapper inside the icon, about the box's
+   centre (--ltr-go, set by the module; --ltr-gt 0), from half its size to a touch past it and home (.9 s), fading in over .45 s;
+   none after, so the zoom and the dive see nothing of it. Its resting opacity is 1/255, not 0, and it has its own layer from mount
+   (will-change): a layer at 0 is never rasterised, so the envelope's four lossless layers (6 MP) would be decoded on the beat itself
+   — a 120-150 ms frame on the beat (measured, [letter-idea]) — while at 1/255 they are drawn (unseen: under a level) and so decoded
+   with the page's first frame; the raster then is at the icon's small scale, cheap */
+.ltr-env-grow{position:absolute;inset:0;transform-origin:var(--ltr-go,0 0);opacity:.005;transform:scale(.5) translate(var(--ltr-gt,0px,0px));
+  will-change:transform,opacity;transition:opacity .45s ease-out,transform .9s cubic-bezier(.3,1.35,.5,1);}
 .ltr.letter-in .ltr-env-grow{opacity:1;transform:none;}
 .ltr-env-pulse{position:absolute;inset:0;transform-origin:603px 398px;}                /* hidden by the grow wrapper until the "aahaha" */
 .ltr.ready .ltr-env-pos{pointer-events:auto;cursor:pointer;}
@@ -3827,7 +3872,7 @@ js = js + dun_js
 #      re-synced; the 1st wrong = hint 1 (vo_g4_hint1 / vo_pick_hint1, the try_again slot), the 2nd = the three pills read (the
 #      engine's review = the deck's hint 2), the 3rd = hint 3 "यह सही वाक्य है, इसपर टैप कीजिए" (vo_pick_hint3) then the hand;
 #      the right pill: "शाबाश! यह सही वाक्य है ।" (vo_ok_pick) then its own line.
-#   L1 the letter: the narration (vo_letter_intro) over the girl writing; the scene's beats follow it.
+#   L1 the letter: the narration (vo_letter_intro) after the girl writing has come in; the scene's beats on its clock ([l1-fig]).
 #   L2 the stamps: the instruction recorded; each later round opens with the deck's line for it (rounds 2: vo_stamp_intro again;
 #      3: "यह वाक्य सुनकर देखिए ..." = vo_g1_intro; 4 and 5: vo_stamp4_intro) and the idle reminder says that line; the sentences
 #      recorded and re-synced (sent4 / sent5 cut from the one take); wrong drops: 1st = the wiggle, 2nd = hint 2, 3rd+ = hint 3
@@ -3945,18 +3990,8 @@ js = rep1(js, "        right.cell.classList.add(\"opt-guided\");\n        GameBu
               "        if(audioFor(slide, \"hint3\")){ play(audioFor(slide, \"hint3\"), ()=>{}); fbAudio = currentAudio; }   // [vo-rec] \"यह सही वाक्य है, इसपर टैप कीजिए\" — the hand follows once it is quiet; [tap-lock] feedback: nothing answers while it speaks\n", "sent hint3")
 js = rep1(js, "          playCorrectSelect(it.cell); setSwMood(\"happy\");\n          say(it, ()=> after(700, ()=> completeSlide(true)));",
               "          playCorrectSelect(it.cell); setSwMood(\"happy\");\n          const okSrc = audioFor(slide, \"ok\"), readIt = ()=> say(it, ()=> after(700, ()=> completeSlide(true)));   // [vo-rec] \"शाबाश! यह सही वाक्य है ।\" then the pill's own line\n          if(okSrc) play(okSrc, readIt); else readIt();", "sent ok")
-# the letter: the narration first, the scene's beats after it
-js = rep1(js, "      sound(sfx.magic, 0.6, null);\n      at(P.a_hold, ()=> root.classList.add(\"b-in\"));",
-              "      sound(sfx.magic, 0.6, null);\n      const runScene = ()=>{   // [vo-rec] the scene's beats, after the narration\n      at(P.a_hold, ()=> root.classList.add(\"b-in\"));", "letter scene open")
-js = rep1(js, "      // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page\n      let tapped = false;",
-"""      };
-      // [vo-rec] the page's narration (data.intro_audio: "पिंकी अपने दादाजी को पत्र में ...") over the girl writing; the scene's beats follow it
-      const introSrc = A(d.intro_audio);
-      if(introSrc){ let introDone = false; const go = ()=>{ if(introDone || !alive()) return; introDone = true; runScene(); };
-        play(introSrc, go); setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(introSrc) + 10000); }
-      else runScene();
-      // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
-      let tapped = false;""", "letter narration")
+# the letter: [l1-fig] the module plays its narration itself now (data.intro_audio, 1.2 s after the magic, with the piano bed; the
+# scene's beats on its clock) — the two [vo-rec] patches that put the old scene after it are gone
 # the stamps: a round's own instruction, the hint ladder, the praise
 js = rep1(js, "      let R = null, r = -1;\n", "      let R = null, r = -1, rWrong = 0, hintStamp = null;   // [vo-rec] the round's wrong drops (its hint ladder); the stamp the guidance holds\n", "stamp vars")
 js = rep1(js, "hinting = false; hintT = []; lastAct = Date.now();\n      }\n      // 1. the table shows",
@@ -4270,7 +4305,7 @@ for name, sub in (("vo_g2_sent.ogg", "Audio"), ("img_g2_girl_bag.webp", "Images"
 G3_SRC = SCR / "g3_assets"
 for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images"), ("img_g3_garden.webp", "Images"), ("img_g3_girl_point.webp", "Images"),   # [g3-scene] + the frame's garden and girl
                   ("plant_rig/img_g3_garden_bare.webp", "Images"), ("plant_rig/img_g3_plant_rose.webp", "Images"), ("plant_rig/img_g3_plant_marigold.webp", "Images"),
-                  ("plant_rig/img_g3_plant_jasmine.webp", "Images"), ("sfx_g3_grow.mp3", "Audio"),
+                  ("plant_rig/img_g3_plant_jasmine.webp", "Images"), ("sfx_g3_rope.mp3", "Audio"),   # [g3-rope] (sfx_g3_grow.mp3 stays in the dist, unused)
                   ("girl_rig/img_g3_girl_efill.png", "Images"), ("girl_rig/img_g3_girl_eiris.png", "Images")):   # [g3-grow] the garden without its plants, the three plants, the raised sound, the eye sheets
     f, dst = G3_SRC / name, DIST / "assets" / sub / pathlib.Path(name).name
     assert f.exists(), f"missing G3 asset {f}"

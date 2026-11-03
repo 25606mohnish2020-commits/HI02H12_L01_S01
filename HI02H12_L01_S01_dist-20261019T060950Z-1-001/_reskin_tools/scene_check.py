@@ -6,6 +6,11 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    after गुलाब: data.sentence.gaps as T4's): the garden picture -15,-120 1117x630 of the card, the girl pointing 234,241 218x328 on
    her ellipse 243,539 172x38, the tiles 474.09 / 701 / 931.82 at 467 over #97CF28 ellipses, the sentence clip vo_g3_sent (the
    recording, ten words with the danda), the instruction G1's; the same taps and checks as G1.
+   [g3-rope] / [g3-screen] (2026-11-03) G3's opening: the plants grow to the user's rope stretch (sfx_g3_rope.mp3, its first 1.875 s,
+   at .25) started in the growth's first frame, done before the instruction line; the girl's eyes: .look + .held 150 ms into the
+   growth, the rig in over 0.15 s with the irises as painted, at the flowers (0.854, 1.281) px by 0.6 s, held to 1.8 s, at the screen
+   (-2.562, 0) by 2.25 s and there to the cycle's end; every 7 s screen -> flowers -> screen on the same clock; both irises together,
+   smooth, never outside the poses' box; after the tap .look leaves in a rest phase and the eyes STAY at the screen (rig on).
    [g2-scene] G2 (frame 716:1058 "10 G2") = G1's pick with the frame's own geometry: the street picture drawn whole at -34,-5
    1152.714x550 of the card, the girl with the bag 934,227 236x354 on her ellipse 969,534 145x38, T3's 59x100 white slot at
    791,184, the tiles 334.09 / 561 / 791.82 at 426 with NO ellipses under them, the "?" (the third tile) the answer, the sentence
@@ -157,7 +162,9 @@ C = {
              INK={"sentence": (190, 138, 1090, 240), "mark1": (484, 475, 582, 575), "mark2": (711, 475, 809, 575), "mark3": (942, 475, 1040, 575)},
              BY_DESIGN=[(479, 184, 522, 232), (200, 146, 1080, 230), (510, 490, 555, 550), (740, 510, 780, 540), (965, 488, 1015, 548)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
-             slot_in=dict(rgb=(255, 255, 255), row_y=208, xs=(474, 530), col_x=500, ys=(180, 240), want=(486, 515, 191, 225)), first_word="बाग", look=None),
+             slot_in=dict(rgb=(255, 255, 255), row_y=208, xs=(474, 530), col_x=500, ys=(180, 240), want=(486, 515, 191, 225)), first_word="बाग", look=None,
+             grow=dict(sfx="sfx_g3_rope.mp3", vol=0.25, dur=(1.8, 1.95)),   # [g3-rope] the user's rope stretch, its first 1.875 s, at .25
+             eyes=dict(every_ms=7000, active_ms=2250, fade_ms=150, look_ms=150, gaze=(0.854, 1.281), screen=(-2.562, 0.0))),   # [g3-screen] the flowers, then the screen
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
 PICKM = bool(C.get("pick_mode")); INTRO_CLIP = C.get("intro_clip", "vo_demo1_intro")   # [g1-scene] the child's pick on the scene
@@ -197,6 +204,8 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     bkLift: q('.dsc-bbasket') ? getComputedStyle(q('.dsc-bbasket')).transform : null, bkFore: q('.dsc-bfore') ? getComputedStyle(q('.dsc-bfore')).transform : null,
     bkHead: q('.dsc-bhead') ? getComputedStyle(q('.dsc-bhead')).transform : null, bkIris: [...qa('.dsc-biris')].map(e => getComputedStyle(e).transform),
     sfxVol: sfx ? +sfx.volume.toFixed(3) : null, sfxPaused: sfx ? sfx.paused : null,
+    grow: !!q('.dsc-plants.grow'), held: !!g && g.classList.contains('held'), eOp: q('.dsc-erig') ? +(+getComputedStyle(q('.dsc-erig')).opacity).toFixed(3) : null,
+    eIris: [...qa('.dsc-eiris')].map(e => getComputedStyle(e).transform), growEnded: _kitSfx.sceneGrow ? _kitSfx.sceneGrow.ended : null,
     tTf: [...qa('.dsc-tile')].map(t => getComputedStyle(t).transform), tAn: [...qa('.dsc-tile')].map(t => getComputedStyle(t).animationName),
     faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
     tilesIn: qa('.dsc-tile.in').length, lit, off: qa('.dsc-tile.off').length, pulse: !!q('.dsc-tile.pulse'), live: !!q('.dsc-tile.live'), done: !!q('.dsc-tile.done'),
@@ -292,6 +301,12 @@ with sync_playwright() as p:
     if C.get("gaps"):   # [g3-scene] the slot inside the sentence
         check(f"[g3-scene] the page's data: the slot after word {C['gaps'][0]} (\"{C['sent'].split()[C['gaps'][0]]}\") — data.sentence.gaps, the gap's width the variant's CSS; one slot of {C['slot'][0]}x{C['slot'][1]}",
               d["sentence"].get("gaps") == C["gaps"] and not d.get("slots") and (d.get("slot_w"), d.get("slot_h")) == C["slot"], (d["sentence"].get("gaps"), d.get("slot_w"), d.get("slot_h")))
+    if C.get("eyes"):   # [g3-rope] / [g3-screen]
+        GR, EY = C["grow"], C["eyes"]; gw = d.get("grow") or {}; gl = d.get("girl_look") or {}
+        check(f"[g3-rope] / [g3-screen] the page's data: the growth's sound {GR['sfx']} at {GR['vol']}; girl_rig \"eyes\" and girl_look (every {EY['every_ms']} ms, active {EY['active_ms']} ms, hold, the flowers {EY['gaze']}, the screen {EY['screen']}, the clock dscEyesLook)",
+              gw.get("sfx") == GR["sfx"] and gw.get("sfx_vol") == GR["vol"] and gw.get("look_ms") == EY["look_ms"] and d.get("girl_rig") == "eyes"
+              and gl.get("every_ms") == EY["every_ms"] and gl.get("active_ms") == EY["active_ms"] and gl.get("fade_ms") == EY["fade_ms"] and gl.get("hold") is True and gl.get("anim") == "dscEyesLook"
+              and tuple(gl.get("gaze") or ()) == EY["gaze"] and tuple(gl.get("screen") or ()) == EY["screen"], (gw.get("sfx"), gw.get("sfx_vol"), gl))
     if C["look"]:   # [t3-look]
         LK = C["look"]; gl = d.get("girl_look") or {}
         check(f"[t3-look] the page's data: girl_rig and girl_look (every {C['look']['every_ms'] / 1000:g} s, the gesture 2.3 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2 degrees)",
@@ -632,6 +647,47 @@ with sync_playwright() as p:
         ph = (ms(i_done) - t0) % EV
         check(f"[t4-basket] after the tap the class leaves only in a REST phase (\"back in the exact same position\"): every transform at identity in the frames around its going, which comes {'at once' if ph >= AC else 'once the running look has ended'} (within active_ms + 120 ms of the tap) and before the page leaves",
               i_lke >= i_done and rest_at_off and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120 and not any(s_["look"] for s_ in samples[i_lke:]), (round(ms(i_lke) - ms(i_done)), round(ph), rest_at_off))
+    if C.get("eyes"):   # [g3-screen] the eyes on the timeline: the first glance from the painting, then screen -> flowers -> screen every 7 s
+        EY = C["eyes"]; EV, AC, F = EY["every_ms"], EY["active_ms"], EY["fade_ms"]; (gx, gy), (sx, sy) = EY["gaze"], EY["screen"]
+        num = lambda tf: [float(v) for v in re.findall(r"-?[\d.e+-]+", tf)] if tf and tf != "none" else [1, 0, 0, 1, 0, 0]
+        ey = lambda s_, k=0: tuple(num(s_["eIris"][k])[4:6]) if s_["eIris"] else (0.0, 0.0)
+        near = lambda p_, q_, tol=0.01: abs(p_[0] - q_[0]) <= tol and abs(p_[1] - q_[1]) <= tol
+        i_gr = first(lambda s_: s_["grow"]); i_lk = first(lambda s_: s_["look"]); t0 = ms(i_lk); pre = samples[:i_lk]
+        check(f"[g3-screen] .look and .held come together {EY['look_ms']} ms into the growth; before them the rig unseen (opacity 0, the warm-up's .01) with the irises as painted (0, 0 / the warm-up's thousandths)",
+              EY["look_ms"] - 20 <= t0 - ms(i_gr) <= EY["look_ms"] + 50 and samples[i_lk]["held"] and not any(s_["held"] for s_ in pre)
+              and all(s_["eOp"] in (0, 0.01) and near(ey(s_), (0, 0)) for s_ in pre), (round(t0 - ms(i_gr)), samples[i_lk]["held"], sorted({s_["eOp"] for s_ in pre})))
+        page = [(ms(i) - t0, samples[i]) for i in range(i_lk, len(samples))]
+        on_by = next((t_ for t_, s_ in page if s_["eOp"] >= 0.999), None)
+        check(f"[g3-screen] the rig fades in over {F} ms with the irises as painted, then stays on in every later frame of the page",
+              on_by is not None and on_by <= F + 25 and all(s_["eOp"] >= 0.999 for t_, s_ in page if t_ >= F + 25) and all(near(ey(s_), (0, 0)) for t_, s_ in page if t_ < F - 5),
+              (round(on_by) if on_by is not None else None, min(s_["eOp"] for t_, s_ in page if t_ >= F + 25)))
+        c1g = [s_ for t_, s_ in page if F + 475 <= t_ <= F + 1650]; c1s = [s_ for t_, s_ in page if F + 2125 <= t_ <= EV + F]
+        check(f"[g3-screen] the first glance: at the flowers ({gx}, {gy}) px by 0.6 s, held to 1.8 s; at the screen ({sx}, {sy}) by 2.25 s, held to the next glance ({(EV + F) / 1000:g} s)",
+              bool(c1g) and bool(c1s) and all(near(ey(s_), (gx, gy)) for s_ in c1g) and all(near(ey(s_), (sx, sy)) for s_ in c1s),
+              (len(c1g), len(c1s), [ey(s_) for s_ in c1g if not near(ey(s_), (gx, gy))][:2], [ey(s_) for s_ in c1s if not near(ey(s_), (sx, sy))][:2]))
+        t_tap = ms(i_done) - t0; later = []
+        for k in range(1, 20):
+            b0 = k * EV
+            if b0 + AC + 25 >= t_tap: break
+            win = lambda a_, z_: [s_ for t_, s_ in page if b0 + a_ <= t_ <= b0 + z_]
+            later.append((k, all(near(ey(s_), (sx, sy)) for s_ in win(0, F - 5)), all(near(ey(s_), (gx, gy)) for s_ in win(F + 475, F + 1650)),
+                          all(near(ey(s_), (sx, sy)) for s_ in win(F + 2125, min(EV + F, t_tap - b0)))))
+        check(f"[g3-screen] every later glance before the tap ({len(later)} of them): from the screen, at the flowers by 0.6 s and held to 1.8 s, back at the screen by 2.25 s and there to the next",
+              len(later) >= 1 and all(a_ and b_ and c_ for _, a_, b_, c_ in later), later)
+        on_i = [i for i in range(i_lk + 1, len(samples)) if near(ey(samples[i - 1]), (sx, sy)) and not near(ey(samples[i]), (sx, sy)) and samples[i]["look"]]
+        onsets = [ms(i) - t0 for i in on_i]; slack = [ms(i) - ms(i - 1) for i in on_i]
+        gaps_on = [round(b_ - a_) for a_, b_ in zip(onsets, onsets[1:])]
+        check(f"[g3-screen] the glance repeats every {EV} ms (each leaves the screen {F} ms into its cycle: the onsets {EV} ms apart within 20 ms plus the frame each was seen in)",
+              bool(onsets) and abs(onsets[0] - (EV + F)) <= 20 + slack[0] and all(abs(g_ - EV) <= 20 + max(sa, sb) for g_, sa, sb in zip(gaps_on, slack, slack[1:])), ([round(x) for x in onsets[:5]], gaps_on[:5]))
+        boxed = all(sx - 0.01 <= ey(s_)[0] <= gx + 0.01 and -0.01 <= ey(s_)[1] <= gy + 0.01 for s_ in samples)
+        twin = all(ey(s_, 0) == ey(s_, 1) for s_ in samples if len(s_["eIris"]) == 2)
+        rate = max((max(abs(ey(b_)[0] - ey(a_)[0]), abs(ey(b_)[1] - ey(a_)[1])) / (tb - ta) * 1000 / 60 for (ta, a_), (tb, b_) in zip(page, page[1:]) if 0 < tb - ta < 40), default=0)
+        check("[g3-screen] both irises move together in every frame, never outside the box of their poses (the painting, the flowers, the screen), and smoothly (at most 0.45 px per 60 Hz frame)",
+              twin and boxed and rate <= 0.45, (twin, boxed, round(rate, 3)))
+        i_lke = first(lambda s_: not s_["look"], i_lk); ph = (ms(i_done) - t0) % EV; tail_ = samples[i_lke:]
+        check(f"[g3-screen] after the tap .look leaves only in a REST phase (the irises at the screen around its going, {'at once' if ph >= AC else 'once the running glance has ended'}: within active_ms + 120 ms of the tap) and the eyes STAY at the screen (.held: the rig on, the irises at ({sx}, {sy})) until the page leaves",
+              i_lke >= i_done and all(near(ey(samples[k]), (sx, sy)) for k in (i_lke - 1, i_lke, i_lke + 1) if 0 <= k < len(samples)) and (ms(i_lke) - ms(i_done)) <= (AC - ph if ph < AC else 0) + 120
+              and bool(tail_) and all(s_["held"] and s_["eOp"] >= 0.999 and near(ey(s_), (sx, sy)) for s_ in tail_), (round(ms(i_lke) - ms(i_done)), round(ph), len(tail_)))
     if not PICKM:   # (the pick has no pulsing tile)
         check("the pulse: dscPulse, infinite, on the whole tile, its face glowing (dscGlow) with a 3px orange border, its mark the words' orange; the dim tiles at .6 ([t2-scene2])",
               look[0] == "dscPulse" and look[1] == "infinite" and look[2] == "dscGlow" and look[3] == "rgb(232, 106, 0)" and look[4] == "3px" and look[5] == "rgb(232, 106, 0)" and look[6] == "0.6", look)
@@ -646,6 +702,13 @@ with sync_playwright() as p:
     else:
         box = [e for e in snd if e["kind"] == "tone" and e["f"] == "720" and e["ty"] == "sine" and e["d"] == 0.1 and e["v"] == 0.07]
         check("T1's text pop (the reference's sfxPopSoft) once, in the sentence's frame", len(box) == 1 and abs(box[0]["ms"] - ms(i_rise)) <= 50, [round(e["ms"] - ms(i_rise)) for e in box])
+    if C.get("grow"):   # [g3-rope] the growth's sound
+        GR = C["grow"]; rope = [e for e in snd if e["kind"] == "media" and e["src"] == GR["sfx"]]; old_g = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_g3_grow.mp3"]
+        i_gr = first(lambda s_: s_["grow"]); i_in = start_of("intro"); g_dur = pg.evaluate("_kitSfx.sceneGrow ? _kitSfx.sceneGrow.duration : null")
+        check(f"[g3-rope] the user's rope stretch ({GR['sfx']}, {GR['dur'][0]}-{GR['dur'][1]} s long) at {GR['vol']} (75% down) ONCE, in the growth's first frame; ended before the instruction line starts; the old grow sound never",
+              len(rope) == 1 and rope[0]["vol"] == GR["vol"] and abs(rope[0]["ms"] - ms(i_gr)) <= 50 and g_dur is not None and GR["dur"][0] <= g_dur <= GR["dur"][1]
+              and samples[i_in]["growEnded"] is True and not old_g, ([(round(e["ms"] - ms(i_gr)), e["vol"]) for e in rope], g_dur, samples[i_in]["growEnded"], len(old_g)))
+        extra = extra + rope
     others = [e for e in snd if samples[0]["ms"] - 50 <= e["ms"] <= t_end and e not in box and e not in sfx and e not in pop and e not in corr and e not in extra and not (e["kind"] == "media" and e["src"].startswith("vo_"))]
     check("no other sound effect through the page", not others, others[:4])
     check("आगे never shows on this page", all(not e["shown"] for e in pg.evaluate("window._navLog") if e["slide"] == PAGE))
@@ -693,6 +756,7 @@ with sync_playwright() as p:
     pg.wait_for_function("!!document.querySelector('.dsc-tile.t3.in')", timeout=40000); pg.wait_for_timeout(650)
     pg.evaluate("document.querySelectorAll('.dsc-slot').forEach(e => e.classList.remove('blink'))"); pg.wait_for_timeout(600)   # the frame draws the slot plain (its fill's .4 s transition back, [t2-scene4])
     if C["look"] or C.get("basket"): pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 3000; } }"); pg.wait_for_timeout(100)   # [t3-look] the rig at rest (3 s into its cycle): her painting
+    if C.get("eyes"): pg.evaluate("() => { for (const a of document.querySelector('.dsc-girl').getAnimations({subtree:true})) { a.pause(); a.currentTime = 0; } }"); pg.wait_for_timeout(100)   # [g3-screen] the rig at the first glance's start (unseen, the irises as painted): her painting, as the frame draws her
     shot = out / "g_frame_1280.png"; pg.screenshot(path=str(shot))
     FRAME = C["FRAME"]; boxes = pg.evaluate(BOXES, list(FRAME)); worst = 0
     print("== boxes vs the frame (px) ==")

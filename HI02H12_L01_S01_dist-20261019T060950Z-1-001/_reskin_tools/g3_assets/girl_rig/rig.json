@@ -5,7 +5,11 @@
  ],
  "gaze": [
   4.0,
-  10.0
+  6.0
+ ],
+ "screen": [
+  -12.0,
+  0.0
  ],
  "eyes": [
   {
@@ -18,7 +22,7 @@
     "r": 24.0,
     "fit_pts": 94,
     "fit_rms": 0.5,
-    "hidden_px": 305
+    "hidden_px": 246
    },
    "iris_box": [
     437,
@@ -42,8 +46,9 @@
     252
    ],
    "iris_shown": {
-    "rest": 1631,
-    "glance": 1244
+    "rest": 1804,
+    "glance": 1495,
+    "screen": 1956
    }
   },
   {
@@ -56,7 +61,7 @@
     "r": 22.89,
     "fit_pts": 70,
     "fit_rms": 0.55,
-    "hidden_px": 220
+    "hidden_px": 210
    },
    "iris_box": [
     559,
@@ -80,16 +85,17 @@
     251
    ],
    "iris_shown": {
-    "rest": 1515,
-    "glance": 1150
+    "rest": 1627,
+    "glance": 1327,
+    "screen": 1751
    }
   }
  ],
  "sheets": {
-  "g3_girl_eye1_mask.png": 9202,
-  "g3_girl_eye2_mask.png": 9157,
-  "img_g3_girl_efill.png": 6600,
-  "img_g3_girl_eiris.png": 15644
+  "g3_girl_eye1_mask.png": 9206,
+  "g3_girl_eye2_mask.png": 9153,
+  "img_g3_girl_efill.png": 6620,
+  "img_g3_girl_eiris.png": 16239
  },
  "rest_diff": {
   "max": 3.0,

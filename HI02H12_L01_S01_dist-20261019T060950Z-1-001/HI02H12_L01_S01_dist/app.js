@@ -6488,7 +6488,7 @@ const SlideModules = {
       if(look){ const v = (k, val)=> girl.style.setProperty(k, val);
         v("--look-ms", (look.every_ms || 5000) + "ms"); v("--look-gx", (look.gx || 0) + "px"); v("--look-gy", (look.gy || 0) + "px");
         v("--look-arm", (look.arm_deg || 0) + "deg"); v("--look-lean", (look.lean_deg || 0) + "deg"); }
-      const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); lookT0 = performance.now(); };
+      const lookOn = ()=>{ if(!look || lookT0 >= 0) return; girl.classList.add("look"); if(look.hold) girl.classList.add("held"); lookT0 = performance.now(); };   // [g3-screen] look.hold: .held keeps her rest pose (the CSS's) once .look has gone
       const lookOff = ()=>{ if(lookT0 < 0) return; const every = look.every_ms || 5000, active = look.active_ms || 2300;
         let ph = (performance.now() - lookT0) % every; lookT0 = -1;
         try{ const a = girl.getAnimations({ subtree:true }).find(x => x.animationName === (look.anim || "dscLookArm")); if(a && a.currentTime != null) ph = a.currentTime % every; }catch(e){}   // [t4-basket] T4's clock: dscBasketLift
@@ -7189,29 +7189,28 @@ const SlideModules = {
     }
   },
 
-  /* ===== [letter-fig] LETTER_STORY — the thought-cloud letter page (FLN-by-MJ frames 538:2 -> 538:35 -> 538:39 -> 558:2 ->
-     610:6), after P2's round gate. Self-driving, no आगे: the only tap is the envelope. 1. the girl writing (538:2) with the
-     magic shimmer; after 2 s the thinking girl (538:35) fades in. 2. three thought bubbles pop, the grandfather cloud grows in
-     slowly (538:39) and the piano loop starts. 3. [letter-idea] the chime, as soon as the cloud has stood: on its "ummm" the
-     cloud and the bubbles leave and the girl is pensive (scene C, no cloud); on its "aahaha" she brightens again and the same
-     cloud grows in once more, white, with the letter (558:2's size) growing in it; it pulses and waits for the tap. 4. the tap:
-     the pop, the envelope zooms to 610:6 over the
-     blurred room, the seal pops, the flap swings open on the paper crackle, the sheet rises, a veil — then the next page. The
-     timings live in data.pace (ms), the places in data.layout (frame px). ===== */
+  /* ===== [letter-fig] LETTER_STORY — the letter page, after P2's round gate. [l1-fig] (2026-11-03) the user's flow on Figma 792:1257
+     -> 792:1245 -> 792:1249: 1. the girl writing comes in full screen on the magic shimmer's first frame; 2. then the narration
+     (data.intro_audio) with the mild piano bed; on the narration's own clock: 3. on "दादाजी" (pace.dada) the girl thinking fades in
+     and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. at the first
+     sentence's end (pace.letter) the girl pensive fades in and, on the "aahaha" (sfx.aha), the grandfather fades to the white cloud
+     as the letter grows in it, where it stands; 5. once the narration has ended (and the letter has grown) it pulses and waits — the
+     only tap: the pop, the envelope zooms to 610:6 over the blurred room, the seal pops, the flap swings open on the paper crackle,
+     the sheet rises, the view dives into it, a veil — then the next page. Self-driving, no आगे. Timings in data.pace (ms), places
+     in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
-      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ a_hold: 2000, xfade: 650, bub_start: 2600, bub_gap: 230,
-        cloud_start: 3300, cloud_in: 1600, hold: 2600, hum_at: 0, aha_at: 2370, rebub_gap: 160, letter_in: 1300, zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700,
-        dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
+      const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 4300,
+        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, aha_lead: 60, white: 500, ready_after: 300,
+        zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
-      const sfx = d.sfx || {}, env = d.env || {};
-      const cl = L.cloud || [862.09, 8.61, 314.5], bubs = L.bubbles || [], li = L.letter || [1020, 166, 189], full = L.full || [71, -50, 1138, 758],
+      const sfx = d.sfx || {}, env = d.env || {}, sc = d.scenes || {}, SB = L.scenes || {};
+      const cl = L.cloud || [790.58, -24.76, 352.24], bubs = L.bubbles || [], li = L.letter || [967.44, 151.52, 211.68], full = L.full || [71, -50, 1138, 758],
             mo = L.mouth || [568.8, 292.4];
+      const box = (b)=> b ? 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px' : '';
       const fig = sfigMount(host,
         '<div class="ltr">' +
-          '<img class="ltr-scene a" src="' + imgSrc(d.scene_a) + '" alt="" draggable="false">' +
-          '<img class="ltr-scene b" src="' + imgSrc(d.scene_b) + '" alt="" draggable="false">' +
-          '<img class="ltr-scene c" src="' + imgSrc(d.scene_c) + '" alt="" draggable="false">' +
+          ['w', 't', 'p'].map(k=> '<img class="ltr-scene ' + k + '" src="' + imgSrc(sc[k]) + '" alt="" draggable="false" style="' + box(SB[k]) + '">').join("") +   // each frame's picture in its own box
           bubs.map(b=> '<span class="ltr-bub" style="left:' + (b[0] - b[2] / 2) + 'px;top:' + (b[1] - b[2] / 2) + 'px;width:' + b[2] + 'px;height:' + b[2] + 'px"></span>').join("") +
           '<div class="ltr-cloud" style="left:' + cl[0] + 'px;top:' + cl[1] + 'px;width:' + cl[2] + 'px;height:' + cl[2] + 'px">' +
             '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cw" src="' + imgSrc(d.cloud_white) + '" alt="" draggable="false"></div>' +
@@ -7230,14 +7229,12 @@ const SlideModules = {
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
       const root = fig.querySelector(".ltr"), envPos = fig.querySelector(".ltr-env-pos"), cloud = fig.querySelector(".ltr-cloud"),
             bubEls = Array.from(fig.querySelectorAll(".ltr-bub"));
-      // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud at 558:2's size, so the zoom moves the same element
+      // the envelope's icon state = the full-screen box (610:6) scaled down into the cloud, so the zoom moves the same element
       const s = li[2] / full[2];
       envPos.style.setProperty("--ltr-icon", "translate(" + (li[0] - li[2] / 2 - full[0]) + "px, " + (li[1] - (li[2] * full[3] / full[2]) / 2 - full[1]) + "px) scale(" + s + ")");
-      // [letter-idea] the letter grows in WITH the cloud: the cloud's entrance (the CSS: scale .55 and a (-30,40) slide about its
-      // 12% 92% corner) written in the box's own px — that corner and that slide at 1/s — on a wrapper inside the icon, so the
-      // cloud and the letter in it move as one
-      envPos.style.setProperty("--ltr-go", ((cl[0] + 0.12 * cl[2] - (li[0] - li[2] / 2)) / s) + "px " + ((cl[1] + 0.92 * cl[2] - (li[1] - (li[2] * full[3] / full[2]) / 2)) / s) + "px");
-      envPos.style.setProperty("--ltr-gt", (-30 / s) + "px, " + (40 / s) + "px");
+      // [l1-fig] the letter grows in where it stands, in the standing cloud: about the box's own centre, no slide
+      envPos.style.setProperty("--ltr-go", (full[2] / 2) + "px " + (full[3] / 2) + "px");
+      envPos.style.setProperty("--ltr-gt", "0px, 0px");
       // [letter-dive] the opening is a whole-screen transition: the view dives INTO the open envelope, onto the sheet — the box
       // scaled by dive_scale about the mouth's centre (layout.mouth, box px: the incentre of the triangle top edge / fold apex,
       // the sheet behind it), which lands on the frame's centre, so at the end only the sheet is on the screen
@@ -7250,8 +7247,9 @@ const SlideModules = {
       const sounds = []; let fadeFrame = 0;
       // every sound of the page is fetched and decoded now, at mount, so that later play() starts it on its beat — online too
       const pre = {};
-      [sfx.magic, sfx.idea, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
+      [sfx.magic, sfx.aha, sfx.pop, sfx.paper, d.music].forEach(id=>{ const src = A(id); if(!src) return;
         try{ const a = new Audio(src); a.preload = "auto"; a.load(); pre[id] = a; sounds.push(a); }catch(e){} });
+      try{ const v = A(d.intro_audio); if(v) new Audio(v).load(); }catch(e){}   // [l1-fig] the narration too: it starts 1.2 s in
       // a sound; onStart runs when it is actually heard (or 150 ms in, if the browser gives no "playing" / refuses to play)
       const sound = (id, vol, onStart, loop)=>{
         const src = A(id); let started = false;
@@ -7275,38 +7273,36 @@ const SlideModules = {
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops, the music comes back
       window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); cancelAnimationFrame(fadeFrame);
         sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} }); bgmBack(); state.demoRunning = false; };
-      // 1. the girl writing (538:2) with the shimmer; after a_hold the thinking girl (538:35) fades in over her
-      sound(sfx.magic, 0.6, null);
-      const runScene = ()=>{   // [vo-rec] the scene's beats, after the narration
-      at(P.a_hold, ()=> root.classList.add("b-in"));
-      // 2. the thought bubbles pop one by one (nearest the head first), then the cloud grows in slowly; the piano loop starts with it
-      bubEls.forEach((b, k)=> at(P.bub_start + k * P.bub_gap, ()=> b.classList.add("in")));
-      at(P.cloud_start, ()=>{
-        cloud.classList.add("in");
-        fadeBackgroundMusic(0.02);
-        music = sound(d.music, 0.0001, ()=> fadeTo(music, 0.45, 1200), true);
-      });
-      // 3. [letter-idea] the chime, the moment the cloud has stood its hold; its beats hang on the sound's own start: on the "ummm"
-      //    (hum_at) the cloud shrinks back into the bubbles' corner and the bubbles pop out while the girl's pensive face fades over
-      //    the room (scene C, no cloud); the bubbles pop again just ahead of the "aahaha", and on it (aha_at) her bright face is back
-      //    and the SAME cloud grows in again — swapped to white while it was out — with the letter growing in it; then it pulses
-      const tIdea = P.cloud_start + P.cloud_in + P.hold;
-      at(tIdea, ()=> sound(sfx.idea, 0.7, ()=>{
-        at(P.hum_at, ()=>{ cloud.classList.remove("in"); cloud.classList.add("out"); bubEls.forEach(b=> b.classList.remove("in")); root.classList.add("c-in"); });
-        bubEls.forEach((b, k)=> at(P.aha_at - (bubEls.length - k) * P.rebub_gap, ()=> b.classList.add("in")));
-        at(P.aha_at, ()=>{
-          cloud.classList.add("white"); cloud.classList.remove("out"); cloud.classList.add("in");   // the same entrance as the grandfather's, white
-          root.classList.remove("c-in"); root.classList.add("letter-in");                            // her bright face; the letter grows with the cloud
-        });
-        at(P.aha_at + P.letter_in + 100, ()=>{ root.classList.add("ready"); state.demoRunning = false; });
-      }));
-      };
-      // [vo-rec] the page's narration (data.intro_audio: "पिंकी अपने दादाजी को पत्र में ...") over the girl writing; the scene's beats follow it
-      const introSrc = A(d.intro_audio);
-      if(introSrc){ let introDone = false; const go = ()=>{ if(introDone || !alive()) return; introDone = true; runScene(); };
-        play(introSrc, go); setTimeout(()=>{ if(!introDone && alive()){ stopAudio(); go(); } }, authoredVoHoldMs(introSrc) + 10000); }
-      else runScene();
-      // 4. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
+      // [l1-fig] the narration's moments, each run once on ITS clock (the clip's currentTime; the time since it was started if the
+      // clip is not the one playing — it failed, or another took over); ready = the narration over AND the letter grown
+      const cues = []; let voA = null, voT0 = 0, voDone = false, grown = false;
+      const watch = ()=>{ if(!alive()) return;
+        const t = (voA && currentAudio === voA) ? voA.currentTime * 1000 : performance.now() - voT0;
+        cues.forEach(c=>{ if(!c.done && t >= c.ms){ c.done = true; c.fn(); } });
+        if(cues.some(c=> !c.done)) requestAnimationFrame(watch); };
+      const tryReady = ()=>{ if(!voDone || !grown || tapped || root.classList.contains("ready")) return; root.classList.add("ready"); state.demoRunning = false; };
+      // 1. the girl writing (792:1257) comes in full screen on the magic shimmer's first frame; 2. the narration vo_at after it, with
+      //    the piano bed fading in under it (mild: pace.music_vol)
+      sound(sfx.magic, 0.6, ()=>{ root.classList.add("w-in"); at(P.vo_at, ()=>{
+        music = sound(d.music, 0.0001, ()=> fadeTo(music, P.music_vol, P.music_in), true);
+        const src = A(d.intro_audio);
+        const ended = ()=>{ if(voDone || !alive()) return; voDone = true; at(P.ready_after, tryReady); };
+        voT0 = performance.now();
+        if(src){ play(src, ended); voA = currentAudio; setTimeout(()=>{ if(!voDone && alive()){ stopAudio(); ended(); } }, authoredVoHoldMs(src) + 10000); }
+        else at(P.letter + 1500, ended);
+        requestAnimationFrame(watch);
+      }); });
+      // 3. on "दादाजी": the girl thinking (792:1245) fades in over her, the bubbles pop one by one, the cloud grows in from their corner
+      cues.push({ ms: P.dada, fn: ()=>{ root.classList.add("t-in");
+        bubEls.forEach((b, k)=> at(P.bub_after + k * P.bub_gap, ()=> b.classList.add("in")));
+        at(P.cloud_after, ()=> cloud.classList.add("in")); } });
+      // 4. at the first sentence's end: the girl pensive (792:1249) fades in, and on the "aahaha" (aha_lead into its clip) the white
+      //    cloud comes over the grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s)
+      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in");
+        sound(sfx.aha, 0.7, ()=> at(P.aha_lead, ()=>{ cloud.classList.add("white"); root.classList.add("letter-in");
+          at(P.white + 20, ()=> cloud.classList.add("white2"));
+          at(900, ()=>{ grown = true; tryReady(); }); })); } });
+      // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
         if(tapped || !root.classList.contains("ready") || !alive()) return;

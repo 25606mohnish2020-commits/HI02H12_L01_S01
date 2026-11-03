@@ -2563,6 +2563,87 @@ Pages 12 G4, 13 P1 and 14 P2: the user's redrawn pictures ([pics-pinki], 2026-11
   errors. `../_before_pics_pinki/` holds build.py, README.md, g4_picture.py, the old sources + framed pictures and the dist's
   copies (its three files and the three pictures).
 
+Page 11 G3: the rope-stretch sound and the eyes to the flowers, then to the child ([g3-rope] / [g3-screen], 2026-11-03)
+- Asked: "At Page 11 G3 replace the plant grow sound with this sound effect (floraphonic-stretch-rubber-rope-foley-21-209731.mp3)
+  and reduce this sound effect volume by 75%. Also the girl's eyes should look towards the flowers and then towards the screen
+  instead of the current animation of the eyes of the girl."
+- The sound: the user's file is ONE 33.8 s take of a rope stretching (48 kHz stereo; kept as g3_assets/sfx_g3_rope_source.mp3);
+  the growth lasts 1.9 s, so the page plays the take's first 1.875 s — from its first sound (0.205 s in) to the quiet before its
+  next creak (2.08 s), the last 0.13 s faded, 5 ms in — as g3_assets/sfx_g3_rope.mp3 (256 kbps, the file's own level: -27.3 LUFS,
+  peak -5.2 dBFS; not raised). Of every 1.9 s window of the take, this one's loudness follows the old grow sound's best (r .69,
+  80 ms RMS envelopes): the stretch swelling under the rose, creaks under the marigold and the jasmine, the last as the jasmine
+  settles. data.grow.sfx_vol .25 (was the old sound at .9). It starts in the growth's first frame and has ended before the
+  instruction line. The old sfx_g3_grow.mp3 stays in the dist, unused.
+- The eyes: her painted irises sit at the right of her eyes already (towards her finger and the flowers), so the old glance — a
+  2 px dip and back to the painting — barely showed and never looked at the child. girl_rig_g3.py now has two poses: the flowers
+  (GAZE 4 / 6 bitmap px: a little down and to her left — they lie 7-20 degrees below her eyes; the old 10 down read as the ground)
+  and the screen (SCREEN -12 / 0: both irises centred in their openings, eye1 2.6 px right of its centroid, eye2 2.6 px left). In
+  page px (x 328/1536): gaze (0.854, 1.281), screen (-2.562, 0). The first glance, 150 ms into the growth: the rig fades in over
+  0.15 s with the irises as painted, at the flowers by 0.6 s, held while the plants grow, at the screen by 2.25 s (before the
+  instruction line, 2.7 s) and held; every 7 s after it: screen -> flowers (0.15-0.6 s) -> held to 1.8 s -> screen by 2.25 s.
+  Between glances she looks at the child (the rig stays on). CSS: dscEyesOn once (both), dscEyesFirst once (both) then
+  dscEyesLook from 7 s (infinite, a delay of one cycle); data.girl_look.hold puts .held on her with lookOn — .held is the screen
+  pose as static style, so when lookOff takes .look away at the answer (in a rest phase, as before) the eyes stay on the child.
+  app.js: one line (lookOn adds .held when look.hold; T3 / T4 have no hold).
+- The rig, made ready for the screen pose: (1) an iris reaching the skin or just past it (r_out - r_if down to -1, the lower
+  right of both eyes) now counts as touching the outline — those angles had fallen back to the opening's fitted curve 3-6 px
+  inside and left a dark blob of iris rim at the lower right (and a notch at eye1's 348 degrees) once the iris moved left;
+  (2) the iris's light anti-aliased rim within 1.5 px of the fit goes with the iris and is covered — it had stayed on the white as
+  a dotted grey arc (levels 200-240) at the flowers pose (the old glance had it too). The rest composite is still the painting
+  (max 3 levels), so the fade-in shows nothing.
+- Checked: scene_check.py G3 52/52 (new: the data; the rope sound once at .25 in the growth's first frame, 1.875 s, ended before the
+  instruction line, the old sound never; .look + .held 153 ms into the growth; the rig in by 148 ms and on in every later frame;
+  the first glance at the flowers 0.6-1.8 s and at the screen 2.25-7.15 s; every later glance (4 before the tap) from the screen to
+  the flowers and back; onsets 7.0 s apart; both irises together, inside the poses' box, at most 0.35 px per 60 Hz frame; after
+  the tap the eyes stay at the screen to the page's end; the girl at rest = the frame's bitmap — the check pauses her animations at
+  0 for the pixel comparison). The baseline before this change had 1 FAIL: the check had never been taught the [g3-grow] sound.
+  smoke.py 53/53. Chrome close-ups at 2x (painted / flowers / screen / flowers / screen) in the scratchpad's chrome_eyes/.
+  `../_before_g3_rope/` holds the dist's three files, build.py, girl_rig_g3.py, scene_check.py, README.md and the old rig sheets.
+
+Page 15 L1: the letter page's new flow on Figma 792:1257 / 792:1245 / 792:1249 ([l1-fig], 2026-11-03)
+- Asked: "remove the whole existing flow of the page and follow the exact flow": 792:1257 full screen with the healing-magic sound
+  synced; then the VO ("पिंकी अपने दादा जी को ...") with the mild nostalgia piano; on "दादा जी" 792:1245 full screen and the
+  grandfather's memory cloud appearing as now; on "पत्र" the same letter in the cloud with 792:1249 and the "aahaahaha" of the idea
+  sound; then the same envelope-opening transition on the tap.
+- Asked back (AskUserQuestion): "दादाजी" (0.84 s) and "पत्र" (1.94 s, both read off the clip's waveform; whisper had 0.98 / 1.74) are
+  1.1 s apart while the cloud's entrance takes 2.3 s. The user chose "Letter after 1st sentence": the letter, the "aahaha" and
+  792:1249 come at the END of the first sentence ("... चाहती है ।" ends at 4.26 s; "लेकिन" at 4.70), so the grandfather is seen ~3 s.
+- The frames (get_metadata / download_assets): each is ONE picture larger than the frame — 792:1257 "image 280" at -262,-91
+  1563x880, 792:1245 "image 277" at -231,-42 1516x853, 792:1249 "image 278" at -237,-38 1520x856 (cover). The three fills are NEW
+  drawings (braided Pinki in a new room with a plant), not the old scene_a/b/c (22-42 levels apart): stored LOSSLESS as
+  img_letter_scene_w / _t / _p.webp (1671/1672x941, round trip exact, 1.2-1.26 MB each); the frames' renders kept as
+  letter_assets/fig_792-*_render.png (the checks). The three sounds are the page's own already: sfx_letter_magic = the
+  healing-magic file's first 4 s (corr .996), bgm_letter_nostalgia = the piano file (corr .999), sfx_letter_idea = the idea file
+  less 0.24 s of silence. New: sfx_letter_aha.ogg = the idea file cut 60 ms before its "aahaha" (2.63 s in the user's mp3) to its
+  end (0.98 s, vorbis q5) — no seek inside the chime at play time. The zoom's backdrop is rebuilt from 792:1249's render as 610:6's
+  was (Gaussian 7.5 px, 90 % over white: the old one's gradient energy fits sigma ~7-7.5): img_letter_blur_p.webp. The old
+  scene_a/b/c, img_letter_blur and sfx_letter_idea stay in the dist, out of the card (not preloaded).
+- The thought carried onto the new girl: her head's right edge at eye level (792:1245's braid x 737, 792:1249's 717 -> 730) and her
+  right eye's height (y 240) against the old girl's (808, 245); her eye spacing 1.12x the old girl's: new = (730, 240) + 1.12 x
+  (old - (808, 245)) — the cloud 790.58,-24.76 352.24 (its visible top 17 px inside the frame), the bubbles (737.5,237.5 9),
+  (756.2,223.8 17.9), (781.5,202.1 29.1), the envelope icon centred at (967.44, 151.52), 211.68 wide (558:2's 189 x 1.12).
+- The flow (LETTER_STORY rewritten up to the tap; the tap and everything after it verbatim): the magic sounds at mount and the
+  writing girl comes in on its "playing" (opacity .9 s, a 1.04 -> 1 settle over 1.6 s, from white); the narration 1.2 s later
+  (pace.vo_at) with the piano (fading to .2 over 1.2 s: the old .45 less the engine's own -7.4 dB duck of its bed under voice); on
+  the narration's OWN clock (currentAudio.currentTime, rAF): at 0.84 s the thinking girl fades in (.65 s), the bubbles at +300 /
+  +530 / +760 ms, the cloud's old entrance at +1000 ms; at 4.30 s the pensive girl (.35 s: only her face and hand change — .65 s
+  showed both faces) and the "aahaha" clip; 60 ms into it the white cloud fades in OVER the grandfather (.5 s; same alpha, so no
+  dip) and he goes from under it 520 ms later, while the letter grows in where it stands (about the box's centre, scale .5 -> a
+  touch past -> 1 over .9 s, opacity .45 s); ready (pulse, tappable) once the narration has ended (+300 ms) AND the letter has
+  grown. The two [vo-rec] patches that put the old scene after the narration are gone (the module plays it itself). Resting
+  opacity 1/255 for the later pictures, the white cloud and the letter's wrapper (decoded with the first frame: [letter-idea]).
+- Checked: letter_check.py rewritten for the flow (sections 1-4; 5-7 as before, with the new backdrop in the as-drawn envelope
+  check and the 610:6 render comparison informative only — that frame shows the old room): 45/45 on the scratch build (the
+  baseline had 41 + 1 FAIL: its page list predated T1B / T1C, fixed): the picture's first frame 139 ms after the magic's start; the
+  narration 1191 ms after; "दादाजी" seen at 0.875 s on its clock; bubbles +300 / +533 / +750, the cloud +1000; the pensive girl at
+  4.32 s with the "aahaha" in that frame; white + letter 66 ms into the clip, the grandfather off 533 ms later, no dip (cg 1 and
+  cloud 1 in all 32 frames between); ready after the narration (11.37 s); 751 frames to ready, max gap 44 ms, mean 16.7; against
+  the renders outside the thought: 3.17 / 3.13 / 3.09 of 765; the tap and the opening as before. Contact sheets in the scratchpad
+  (l1run/sheet.png, l1mid/mid.png). On the live dist (both changes built): letter_check 45/45, smoke 53/53, scene_check G3 52/52,
+  gate_check 13/13, stamp_check 108/108 — gate_check / stamp_check had each 1 FAIL from the same stale 15-page list (T1B / T1C),
+  fixed to 17 like letter_check's. `../_before_l1_fig/` holds the dist's three files, build.py, letter_check.py, gate_check.py,
+  stamp_check.py, README.md and smoke.py from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
