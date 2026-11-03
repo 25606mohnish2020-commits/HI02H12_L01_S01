@@ -182,8 +182,8 @@ with sync_playwright() as p:
     check("the tap opens the envelope (zoom, flap, dive, veil) and L2, the stamp page, follows ([stamp-fig], stamp_check.py has it beat by beat)",
           pg.evaluate("getComputedStyle(document.getElementById('navBtn')).display === 'none' && !document.getElementById('phaseGate').classList.contains('show')"))
     pg.wait_for_function("!!document.querySelector('.stp.live')", timeout=40000)
-    check("L2: the title, the sheet and the tray, the two stamps, the sentence, then the blinking slot — the stamps now the child's to drag",
-          pg.evaluate("!!document.querySelector('.dmf-band.in') && !!document.querySelector('.stp-sheet.in') && !!document.querySelector('.stp-tray.in') && document.querySelectorAll('.stp-stamp img.shown').length === 2 && document.querySelectorAll('.stp-sent .sfig-w.on').length === 5 && !!document.querySelector('.stp-slot.in')"))
+    check("L2 ([stamp-868]): the angled table (868:3) with the bird and its instruction, the camera move onto the overhead table (868:17) — the angled layers and the bird gone, the tray and the two stamps there —, the sentence read, then the blinking box: the stamps now the child's to drag",
+          pg.evaluate("!document.querySelector('.stp-a') && !document.querySelector('.stp-bird') && getComputedStyle(document.querySelector('.stp-tray')).opacity === '1' && document.querySelectorAll('.stp-stamp img.shown').length === 2 && document.querySelectorAll('.stp-sent .sfig-w.on').length === 5 && !!document.querySelector('.stp-slot.in')"))
     # the child's drop ([stamp-drag]): the ? stamp dragged from the tray onto the slot, its print point on the slot's centre
     RS = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data.rounds")
     fpx = lambda x, y: pg.evaluate("([x, y]) => { const b = document.getElementById('stage').getBoundingClientRect(), k = b.width / 1280; return [b.left + x * k, b.top + y * k]; }", [x, y])

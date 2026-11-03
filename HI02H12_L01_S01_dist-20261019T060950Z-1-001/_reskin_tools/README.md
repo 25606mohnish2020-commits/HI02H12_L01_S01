@@ -2659,6 +2659,76 @@ Page 15 L1: no "aahaha", the grandfather longer, the letter in the narration's l
   L1 (the card's letter / aha / aha_lead / asset, the module, three CSS comments). `../_before_l1_late/` holds the dist's three
   files, build.py, letter_check.py and README.md from before.
 
+Page 16 L2: the stamp page on Figma 868:3 (the angled table, the bird) and 868:17 / 31 / 44 / 59 / 74 ([stamp-868], 2026-11-03)
+- Asked: after L1's transition, L2 first shows 868:3 full screen; the bird comes in from left to right to its place with the
+  entrance and sound effect of the girl and boy on the title page of https://mtg2a01l04s01-file6.vercel.app/; its GIF plays synced
+  with the instruction VO; on "ठप्पा" both stamps glow at their boundaries with a very slight pulse; when the VO is over the bird
+  leaves with the exact opposite animation and the same sound; the camera angle then shifts smoothly into 868:17 keeping the same
+  screen; the sentence's VO with the same word highlight as now; the orange box blinks (appear / disappear) for 3 s; the correct
+  stamp shows its guide drag; after the child's drop the flow continues as it is — and the same flow for 868:31, 868:44, 868:59,
+  868:74 with their layouts. "All the animations should be perfect and smooth"; rest exactly the same.
+- The frames (get_metadata + get_design_context + download_assets; build.py's card note [stamp-868] has every number): 868:3 = one
+  picture of the card on the wood (the sentence painted into it, in perspective), its postmark at 30 %, the tray and the two
+  standing stamps, the bird = a 36-frame GIF fill (60 ms, 2.16 s loop) drawn at 0,451 231x254 over its 50 % #E2771A ellipse.
+  868:17..74 = the overhead table: the wood, the card (840x630 at 220,-30) and its postmark at 60 % (none in 868:74), the tray
+  (346,524 588x196, 0 4 4 .5), the stamps seen from above (1254 px squares at 105 / 114 px, 0 4 100 4 .1), the sentence in Baloo 2
+  ExtraBold (50 / 45 / 50 / 45 / 44 px — the lesson's own 'Story Baloo 2'; laid out in Chrome every row's ink lands on the render's,
+  x to the pixel, headlines within 1 px: the scratchpad's text_probe.py), the boxes 90x90 #FD9337, 17 px corners, a 2 px dashed
+  rgba(0,0,0,.85) stroke inside with the render's runs (per side 7 of the corner's dash, gap 5, 13, 6, 13, 5 — one dash wraps each
+  corner: one SVG dasharray). The rounds' stamps in the frames' order: । ? / । , / । , ? (x3). No title bar (the bird says the
+  instruction; the band's chip stays hidden, as on every band-less whole-stage page), no sign-off (868:74 has none).
+- Assets: `make_stamp868_assets.py` (here) writes stamp_assets/img_stamp8_* from the Figma fills saved in the scratchpad, plus the
+  frames' renders (stamp868_*_render.png, the checks) and stamp868_layout.json (the drawn boxes). 868:3's painted sentence is lifted
+  out (a_text: the original pixels, opaque where the paper under them was filled with a smooth fit + the paper's own 0.55-level
+  grain; 8x-contrast clean), so the live sentence can take over in the camera move. The bird's sheet: the GIF's 36 frames cut to their
+  union box at 1.5x the drawn size, 6 x 6 cells of 330x378 (220x252 drawn: whole-px steps), lossy q90 (1.0 MB; lossless was 3.3 MB,
+  q90 differs by 2.6 levels, its alpha exact). The two standing stamps' "ठप्पा" halos are baked (img_stamp8_a_glow_*: the stamp's
+  alpha blurred into a gold glow, sigma 4.5 px at .95, under a 1 px bright rim). sfx_stamp_whoosh.ogg = the reference's
+  assets/sfx/sfx_whoosh.ogg (0.556 s Opus) byte for byte. The old 565:28.. pictures stay in the dist, out of the card.
+- The flow (STAMP_DEMO; data.pace): the angled table under L1's lifting veil; at 400 ms the bird's entrance = the reference's
+  PVLanding.intro zoom() (its app.js): from 200 px out to the left, fading in over 15 %, a glide with a 6 px overshoot (cubic-
+  bezier(.12,.62,.3,1)), leaning 5 -> 4 -> -3 -> 0 deg with a 2 -> 0 px blur, three white speed lines behind, seven dust puffs
+  400·T ms in, T 2.2 = 1.5 s, on the whoosh at .75; the instruction (vo_stamp_intro, the recorded 6.41 s) 200 ms after it, the GIF on
+  the clip's own clock (frame = ⌊t / dur x 3 x 36⌋ mod 36: three loops, ending on frame 0, the pose it came in with); "ठप्पा" = 5.14 s
+  on the clip (the ठ's burst after the stop's silence 4.96-5.12, read off the waveform; whisper had 4.94) -> pace.thappa 5120: both
+  halos fade up behind their stamps and both pulse twice by 4 % about the stamp's base (1.6 s, to the clip's end); 300 ms after the
+  clip the exit = the entrance played backwards (WAAPI direction reverse: easing off its place, its overshoot, then out to the left,
+  fading; the lines and the dust behind it), its whoosh mirrored too (it ends as the bird is gone); 250 ms later the camera move,
+  2 s eased in and out, on the page's own frames: the card's corners glide from 868:3's trapezoid (the paper's edge lines fitted on
+  the render: TL 256.76,9.92 TR 1040.76,8.88 BR 1092.25,520 BL 212.71,520) to 868:17's rectangle (260.24..1018 x 20.5..545.5) and
+  each table is drawn through the projective map that takes its own card there (homog, matrix3d) — twice: its whole picture by the
+  card's edge, its card's inside (clipped halfway to the dashed border) by that border's corners (fitted the same way: 868:3 insets
+  its dashes 27 / 12 / 25 / 26 px, 868:17 20 / 19 / 19 / 17 — one map made the borders double mid-move) — the angled one fading
+  over the overhead one (15..70 %); the trays and stamps change where they stand (the frames put them in the same spots; each
+  standing stamp settles onto its base, its base block's centre ~6 px from the top-view stamp's); the live sentence takes over from
+  the painted one in the first 12 % (the two still one) and glides from its ink box (343..869 x 224..279) to its own; then round 1's
+  sentence is read (no rise: it is there) with the word light, the box blinks 3 s (stpBoxBlink: opacity 1 -> 0 -> 1, three times),
+  .live, the guidance 0.5 s after. Rounds 2-5 as before: the clearing, the round's line, its stamps' pops, its sentence rising in and
+  read, its boxes' 3 s blink, no guidance (its line after 7 s idle), the drops, the finale after round 5.
+- Seen from above, a stamp is taken and judged by its centre (tips = half its box), lifted to 1.1 in hand / hovering, pressed at
+  .96, the drop tolerance 60 px; the printed mark is centred across the box and stands on its row's baseline (the line box's top +
+  the half leading + the font's 0.896 em ascent) — a box twice the text's height centred the mark where no typed mark would stand
+  (868:74's comma box sits high: centred, the comma would read as an apostrophe).
+- Smooth (measured bare in fresh browsers, `l2_jank.py` in the scratchpad: rAF times only, nothing read): the GPU's first blur passes
+  (30-100 ms of dropped frames) are paid in the page's first 0.3 s under the veil (the bird's lean-blur run once, unseen); every
+  picture is decoded at mount; the bird, its tilt and lines and the four move layers are promoted ahead (will-change); the layers the
+  move fades in (the overhead tray and stamps, the live sentence) rest at opacity .005 (painted from the first frame, unseen); the
+  glow is a picture's opacity, not an animated drop-shadow filter (that one dropped 2-3 frames as it ended). Cold runs then drop
+  frames only in the first 0.35 s (under the veil); the old L2 as a control. Run the timing checks on a quiet machine: a busy
+  desktop app (40 % of a core) made 150-4000 ms stalls in single runs that a re-run did not repeat.
+- Checked: `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out` (rewritten for the new flow, 111 checks): the
+  intro (the angled view against 868:3's render, mean 4.3 of 765, the bird landed), the entrance's moves and whoosh, the GIF in every
+  frame on the clip's clock (within one frame, all 36 shown, frame 0 at the end), the glow at 5.146 s, the exit (mirrored whoosh), the
+  camera move (both tables' card corners and dashed borders on the same quad in every frame, the angled one fading, the sentence's
+  hand-over), the overhead view after it against 868:17 (3.8 outside the box), round 1 (no rise, the word light, the box's 3 dips, the
+  box against the render 3.9 / the box itself 9.3), the guidance (the ? centre on the box's within 4 px at 1.1), the wrong drops, the
+  tap, the press (.96, on the box's centre), the mark across the box's centre and on the baseline, the chime, the confetti; every
+  later round's beats, drops and marks, and its box moment against its render (frame < 6; every row's headline within 1 px, its ends
+  within 3; every box < 20); the finale; the sounds stopped on leaving; a re-run measuring the frames bare; a mid-way exit with a
+  stamp in hand. smoke.py's L2 step now reads the new state (the angled layers and bird gone, the tray and stamps in). A fresh clone
+  of github.com/siddharthsharma-ctrl/Ek-aur-Anek was needed (the older scratchpad's copy had been emptied, only its folders left);
+  its build is byte-identical outside L2. `../_before_stamp868/` holds the dist's three files, build.py and the checks from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

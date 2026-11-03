@@ -7321,62 +7321,98 @@ const SlideModules = {
     }
   },
 
-  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter (FLN-by-MJ frames 565:28 and 579:47, "G3 guided story
-     question"): a sentence on a sheet on the wooden table, a tray with two stamps, the demos' title bar (.dmf-band). It drives
-     itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts to
-     sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; then ROUND BY ROUND (data.rounds,
-     [stamp-rounds]): 3. the round's two stamps pop into the tray, each on its pop; 4. the sentence is read without a pause,
-     WORD BY WORD on the clip's clock; 5. the empty slot appears and blinks for 3.5 s (the demos' three slow blinks) — from now
-     on the two stamps are the child's to drag; 6. [stamp-drag] the guidance, 0.5 s after the blink: the right stamp lifts,
-     glides slowly over the slot, hovers and glides home WITHOUT printing; it comes again after every 7 s without a touch. A
-     stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back it glides. The right stamp on the slot:
-     it snaps over the slot and presses on the thud — the mark is printed on the slot's CENTRE (its ink, as on the demos) —
-     lifts and glides home; the slot's box goes on the correct chime, the mark stays; the kit's confetti on its sound. With a
-     round to follow: the stamps shrink away (their pop played backwards), the sentence goes word by word in reverse with the
-     slot and its mark, and the next round's stamps pop in (3. again) — a round without `guide` has NO guidance [stamp-remind]:
-     after 7 s without a touch the title's line is said again instead (and again after every further 7 s). A round with TWO
-     slots or more (data.slots, frames 593:130 and 593:151): all blink together; the right stamp on one prints there and that
-     box goes on the chime, then the stamps are the child's again for the rest; the confetti after the last. A slot may want
-     its own stamp (sl.mark, sl.pick — 593:151: the comma, the ?, the danda twice). data.sign: small text lines (the letter's
-     sign-off) shown with the sentence's last word, gone with it. After the LAST round's confetti [stamp-final] the finale: the
-     stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds, the envelope in it glitters
-     gold (a glow and fin_sparks sparks over layout.envelope) for fin_glitter_ms on the second chime, and at fin_done the page
-     moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter. [stamp-868] (2026-11-03) on the FLN-by-MJ frames 868:3 (the
+     angled table with the bird) and 868:17 / 868:31 / 868:44 / 868:59 / 868:74 (the overhead table, one per round). It drives itself:
+     1. the angled table on the whole stage (868:3: the card with its sentence, the tray, the two standing stamps) as the letter
+     page's veil lifts, and the bird glides in from the left to its place — the reference title page's entrance of its two children
+     (the glide, the lean, the blur, the speed lines, the dust, its whoosh); 2. the instruction (data.intro_audio) with the bird's GIF
+     playing on the clip's own clock, and on its "ठप्पा" (pace.thappa) both standing stamps glow along their outline and pulse
+     gently; 3. the bird leaves the way it came, backwards, on the same whoosh; 4. the camera move: the angled table becomes the
+     overhead one (868:17) — the same card, sentence, tray and stamps; then ROUND BY ROUND (data.rounds, [stamp-rounds]): 5. the
+     sentence is read, each word lit as it is read (round 1's is already there; a later round's rises in first, after its own line
+     and its stamps' pops); 6. the empty box(es) blink for 3 s, appearing and disappearing — from now on the stamps are the child's to
+     drag; [stamp-drag] in round 1 the guidance, 0.5 s after the blink: the right stamp lifts, glides slowly over the box, hovers and
+     glides home WITHOUT printing; it comes again after every 7 s without a touch. A stamp dropped off the box, or the wrong one on it:
+     the kit's buzz, a wiggle, back it glides. The right stamp on the box: it snaps over the box and presses on the thud — the mark
+     is printed in the box, standing on its row's baseline — lifts and glides home; the box goes on the correct chime, the mark stays;
+     the kit's confetti on its sound. With a round to follow: the stamps shrink away (their pop played backwards), the sentence goes
+     word by word in reverse with the box and its mark, the next round's stamps pop in — a round without `guide` has NO guidance
+     [stamp-remind]: after 7 s without a touch the title's line is said again instead. A round with several boxes (data.slots): all
+     blink together; the right stamp on one prints there and that box goes on the chime, then the stamps are the child's again for
+     the rest; the confetti after the last; a box may want its own stamp (sl.mark, sl.pick). After the LAST round's confetti
+     [stamp-final] the finale: the stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds,
+     the envelope in it glitters gold for fin_glitter_ms on the second chime, and at fin_done the page moves on (no आगे). Places in
+     frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
       const rounds = Array.isArray(d.rounds) && d.rounds.length ? d.rounds : [{}];
-      const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
-        hint_at: 500, glide: 1500, hover_up: 34, hold: 450, back: 1100, idle_ms: 7000, tol_x: 50, tol_y: 70, tap_px: 10, wiggle: 450, reset: 500,
-        snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400,
-        words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
+      const P = Object.assign({ bird_at: 400, bird_tempo: 2.2, whoosh_vol: 0.75, vo_gap: 200, bird_loops: 3, thappa: 5120, intro_ms: 6407, exit_gap: 300,
+        cam_gap: 250, cam_ms: 2000, cam_text: 0.12, cam_a: [0.15, 0.7], cam_squash: 0.5, read_gap: 450,
+        after_intro: 500, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3000, blinks: 3,
+        hint_at: 500, glide: 1500, hover_up: 0, hold: 450, back: 1100, idle_ms: 7000, tol_x: 60, tol_y: 60, tap_px: 10, wiggle: 450, reset: 500,
+        lift_scale: 1.1, press_scale: 0.96, snap: 220, press: 140, press_down: 0, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800,
+        gone_at: 1600, confetti_at: 2100, done_at: 4400, words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
-      const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142];
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
-      const BX0 = [[532, 541, 74, 116], [677, 540, 72, 115]], TIPS0 = [[36, 113], [35, 114]];
+      const pic = (cls, id, b)=> '<img class="' + cls + '" src="' + imgSrc(id) + '" alt="" draggable="false" style="' + box(b || [0, 0, 0, 0]) + '">';
+      const BX0 = [[484, 569, 105, 105], [683, 565, 114, 114]], TIPS0 = [[52.5, 52.5], [57, 57]];
       const boxes0 = rounds[0].boxes || BX0, maxN = Math.max(1, ...rounds.map(R=> (R.stamps || []).length));   // divs for the most stamps any round has
+      // the bird: 868:3's GIF fill as a sheet of its frames (layout.bird: cols, frames, the drawn cell, the clip box, its feet = the ellipse's centre)
+      const BD = LY.bird || {}, FT = BD.foot || [107.5, 693.5], BB = BD.box || [11.975, 451.76, 220, 252], CELL = BD.cell || [220, 252], COLS = BD.cols || 6, NF = BD.n || 36,
+            SH = LY.bird_shadow || [39, 682, 137, 23];
       const fig = sfigMount(host,
         '<div class="stp" data-round="0">' +
-          '<img class="stp-wood" src="' + imgSrc(im.wood) + '" alt="" draggable="false">' +
-          '<div class="dmf-band"><div class="dmf-pill"><p></p></div><div class="dmf-head"><img src="assets/UI/demo1_head.webp" alt="" draggable="false"></div></div>' +
-          '<img class="stp-sheet" src="' + imgSrc(im.sheet) + '" alt="" draggable="false" style="' + box(sh) + '">' +
-          '<img class="stp-tray" src="' + imgSrc(im.tray) + '" alt="" draggable="false" style="' + box(tr) + '">' +
+          // the overhead table (868:17 .. 868:74): the same wood still under it all (it fills the frame's edge while the table tilts), then
+          // the wood, the card and its postmark as ONE layer (the camera move draws it through its projective map)
+          pic("stp-under", im.wood, LY.wood) +
+          '<div class="stp-b"><div class="stp-bo">' + pic("stp-wood", im.wood, LY.wood) + pic("stp-card", im.card, LY.card) + pic("stp-post", im.post, LY.post) + '</div>' +
+            '<div class="stp-bi">' + pic("stp-card", im.card, LY.card) + pic("stp-post", im.post, LY.post) + '</div></div>' +
+          // the angled table (868:3): its picture (the card's painted sentence lifted out, a_text, over the paper filled under it) and its
+          // postmark — each table twice: its whole picture (-o, the move maps it by its card's edge) and its card's inside (-i, clipped
+          // halfway between the edge and the dashed border; the move maps it by that border), so both the edges and the dashes of the
+          // two drawings meet as they cross-fade (the frames inset their dashes differently: 868:3 ~27 / 12 / 25 / 26 px, 868:17 ~20 / 19 / 19 / 17)
+          '<div class="stp-a"><div class="stp-ao">' + pic("stp-a-bg", im.a_bg, LY.a_bg) + '</div>' +
+            '<div class="stp-ai">' + pic("stp-a-bg", im.a_bg, LY.a_bg) + pic("stp-a-post", im.a_post, LY.a_post) + pic("stp-a-text", im.a_text, LY.a_text) + '</div></div>' +
+          pic("stp-tray", im.tray, LY.tray) + pic("stp-a-tray", im.a_tray, LY.a_tray) +
           Array.from({ length: maxN }, (_, k)=> '<div class="stp-stamp s' + k + '" style="' + (k < (rounds[0].stamps || []).length ? box(boxes0[k] || boxes0[0]) : 'display:none') + '"><img src="' + (rounds[0].stamps && rounds[0].stamps[k] ? imgSrc(rounds[0].stamps[k]) : '') + '" alt="" draggable="false"></div>').join('') +
+          // the standing stamps, each over its "ठप्पा" glow (a baked halo along its outline: images.a_glows, layout.a_glows)
+          (im.a_glows || []).map((id, k)=> pic("stp-a-halo h" + k, id, (LY.a_glows || [])[k])).join('') +
+          (im.a_stamps || []).map((id, k)=> pic("stp-a-stamp a" + k, id, (LY.a_stamps || [])[k])).join('') +
+          '<div class="stp-bird" style="left:' + FT[0] + 'px;top:' + FT[1] + 'px"><div class="stp-bmove">' +
+            '<i class="stp-bshd" style="' + box([SH[0] - FT[0], SH[1] - FT[1], SH[2], SH[3]]) + '"></i><i class="stp-blines"><b></b><b></b><b></b></i>' +
+            '<div class="stp-btilt"><div class="stp-bclip" style="' + box([BB[0] - FT[0], BB[1] - FT[1], CELL[0], CELL[1]]) + '">' +
+              '<img class="stp-bsheet" src="' + imgSrc(im.bird) + '" alt="" draggable="false" style="width:' + (COLS * CELL[0]) + 'px;height:' + (Math.ceil(NF / COLS) * CELL[1]) + 'px"></div></div>' +
+          '</div></div>' +
           '<div class="stp-veil"></div>' +
         '</div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
-      const root = fig.querySelector(".stp"), band = fig.querySelector(".dmf-band"), sheet = fig.querySelector(".stp-sheet"), tray = fig.querySelector(".stp-tray"),
-            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), veil = fig.querySelector(".stp-veil");
-      fig.querySelector(".dmf-pill p").textContent = d.band_hi || "";
+      const q_ = (s)=> fig.querySelector(s);
+      const root = q_(".stp"), aL = q_(".stp-a"), bO = q_(".stp-bo"), bI = q_(".stp-bi"), aO = q_(".stp-ao"), aI = q_(".stp-ai"),
+            aText = q_(".stp-a-text"), tray = q_(".stp-tray"), aTray = q_(".stp-a-tray"),
+            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), aStamps = Array.from(fig.querySelectorAll(".stp-a-stamp")), aHalos = Array.from(fig.querySelectorAll(".stp-a-halo")), veil = q_(".stp-veil"),
+            bird = q_(".stp-bird"), bMove = q_(".stp-bmove"), bTilt = q_(".stp-btilt"), bLines = q_(".stp-blines"), bSheet = q_(".stp-bsheet");
+      // a quad, its corners rounded (rc px: a quadratic curve through each corner), as a clip-path polygon in the layer's own px
+      const roundQuad = (Q, rc)=>{ const pts = [];
+        for(let i = 0; i < 4; i++){ const p = Q[i], a = Q[(i + 3) % 4], b = Q[(i + 1) % 4], da = Math.hypot(a[0] - p[0], a[1] - p[1]), db = Math.hypot(b[0] - p[0], b[1] - p[1]);
+          const p1 = [p[0] + (a[0] - p[0]) * rc / da, p[1] + (a[1] - p[1]) * rc / da], p2 = [p[0] + (b[0] - p[0]) * rc / db, p[1] + (b[1] - p[1]) * rc / db];
+          for(let k = 0; k <= 6; k++){ const s = k / 6, u = 1 - s; pts.push([u * u * p1[0] + 2 * u * s * p[0] + s * s * p2[0], u * u * p1[1] + 2 * u * s * p[1] + s * s * p2[1]]); } }
+        return "polygon(" + pts.map(q=> q[0].toFixed(1) + "px " + q[1].toFixed(1) + "px").join(",") + ")"; };
+      const mid = (Q1, Q2)=> Q1.map((p, i)=> [(p[0] + Q2[i][0]) / 2, (p[1] + Q2[i][1]) / 2]);
+      if(LY.a_quad && LY.a_dash) aI.style.clipPath = roundQuad(mid(LY.a_quad, LY.a_dash), 20);
+      if(LY.b_quad && LY.b_dash) bI.style.clipPath = roundQuad(mid(LY.b_quad, LY.b_dash), 20);
+      fig.querySelectorAll(".stp img").forEach(i=>{ try{ if(i.decode) i.decode().catch(()=>{}); }catch(e){} });
+      // each halo pulses with its stamp, about the stamp's base (the same point of the frame)
+      aHalos.forEach((h, k)=>{ const s = (LY.a_stamps || [])[k], g = (LY.a_glows || [])[k]; if(s && g) h.style.transformOrigin = (s[0] + s[2] / 2 - g[0]).toFixed(2) + "px " + (s[1] + s[3] - g[1]).toFixed(2) + "px"; });   // every picture decoded now, off the frames that show it first (the bird's sheet, the overhead card)
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
       setSwMood("talk");
       const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
       const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
-      // the page's own sounds (two pops, the thud), fetched now so each starts on its beat — online too; every round's pictures and
-      // clip fetched now too, so a round starts without a load gap
+      // the page's own sounds (the pops, the thud, the finale's chimes, the bird's whoosh), fetched now so each starts on its beat — online
+      // too; every round's pictures and clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
-      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter);   // [stamp-final] the finale's two chimes
+      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter), whoosh = mk(sfx.whoosh);   // [stamp-final] the finale's two chimes; [stamp-868] the whoosh
       [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
       rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
       if(im.final) try{ const i = new Image(); i.src = imgSrc(im.final); }catch(e){}   // [stamp-final] the final picture, fetched now
@@ -7405,82 +7441,187 @@ const SlideModules = {
         if(times.length) tick();
       };
       // [stamp-rounds] the round at hand (R): its sentence — p.stp-sent built by sfigLine (a word span per word, <br> per row) with
-      // the gap span where the slot sits —, its slot with the mark, its stamps' pictures and boxes, the right stamp and its two
-      // places over the slot: its print point (the middle of its face's bottom edge, in its box: tips) lands press_down px under
-      // the slot's centre (the stamp standing on the slot) after hovering hover_up px above that
+      // the gap span where a box sits —, its box(es) with the mark, its stamps' pictures and boxes, the right stamp and its two
+      // places over each box. [stamp-868] seen from above, a stamp is taken and judged by its centre (tips) and scales about it:
+      // HOVER = over the box's centre, lifted (lift_scale); PRESS = there, pressed down (press_scale)
+      // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand ([stamp-868] declared
+      // ahead of setRound: the first round is set as the page mounts)
+      let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
       let R = null, r = -1, rWrong = 0, hintStamp = null;   // [vo-rec] the round's wrong drops (its hint ladder); the stamp the guidance holds
-      // the slot's dashed stroke, one line per side carrying the render's own dash runs ([margin, dash, gap, ...]); the rounded
-      // corners stay open, as in the render (the demos' way)
-      const da = (q)=> q && q.length ? '0 ' + q.join(' ') : '10 5';
-      const side = (x1, y1, x2, y2, q)=> '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke-dasharray="' + da(q) + '"/>';
+      // the box's dashed stroke: the frame's runs (layout.box_dash: each side 7 of the corner's dash, gap 5, 13, 6, 13, 5 — one dash
+      // wraps each rounded corner) on a rect 1 px inside the box (its 2 px stroke inside the border, as Figma draws it)
+      const DASH = LY.box_dash || "7 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 32.13", BR = LY.box_r != null ? LY.box_r : 17;
       function setRound(i){
-        r = i; root.dataset.round = i;
+        r = i; root.dataset.round = i; root.classList.toggle("nopost", (rounds[i] || {}).post === false);   // [stamp-868] 868:74's card has no postmark
         const D = rounds[i] || {}, S = D.sentence || {}, bx = D.boxes || BX0, tips = D.tips || TIPS0,
-              se = D.sent || { x: 63, y: 338, w: 1075, h: 48, size: 30 },
-              sls = Array.isArray(D.slots) && D.slots.length ? D.slots : [D.slot || { x: 751, y: 331, w: 36, h: 58 }];   // the round's slots: one, or two (frame 593:130)
+              se = D.sent || { x: 60, y: 241, w: 1075, h: 73, size: 50, lh: 73 },
+              sls = Array.isArray(D.slots) && D.slots.length ? D.slots : [D.slot || { x: 859, y: 226, w: 90, h: 90 }];   // the round's boxes: one, or several (868:59, 868:74)
         const n = (D.stamps || []).length;   // this round's stamps; the divs beyond them are hidden
         stamps.forEach((s, k)=>{ s.className = "stp-stamp s" + k; if(k < n){ s.style.cssText = box(bx[k] || bx[0]); s.querySelector("img").src = imgSrc(D.stamps[k]); } else s.style.cssText = "display:none"; });
-        const rows = String(S.text_hi || "").split("\n").length, lh = se.lh || Math.round(se.size * 1.714 * 10) / 10;   // Baloo Bhai 2's line box, as on every Figma page
+        const rows = String(S.text_hi || "").split("\n").length, lh = se.lh || Math.round(se.size * 1.714 * 10) / 10;
         const sentEl = document.createElement("p"); sentEl.className = "stp-sent";
-        sentEl.style.cssText = 'left:' + se.x + 'px;top:' + (se.y - (lh * rows - se.h) / 2) + 'px;width:' + se.w + 'px;height:' + (lh * rows) + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px';
-        const pick = D.pick != null ? D.pick : 1, stamp = stamps[pick] || stamps[0], tip = tips[pick] || tips[0], sb = bx[pick] || bx[0];
-        // each slot: its box with the render's dash runs and its mark (its own, or the round's), its right stamp (its own pick, or
-        // the round's) and that stamp's two places over it — HOVER (its print point hover_up px above the slot's centre) and PRESS
-        // (press_down px under it: the stamp standing on the slot)
+        const pTop = se.y - (lh * rows - se.h) / 2;
+        sentEl.style.cssText = 'left:' + se.x + 'px;top:' + pTop + 'px;width:' + se.w + 'px;height:' + (lh * rows) + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px';
+        const pick = D.pick != null ? D.pick : 1, stamp = stamps[pick] || stamps[0];
+        // each box: the frame's fill and dashes and its mark (its own, or the round's), its right stamp (its own pick, or the round's)
+        // and that stamp's two places over it
         const slots = sls.map(sl=>{ const w = sl.w, h = sl.h, el = document.createElement("div"); el.className = "stp-slot"; el.style.cssText = box([sl.x, sl.y, w, h]);
           const pk = sl.pick != null ? sl.pick : pick, st = stamps[pk] || stamps[0], tp_ = tips[pk] || tips[0], sb_ = bx[pk] || bx[0];
-          el.innerHTML = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
-              side(0, 1, w, 1, sl.dash_h) + side(w - 1, 0, w - 1, h, sl.dash_v) + side(0, h - 1, w, h - 1, sl.dash_h) + side(1, 0, 1, h, sl.dash_v) + '</svg>' +
+          el.innerHTML = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true"><rect x="1" y="1" width="' + (w - 2) + '" height="' + (h - 2) + '" rx="' + (BR - 1) + '" ry="' + (BR - 1) + '" stroke-dasharray="' + DASH + '"/></svg>' +
               '<span class="stp-mark" style="font-size:' + se.size + 'px">' + (sl.mark || D.mark || '?') + '</span>';
           const dx = sl.x + w / 2 - (sb_[0] + tp_[0]), dy = sl.y + h / 2 + P.press_down - (sb_[1] + tp_[1]);
-          return { sl, w, h, el, mark: el.querySelector(".stp-mark"), done: false, pick: pk, stamp: st,
-                   HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(1.08)", PRESS: "translate(" + dx + "px, " + dy + "px) scale(1)" }; });
+          return { sl, w, h, el, row: sl.row || 0, mark: el.querySelector(".stp-mark"), done: false, pick: pk, stamp: st,
+                   HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(" + P.lift_scale + ")", PRESS: "translate(" + dx + "px, " + dy + "px) scale(" + P.press_scale + ")" }; });
         // the sign-off (data.sign): small lines under the sentence, shown with its last word
         const signs = (Array.isArray(D.sign) ? D.sign : []).map(sg=>{ const el = document.createElement("p"); el.className = "stp-sign";
           el.style.cssText = 'left:' + sg.x + 'px;top:' + sg.y + 'px;width:' + sg.w + 'px;height:' + sg.h + 'px;font-size:' + sg.size + 'px;line-height:' + sg.h + 'px'; el.textContent = sg.text || ""; return el; });
         root.insertBefore(sentEl, veil); slots.forEach(o=> root.insertBefore(o.el, veil)); signs.forEach(el=> root.insertBefore(el, veil));
         const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
         const gapEl = (wpx)=>{ const g = document.createElement("span"); g.className = "stp-gap"; g.style.width = wpx + "px"; return g; };
-        if(se.gap && L.words[se.gap.before]) L.words[se.gap.before].before(gapEl(se.gap.w));   // the room the slot sits in
+        (Array.isArray(se.gap) ? se.gap : se.gap ? [se.gap] : []).forEach(g=>{ if(L.words[g.before]) L.words[g.before].before(gapEl(g.w)); });   // the room a box sits in (or a row's lead)
         if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
-        const s0 = slots[0];   // the first slot's box and places stand for the round's (the guidance glides to it)
-        R = { D, S, n, bx, tips, slots, signs, sl: s0.sl, w: s0.w, h: s0.h, sentEl, slot: s0.el, mark: s0.mark, L, pick, stamp, HOVER: s0.HOVER, PRESS: s0.PRESS };
+        const s0 = slots[0];   // the first box's places stand for the round's (the guidance glides to it)
+        R = { D, S, n, bx, tips, slots, signs, sl: s0.sl, w: s0.w, h: s0.h, sentEl, slot: s0.el, mark: s0.mark, L, pick, stamp, HOVER: s0.HOVER, PRESS: s0.PRESS,
+              pLeft: se.x, pTop, lh };
         live = false; acted = false; solved = false; hinting = false; hintT = []; lastAct = Date.now(); rWrong = 0;
       }
-      // 1. the table shows as the letter page's veil lifts; then the title bar appears the moment its line starts to sound
+      // 1. the table shows as the letter page's veil lifts: [stamp-868] the angled one (868:3). The first round is set at once — its
+      //    sentence whole but unseen, posed over the painted one (it takes over in the camera move), its stamps and the overhead tray
+      //    unseen, the overhead layer not painted until the move — and the bird glides in
       nextFrame(()=> nextFrame(()=>{ if(alive()) root.classList.add("lit"); }));
       const introSrc = A(d.intro_audio);
-      at(P.intro_at, ()=>{
-        const showBand = ()=>{ if(alive()) band.classList.add("in"); };
-        let introDone = false;
-        const afterIntro = ()=>{ if(introDone || !alive()) return; introDone = true; showBand(); at(P.after_intro, stage2); };
-        play(introSrc, afterIntro);
-        const a0 = currentAudio;
-        const whenSounding = ()=>{ if(!alive() || band.classList.contains("in")) return; if(a0 === currentAudio && a0.currentTime > 0) showBand(); else nextFrame(whenSounding); };
-        if(a0 && introSrc && decodeURIComponent(String(a0.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showBand();
-        at(1500, showBand);   // a clip that is slow to start never keeps the bar away
-        at(authoredVoHoldMs(introSrc) + 10000, ()=>{ if(!introDone){ stopAudio(); afterIntro(); } });
-      });
-      // 2. the sheet settles onto the table, the tray slides up under it; the first round is set
-      function stage2(){
-        at(P.sheet_in, ()=> sheet.classList.add("in"));
-        at(P.tray_in, ()=> tray.classList.add("in"));
-        at(P.stamps_at, ()=>{ setRound(0); stage3(); });
+      setRound(0);
+      const S0 = R.sentEl; S0.classList.add("sfig-whole"); sfigShow(R.L, R.L.words.length); R.L.shown = true;
+      // the live sentence's pose in the angled view: its ink box as laid out on the overhead table (layout.b_text_ink) onto the painted
+      // one's (layout.a_text_ink), about the p's own top-left; tfAt(F, e) = that pose eased toward its own place (e: 0 -> 1)
+      const TXF = (()=>{ const a = LY.a_text_ink, b = LY.b_text_ink; if(!a || !b) return [1, 1, 0, 0];
+        const sx = (a[2] - a[0]) / (b[2] - b[0]), sy = (a[3] - a[1]) / (b[3] - b[1]);
+        return [sx, sy, a[0] - R.pLeft - sx * (b[0] - R.pLeft), a[1] - R.pTop - sy * (b[1] - R.pTop)]; })();
+      const tfAt = (F, e)=> "matrix(" + (F[0] + (1 - F[0]) * e).toFixed(5) + ",0,0," + (F[1] + (1 - F[1]) * e).toFixed(5) + "," + (F[2] * (1 - e)).toFixed(3) + "," + (F[3] * (1 - e)).toFixed(3) + ")";
+      S0.style.transformOrigin = "0 0"; S0.style.transform = tfAt(TXF, 0); S0.style.opacity = ".005";
+      tray.style.opacity = ".005"; stamps.slice(0, R.n).forEach(s=>{ s.querySelector("img").style.opacity = ".005"; });   // (at .005: painted from the start, unseen — so the move's first frame paints nothing new)   // (the overhead layer paints under the angled one from the start, so the move begins without a first paint)
+      // the GPU's first blurs (compiling its blur passes: 30-100 ms of dropped frames in a cold browser, measured) are paid in the page's
+      // first 0.3 s, under the letter page's veil, not on the bird's entrance: its lean-blur runs once, unseen (the bird at its resting .005)
+      bTilt.animate([{ filter: "blur(2px)" }, { filter: "blur(1px)", offset: .5 }, { filter: "blur(0px)" }], { duration: 300 });
+      at(P.bird_at, ()=> zoomBird(false, ()=> at(P.vo_gap, birdTalk)));
+      // [stamp-868] the bird's entrance = the reference title page's entrance of its two children (mtg2a01l04s01, PVLanding's zoom; its
+      // tempo T 2.2): it fades in 200 px out to the left over the first 15 %, glides in with a 6 px overshoot, leaning into it with a
+      // 2 px blur, three speed lines behind it, the dust its feet kick up 400·T ms in, on its whoosh (.75); out = the same moves played
+      // backwards (the lines and the dust behind it on the way out), its whoosh too: ending as the bird is gone (whoosh_ms, the file's length)
+      const ZM = 680 * P.bird_tempo;
+      function zoomBird(out, then){
+        if(out) at(Math.max(0, ZM - P.whoosh_ms), ()=> sound(whoosh, P.whoosh_vol)); else sound(whoosh, P.whoosh_vol);   // in: as it appears; out (backwards): ending as it is gone
+        const o = (x)=> Object.assign({ duration: ZM, direction: out ? "reverse" : "normal" }, x);
+        bMove.animate([{ translate: "-200px 0", opacity: 0 }, { translate: "-160px 0", opacity: 1, offset: .15 },
+          { translate: "6px 0", opacity: 1, offset: .75, easing: "ease-in-out" }, { translate: "0 0", opacity: 1 }], o({ easing: "cubic-bezier(.12,.62,.3,1)", fill: "both" }));
+        bTilt.animate([{ rotate: "5deg", filter: "blur(2px)" }, { rotate: "4deg", filter: "blur(1px)", offset: .45 },
+          { rotate: "-3deg", filter: "blur(0px)", offset: .7 }, { rotate: "0deg", filter: "blur(0px)" }], o({ easing: "ease-out" }));
+        bLines.classList.toggle("out", out);
+        bLines.animate([{ opacity: 0, scale: ".3 1" }, { opacity: .5, scale: "1 1", offset: .3 }, { opacity: 0, scale: "1.2 1", offset: .65 }, { opacity: 0 }], o({ easing: "ease-out" }));
+        at(out ? ZM - 400 * P.bird_tempo : 400 * P.bird_tempo, ()=> dust(out));
+        at(ZM, then);
       }
-      // 3. the round's stamps (two, or three) pop into the tray, each on its pop
+      function dust(out){   // seven puffs from the feet, kicked back against the way it goes
+        const s = out ? -1 : 1;
+        for(let i = 0; i < 7; i++){
+          const e = document.createElement("i"); e.className = "stp-dust";
+          e.style.left = (FT[0] - s * 26 + (Math.random() - .5) * 24).toFixed(1) + "px"; e.style.top = (FT[1] - 6) + "px"; root.insertBefore(e, veil);
+          const dx = -s * (14 + Math.random() * 44), dy = -(6 + Math.random() * 22);
+          e.animate([{ translate: "0 0", scale: ".4", opacity: .85 }, { translate: dx.toFixed(1) + "px " + dy.toFixed(1) + "px", scale: (1.2 + Math.random() * .8).toFixed(2), opacity: 0 }],
+                    { duration: 520 + Math.random() * 260, easing: "cubic-bezier(.2,.8,.4,1)", fill: "both" }).onfinish = ()=> e.remove();
+        }
+      }
+      // 2. the instruction, the bird's GIF frame by frame on the clip's own clock — bird_loops loops of its frames over the clip, so it
+      //    ends on its first frame, the pose it came in with — and on the clip's "ठप्पा" (pace.thappa, ms) both standing stamps glow and
+      //    pulse; 3. at its end the bird goes out; 4. the camera move; 5. round 1's sentence read
+      let bf = -1;
+      const birdFrame = (i)=>{ if(i === bf) return; bf = i; bSheet.style.transform = "translate(" + (-(i % COLS) * CELL[0]) + "px," + (-Math.floor(i / COLS) * CELL[1]) + "px)"; };
+      function birdTalk(){
+        let done = false, glow = false; const t0 = performance.now(), file = introSrc ? introSrc.split("/").pop() : "";
+        const end = ()=>{ if(done || !alive()) return; done = true; birdFrame(0);
+          at(P.exit_gap, ()=> zoomBird(true, ()=> at(P.cam_gap, ()=> camera(()=> at(P.read_gap, ()=> stage4(true)))))); };
+        play(introSrc, end);
+        const a0 = currentAudio;
+        const mine = ()=> !!a0 && a0 === currentAudio && decodeURIComponent(String(a0.currentSrc || a0.src || "").split("/").pop()) === file;
+        const tick = ()=>{
+          if(done || !alive()) return;
+          const own = mine(), t = own ? a0.currentTime : (performance.now() - t0) / 1000, dur = own && isFinite(a0.duration) && a0.duration > 0 ? a0.duration : P.intro_ms / 1000;
+          birdFrame(Math.floor(Math.min(t / dur, 0.9999) * P.bird_loops * NF) % NF);
+          if(!glow && t * 1000 >= P.thappa){ glow = true; aStamps.concat(aHalos).forEach(s=> s.classList.add("thappa")); }   // the halo glows up, both pulse
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        at(authoredVoHoldMs(introSrc) + 10000, ()=>{ if(!done){ stopAudio(); end(); } });
+      }
+      // 4. the camera move (cam_ms), on the page's own frames: the card's corners glide from 868:3's (layout.a_quad, the paper's edges
+      //    fitted on its render) to 868:17's (layout.b_quad), eased, and each table layer is drawn through the projective map that takes
+      //    ITS card onto them (homog: four points onto four, carried by matrix3d), so the two drawings move as one table, the angled one
+      //    fading over the overhead one (cam_a); the trays and the stamps change where they stand (the two frames have them in the same
+      //    spots): the angled tray fades over the overhead one, each standing stamp settles onto its base (squashing to cam_squash, as
+      //    seen from above) as the overhead stamp comes in; the live sentence takes over from the painted one in the first beat
+      //    (cam_text, the two still one) and glides to its own place
+      const homog = (s, q)=>{
+        const M = [], v = [];
+        for(let i = 0; i < 4; i++){ const x = s[i][0], y = s[i][1], u = q[i][0], w = q[i][1];
+          M.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); v.push(u); M.push([0, 0, 0, x, y, 1, -w * x, -w * y]); v.push(w); }
+        for(let c = 0; c < 8; c++){
+          let p = c; for(let k = c + 1; k < 8; k++) if(Math.abs(M[k][c]) > Math.abs(M[p][c])) p = k;
+          const tm = M[c]; M[c] = M[p]; M[p] = tm; const tv = v[c]; v[c] = v[p]; v[p] = tv;
+          for(let k = 0; k < 8; k++){ if(k === c) continue; const f = M[k][c] / M[c][c]; if(!f) continue; for(let j = c; j < 8; j++) M[k][j] -= f * M[c][j]; v[k] -= f * v[c]; }
+        }
+        return v.map((x, i)=> x / M[i][i]);
+      };
+      const m3d = (h)=> "matrix3d(" + [h[0], h[3], 0, h[6], h[1], h[4], 0, h[7], 0, 0, 1, 0, h[2], h[5], 0, 1].map(x=> +x.toFixed(9)).join(",") + ")";
+      const ease = (t)=> t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const sstep = (a, b, t)=>{ const x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
+      const boxTf = (fr, to)=> "matrix(" + (to[2] / fr[2]).toFixed(5) + ",0,0," + (to[3] / fr[3]).toFixed(5) + "," + (to[0] - fr[0]).toFixed(2) + "," + (to[1] - fr[1]).toFixed(2) + ")";   // a box onto another (origin 0 0)
+      function camera(then){
+        const QA = LY.a_quad, QB = LY.b_quad, DA = LY.a_dash || QA, DB = LY.b_dash || QB, TA = LY.a_tray, TB = LY.tray, AS = LY.a_stamps || [], SB = R.bx, D = P.cam_ms;
+        const CT = P.cam_tray || [.2, .5, .3, .6], CS = P.cam_stamps || [.25, .6, .1, .45];   // [in from, in to, out from, out to] (fractions of the move)
+        const AB = LY.a_bases || AS.map(b=> [b[0] + b[2] / 2, b[1] + b[3]]), imgs = stamps.slice(0, R.n).map(s=> s.querySelector("img"));
+        if(!QA || !QB || !TA || !TB){ bI.remove(); aL.remove(); aTray.remove(); aStamps.concat(aHalos).forEach(s=> s.remove()); bird.remove(); tray.style.opacity = ""; S0.style.opacity = ""; S0.style.transform = ""; imgs.forEach(i=>{ i.style.opacity = ""; i.classList.add("shown"); }); then(); return; }
+        aTray.style.transformOrigin = tray.style.transformOrigin = "0 0";
+        aStamps.forEach((s, k)=>{ const b = AS[k]; if(b && AB[k]) s.style.transformOrigin = (AB[k][0] - b[0]).toFixed(2) + "px " + (AB[k][1] - b[1]).toFixed(2) + "px"; });
+        const t0 = performance.now();
+        const step = (now)=>{
+          if(!alive()) return;
+          const t = Math.min(1, Math.max(0, (now - t0) / D)), e = ease(t);
+          const lq = (Q1, Q2)=> Q1.map((p, i)=> [p[0] + (Q2[i][0] - p[0]) * e, p[1] + (Q2[i][1] - p[1]) * e]), Qp = lq(QA, QB), Qd = lq(DA, DB);
+          bO.style.transform = m3d(homog(QB, Qp)); bI.style.transform = m3d(homog(DB, Qd)); aO.style.transform = m3d(homog(QA, Qp)); aI.style.transform = m3d(homog(DA, Qd));
+          aL.style.opacity = (1 - sstep(P.cam_a[0], P.cam_a[1], t)).toFixed(4);
+          aText.style.opacity = (1 - sstep(0, P.cam_text, t)).toFixed(4); S0.style.opacity = Math.max(.005, sstep(0, P.cam_text, t)).toFixed(4); S0.style.transform = tfAt(TXF, e);
+          const tb = TA.map((v, i)=> v + (TB[i] - v) * e); aTray.style.transform = boxTf(TA, tb); tray.style.transform = boxTf(TB, tb);
+          aTray.style.opacity = (1 - sstep(CT[2], CT[3], t)).toFixed(4); tray.style.opacity = Math.max(.005, sstep(CT[0], CT[1], t)).toFixed(4);
+          aStamps.forEach((s, k)=>{ const sb = SB[k], ab = AB[k]; if(!sb || !ab) return;
+            const es = sstep(0, CS[3], t);   // it settles onto its base by the time it has faded
+            s.style.transform = "translate(" + ((sb[0] + sb[2] / 2 - ab[0]) * es).toFixed(2) + "px," + ((sb[1] + sb[3] / 2 - ab[1]) * es).toFixed(2) + "px) scale(1," + (1 - (1 - P.cam_squash) * es).toFixed(4) + ")";
+            s.style.opacity = (1 - sstep(CS[2], CS[3], t)).toFixed(4); });
+          imgs.forEach(i=>{ i.style.opacity = Math.max(.005, sstep(CS[0], CS[1], t)).toFixed(4); i.style.transform = "scale(" + (.94 + .06 * e).toFixed(4) + ")"; });
+          if(t < 1){ requestAnimationFrame(step); return; }
+          // the overhead table, as drawn: the angled one, the bird and the painted sentence go; every layer back on its own place
+          bO.style.transform = ""; bI.remove(); aL.remove(); aTray.remove(); aStamps.concat(aHalos).forEach(s=> s.remove()); bird.remove();
+          tray.style.transform = ""; tray.style.opacity = ""; tray.style.transformOrigin = "";
+          S0.style.opacity = ""; S0.style.transform = ""; S0.style.transformOrigin = ""; S0.classList.remove("sfig-whole");
+          imgs.forEach(i=>{ i.style.opacity = ""; i.style.transform = ""; i.classList.add("shown"); });
+          then();
+        };
+        requestAnimationFrame(step);
+      }
+      // 3. (a later round) the round's stamps (two, or three) pop into the tray, each on its pop
       function stage3(){
         const n = R.n;
         stamps.slice(0, n).forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((n - 1) * P.pop_gap + P.sent_at, stage4);
       }
-      // 4. the sentence rises in whole — the sign-off (593:151) with it — and is read SENT_IN_MS later, each word lit as it is read ([word-sync])
-      function stage4(){ const C = R, L = C.L; sfigRise(L, C.signs); at(SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, stage5); sfigSync(L); }); }
-      // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
-      //    to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
+      // 5. the sentence rises in whole — the sign-off with it — and is read SENT_IN_MS later, each word lit as it is read ([word-sync]);
+      //    [stamp-868] round 1's is already there (it came through the camera move): read at once
+      function stage4(shown){ const C = R, L = C.L; if(shown !== true) sfigRise(L, C.signs); at(shown === true ? 0 : SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, stage5); sfigSync(L); }); }
+      // 6. the empty box(es) appear and blink (blink_ms: blinks times, appearing and disappearing); from this moment the stamps are the
+      //    child's to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
         const slots = R.slots, guide = R.D.guide !== false;
-        slots.forEach(o=>{ o.el.style.animationDuration = (P.blink_ms / 3) + "ms"; o.el.classList.add("in", "blink"); });   // both together, when there are two
+        slots.forEach(o=>{ o.el.style.animationDuration = (P.blink_ms / P.blinks) + "ms"; o.el.classList.add("in", "blink"); });   // all together, when there are several
         live = true; root.classList.add("live"); lastAct = Date.now();
         at(P.blink_ms, ()=> slots.forEach(o=> o.el.classList.remove("blink")));
         if(guide) at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
@@ -7505,12 +7646,10 @@ const SlideModules = {
         if(solved || drag || !live || isPlaying){ lastAct = Date.now(); return; }
         lastAct = Date.now(); play(roundSrc(), ()=>{ lastAct = Date.now(); });   // [vo-rec] the round's line
       }
-      // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand
-      let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
       const move = (el, tf, ms, ease)=>{ el.style.transition = "transform " + ms + "ms " + ease + ", filter .3s"; el.style.transform = tf; };
       // glides a stamp home and sets it down (its shadow goes as it lands) — unless the child has taken hold of it again
       const putBack = (s, ms)=>{ move(s, "none", ms, "cubic-bezier(.4,0,.2,1)"); at(Math.max(0, ms - 150), ()=>{ if(!(drag && drag.el === s)) s.classList.remove("lift"); }); };
-      // 6. the guidance: the right stamp lifts, glides SLOWLY over the slot, hovers there and glides home — it does not print (that
+      // 6. the guidance: the right stamp lifts, glides SLOWLY over the box, hovers there and glides home — it does not print (that
       //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
       const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
       function hint(force){   // [vo-rec] force = hint 3's glide in a round without guidance; the glide goes to the OPEN slot's stamp
@@ -7526,7 +7665,7 @@ const SlideModules = {
         if(!taken) putBack(hintStamp || R.stamp, 350);
       }
       // the child's drags: a stamp follows the finger from where it is (even mid-guidance, mid-return) at the lifted size; the
-      // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's PRINT POINT against the slot
+      // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's centre (tips) against the box's
       const scaleNow = ()=> (root.getBoundingClientRect().width || 1280) / 1280;
       const curXY = (el)=>{ const m = getComputedStyle(el).transform, v = m && m !== "none" ? m.match(/matrix\(([^)]+)\)/) : null;
         if(!v) return [0, 0]; const a = v[1].split(",").map(Number); return [a[4] || 0, a[5] || 0]; };
@@ -7536,7 +7675,7 @@ const SlideModules = {
           if(!live || solved || drag || !R || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
           if(hinting) stopHint(s === hintStamp);
-          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
+          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], P.lift_scale);
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
         });
@@ -7544,22 +7683,22 @@ const SlideModules = {
           if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
           const dx = (e.clientX - drag.x0) / drag.sc, dy = (e.clientY - drag.y0) / drag.sc;
           drag.moved = Math.max(drag.moved, Math.hypot(dx, dy)); drag.lx = drag.tx + dx; drag.ly = drag.ty + dy;
-          setTf(s, drag.lx, drag.ly, 1.08);
+          setTf(s, drag.lx, drag.ly, P.lift_scale);
         });
         const up = (e)=>{
           if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
           const dr = drag; drag = null; try{ s.releasePointerCapture(e.pointerId); }catch(err){}
           s.classList.remove("drag"); lastAct = Date.now();
           if(e.type === "pointercancel" || dr.moved < P.tap_px){ putBack(s, 220); return; }   // a touch (or the browser took the pointer), not a placing
-          const b = R.bx[k] || R.bx[0], tp = R.tips[k] || R.tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its base: the tip rides the translate
-          // the slot the print point is on: of the slots still empty, one within tol_x / tol_y of it (the nearer, when both are)
+          const b = R.bx[k] || R.bx[0], tp = R.tips[k] || R.tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its centre: the centre rides the translate
+          // the box the stamp is on: of the boxes still empty, one within tol_x / tol_y of its centre (the nearer, when two are)
           const dist = (o)=> Math.hypot(tipX - (o.sl.x + o.w / 2), tipY - (o.sl.y + o.h / 2));
           const hit = R.slots.filter(o=> !o.done && Math.abs(tipX - (o.sl.x + o.w / 2)) <= P.tol_x && Math.abs(tipY - (o.sl.y + o.h / 2)) <= P.tol_y).sort((a, c)=> dist(a) - dist(c))[0];
           if(hit && k === hit.pick) solve(hit); else wrong(s);
         };
         s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);
       });
-      // a wrong drop (off the slot, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
+      // a wrong drop (off the box, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
       // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's. The class is stp-wrong, never
       // a bare "wrong": the engine's style.css paints ANY .wrong element white (:is(.wrong,...){background-color:#fff!important})
       function wrong(s){
@@ -7571,20 +7710,20 @@ const SlideModules = {
         s.classList.remove("stp-wrong"); void s.offsetWidth; s.classList.add("stp-wrong");
         at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("stp-wrong"); putBack(s, P.reset); } });
       }
-      // the right drop: the stamp snaps over the slot and presses onto it on the thud — the mark is printed, its ink on the slot's
-      // centre — lifts and glides home; the slot's box goes on the correct chime (the user's standard sfx_correct_feedback), the
-      // mark stays; the kit's confetti on its sound (the user's standard sfx confetti); then the next round, or the page moves on
+      // the right drop: the stamp snaps over the box and presses onto it on the thud — the mark is printed there, on its row's
+      // baseline — lifts and glides home; the box goes on the correct chime (the user's standard sfx_correct_feedback), the mark
+      // stays; the kit's confetti on its sound (the user's standard sfx confetti); then the next round, or the page moves on
       function solve(o){
-        const C = R, stamp = o.stamp, last = C.slots.every(q=> q === o || q.done);   // the slot's own stamp; the round's last empty slot? (one slot: always)
+        const C = R, stamp = o.stamp, last = C.slots.every(q=> q === o || q.done);   // the box's own stamp; the round's last empty box? (one box: always)
         o.done = true; solved = true; live = false; root.classList.remove("live"); C.slots.forEach(q=> q.el.classList.remove("blink")); hintT.forEach(clearTimeout);
         if(last && idleIv){ clearInterval(idleIv); idleIv = null; }
         move(stamp, o.HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
         at(P.snap, ()=> move(stamp, o.PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
         at(P.thud_at, ()=> sound(thud, 0.9));
-        at(P.mark_at, ()=>{ centreInk(o.mark); o.mark.classList.add("in"); });
+        at(P.mark_at, ()=>{ centreInk(o.mark, o); o.mark.classList.add("in"); });
         at(P.lift_at, ()=> move(stamp, o.HOVER, 180, "cubic-bezier(0,0,.3,1)"));
         at(P.back_at, ()=> putBack(stamp, P.back_home));
-        // the box goes on the chime; with a slot still empty (frame 593:130's other row) the stamps are the child's again from
+        // the box goes on the chime; with a box still empty (868:59's other row, 868:74's others) the stamps are the child's again from
         // here — no confetti yet; the idle count starts over (the title's line after 7 s, as in any later round)
         at(P.gone_at, ()=>{ o.el.classList.add("gone"); sfxCorrect(); if(last && d.ok_audio) play(A(d.ok_audio), ()=>{}); /* [vo-rec] "शाबाश!" with the round's chime */ if(!last && R === C){ solved = false; live = true; root.classList.add("live"); lastAct = Date.now(); } });
         if(!last) return;
@@ -7593,8 +7732,8 @@ const SlideModules = {
       }
       // [stamp-final] after the last round's confetti: the stage dissolves into the final picture (the girl holding up her stamped
       // letter) over fin_fade as its chime sounds (started together), the envelope glitters gold for fin_glitter_ms on the second
-      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything (the title
-      // bar too); its picture was fetched at mount
+      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything; its picture
+      // was fetched at mount
       function finale(){
         const EB = LY.envelope || [783, 168, 112, 102];
         const fin = document.createElement("div"); fin.className = "stp-final"; fin.style.transitionDuration = P.fin_fade + "ms";
@@ -7617,7 +7756,7 @@ const SlideModules = {
         g.style.setProperty("--glit", P.fin_glitter_ms + "ms"); g.innerHTML = html; g.classList.add("on");
       }
       // [stamp-rounds] between rounds: the stamps shrink away (their pop played backwards, pop_gap apart), the sentence goes word by
-      // word in reverse (the arrival's opposite) and the slot's box fades with its mark; then the next round is set and its stamps pop in
+      // word in reverse (the arrival's opposite) and the box fades with its mark; then the next round is set and its stamps pop in
       function clearRound(C){
         stamps.slice(0, C.n).forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); img.classList.remove("shown");
           img.addEventListener("animationend", ()=>{ img.classList.remove("unpop"); }, { once: true }); img.classList.add("unpop"); }));
@@ -7626,17 +7765,20 @@ const SlideModules = {
         C.slots.forEach(o=> o.el.classList.add("out"));
         at(P.next_at, ()=>{ C.sentEl.remove(); C.slots.forEach(o=> o.el.remove()); C.signs.forEach(el=> el.remove()); setRound(r + 1); roundIntro(stage3); });   // [vo-rec] the round's own instruction first
       }
-      // the mark's INK on the slot's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
-      // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy)
-      function centreInk(markEl){
+      // the mark's INK across on the box's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
+      // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy); [stamp-868] and, in a box bigger than the
+      // mark (90 px for a 44-50 px line), down onto its row's baseline (o.row of the round's sentence: its line box's top + the half
+      // leading + the font's ascent), as if typed in the sentence — not at the box's middle, which the frames set for the box's look
+      function centreInk(markEl, o){
         try{
           const cs = getComputedStyle(markEl), c = document.createElement("canvas").getContext("2d");
           c.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
           const t = c.measureText(markEl.textContent);
           if(!t.width || !isFinite(t.fontBoundingBoxAscent)) return;
-          const base = (markEl.offsetHeight - t.fontBoundingBoxAscent - t.fontBoundingBoxDescent) / 2 + t.fontBoundingBoxAscent;
+          const asc = t.fontBoundingBoxAscent, desc = t.fontBoundingBoxDescent, base = (markEl.offsetHeight - asc - desc) / 2 + asc;
           const ix = (t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2 - markEl.offsetWidth / 2;
-          const iy = base + (t.actualBoundingBoxDescent - t.actualBoundingBoxAscent) / 2 - markEl.offsetHeight / 2;
+          let iy = base + (t.actualBoundingBoxDescent - t.actualBoundingBoxAscent) / 2 - markEl.offsetHeight / 2;
+          if(o && R && R.lh){ const rowBase = R.pTop + o.row * R.lh + (R.lh - asc - desc) / 2 + asc - o.sl.y; iy = o.h / 2 - markEl.offsetHeight / 2 + base - rowBase; }
           markEl.style.setProperty("--ix", ix.toFixed(2) + "px"); markEl.style.setProperty("--iy", iy.toFixed(2) + "px");
         }catch(e){}
       }

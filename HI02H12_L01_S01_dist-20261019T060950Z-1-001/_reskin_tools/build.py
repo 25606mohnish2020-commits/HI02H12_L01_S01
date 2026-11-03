@@ -846,12 +846,61 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
 # end screen.
 # Numbers measured on the frame (get_metadata) and its render; the clips + timings from stamp_assets/ (recap_vo.py stamp); the
 # bitmaps = the frame's own assets (scratchpad make_stamp_assets.py: the sheet "image 238" turned as the frame shows it).
-STAMP_KEYS = ["intro", "sent", "sent2", "sent3", "sent4", "sent5"]   # [stamp-rounds] sent2..sent5 = the later rounds' sentences (frames 579:47, 592:89, 593:130, 593:151)
+# [stamp-868] (asked 2026-11-03): "After page 15 L1's transition screen ... when the page 16 L2 comes, first of all this Figma reference
+# screen (868:3) must be shown at the full screen of the device, and in this page first of all the bird will appear with an animation
+# from left to right at its current position with the sound effect as shown at the title page of https://mtg2a01l04s01-file6.vercel.app/
+# for the girl and boy; then the gif of the bird will play synced with the instruction VO such that when the ठप्पा word is played both
+# the stamps shown at this page will show a little glow from the boundaries along with a very slight pulsating animation; when the
+# instruction VO is over the bird will move out with the exact opposite animation with the same sound effect; then the whole camera
+# angle will smoothly shift into 868:17 keeping the same screen; then the VO of the sentence with the exact same highlight word
+# animation as of now; then this orange blank box will blink, appear and disappear, for 3 seconds; then the correct stamp will
+# automatically show a guide drag animation to the correct place, and once the user drags it there the whole flow as it is will
+# continue. Then the exact same flow and functionality for these pages, with their layouts: 868:31, 868:44, 868:59, 868:74 ... all the
+# animations perfect and smooth; rest exactly the same." The page:
+#   1. the angled table of 868:3, from its own layers (get_design_context + download_assets): the picture of the card on the wood with
+#      its sentence painted in — the sentence lifted out to a layer of its own (a_text) over the paper filled under it (a smooth fit +
+#      the paper's own grain), so the live sentence can take its place in the camera move —, the postmark at 30 %, the tray, the two
+#      standing stamps; the bird = 868:3's GIF fill (36 frames of 60 ms, a 2.16 s loop) cut into a 6 x 6 sheet (1.5x the drawn size);
+#      its entrance = the reference title page's entrance of its two children (its app.js PVLanding.intro, zoom(): from 200 px out to
+#      the left, fading in over the first 15 %, a glide with a 6 px overshoot, leaning 5 -> 4 -> -3 -> 0 deg with a 2 -> 0 px blur,
+#      three white speed lines behind, seven puffs of dust 400·T ms in, tempo T 2.2 = 1.5 s, on its sfx_whoosh at .75 — the
+#      reference's file, byte for byte, sfx_stamp_whoosh.ogg here);
+#   2. the instruction (vo_stamp_intro, recorded, 6.41 s) with the GIF on the clip's own clock: three loops over the clip (2.135 s each,
+#      its own 2.16), so it ends on its first frame, the pose it came in with; "ठप्पा" = 5.14 s on the clip (its burst after the stop's
+#      silence, 4.96-5.12, read off the waveform; whisper had 4.94): both standing stamps glow along their outline (each one's halo,
+#      baked: a gold blur of its outline under a thin bright rim, fading up behind it — an animated drop-shadow filter dropped frames as
+#      it ended, in a cold browser) and pulse twice by 4 % about their bases (1.6 s, to the clip's end);
+#   3. the exit = the entrance played backwards (the lines and the dust behind it on the way out), its whoosh too: it ends as the bird
+#      is gone (it starts its 0.556 s before), as the entrance's starts as the bird appears;
+#   4. the camera move (2 s, eased in and out): the card's corners glide from 868:3's trapezoid (the paper's edge lines fitted on its
+#      render: TL 256.76,9.92  TR 1040.76,8.88  BR 1092.25,520  BL 212.71,520) to 868:17's rectangle (260.24..1018 x 20.5..545.5) and
+#      both tables are drawn through the projective maps that take their own card there — twice each: the whole picture by the card's
+#      edge, the card's inside (clipped halfway to the dashed border) by that border (a_dash / b_dash, fitted the same way), as the
+#      two drawings inset their dashes differently —, the angled one fading over the overhead one;
+#      the two frames put the trays and stamps in the same spots, so they change where they stand (each standing stamp settles onto
+#      its base, its base block's centre ~6 px from the overhead stamp's); the live sentence glides from the painted one's ink box
+#      (343..869 x 224..279) to its own (349..848 x 244..296);
+#   5. round 1: the sentence read with the word light (no rise: it is there), the box blinking 3 s (opacity 1 -> 0 -> 1, three times),
+#      the guidance, the drops, as before; rounds 2-5 as before on 868:31 / 868:44 / 868:59 / 868:74.
+# The overhead frames share their pictures (the wood 1672x941, the card 1448x1086 and its postmark at 60 %, the tray 2172x724, the three
+# stamps seen from above, 1254 px squares, with 0 4 100 shadows at .1): stamp_assets/img_stamp8_* (make_stamp868_assets.py). Their text
+# is Baloo 2 ExtraBold — this lesson's own 'Story Baloo 2' (Figma's renders and Chrome's agree: every row's ink x extents to the pixel,
+# its headline within 1 px; scratchpad text_probe.py) — at 50 / 45 / 50 / 45 / 44 px. The boxes: 90x90 #FD9337, 17 px corners, a 2 px
+# dashed rgba(0,0,0,.85) stroke inside with the render's runs (each side 7 of the corner's dash, gap 5, 13, 6, 13, 5 — one dash wraps
+# each corner). Seen from above, a stamp is taken and judged by its centre, lifted to 1.1, pressed at .96; the printed mark stands on
+# its row's baseline (as if typed there), across on the box's centre. The frames have no title bar (the bird says the instruction) and
+# 868:74 no sign-off: both gone. The rounds' stamps in the frames' order: । ? (868:17), । , (868:31), । , ? (868:44 / 59 / 74).
+STAMP_KEYS = ["intro", "sent", "sent2", "sent3", "sent4", "sent5"]   # [stamp-rounds] sent2..sent5 = the later rounds' sentences
 sl_ = {k: json.loads((SCR / "stamp_assets" / f"vo_stamp_{k}.words.json").read_text(encoding="utf-8")) for k in STAMP_KEYS}
-STAMP_IMGS = {"img_stamp_wood": "🪵", "img_stamp_sheet": "📄", "img_stamp_tray": "🧰", "img_stamp_danda": "।", "img_stamp_question": "?", "img_stamp_comma": ",",
-              "img_stamp_final": "💌"}   # [stamp-final] the finale's picture (the user's 1672x941 PNG at 1280x720, lossless)
+STAMP_IMGS = {"img_stamp8_wood": "🪵", "img_stamp8_card": "📄", "img_stamp8_post": "📮", "img_stamp8_tray": "🧰",
+              "img_stamp8_danda": "।", "img_stamp8_question": "?", "img_stamp8_comma": ",",
+              "img_stamp8_a_bg": "🪵", "img_stamp8_a_text": "📄", "img_stamp8_a_post": "📮", "img_stamp8_a_tray": "🧰",
+              "img_stamp8_a_danda": "।", "img_stamp8_a_quest": "?", "img_stamp8_a_glow_danda": "✨", "img_stamp8_a_glow_quest": "✨", "img_stamp8_bird": "🐥",
+              "img_stamp_final": "💌"}   # [stamp-final] the finale's picture; [stamp-868] the 868:* frames' (the old img_stamp_wood / _sheet / _tray / _danda / _question / _comma stay in the dist, out of the card)
 STAMP_SND = ["sfx_stamp_pop", "sfx_stamp_press",
-             "sfx_stamp_final", "sfx_stamp_glitter"]   # [stamp-final] the user's universfield-simple-notification-152054 (3.4 s) and universfield-new-notification-037-485898 (1.3 s), as ogg
+             "sfx_stamp_final", "sfx_stamp_glitter",   # [stamp-final] the user's universfield-simple-notification-152054 (3.4 s) and universfield-new-notification-037-485898 (1.3 s), as ogg
+             "sfx_stamp_whoosh"]   # [stamp-868] the reference title page's whoosh (mtg2a01l04s01 assets/sfx/sfx_whoosh.ogg, 0.56 s Opus), byte for byte
+LY8 = json.loads((SCR / "stamp_assets" / "stamp868_layout.json").read_text(encoding="utf-8"))   # [stamp-868] the drawn boxes (make_stamp868_assets.py)
 for k, emo in STAMP_IMGS.items():
     card["assets"]["image"][k] = f"assets/Images/{k}.webp"; card["_emoji_fallback"][k] = emo
 for k in STAMP_SND:
@@ -860,79 +909,68 @@ for k in STAMP_KEYS:
     card["assets"]["audio"][f"vo_stamp_{k}"] = f"assets/Audio/vo_stamp_{k}.ogg"; card["assets"]["audio_text"][f"vo_stamp_{k}"] = sl_[k]["text"]
 i_l1 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "L1")
 assert card["slides"][i_l1 + 1]["id"] == "CEL"
+# [stamp-868] a round's sentence (its clip and word times) as before; its box(es) 90x90 with the row each sits on (the mark stands on
+# that row's baseline), the stamps' boxes in the tray (the frames'), their centres (tips: a stamp seen from above is taken and judged by
+# its centre); sent = the frame's text box with the line height that puts every row's ink on the render's (h = rows x lh), gap = the
+# room for a box between two words (its width giving the render's ink gap)
+_snt = lambda k: {"text_hi": sl_[k]["shown"], "audio": f"vo_stamp_{k}", "word_times": [t[0] for t in sl_[k]["word_times"]], "word_end": sl_[k]["word_times"][-1][1]}
+_box8 = lambda x, y, row, **kw: dict({"x": x, "y": y, "w": 90, "h": 90, "row": row}, **kw)
+_bx2 = [[484, 569, 105, 105], [683, 565, 114, 114]]                            # 868:17 / 868:31: image 290 (the danda) and 291 / 292
+_bx3 = [[403, 569, 105, 105], [579, 565, 114, 114], [764, 565, 114, 114]]      # 868:44 / 59 / 74: । , ?
+_tips = lambda bx: [[b[2] / 2, b[3] / 2] for b in bx]
 card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enactive", "type": "STAMP_DEMO", "prompt_hi": sl_["intro"]["shown"],
     "audio": {"prompt": "vo_stamp_intro"},
-    "data": {"band_hi": sl_["intro"]["shown"], "intro_audio": "vo_stamp_intro",
-             "images": {"wood": "img_stamp_wood", "sheet": "img_stamp_sheet", "tray": "img_stamp_tray", "final": "img_stamp_final"},
-             "sfx": {"pop": "sfx_stamp_pop", "press": "sfx_stamp_press", "final": "sfx_stamp_final", "glitter": "sfx_stamp_glitter"},
-             # [stamp-final] envelope = the glitter's box over the envelope in the final picture (its paper x 795..883, y 182..258 at 1280x720)
-             "layout": {"sheet": [355, 64, 571, 594], "tray": [427, 565, 426, 142], "envelope": [783, 168, 112, 102]},
-             # [stamp-rounds] the rounds, one per frame: the sentence (its clip and word times), the mark, which stamp is right (pick),
-             # the two stamps' pictures, their boxes in the tray and print points (the middle of the face's bottom edge, in the box),
-             # the sentence's box (the frame's, 2 px lower: Noto's ink sits 2 px above Figma's fallback's; lh = the frame's row height
-             # when there are two rows, gap = an empty span before word #before, w wide, where the slot sits, tail = an empty span
-             # after the last word, the frame's trailing space: the last row centres 2 px left of the first), the slot's box and
-             # its dash runs read off the frame's render — or `slots`, a list of such boxes, when a round has several (frames 593:130,
-             # 593:151); a slot may carry its own mark and pick when the round's slots want different stamps (593:151). sign = small
-             # text lines (the letter's sign-off) shown with the sentence's last word, cleared with the sentence
+    "data": {"intro_audio": "vo_stamp_intro",
+             "images": {"wood": "img_stamp8_wood", "card": "img_stamp8_card", "post": "img_stamp8_post", "tray": "img_stamp8_tray",
+                        "a_bg": "img_stamp8_a_bg", "a_text": "img_stamp8_a_text", "a_post": "img_stamp8_a_post", "a_tray": "img_stamp8_a_tray",
+                        "a_stamps": ["img_stamp8_a_danda", "img_stamp8_a_quest"], "a_glows": ["img_stamp8_a_glow_danda", "img_stamp8_a_glow_quest"], "bird": "img_stamp8_bird", "final": "img_stamp_final"},
+             "sfx": {"pop": "sfx_stamp_pop", "press": "sfx_stamp_press", "final": "sfx_stamp_final", "glitter": "sfx_stamp_glitter", "whoosh": "sfx_stamp_whoosh"},
+             # [stamp-868] the drawn boxes of every picture (cover-fitted as Figma draws them); a_quad / b_quad = the card's corners in 868:3 /
+             # 868:17 (the camera move's), a_dash / b_dash = its dashed border's (the stroke's centre line), a_bases = the standing stamps' base blocks' centres, a_text_ink / b_text_ink = the painted
+             # sentence's ink box and the live one's (as laid out in 868:17), bird = the GIF's sheet (n frames, cols, the drawn cell, the clip
+             # box, its feet), box_r / box_dash = the boxes' corner and the render's dash runs; [stamp-final] envelope = the glitter's box
+             # over the envelope in the final picture (its paper x 795..883, y 182..258 at 1280x720)
+             "layout": {"wood": LY8["wood"], "card": LY8["card"], "post": LY8["post"], "tray": LY8["tray"],
+                        "a_bg": LY8["a_bg"], "a_text": LY8["a_text"], "a_post": LY8["a_post"], "a_tray": LY8["a_tray"], "a_stamps": [LY8["a_danda"], LY8["a_quest"]], "a_glows": [LY8["a_glow_danda"], LY8["a_glow_quest"]],
+                        "a_bases": [[541.3, 615.8], [733.6, 616.6]],
+                        "a_quad": [[256.76, 9.92], [1040.76, 8.88], [1092.25, 520.0], [212.71, 520.0]], "b_quad": [[260.24, 20.5], [1018.0, 20.5], [1018.0, 545.5], [260.24, 545.5]],
+                        "a_text_ink": [343, 224, 869, 279], "b_text_ink": [349, 244, 848, 296],
+                        "a_dash": [[283.58, 21.9], [1015.79, 21.9], [1060.91, 494.0], [243.15, 493.96]], "b_dash": [[280.38, 39.06], [998.98, 39.06], [998.89, 528.72], [280.38, 528.79]],
+                        "bird": {"n": LY8["bird"]["n"], "cols": LY8["bird"]["cols"], "cell": LY8["bird"]["cell"], "box": LY8["bird"]["box"], "foot": LY8["bird"]["foot"]},
+                        "bird_shadow": [39, 682, 137, 23], "box_r": 17, "box_dash": "7 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 32.13",
+                        "envelope": [783, 168, 112, 102]},
+             # [stamp-rounds] the rounds, one per frame (guide: the right stamp's guidance glide 0.5 s after the blink and after every 7 s
+             # idle, round 1 only; a round without it says the title's line again after every 7 s without a touch instead [stamp-remind])
              "rounds": [
-               # [baloo-font] (2026-10-30) every slot x below sits the same distance after its word's ink as it did in Noto (Baloo 2
-               # ExtraBold's words end up to 5 px further right): 751 -> 755, 525 -> 522.4, 751 -> 753.7, 822 -> 825.9, 707 -> 711.3,
-               # 633 -> 630.8, 804 -> 805.9, 798 -> 802.9, 679 -> 679.7
-               # guide: the right stamp's guidance glide 0.5 s after the blink and after every 7 s idle (round 1 only); a round
-               # without it says the title's line again after every 7 s without a touch instead [stamp-remind]
-               {"frame": "565:28", "guide": True, "sentence": {"text_hi": sl_["sent"]["shown"], "audio": "vo_stamp_sent", "word_times": [t[0] for t in sl_["sent"]["word_times"]], "word_end": sl_["sent"]["word_times"][-1][1]},
-                "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question"],
-                "boxes": [[532, 541, 74, 116], [677, 540, 72, 115]], "tips": [[36, 113], [35, 114]],
-                "sent": {"x": 63, "y": 338, "w": 1075, "h": 48, "size": 30},
-                "slot": {"x": 755, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
-               {"frame": "579:47", "guide": False, "sentence": {"text_hi": sl_["sent2"]["shown"], "audio": "vo_stamp_sent2", "word_times": [t[0] for t in sl_["sent2"]["word_times"]], "word_end": sl_["sent2"]["word_times"][-1][1]},
-                "mark": ",", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_comma"],
-                "boxes": [[532, 541, 74, 116], [677, 541, 72, 115]], "tips": [[36, 113], [36, 114]],
-                "sent": {"x": 416, "y": 289, "w": 448, "h": 98, "size": 30, "lh": 49, "gap": {"before": 9, "w": 38.4}},   # [baloo-font] w 37 -> 38.4: the old ink gap in Baloo 2;   # no tail span: the danda's own side bearing already centres the row 2 px left, as the render
-                "slot": {"x": 522.4, "y": 355, "w": 29, "h": 30, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 9, 4, 9, 4]}},
-               # the third round (frame 592:89): a statement, the danda's slot after it (round 1's box and dashes: the same group), THREE
-               # stamps in the tray — । 462,541 (the right one), ? 607,540, the comma 750,540; the sentence's 1075-wide box at 78,336 (its
-               # ink 483..747 x 342..378 on the render), set 2 px lower like the others
-               {"frame": "592:89", "guide": False, "sentence": {"text_hi": sl_["sent3"]["shown"], "audio": "vo_stamp_sent3", "word_times": [t[0] for t in sl_["sent3"]["word_times"]], "word_end": sl_["sent3"]["word_times"][-1][1]},
-                "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
-                "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
-                "sent": {"x": 78, "y": 338, "w": 1075, "h": 48, "size": 30},
-                "slot": {"x": 753.7, "y": 331, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}},
-               # the fourth round (frame 593:130): two questions on two rows (the frame's 402-wide box at 415,310, set 1 px lower: its
-               # rows' ink then lies on the render's, 316..346 and 365..395), each row ending in its own slot for the "?": TWO slots
-               # (36x58, round 1's box and dashes — the same group) at 822,305 and 707,354; the same three stamps as round 3, the ? right
-               {"frame": "593:130", "guide": False, "sentence": {"text_hi": sl_["sent4"]["shown"], "audio": "vo_stamp_sent4", "word_times": [t[0] for t in sl_["sent4"]["word_times"]], "word_end": sl_["sent4"]["word_times"][-1][1]},
-                "mark": "?", "pick": 1, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
-                "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
-                "sent": {"x": 415, "y": 311, "w": 402, "h": 98, "size": 30, "lh": 49},
-                "slots": [{"x": 825.9, "y": 305, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]},
-                          {"x": 711.3, "y": 354, "w": 36, "h": 58, "dash_h": [6, 9, 6, 9, 6], "dash_v": [6, 7, 4, 10, 4, 10, 4, 7, 6]}]},
-               # the fifth round (frame 593:151): the letter's closing lines on FIVE rows (the frame's 339-wide box at 468,180, set 1 px
-               # lower; its rows' ink 186..212, 235..271, 284..318, 333..364, 382..408 on the render), FOUR slots with their own marks and
-               # stamps — the comma's (29x30 at 633,198, between आम and केले: a gap span before केले), the ?'s (30x45 at 804,228 after
-               # नहीं), the dandas' (30x45 at 798,280 after बताना and 679,376 after करूँगी) — and the sign-off "आपकी प्यारी / पिंकी 🩷"
-               # (16 px, 81-wide boxes at 427,449 and 427,481) shown with the last word, not read; the same three stamps. (The frame
-               # draws the sheet 6 px higher than the others, 925,58: the sheet stays where every round has it.)
-               {"frame": "593:151", "guide": False, "sentence": {"text_hi": sl_["sent5"]["shown"], "audio": "vo_stamp_sent5", "word_times": [t[0] for t in sl_["sent5"]["word_times"]], "word_end": sl_["sent5"]["word_times"][-1][1]},
-                "mark": "।", "pick": 0, "stamps": ["img_stamp_danda", "img_stamp_question", "img_stamp_comma"],
-                "boxes": [[462, 541, 74, 116], [607, 540, 72, 115], [750, 540, 72, 115]], "tips": [[36, 113], [35, 114], [36, 114]],
-                "sent": {"x": 468, "y": 181, "w": 339, "h": 245, "size": 30, "lh": 49, "gap": {"before": 2, "w": 31.4}},   # [baloo-font] w 30 -> 31.4: the old ink gap in Baloo 2;   # the 30 px gap span: आम ends at 629 and केले starts at 665, as the render
-                "sign": [{"text": "आपकी प्यारी", "x": 427, "y": 451, "w": 81, "h": 26, "size": 16}, {"text": "पिंकी 🩷", "x": 427, "y": 483, "w": 81, "h": 26, "size": 16}],   # 2 px lower than the frame: Noto's ink on the render's rows
-                "slots": [{"x": 630.8, "y": 198, "w": 29, "h": 30, "mark": ",", "pick": 2, "dash_h": [4, 9, 3, 9, 4], "dash_v": [4, 10, 2, 10, 4]},
-                          {"x": 805.9, "y": 228, "w": 30, "h": 45, "mark": "?", "pick": 1, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]},
-                          {"x": 802.9, "y": 280, "w": 30, "h": 45, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]},
-                          {"x": 679.7, "y": 376, "w": 30, "h": 45, "dash_h": [4, 10, 2, 10, 4], "dash_v": [4, 10, 3, 11, 3, 10, 4]}]}],
-             "pace": {"intro_at": 400, "after_intro": 500, "sheet_in": 0, "tray_in": 150, "stamps_at": 700, "pop_gap": 350, "sent_at": 700,
-                      "blink_ms": 3500,
+               {"frame": "868:17", "guide": True, "sentence": _snt("sent"), "mark": "?", "pick": 1, "stamps": ["img_stamp8_danda", "img_stamp8_question"],
+                "boxes": _bx2, "tips": _tips(_bx2), "sent": {"x": 60, "y": 241, "w": 1075, "h": 73, "size": 50, "lh": 73}, "slot": _box8(859, 226, 0)},
+               {"frame": "868:31", "guide": False, "sentence": _snt("sent2"), "mark": ",", "pick": 1, "stamps": ["img_stamp8_danda", "img_stamp8_comma"],
+                "boxes": _bx2, "tips": _tips(_bx2), "sent": {"x": 294, "y": 206, "w": 691, "h": 144, "size": 45, "lh": 72, "gap": [{"before": 9, "w": 90}, {"before": 8, "w": 3}]}, "slot": _box8(439, 293, 1)},   # row 2's 3 px lead: Figma centres it with its trailing space (its ink 1.5 px right)
+               {"frame": "868:44", "guide": False, "sentence": _snt("sent3"), "mark": "।", "pick": 0, "stamps": ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"],
+                "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 63, "y": 236, "w": 1075, "h": 73, "size": 50, "lh": 73}, "slot": _box8(836, 232, 0)},
+               {"frame": "868:59", "guide": False, "sentence": _snt("sent4"), "mark": "?", "pick": 2, "stamps": ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"],
+                "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 259, "y": 202.5, "w": 670, "h": 143, "size": 45, "lh": 71.5},
+                "slots": [_box8(902, 193, 0), _box8(731, 266, 1)]},
+               {"frame": "868:74", "guide": False, "post": False, "sentence": _snt("sent5"), "mark": "।", "pick": 0, "stamps": ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"],   # post False: its card has no postmark
+                "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 383, "y": 47, "w": 494, "h": 475, "size": 44, "lh": 95, "gap": {"before": 2, "w": 97}},
+                "slots": [_box8(596, 45, 0, mark=",", pick=1), _box8(886, 135, 1, mark="?", pick=2), _box8(879, 248, 2), _box8(699, 422, 4)]}],
+             # [stamp-868] the intro (ms): the bird's entrance at bird_at (its length 680 x bird_tempo, the reference's), the instruction
+             # vo_gap after it (intro_ms its length, the GIF's clock when the clip cannot be read), bird_loops GIF loops over it, the glow
+             # at thappa on its clock, the exit exit_gap after it, the camera move cam_gap after that (cam_ms; cam_text = the sentence's
+             # hand-over, cam_a = the angled table's fade, cam_squash = the standing stamps' height at the end, as fractions), the reading
+             # read_gap after the move; the boxes blink blink_ms (blinks times); a stamp in hand / hovering at lift_scale, pressed at
+             # press_scale; the rest as before
+             "pace": {"bird_at": 400, "bird_tempo": 2.2, "whoosh_vol": 0.75, "whoosh_ms": 556, "vo_gap": 200, "intro_ms": 6407, "bird_loops": 3, "thappa": 5120, "exit_gap": 300,
+                      "cam_gap": 250, "cam_ms": 2000, "cam_text": 0.12, "cam_a": [0.15, 0.7], "cam_tray": [0.2, 0.5, 0.3, 0.6], "cam_stamps": [0.25, 0.6, 0.1, 0.45], "cam_squash": 0.5, "read_gap": 450,
+                      "after_intro": 500, "stamps_at": 700, "pop_gap": 350, "sent_at": 700, "blink_ms": 3000, "blinks": 3,
                       # [stamp-drag] the guidance: hint_at after the blink, the glide out, the hover, the glide home; again after idle_ms
-                      "hint_at": 500, "glide": 1500, "hover_up": 34, "hold": 450, "back": 1100, "idle_ms": 7000,
-                      # the child's drop: the print point within tol of the slot's centre; a move under tap_px is a touch, not a placing
-                      "tol_x": 50, "tol_y": 70, "tap_px": 10, "wiggle": 450, "reset": 500,
-                      # the right drop: over the slot (snap), down (press) on the thud, the mark, up, home; the box goes; confetti; then at
-                      # done_at the end — or, with a round to follow [stamp-rounds], the clearing: the words out words_out apart (in
-                      # reverse), the stamps' pop backwards pop_gap apart, the next round's stamps popping in at next_at
-                      "snap": 220, "press": 140, "press_down": 20, "thud_at": 280, "mark_at": 400, "lift_at": 560, "back_at": 800, "back_home": 800,
+                      "hint_at": 500, "glide": 1500, "hover_up": 0, "hold": 450, "back": 1100, "idle_ms": 7000,
+                      # the child's drop: the stamp's centre within tol of the box's centre; a move under tap_px is a touch, not a placing
+                      "tol_x": 60, "tol_y": 60, "tap_px": 10, "wiggle": 450, "reset": 500, "lift_scale": 1.1, "press_scale": 0.96,
+                      # the right drop: over the box (snap), down (press) on the thud, the mark, up, home; the box goes; confetti; then at
+                      # done_at the clearing: the words out words_out apart (in reverse), the stamps' pop backwards pop_gap apart, the next
+                      # round's stamps popping in at next_at
+                      "snap": 220, "press": 140, "press_down": 0, "thud_at": 280, "mark_at": 400, "lift_at": 560, "back_at": 800, "back_home": 800,
                       "gone_at": 1600, "confetti_at": 2100, "done_at": 4400, "words_out": 40, "next_at": 1300,
                       # [stamp-final] from the finale's start (done_at after the last drop): the dissolve's length (with its 3.4 s chime), the
                       # glitter's start and length (with its 1.3 s chime), its sparks, and the hand-over to the end screen
@@ -2256,62 +2294,98 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
 
 """
 js = sub1(js, r"^  PHASE_TRANSITION: \{", lambda m: letter_mod + m.group(0), re.M, "PHASE_TRANSITION anchor (letter)")
-stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter (FLN-by-MJ frames 565:28 and 579:47, "G3 guided story
-     question"): a sentence on a sheet on the wooden table, a tray with two stamps, the demos' title bar (.dmf-band). It drives
-     itself: 1. the table, under the letter page's veil as it lifts, then the title bar appears the moment its line starts to
-     sound (the demos' rule); 2. the sheet settles onto the table and the tray slides up; then ROUND BY ROUND (data.rounds,
-     [stamp-rounds]): 3. the round's two stamps pop into the tray, each on its pop; 4. the sentence is read without a pause,
-     WORD BY WORD on the clip's clock; 5. the empty slot appears and blinks for 3.5 s (the demos' three slow blinks) — from now
-     on the two stamps are the child's to drag; 6. [stamp-drag] the guidance, 0.5 s after the blink: the right stamp lifts,
-     glides slowly over the slot, hovers and glides home WITHOUT printing; it comes again after every 7 s without a touch. A
-     stamp dropped off the slot, or the wrong one on it: the kit's buzz, a wiggle, back it glides. The right stamp on the slot:
-     it snaps over the slot and presses on the thud — the mark is printed on the slot's CENTRE (its ink, as on the demos) —
-     lifts and glides home; the slot's box goes on the correct chime, the mark stays; the kit's confetti on its sound. With a
-     round to follow: the stamps shrink away (their pop played backwards), the sentence goes word by word in reverse with the
-     slot and its mark, and the next round's stamps pop in (3. again) — a round without `guide` has NO guidance [stamp-remind]:
-     after 7 s without a touch the title's line is said again instead (and again after every further 7 s). A round with TWO
-     slots or more (data.slots, frames 593:130 and 593:151): all blink together; the right stamp on one prints there and that
-     box goes on the chime, then the stamps are the child's again for the rest; the confetti after the last. A slot may want
-     its own stamp (sl.mark, sl.pick — 593:151: the comma, the ?, the danda twice). data.sign: small text lines (the letter's
-     sign-off) shown with the sentence's last word, gone with it. After the LAST round's confetti [stamp-final] the finale: the
-     stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds, the envelope in it glitters
-     gold (a glow and fin_sparks sparks over layout.envelope) for fin_glitter_ms on the second chime, and at fin_done the page
-     moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after the letter. [stamp-868] (2026-11-03) on the FLN-by-MJ frames 868:3 (the
+     angled table with the bird) and 868:17 / 868:31 / 868:44 / 868:59 / 868:74 (the overhead table, one per round). It drives itself:
+     1. the angled table on the whole stage (868:3: the card with its sentence, the tray, the two standing stamps) as the letter
+     page's veil lifts, and the bird glides in from the left to its place — the reference title page's entrance of its two children
+     (the glide, the lean, the blur, the speed lines, the dust, its whoosh); 2. the instruction (data.intro_audio) with the bird's GIF
+     playing on the clip's own clock, and on its "ठप्पा" (pace.thappa) both standing stamps glow along their outline and pulse
+     gently; 3. the bird leaves the way it came, backwards, on the same whoosh; 4. the camera move: the angled table becomes the
+     overhead one (868:17) — the same card, sentence, tray and stamps; then ROUND BY ROUND (data.rounds, [stamp-rounds]): 5. the
+     sentence is read, each word lit as it is read (round 1's is already there; a later round's rises in first, after its own line
+     and its stamps' pops); 6. the empty box(es) blink for 3 s, appearing and disappearing — from now on the stamps are the child's to
+     drag; [stamp-drag] in round 1 the guidance, 0.5 s after the blink: the right stamp lifts, glides slowly over the box, hovers and
+     glides home WITHOUT printing; it comes again after every 7 s without a touch. A stamp dropped off the box, or the wrong one on it:
+     the kit's buzz, a wiggle, back it glides. The right stamp on the box: it snaps over the box and presses on the thud — the mark
+     is printed in the box, standing on its row's baseline — lifts and glides home; the box goes on the correct chime, the mark stays;
+     the kit's confetti on its sound. With a round to follow: the stamps shrink away (their pop played backwards), the sentence goes
+     word by word in reverse with the box and its mark, the next round's stamps pop in — a round without `guide` has NO guidance
+     [stamp-remind]: after 7 s without a touch the title's line is said again instead. A round with several boxes (data.slots): all
+     blink together; the right stamp on one prints there and that box goes on the chime, then the stamps are the child's again for
+     the rest; the confetti after the last; a box may want its own stamp (sl.mark, sl.pick). After the LAST round's confetti
+     [stamp-final] the finale: the stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds,
+     the envelope in it glitters gold for fin_glitter_ms on the second chime, and at fin_done the page moves on (no आगे). Places in
+     frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
       const rounds = Array.isArray(d.rounds) && d.rounds.length ? d.rounds : [{}];
-      const P = Object.assign({ intro_at: 400, after_intro: 500, sheet_in: 0, tray_in: 150, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3500,
-        hint_at: 500, glide: 1500, hover_up: 34, hold: 450, back: 1100, idle_ms: 7000, tol_x: 50, tol_y: 70, tap_px: 10, wiggle: 450, reset: 500,
-        snap: 220, press: 140, press_down: 20, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800, gone_at: 1600, confetti_at: 2100, done_at: 4400,
-        words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
+      const P = Object.assign({ bird_at: 400, bird_tempo: 2.2, whoosh_vol: 0.75, vo_gap: 200, bird_loops: 3, thappa: 5120, intro_ms: 6407, exit_gap: 300,
+        cam_gap: 250, cam_ms: 2000, cam_text: 0.12, cam_a: [0.15, 0.7], cam_squash: 0.5, read_gap: 450,
+        after_intro: 500, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3000, blinks: 3,
+        hint_at: 500, glide: 1500, hover_up: 0, hold: 450, back: 1100, idle_ms: 7000, tol_x: 60, tol_y: 60, tap_px: 10, wiggle: 450, reset: 500,
+        lift_scale: 1.1, press_scale: 0.96, snap: 220, press: 140, press_down: 0, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800,
+        gone_at: 1600, confetti_at: 2100, done_at: 4400, words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
-      const sh = LY.sheet || [355, 64, 571, 594], tr = LY.tray || [427, 565, 426, 142];
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
-      const BX0 = [[532, 541, 74, 116], [677, 540, 72, 115]], TIPS0 = [[36, 113], [35, 114]];
+      const pic = (cls, id, b)=> '<img class="' + cls + '" src="' + imgSrc(id) + '" alt="" draggable="false" style="' + box(b || [0, 0, 0, 0]) + '">';
+      const BX0 = [[484, 569, 105, 105], [683, 565, 114, 114]], TIPS0 = [[52.5, 52.5], [57, 57]];
       const boxes0 = rounds[0].boxes || BX0, maxN = Math.max(1, ...rounds.map(R=> (R.stamps || []).length));   // divs for the most stamps any round has
+      // the bird: 868:3's GIF fill as a sheet of its frames (layout.bird: cols, frames, the drawn cell, the clip box, its feet = the ellipse's centre)
+      const BD = LY.bird || {}, FT = BD.foot || [107.5, 693.5], BB = BD.box || [11.975, 451.76, 220, 252], CELL = BD.cell || [220, 252], COLS = BD.cols || 6, NF = BD.n || 36,
+            SH = LY.bird_shadow || [39, 682, 137, 23];
       const fig = sfigMount(host,
         '<div class="stp" data-round="0">' +
-          '<img class="stp-wood" src="' + imgSrc(im.wood) + '" alt="" draggable="false">' +
-          '<div class="dmf-band"><div class="dmf-pill"><p></p></div><div class="dmf-head"><img src="assets/UI/demo1_head.webp" alt="" draggable="false"></div></div>' +
-          '<img class="stp-sheet" src="' + imgSrc(im.sheet) + '" alt="" draggable="false" style="' + box(sh) + '">' +
-          '<img class="stp-tray" src="' + imgSrc(im.tray) + '" alt="" draggable="false" style="' + box(tr) + '">' +
+          // the overhead table (868:17 .. 868:74): the same wood still under it all (it fills the frame's edge while the table tilts), then
+          // the wood, the card and its postmark as ONE layer (the camera move draws it through its projective map)
+          pic("stp-under", im.wood, LY.wood) +
+          '<div class="stp-b"><div class="stp-bo">' + pic("stp-wood", im.wood, LY.wood) + pic("stp-card", im.card, LY.card) + pic("stp-post", im.post, LY.post) + '</div>' +
+            '<div class="stp-bi">' + pic("stp-card", im.card, LY.card) + pic("stp-post", im.post, LY.post) + '</div></div>' +
+          // the angled table (868:3): its picture (the card's painted sentence lifted out, a_text, over the paper filled under it) and its
+          // postmark — each table twice: its whole picture (-o, the move maps it by its card's edge) and its card's inside (-i, clipped
+          // halfway between the edge and the dashed border; the move maps it by that border), so both the edges and the dashes of the
+          // two drawings meet as they cross-fade (the frames inset their dashes differently: 868:3 ~27 / 12 / 25 / 26 px, 868:17 ~20 / 19 / 19 / 17)
+          '<div class="stp-a"><div class="stp-ao">' + pic("stp-a-bg", im.a_bg, LY.a_bg) + '</div>' +
+            '<div class="stp-ai">' + pic("stp-a-bg", im.a_bg, LY.a_bg) + pic("stp-a-post", im.a_post, LY.a_post) + pic("stp-a-text", im.a_text, LY.a_text) + '</div></div>' +
+          pic("stp-tray", im.tray, LY.tray) + pic("stp-a-tray", im.a_tray, LY.a_tray) +
           Array.from({ length: maxN }, (_, k)=> '<div class="stp-stamp s' + k + '" style="' + (k < (rounds[0].stamps || []).length ? box(boxes0[k] || boxes0[0]) : 'display:none') + '"><img src="' + (rounds[0].stamps && rounds[0].stamps[k] ? imgSrc(rounds[0].stamps[k]) : '') + '" alt="" draggable="false"></div>').join('') +
+          // the standing stamps, each over its "ठप्पा" glow (a baked halo along its outline: images.a_glows, layout.a_glows)
+          (im.a_glows || []).map((id, k)=> pic("stp-a-halo h" + k, id, (LY.a_glows || [])[k])).join('') +
+          (im.a_stamps || []).map((id, k)=> pic("stp-a-stamp a" + k, id, (LY.a_stamps || [])[k])).join('') +
+          '<div class="stp-bird" style="left:' + FT[0] + 'px;top:' + FT[1] + 'px"><div class="stp-bmove">' +
+            '<i class="stp-bshd" style="' + box([SH[0] - FT[0], SH[1] - FT[1], SH[2], SH[3]]) + '"></i><i class="stp-blines"><b></b><b></b><b></b></i>' +
+            '<div class="stp-btilt"><div class="stp-bclip" style="' + box([BB[0] - FT[0], BB[1] - FT[1], CELL[0], CELL[1]]) + '">' +
+              '<img class="stp-bsheet" src="' + imgSrc(im.bird) + '" alt="" draggable="false" style="width:' + (COLS * CELL[0]) + 'px;height:' + (Math.ceil(NF / COLS) * CELL[1]) + 'px"></div></div>' +
+          '</div></div>' +
           '<div class="stp-veil"></div>' +
         '</div>');
       const card = host.closest(".tut-card"); if(card) card.classList.add("sfig-full");
-      const root = fig.querySelector(".stp"), band = fig.querySelector(".dmf-band"), sheet = fig.querySelector(".stp-sheet"), tray = fig.querySelector(".stp-tray"),
-            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), veil = fig.querySelector(".stp-veil");
-      fig.querySelector(".dmf-pill p").textContent = d.band_hi || "";
+      const q_ = (s)=> fig.querySelector(s);
+      const root = q_(".stp"), aL = q_(".stp-a"), bO = q_(".stp-bo"), bI = q_(".stp-bi"), aO = q_(".stp-ao"), aI = q_(".stp-ai"),
+            aText = q_(".stp-a-text"), tray = q_(".stp-tray"), aTray = q_(".stp-a-tray"),
+            stamps = Array.from(fig.querySelectorAll(".stp-stamp")), aStamps = Array.from(fig.querySelectorAll(".stp-a-stamp")), aHalos = Array.from(fig.querySelectorAll(".stp-a-halo")), veil = q_(".stp-veil"),
+            bird = q_(".stp-bird"), bMove = q_(".stp-bmove"), bTilt = q_(".stp-btilt"), bLines = q_(".stp-blines"), bSheet = q_(".stp-bsheet");
+      // a quad, its corners rounded (rc px: a quadratic curve through each corner), as a clip-path polygon in the layer's own px
+      const roundQuad = (Q, rc)=>{ const pts = [];
+        for(let i = 0; i < 4; i++){ const p = Q[i], a = Q[(i + 3) % 4], b = Q[(i + 1) % 4], da = Math.hypot(a[0] - p[0], a[1] - p[1]), db = Math.hypot(b[0] - p[0], b[1] - p[1]);
+          const p1 = [p[0] + (a[0] - p[0]) * rc / da, p[1] + (a[1] - p[1]) * rc / da], p2 = [p[0] + (b[0] - p[0]) * rc / db, p[1] + (b[1] - p[1]) * rc / db];
+          for(let k = 0; k <= 6; k++){ const s = k / 6, u = 1 - s; pts.push([u * u * p1[0] + 2 * u * s * p[0] + s * s * p2[0], u * u * p1[1] + 2 * u * s * p[1] + s * s * p2[1]]); } }
+        return "polygon(" + pts.map(q=> q[0].toFixed(1) + "px " + q[1].toFixed(1) + "px").join(",") + ")"; };
+      const mid = (Q1, Q2)=> Q1.map((p, i)=> [(p[0] + Q2[i][0]) / 2, (p[1] + Q2[i][1]) / 2]);
+      if(LY.a_quad && LY.a_dash) aI.style.clipPath = roundQuad(mid(LY.a_quad, LY.a_dash), 20);
+      if(LY.b_quad && LY.b_dash) bI.style.clipPath = roundQuad(mid(LY.b_quad, LY.b_dash), 20);
+      fig.querySelectorAll(".stp img").forEach(i=>{ try{ if(i.decode) i.decode().catch(()=>{}); }catch(e){} });
+      // each halo pulses with its stamp, about the stamp's base (the same point of the frame)
+      aHalos.forEach((h, k)=>{ const s = (LY.a_stamps || [])[k], g = (LY.a_glows || [])[k]; if(s && g) h.style.transformOrigin = (s[0] + s[2] / 2 - g[0]).toFixed(2) + "px " + (s[1] + s[3] - g[1]).toFixed(2) + "px"; });   // every picture decoded now, off the frames that show it first (the bird's sheet, the overhead card)
       state.ownsAudio = true; state.demoRunning = true; setNavActive(false); $("navBtn").style.display = "none";
       setSwMood("talk");
       const alive = ()=> fig.isConnected && CARD.slides[state.idx] === slide;
       const timers = []; const at = (ms, fn)=> timers.push(setTimeout(()=>{ if(alive()) fn(); }, ms));
-      // the page's own sounds (two pops, the thud), fetched now so each starts on its beat — online too; every round's pictures and
-      // clip fetched now too, so a round starts without a load gap
+      // the page's own sounds (the pops, the thud, the finale's chimes, the bird's whoosh), fetched now so each starts on its beat — online
+      // too; every round's pictures and clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
-      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter);   // [stamp-final] the finale's two chimes
+      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter), whoosh = mk(sfx.whoosh);   // [stamp-final] the finale's two chimes; [stamp-868] the whoosh
       [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
       rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
       if(im.final) try{ const i = new Image(); i.src = imgSrc(im.final); }catch(e){}   // [stamp-final] the final picture, fetched now
@@ -2340,82 +2414,187 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         if(times.length) tick();
       };
       // [stamp-rounds] the round at hand (R): its sentence — p.stp-sent built by sfigLine (a word span per word, <br> per row) with
-      // the gap span where the slot sits —, its slot with the mark, its stamps' pictures and boxes, the right stamp and its two
-      // places over the slot: its print point (the middle of its face's bottom edge, in its box: tips) lands press_down px under
-      // the slot's centre (the stamp standing on the slot) after hovering hover_up px above that
+      // the gap span where a box sits —, its box(es) with the mark, its stamps' pictures and boxes, the right stamp and its two
+      // places over each box. [stamp-868] seen from above, a stamp is taken and judged by its centre (tips) and scales about it:
+      // HOVER = over the box's centre, lifted (lift_scale); PRESS = there, pressed down (press_scale)
+      // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand ([stamp-868] declared
+      // ahead of setRound: the first round is set as the page mounts)
+      let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
       let R = null, r = -1;
-      // the slot's dashed stroke, one line per side carrying the render's own dash runs ([margin, dash, gap, ...]); the rounded
-      // corners stay open, as in the render (the demos' way)
-      const da = (q)=> q && q.length ? '0 ' + q.join(' ') : '10 5';
-      const side = (x1, y1, x2, y2, q)=> '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke-dasharray="' + da(q) + '"/>';
+      // the box's dashed stroke: the frame's runs (layout.box_dash: each side 7 of the corner's dash, gap 5, 13, 6, 13, 5 — one dash
+      // wraps each rounded corner) on a rect 1 px inside the box (its 2 px stroke inside the border, as Figma draws it)
+      const DASH = LY.box_dash || "7 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 32.13", BR = LY.box_r != null ? LY.box_r : 17;
       function setRound(i){
-        r = i; root.dataset.round = i;
+        r = i; root.dataset.round = i; root.classList.toggle("nopost", (rounds[i] || {}).post === false);   // [stamp-868] 868:74's card has no postmark
         const D = rounds[i] || {}, S = D.sentence || {}, bx = D.boxes || BX0, tips = D.tips || TIPS0,
-              se = D.sent || { x: 63, y: 338, w: 1075, h: 48, size: 30 },
-              sls = Array.isArray(D.slots) && D.slots.length ? D.slots : [D.slot || { x: 751, y: 331, w: 36, h: 58 }];   // the round's slots: one, or two (frame 593:130)
+              se = D.sent || { x: 60, y: 241, w: 1075, h: 73, size: 50, lh: 73 },
+              sls = Array.isArray(D.slots) && D.slots.length ? D.slots : [D.slot || { x: 859, y: 226, w: 90, h: 90 }];   // the round's boxes: one, or several (868:59, 868:74)
         const n = (D.stamps || []).length;   // this round's stamps; the divs beyond them are hidden
         stamps.forEach((s, k)=>{ s.className = "stp-stamp s" + k; if(k < n){ s.style.cssText = box(bx[k] || bx[0]); s.querySelector("img").src = imgSrc(D.stamps[k]); } else s.style.cssText = "display:none"; });
-        const rows = String(S.text_hi || "").split("\n").length, lh = se.lh || Math.round(se.size * 1.714 * 10) / 10;   // Baloo Bhai 2's line box, as on every Figma page
+        const rows = String(S.text_hi || "").split("\n").length, lh = se.lh || Math.round(se.size * 1.714 * 10) / 10;
         const sentEl = document.createElement("p"); sentEl.className = "stp-sent";
-        sentEl.style.cssText = 'left:' + se.x + 'px;top:' + (se.y - (lh * rows - se.h) / 2) + 'px;width:' + se.w + 'px;height:' + (lh * rows) + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px';
-        const pick = D.pick != null ? D.pick : 1, stamp = stamps[pick] || stamps[0], tip = tips[pick] || tips[0], sb = bx[pick] || bx[0];
-        // each slot: its box with the render's dash runs and its mark (its own, or the round's), its right stamp (its own pick, or
-        // the round's) and that stamp's two places over it — HOVER (its print point hover_up px above the slot's centre) and PRESS
-        // (press_down px under it: the stamp standing on the slot)
+        const pTop = se.y - (lh * rows - se.h) / 2;
+        sentEl.style.cssText = 'left:' + se.x + 'px;top:' + pTop + 'px;width:' + se.w + 'px;height:' + (lh * rows) + 'px;font-size:' + se.size + 'px;line-height:' + lh + 'px';
+        const pick = D.pick != null ? D.pick : 1, stamp = stamps[pick] || stamps[0];
+        // each box: the frame's fill and dashes and its mark (its own, or the round's), its right stamp (its own pick, or the round's)
+        // and that stamp's two places over it
         const slots = sls.map(sl=>{ const w = sl.w, h = sl.h, el = document.createElement("div"); el.className = "stp-slot"; el.style.cssText = box([sl.x, sl.y, w, h]);
           const pk = sl.pick != null ? sl.pick : pick, st = stamps[pk] || stamps[0], tp_ = tips[pk] || tips[0], sb_ = bx[pk] || bx[0];
-          el.innerHTML = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
-              side(0, 1, w, 1, sl.dash_h) + side(w - 1, 0, w - 1, h, sl.dash_v) + side(0, h - 1, w, h - 1, sl.dash_h) + side(1, 0, 1, h, sl.dash_v) + '</svg>' +
+          el.innerHTML = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true"><rect x="1" y="1" width="' + (w - 2) + '" height="' + (h - 2) + '" rx="' + (BR - 1) + '" ry="' + (BR - 1) + '" stroke-dasharray="' + DASH + '"/></svg>' +
               '<span class="stp-mark" style="font-size:' + se.size + 'px">' + (sl.mark || D.mark || '?') + '</span>';
           const dx = sl.x + w / 2 - (sb_[0] + tp_[0]), dy = sl.y + h / 2 + P.press_down - (sb_[1] + tp_[1]);
-          return { sl, w, h, el, mark: el.querySelector(".stp-mark"), done: false, pick: pk, stamp: st,
-                   HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(1.08)", PRESS: "translate(" + dx + "px, " + dy + "px) scale(1)" }; });
+          return { sl, w, h, el, row: sl.row || 0, mark: el.querySelector(".stp-mark"), done: false, pick: pk, stamp: st,
+                   HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(" + P.lift_scale + ")", PRESS: "translate(" + dx + "px, " + dy + "px) scale(" + P.press_scale + ")" }; });
         // the sign-off (data.sign): small lines under the sentence, shown with its last word
         const signs = (Array.isArray(D.sign) ? D.sign : []).map(sg=>{ const el = document.createElement("p"); el.className = "stp-sign";
           el.style.cssText = 'left:' + sg.x + 'px;top:' + sg.y + 'px;width:' + sg.w + 'px;height:' + sg.h + 'px;font-size:' + sg.size + 'px;line-height:' + sg.h + 'px'; el.textContent = sg.text || ""; return el; });
         root.insertBefore(sentEl, veil); slots.forEach(o=> root.insertBefore(o.el, veil)); signs.forEach(el=> root.insertBefore(el, veil));
         const L = sfigLine(sentEl, S.text_hi, S.word_times, S.audio, S.word_end);
         const gapEl = (wpx)=>{ const g = document.createElement("span"); g.className = "stp-gap"; g.style.width = wpx + "px"; return g; };
-        if(se.gap && L.words[se.gap.before]) L.words[se.gap.before].before(gapEl(se.gap.w));   // the room the slot sits in
+        (Array.isArray(se.gap) ? se.gap : se.gap ? [se.gap] : []).forEach(g=>{ if(L.words[g.before]) L.words[g.before].before(gapEl(g.w)); });   // the room a box sits in (or a row's lead)
         if(se.tail) sentEl.appendChild(gapEl(se.tail));                                           // the frame's trailing space: the last row centres a little left
-        const s0 = slots[0];   // the first slot's box and places stand for the round's (the guidance glides to it)
-        R = { D, S, n, bx, tips, slots, signs, sl: s0.sl, w: s0.w, h: s0.h, sentEl, slot: s0.el, mark: s0.mark, L, pick, stamp, HOVER: s0.HOVER, PRESS: s0.PRESS };
+        const s0 = slots[0];   // the first box's places stand for the round's (the guidance glides to it)
+        R = { D, S, n, bx, tips, slots, signs, sl: s0.sl, w: s0.w, h: s0.h, sentEl, slot: s0.el, mark: s0.mark, L, pick, stamp, HOVER: s0.HOVER, PRESS: s0.PRESS,
+              pLeft: se.x, pTop, lh };
         live = false; acted = false; solved = false; hinting = false; hintT = []; lastAct = Date.now();
       }
-      // 1. the table shows as the letter page's veil lifts; then the title bar appears the moment its line starts to sound
+      // 1. the table shows as the letter page's veil lifts: [stamp-868] the angled one (868:3). The first round is set at once — its
+      //    sentence whole but unseen, posed over the painted one (it takes over in the camera move), its stamps and the overhead tray
+      //    unseen, the overhead layer not painted until the move — and the bird glides in
       nextFrame(()=> nextFrame(()=>{ if(alive()) root.classList.add("lit"); }));
       const introSrc = A(d.intro_audio);
-      at(P.intro_at, ()=>{
-        const showBand = ()=>{ if(alive()) band.classList.add("in"); };
-        let introDone = false;
-        const afterIntro = ()=>{ if(introDone || !alive()) return; introDone = true; showBand(); at(P.after_intro, stage2); };
-        play(introSrc, afterIntro);
-        const a0 = currentAudio;
-        const whenSounding = ()=>{ if(!alive() || band.classList.contains("in")) return; if(a0 === currentAudio && a0.currentTime > 0) showBand(); else nextFrame(whenSounding); };
-        if(a0 && introSrc && decodeURIComponent(String(a0.src).split("/").pop()) === introSrc.split("/").pop()) whenSounding(); else showBand();
-        at(1500, showBand);   // a clip that is slow to start never keeps the bar away
-        at(authoredVoHoldMs(introSrc) + 10000, ()=>{ if(!introDone){ stopAudio(); afterIntro(); } });
-      });
-      // 2. the sheet settles onto the table, the tray slides up under it; the first round is set
-      function stage2(){
-        at(P.sheet_in, ()=> sheet.classList.add("in"));
-        at(P.tray_in, ()=> tray.classList.add("in"));
-        at(P.stamps_at, ()=>{ setRound(0); stage3(); });
+      setRound(0);
+      const S0 = R.sentEl; S0.classList.add("sfig-whole"); sfigShow(R.L, R.L.words.length); R.L.shown = true;
+      // the live sentence's pose in the angled view: its ink box as laid out on the overhead table (layout.b_text_ink) onto the painted
+      // one's (layout.a_text_ink), about the p's own top-left; tfAt(F, e) = that pose eased toward its own place (e: 0 -> 1)
+      const TXF = (()=>{ const a = LY.a_text_ink, b = LY.b_text_ink; if(!a || !b) return [1, 1, 0, 0];
+        const sx = (a[2] - a[0]) / (b[2] - b[0]), sy = (a[3] - a[1]) / (b[3] - b[1]);
+        return [sx, sy, a[0] - R.pLeft - sx * (b[0] - R.pLeft), a[1] - R.pTop - sy * (b[1] - R.pTop)]; })();
+      const tfAt = (F, e)=> "matrix(" + (F[0] + (1 - F[0]) * e).toFixed(5) + ",0,0," + (F[1] + (1 - F[1]) * e).toFixed(5) + "," + (F[2] * (1 - e)).toFixed(3) + "," + (F[3] * (1 - e)).toFixed(3) + ")";
+      S0.style.transformOrigin = "0 0"; S0.style.transform = tfAt(TXF, 0); S0.style.opacity = ".005";
+      tray.style.opacity = ".005"; stamps.slice(0, R.n).forEach(s=>{ s.querySelector("img").style.opacity = ".005"; });   // (at .005: painted from the start, unseen — so the move's first frame paints nothing new)   // (the overhead layer paints under the angled one from the start, so the move begins without a first paint)
+      // the GPU's first blurs (compiling its blur passes: 30-100 ms of dropped frames in a cold browser, measured) are paid in the page's
+      // first 0.3 s, under the letter page's veil, not on the bird's entrance: its lean-blur runs once, unseen (the bird at its resting .005)
+      bTilt.animate([{ filter: "blur(2px)" }, { filter: "blur(1px)", offset: .5 }, { filter: "blur(0px)" }], { duration: 300 });
+      at(P.bird_at, ()=> zoomBird(false, ()=> at(P.vo_gap, birdTalk)));
+      // [stamp-868] the bird's entrance = the reference title page's entrance of its two children (mtg2a01l04s01, PVLanding's zoom; its
+      // tempo T 2.2): it fades in 200 px out to the left over the first 15 %, glides in with a 6 px overshoot, leaning into it with a
+      // 2 px blur, three speed lines behind it, the dust its feet kick up 400·T ms in, on its whoosh (.75); out = the same moves played
+      // backwards (the lines and the dust behind it on the way out), its whoosh too: ending as the bird is gone (whoosh_ms, the file's length)
+      const ZM = 680 * P.bird_tempo;
+      function zoomBird(out, then){
+        if(out) at(Math.max(0, ZM - P.whoosh_ms), ()=> sound(whoosh, P.whoosh_vol)); else sound(whoosh, P.whoosh_vol);   // in: as it appears; out (backwards): ending as it is gone
+        const o = (x)=> Object.assign({ duration: ZM, direction: out ? "reverse" : "normal" }, x);
+        bMove.animate([{ translate: "-200px 0", opacity: 0 }, { translate: "-160px 0", opacity: 1, offset: .15 },
+          { translate: "6px 0", opacity: 1, offset: .75, easing: "ease-in-out" }, { translate: "0 0", opacity: 1 }], o({ easing: "cubic-bezier(.12,.62,.3,1)", fill: "both" }));
+        bTilt.animate([{ rotate: "5deg", filter: "blur(2px)" }, { rotate: "4deg", filter: "blur(1px)", offset: .45 },
+          { rotate: "-3deg", filter: "blur(0px)", offset: .7 }, { rotate: "0deg", filter: "blur(0px)" }], o({ easing: "ease-out" }));
+        bLines.classList.toggle("out", out);
+        bLines.animate([{ opacity: 0, scale: ".3 1" }, { opacity: .5, scale: "1 1", offset: .3 }, { opacity: 0, scale: "1.2 1", offset: .65 }, { opacity: 0 }], o({ easing: "ease-out" }));
+        at(out ? ZM - 400 * P.bird_tempo : 400 * P.bird_tempo, ()=> dust(out));
+        at(ZM, then);
       }
-      // 3. the round's stamps (two, or three) pop into the tray, each on its pop
+      function dust(out){   // seven puffs from the feet, kicked back against the way it goes
+        const s = out ? -1 : 1;
+        for(let i = 0; i < 7; i++){
+          const e = document.createElement("i"); e.className = "stp-dust";
+          e.style.left = (FT[0] - s * 26 + (Math.random() - .5) * 24).toFixed(1) + "px"; e.style.top = (FT[1] - 6) + "px"; root.insertBefore(e, veil);
+          const dx = -s * (14 + Math.random() * 44), dy = -(6 + Math.random() * 22);
+          e.animate([{ translate: "0 0", scale: ".4", opacity: .85 }, { translate: dx.toFixed(1) + "px " + dy.toFixed(1) + "px", scale: (1.2 + Math.random() * .8).toFixed(2), opacity: 0 }],
+                    { duration: 520 + Math.random() * 260, easing: "cubic-bezier(.2,.8,.4,1)", fill: "both" }).onfinish = ()=> e.remove();
+        }
+      }
+      // 2. the instruction, the bird's GIF frame by frame on the clip's own clock — bird_loops loops of its frames over the clip, so it
+      //    ends on its first frame, the pose it came in with — and on the clip's "ठप्पा" (pace.thappa, ms) both standing stamps glow and
+      //    pulse; 3. at its end the bird goes out; 4. the camera move; 5. round 1's sentence read
+      let bf = -1;
+      const birdFrame = (i)=>{ if(i === bf) return; bf = i; bSheet.style.transform = "translate(" + (-(i % COLS) * CELL[0]) + "px," + (-Math.floor(i / COLS) * CELL[1]) + "px)"; };
+      function birdTalk(){
+        let done = false, glow = false; const t0 = performance.now(), file = introSrc ? introSrc.split("/").pop() : "";
+        const end = ()=>{ if(done || !alive()) return; done = true; birdFrame(0);
+          at(P.exit_gap, ()=> zoomBird(true, ()=> at(P.cam_gap, ()=> camera(()=> at(P.read_gap, ()=> stage4(true)))))); };
+        play(introSrc, end);
+        const a0 = currentAudio;
+        const mine = ()=> !!a0 && a0 === currentAudio && decodeURIComponent(String(a0.currentSrc || a0.src || "").split("/").pop()) === file;
+        const tick = ()=>{
+          if(done || !alive()) return;
+          const own = mine(), t = own ? a0.currentTime : (performance.now() - t0) / 1000, dur = own && isFinite(a0.duration) && a0.duration > 0 ? a0.duration : P.intro_ms / 1000;
+          birdFrame(Math.floor(Math.min(t / dur, 0.9999) * P.bird_loops * NF) % NF);
+          if(!glow && t * 1000 >= P.thappa){ glow = true; aStamps.concat(aHalos).forEach(s=> s.classList.add("thappa")); }   // the halo glows up, both pulse
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        at(authoredVoHoldMs(introSrc) + 10000, ()=>{ if(!done){ stopAudio(); end(); } });
+      }
+      // 4. the camera move (cam_ms), on the page's own frames: the card's corners glide from 868:3's (layout.a_quad, the paper's edges
+      //    fitted on its render) to 868:17's (layout.b_quad), eased, and each table layer is drawn through the projective map that takes
+      //    ITS card onto them (homog: four points onto four, carried by matrix3d), so the two drawings move as one table, the angled one
+      //    fading over the overhead one (cam_a); the trays and the stamps change where they stand (the two frames have them in the same
+      //    spots): the angled tray fades over the overhead one, each standing stamp settles onto its base (squashing to cam_squash, as
+      //    seen from above) as the overhead stamp comes in; the live sentence takes over from the painted one in the first beat
+      //    (cam_text, the two still one) and glides to its own place
+      const homog = (s, q)=>{
+        const M = [], v = [];
+        for(let i = 0; i < 4; i++){ const x = s[i][0], y = s[i][1], u = q[i][0], w = q[i][1];
+          M.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); v.push(u); M.push([0, 0, 0, x, y, 1, -w * x, -w * y]); v.push(w); }
+        for(let c = 0; c < 8; c++){
+          let p = c; for(let k = c + 1; k < 8; k++) if(Math.abs(M[k][c]) > Math.abs(M[p][c])) p = k;
+          const tm = M[c]; M[c] = M[p]; M[p] = tm; const tv = v[c]; v[c] = v[p]; v[p] = tv;
+          for(let k = 0; k < 8; k++){ if(k === c) continue; const f = M[k][c] / M[c][c]; if(!f) continue; for(let j = c; j < 8; j++) M[k][j] -= f * M[c][j]; v[k] -= f * v[c]; }
+        }
+        return v.map((x, i)=> x / M[i][i]);
+      };
+      const m3d = (h)=> "matrix3d(" + [h[0], h[3], 0, h[6], h[1], h[4], 0, h[7], 0, 0, 1, 0, h[2], h[5], 0, 1].map(x=> +x.toFixed(9)).join(",") + ")";
+      const ease = (t)=> t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const sstep = (a, b, t)=>{ const x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
+      const boxTf = (fr, to)=> "matrix(" + (to[2] / fr[2]).toFixed(5) + ",0,0," + (to[3] / fr[3]).toFixed(5) + "," + (to[0] - fr[0]).toFixed(2) + "," + (to[1] - fr[1]).toFixed(2) + ")";   // a box onto another (origin 0 0)
+      function camera(then){
+        const QA = LY.a_quad, QB = LY.b_quad, DA = LY.a_dash || QA, DB = LY.b_dash || QB, TA = LY.a_tray, TB = LY.tray, AS = LY.a_stamps || [], SB = R.bx, D = P.cam_ms;
+        const CT = P.cam_tray || [.2, .5, .3, .6], CS = P.cam_stamps || [.25, .6, .1, .45];   // [in from, in to, out from, out to] (fractions of the move)
+        const AB = LY.a_bases || AS.map(b=> [b[0] + b[2] / 2, b[1] + b[3]]), imgs = stamps.slice(0, R.n).map(s=> s.querySelector("img"));
+        if(!QA || !QB || !TA || !TB){ bI.remove(); aL.remove(); aTray.remove(); aStamps.concat(aHalos).forEach(s=> s.remove()); bird.remove(); tray.style.opacity = ""; S0.style.opacity = ""; S0.style.transform = ""; imgs.forEach(i=>{ i.style.opacity = ""; i.classList.add("shown"); }); then(); return; }
+        aTray.style.transformOrigin = tray.style.transformOrigin = "0 0";
+        aStamps.forEach((s, k)=>{ const b = AS[k]; if(b && AB[k]) s.style.transformOrigin = (AB[k][0] - b[0]).toFixed(2) + "px " + (AB[k][1] - b[1]).toFixed(2) + "px"; });
+        const t0 = performance.now();
+        const step = (now)=>{
+          if(!alive()) return;
+          const t = Math.min(1, Math.max(0, (now - t0) / D)), e = ease(t);
+          const lq = (Q1, Q2)=> Q1.map((p, i)=> [p[0] + (Q2[i][0] - p[0]) * e, p[1] + (Q2[i][1] - p[1]) * e]), Qp = lq(QA, QB), Qd = lq(DA, DB);
+          bO.style.transform = m3d(homog(QB, Qp)); bI.style.transform = m3d(homog(DB, Qd)); aO.style.transform = m3d(homog(QA, Qp)); aI.style.transform = m3d(homog(DA, Qd));
+          aL.style.opacity = (1 - sstep(P.cam_a[0], P.cam_a[1], t)).toFixed(4);
+          aText.style.opacity = (1 - sstep(0, P.cam_text, t)).toFixed(4); S0.style.opacity = Math.max(.005, sstep(0, P.cam_text, t)).toFixed(4); S0.style.transform = tfAt(TXF, e);
+          const tb = TA.map((v, i)=> v + (TB[i] - v) * e); aTray.style.transform = boxTf(TA, tb); tray.style.transform = boxTf(TB, tb);
+          aTray.style.opacity = (1 - sstep(CT[2], CT[3], t)).toFixed(4); tray.style.opacity = Math.max(.005, sstep(CT[0], CT[1], t)).toFixed(4);
+          aStamps.forEach((s, k)=>{ const sb = SB[k], ab = AB[k]; if(!sb || !ab) return;
+            const es = sstep(0, CS[3], t);   // it settles onto its base by the time it has faded
+            s.style.transform = "translate(" + ((sb[0] + sb[2] / 2 - ab[0]) * es).toFixed(2) + "px," + ((sb[1] + sb[3] / 2 - ab[1]) * es).toFixed(2) + "px) scale(1," + (1 - (1 - P.cam_squash) * es).toFixed(4) + ")";
+            s.style.opacity = (1 - sstep(CS[2], CS[3], t)).toFixed(4); });
+          imgs.forEach(i=>{ i.style.opacity = Math.max(.005, sstep(CS[0], CS[1], t)).toFixed(4); i.style.transform = "scale(" + (.94 + .06 * e).toFixed(4) + ")"; });
+          if(t < 1){ requestAnimationFrame(step); return; }
+          // the overhead table, as drawn: the angled one, the bird and the painted sentence go; every layer back on its own place
+          bO.style.transform = ""; bI.remove(); aL.remove(); aTray.remove(); aStamps.concat(aHalos).forEach(s=> s.remove()); bird.remove();
+          tray.style.transform = ""; tray.style.opacity = ""; tray.style.transformOrigin = "";
+          S0.style.opacity = ""; S0.style.transform = ""; S0.style.transformOrigin = ""; S0.classList.remove("sfig-whole");
+          imgs.forEach(i=>{ i.style.opacity = ""; i.style.transform = ""; i.classList.add("shown"); });
+          then();
+        };
+        requestAnimationFrame(step);
+      }
+      // 3. (a later round) the round's stamps (two, or three) pop into the tray, each on its pop
       function stage3(){
         const n = R.n;
         stamps.slice(0, n).forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); sound(pops[k], 0.48);   // 60 % of the first build's .8
           img.addEventListener("animationend", ()=>{ img.classList.remove("pop"); img.classList.add("shown"); }, { once: true }); img.classList.add("pop"); }));
         at((n - 1) * P.pop_gap + P.sent_at, stage4);
       }
-      // 4. the sentence rises in whole — the sign-off (593:151) with it — and is read SENT_IN_MS later, each word lit as it is read ([word-sync])
-      function stage4(){ const C = R, L = C.L; sfigRise(L, C.signs); at(SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, stage5); sfigSync(L); }); }
-      // 5. the empty slot appears and blinks (3.5 s: three slow blinks, the demos' dmfBlink); from this moment the two stamps are the child's
-      //    to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
+      // 5. the sentence rises in whole — the sign-off with it — and is read SENT_IN_MS later, each word lit as it is read ([word-sync]);
+      //    [stamp-868] round 1's is already there (it came through the camera move): read at once
+      function stage4(shown){ const C = R, L = C.L; if(shown !== true) sfigRise(L, C.signs); at(shown === true ? 0 : SENT_IN_MS, ()=>{ narrate(L.src, [], ()=>{}, stage5); sfigSync(L); }); }
+      // 6. the empty box(es) appear and blink (blink_ms: blinks times, appearing and disappearing); from this moment the stamps are the
+      //    child's to drag (.live); in a round with `guide`, 0.5 s after the blink the guidance, unless the child has already taken hold of a stamp
       function stage5(){
         const slots = R.slots, guide = R.D.guide !== false;
-        slots.forEach(o=>{ o.el.style.animationDuration = (P.blink_ms / 3) + "ms"; o.el.classList.add("in", "blink"); });   // both together, when there are two
+        slots.forEach(o=>{ o.el.style.animationDuration = (P.blink_ms / P.blinks) + "ms"; o.el.classList.add("in", "blink"); });   // all together, when there are several
         live = true; root.classList.add("live"); lastAct = Date.now();
         at(P.blink_ms, ()=> slots.forEach(o=> o.el.classList.remove("blink")));
         if(guide) at(P.blink_ms + P.hint_at, ()=>{ if(!acted) hint(); });
@@ -2434,12 +2613,10 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         if(solved || drag || !live || isPlaying){ lastAct = Date.now(); return; }
         lastAct = Date.now(); play(introSrc, ()=>{ lastAct = Date.now(); });
       }
-      // [stamp-drag] the page's state: live = the stamps take drags; acted = the child has taken hold of one; drag = the drag in hand
-      let live = false, acted = false, solved = false, hinting = false, drag = null, idleIv = null, lastAct = 0, hintT = [];
       const move = (el, tf, ms, ease)=>{ el.style.transition = "transform " + ms + "ms " + ease + ", filter .3s"; el.style.transform = tf; };
       // glides a stamp home and sets it down (its shadow goes as it lands) — unless the child has taken hold of it again
       const putBack = (s, ms)=>{ move(s, "none", ms, "cubic-bezier(.4,0,.2,1)"); at(Math.max(0, ms - 150), ()=>{ if(!(drag && drag.el === s)) s.classList.remove("lift"); }); };
-      // 6. the guidance: the right stamp lifts, glides SLOWLY over the slot, hovers there and glides home — it does not print (that
+      // 6. the guidance: the right stamp lifts, glides SLOWLY over the box, hovers there and glides home — it does not print (that
       //    is the child's to do); stopped where it is the moment the child takes hold of a stamp
       const hat = (ms, fn)=>{ const id = setTimeout(()=>{ if(alive() && hinting) fn(); }, ms); hintT.push(id); timers.push(id); };
       function hint(){
@@ -2455,7 +2632,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         if(!taken) putBack(R.stamp, 350);
       }
       // the child's drags: a stamp follows the finger from where it is (even mid-guidance, mid-return) at the lifted size; the
-      // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's PRINT POINT against the slot
+      // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's centre (tips) against the box's
       const scaleNow = ()=> (root.getBoundingClientRect().width || 1280) / 1280;
       const curXY = (el)=>{ const m = getComputedStyle(el).transform, v = m && m !== "none" ? m.match(/matrix\(([^)]+)\)/) : null;
         if(!v) return [0, 0]; const a = v[1].split(",").map(Number); return [a[4] || 0, a[5] || 0]; };
@@ -2465,7 +2642,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
           if(!live || solved || drag || !R || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
           if(hinting) stopHint(s === R.stamp);
-          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], 1.08);
+          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], P.lift_scale);
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
         });
@@ -2473,22 +2650,22 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
           if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
           const dx = (e.clientX - drag.x0) / drag.sc, dy = (e.clientY - drag.y0) / drag.sc;
           drag.moved = Math.max(drag.moved, Math.hypot(dx, dy)); drag.lx = drag.tx + dx; drag.ly = drag.ty + dy;
-          setTf(s, drag.lx, drag.ly, 1.08);
+          setTf(s, drag.lx, drag.ly, P.lift_scale);
         });
         const up = (e)=>{
           if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
           const dr = drag; drag = null; try{ s.releasePointerCapture(e.pointerId); }catch(err){}
           s.classList.remove("drag"); lastAct = Date.now();
           if(e.type === "pointercancel" || dr.moved < P.tap_px){ putBack(s, 220); return; }   // a touch (or the browser took the pointer), not a placing
-          const b = R.bx[k] || R.bx[0], tp = R.tips[k] || R.tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its base: the tip rides the translate
-          // the slot the print point is on: of the slots still empty, one within tol_x / tol_y of it (the nearer, when both are)
+          const b = R.bx[k] || R.bx[0], tp = R.tips[k] || R.tips[0], tipX = b[0] + tp[0] + dr.lx, tipY = b[1] + tp[1] + dr.ly;   // the stamp scales about its centre: the centre rides the translate
+          // the box the stamp is on: of the boxes still empty, one within tol_x / tol_y of its centre (the nearer, when two are)
           const dist = (o)=> Math.hypot(tipX - (o.sl.x + o.w / 2), tipY - (o.sl.y + o.h / 2));
           const hit = R.slots.filter(o=> !o.done && Math.abs(tipX - (o.sl.x + o.w / 2)) <= P.tol_x && Math.abs(tipY - (o.sl.y + o.h / 2)) <= P.tol_y).sort((a, c)=> dist(a) - dist(c))[0];
           if(hit && k === hit.pick) solve(hit); else wrong(s);
         };
         s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);
       });
-      // a wrong drop (off the slot, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
+      // a wrong drop (off the box, or the wrong stamp on it): the kit's incorrect buzz (the user's standard sfx_incorrect_feedback),
       // a wiggle where it was dropped, then it glides back to its place; the stamps stay the child's. The class is stp-wrong, never
       // a bare "wrong": the engine's style.css paints ANY .wrong element white (:is(.wrong,...){background-color:#fff!important})
       function wrong(s){
@@ -2496,20 +2673,20 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         s.classList.remove("stp-wrong"); void s.offsetWidth; s.classList.add("stp-wrong");
         at(P.wiggle, ()=>{ if(!(drag && drag.el === s)){ s.classList.remove("stp-wrong"); putBack(s, P.reset); } });
       }
-      // the right drop: the stamp snaps over the slot and presses onto it on the thud — the mark is printed, its ink on the slot's
-      // centre — lifts and glides home; the slot's box goes on the correct chime (the user's standard sfx_correct_feedback), the
-      // mark stays; the kit's confetti on its sound (the user's standard sfx confetti); then the next round, or the page moves on
+      // the right drop: the stamp snaps over the box and presses onto it on the thud — the mark is printed there, on its row's
+      // baseline — lifts and glides home; the box goes on the correct chime (the user's standard sfx_correct_feedback), the mark
+      // stays; the kit's confetti on its sound (the user's standard sfx confetti); then the next round, or the page moves on
       function solve(o){
-        const C = R, stamp = o.stamp, last = C.slots.every(q=> q === o || q.done);   // the slot's own stamp; the round's last empty slot? (one slot: always)
+        const C = R, stamp = o.stamp, last = C.slots.every(q=> q === o || q.done);   // the box's own stamp; the round's last empty box? (one box: always)
         o.done = true; solved = true; live = false; root.classList.remove("live"); C.slots.forEach(q=> q.el.classList.remove("blink")); hintT.forEach(clearTimeout);
         if(last && idleIv){ clearInterval(idleIv); idleIv = null; }
         move(stamp, o.HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
         at(P.snap, ()=> move(stamp, o.PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
         at(P.thud_at, ()=> sound(thud, 0.9));
-        at(P.mark_at, ()=>{ centreInk(o.mark); o.mark.classList.add("in"); });
+        at(P.mark_at, ()=>{ centreInk(o.mark, o); o.mark.classList.add("in"); });
         at(P.lift_at, ()=> move(stamp, o.HOVER, 180, "cubic-bezier(0,0,.3,1)"));
         at(P.back_at, ()=> putBack(stamp, P.back_home));
-        // the box goes on the chime; with a slot still empty (frame 593:130's other row) the stamps are the child's again from
+        // the box goes on the chime; with a box still empty (868:59's other row, 868:74's others) the stamps are the child's again from
         // here — no confetti yet; the idle count starts over (the title's line after 7 s, as in any later round)
         at(P.gone_at, ()=>{ o.el.classList.add("gone"); sfxCorrect(); if(!last && R === C){ solved = false; live = true; root.classList.add("live"); lastAct = Date.now(); } });
         if(!last) return;
@@ -2518,8 +2695,8 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
       }
       // [stamp-final] after the last round's confetti: the stage dissolves into the final picture (the girl holding up her stamped
       // letter) over fin_fade as its chime sounds (started together), the envelope glitters gold for fin_glitter_ms on the second
-      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything (the title
-      // bar too); its picture was fetched at mount
+      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything; its picture
+      // was fetched at mount
       function finale(){
         const EB = LY.envelope || [783, 168, 112, 102];
         const fin = document.createElement("div"); fin.className = "stp-final"; fin.style.transitionDuration = P.fin_fade + "ms";
@@ -2542,7 +2719,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         g.style.setProperty("--glit", P.fin_glitter_ms + "ms"); g.innerHTML = html; g.classList.add("on");
       }
       // [stamp-rounds] between rounds: the stamps shrink away (their pop played backwards, pop_gap apart), the sentence goes word by
-      // word in reverse (the arrival's opposite) and the slot's box fades with its mark; then the next round is set and its stamps pop in
+      // word in reverse (the arrival's opposite) and the box fades with its mark; then the next round is set and its stamps pop in
       function clearRound(C){
         stamps.slice(0, C.n).forEach((s, k)=> at(k * P.pop_gap, ()=>{ const img = s.querySelector("img"); img.classList.remove("shown");
           img.addEventListener("animationend", ()=>{ img.classList.remove("unpop"); }, { once: true }); img.classList.add("unpop"); }));
@@ -2551,17 +2728,20 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         C.slots.forEach(o=> o.el.classList.add("out"));
         at(P.next_at, ()=>{ C.sentEl.remove(); C.slots.forEach(o=> o.el.remove()); C.signs.forEach(el=> el.remove()); setRound(r + 1); stage3(); });
       }
-      // the mark's INK on the slot's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
-      // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy)
-      function centreInk(markEl){
+      // the mark's INK across on the box's centre (the demos' centreInk): the glyph's ink is not centred in its own line box, so it is
+      // shifted by its ink's offset, measured from the font itself (style.css: --ix / --iy); [stamp-868] and, in a box bigger than the
+      // mark (90 px for a 44-50 px line), down onto its row's baseline (o.row of the round's sentence: its line box's top + the half
+      // leading + the font's ascent), as if typed in the sentence — not at the box's middle, which the frames set for the box's look
+      function centreInk(markEl, o){
         try{
           const cs = getComputedStyle(markEl), c = document.createElement("canvas").getContext("2d");
           c.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
           const t = c.measureText(markEl.textContent);
           if(!t.width || !isFinite(t.fontBoundingBoxAscent)) return;
-          const base = (markEl.offsetHeight - t.fontBoundingBoxAscent - t.fontBoundingBoxDescent) / 2 + t.fontBoundingBoxAscent;
+          const asc = t.fontBoundingBoxAscent, desc = t.fontBoundingBoxDescent, base = (markEl.offsetHeight - asc - desc) / 2 + asc;
           const ix = (t.actualBoundingBoxRight - t.actualBoundingBoxLeft) / 2 - markEl.offsetWidth / 2;
-          const iy = base + (t.actualBoundingBoxDescent - t.actualBoundingBoxAscent) / 2 - markEl.offsetHeight / 2;
+          let iy = base + (t.actualBoundingBoxDescent - t.actualBoundingBoxAscent) / 2 - markEl.offsetHeight / 2;
+          if(o && R && R.lh){ const rowBase = R.pTop + o.row * R.lh + (R.lh - asc - desc) / 2 + asc - o.sl.y; iy = o.h / 2 - markEl.offsetHeight / 2 + base - rowBase; }
           markEl.style.setProperty("--ix", ix.toFixed(2) + "px"); markEl.style.setProperty("--iy", iy.toFixed(2) + "px");
         }catch(e){}
       }
@@ -3455,61 +3635,94 @@ letter_css = """
 .ltr-veil{inset:0;background:#FDE9A8;opacity:0;pointer-events:none;transition:opacity .5s ease-in;}   /* the end screen's base colour */
 .ltr.veil .ltr-veil{opacity:1;}
 """
-# [stamp-fig] L2, the stamp page, in the frame's 1280x720 px inside .sfig-full's .sfig-in: the frame's places (get_metadata 565:28) —
-# the wood 0,-1 1280x721; the title bar = the demos' group (36,26 1244x120, its text at 139.55 in the pill: measured the same on this
-# render); "image 238" turned, 355,64 571x594 (the paper itself 392..887 x 154..559 on the render); the tray 427,565 426x142 with its
-# 0 4 4 .48 shadow; the stamps 532,541 74x116 (।) and 677,540 72x115 (?); the sentence's 1075-wide centred box at 63,336 (48 tall,
-# 30px: the ink 455..745 x 342..372 on the render, centred on 600); the slot 751,331 36x58 #FFF1B6, 8px corners, a 2px dashed
-# rgba(86,86,86,.85) stroke inside (its runs, read off the render: 6 9 6 9 6 across, 6 7 4 10 4 10 4 7 6 down).
+# [stamp-fig] L2, the stamp page, in the frames' 1280x720 px inside .sfig-full's .sfig-in; [stamp-868] the frames 868:3 / 868:17 .. 868:74
+# (their boxes from data.layout and each round's: see the card note)
 stamp_css = """
-/* ===== [stamp-fig] L2, the stamp page (frame 565:28, STAMP_DEMO): the letter's sentence stamped, on the whole stage ===== */
+/* ===== [stamp-fig] L2, the stamp page (STAMP_DEMO), on the whole stage; [stamp-868] the frames 868:3 (the angled table, the bird) and
+   868:17 .. 868:74 (the overhead table): every picture in its drawn box (the module sets them from data.layout) ===== */
 .stp{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;}
 .stp > *{position:absolute;}
-.stp-wood{left:0;top:-1px;width:1280px;height:721px;}                                        /* the table, as the frame crops it */
-.stp-sheet{opacity:0;transform:translateY(-28px) scale(.97);transition:opacity .5s ease-out,transform .55s cubic-bezier(.2,.9,.3,1.15);}   /* settles onto the table */
-.stp-sheet.in{opacity:1;transform:none;}
-.stp-tray{filter:drop-shadow(0 4px 4px rgba(0,0,0,.48));opacity:0;transform:translateY(36px);transition:opacity .4s ease-out,transform .5s cubic-bezier(.2,.9,.3,1.15);}   /* slides up */
-.stp-tray.in{opacity:1;transform:none;}
-/* a stamp: its box glides (the module sets the transform), its picture pops in (about its base); once the slot is up (.live) it
-   is a drag handle (touch-action none: the finger's move is the drag, not a scroll); .drag = in hand (no transition: it follows
-   the finger); .stp-wrong = the kit's wiggle (wgNo) on its picture, so its box keeps the place it was dropped at [stamp-drag] —
-   stp-wrong, not "wrong": the engine's :is(.wrong,.wrong-flash,.ocean-wrong){background-color:#fff!important} would box it white */
-.stp-stamp{transform-origin:50% 100%;transition:filter .3s;touch-action:none;}
+.stp img{display:block;max-width:none;}
+/* the two tables as layers the camera move draws through their projective maps (matrix3d, from the frame's top-left) */
+.stp-b,.stp-a{left:0;top:0;width:1280px;height:720px;}                                   /* a table: its two layers, faded as one */
+.stp-bo,.stp-bi,.stp-ao,.stp-ai{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;will-change:transform;}   /* promoted ahead: the move starts without re-rasterising them */
+.stp-bo > *,.stp-bi > *,.stp-ao > *,.stp-ai > *{position:absolute;}
+.stp-post{opacity:.6;}                                                                    /* 868:17's postmark ("Object"), 60 % */
+.stp-a-post{opacity:.3;}                                                                  /* 868:3's, 30 % */
+.stp.nopost .stp-post{display:none;}                                                      /* 868:74's card has none */
+/* the trays' drop shadows (0 4 4 at .5 / .48) as filters, so they follow the trays' outline */
+.stp-tray{filter:drop-shadow(0 4px 4px rgba(0,0,0,.5));}
+.stp-a-tray{filter:drop-shadow(0 4px 4px rgba(0,0,0,.48));}
+/* 868:3's standing stamps: on the instruction's "ठप्पा" a warm glow along their outline (each stamp's baked halo — a gold blur of its
+   outline under a thin bright rim — fading up behind it) and two gentle pulses (4 %) about their base, the halo with its stamp; only
+   opacity and scale move (an animated drop-shadow filter dropped frames as it ended, in a cold browser) */
+.stp-a-stamp,.stp-a-halo{transform-origin:50% 100%;will-change:scale;}
+.stp-a-halo{opacity:0;will-change:opacity,scale;}
+.stp-a-stamp.thappa{animation:stpPulse 1.6s ease-in-out both;}
+.stp-a-halo.thappa{animation:stpHalo 1.6s ease-in-out both;}
+@keyframes stpPulse{0%{scale:1;}32%{scale:1.04;}52%{scale:1;}72%{scale:1.04;}85%,100%{scale:1;}}
+@keyframes stpHalo{0%{opacity:0;scale:1;}15%{opacity:1;}32%{scale:1.04;}52%{scale:1;}72%{scale:1.04;}85%{opacity:1;scale:1;}100%{opacity:0;scale:1;}}
+/* the bird (868:3's GIF as a sheet): .stp-bird = its feet; .stp-bmove = the glide (translate, opacity), .stp-btilt = the lean and the
+   blur (rotate, filter) about its feet — one property per layer, as the reference's children; the clip shows one cell of the sheet */
+.stp-bird{width:0;height:0;z-index:6;pointer-events:none;}
+.stp-bmove,.stp-btilt{position:absolute;left:0;top:0;width:0;height:0;}
+.stp-btilt{will-change:rotate,filter;}
+.stp-bmove{opacity:.005;will-change:translate,opacity;}                                                                 /* painted (so decoded) from the first frame, unseen */
+.stp-bshd{position:absolute;border-radius:50%;background:#E2771A;opacity:.5;}                 /* "Ellipse 3770": #E2771A at 50 % */
+.stp-bclip{position:absolute;overflow:hidden;}
+.stp-bsheet{position:absolute;left:0;top:0;}
+/* the reference's speed lines behind a child as it zips in (behind = on the left on the way in, on the right on the way out) */
+.stp-blines{position:absolute;bottom:40px;right:60px;width:120px;height:150px;opacity:0;transform-origin:100% 50%;will-change:opacity,scale;}
+.stp-blines.out{right:auto;left:60px;transform-origin:0 50%;}
+.stp-blines b{position:absolute;right:0;height:4px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.95));}
+.stp-blines.out b{right:auto;left:0;background:linear-gradient(270deg,transparent,rgba(255,255,255,.95));}
+.stp-blines b:nth-child(1){top:18px;width:100%;}
+.stp-blines b:nth-child(2){top:70px;width:76%;}
+.stp-blines b:nth-child(3){top:122px;width:88%;}
+.stp-dust{width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;pointer-events:none;z-index:7;
+  background:radial-gradient(circle,rgba(236,214,178,.95),rgba(214,186,146,.6) 60%,transparent 72%);}
+/* a stamp, seen from above: its box glides (the module sets the transform, about its centre), its picture pops in; the frames' soft
+   0 4 100 shadow at .1; once the boxes are up (.live) it is a drag handle (touch-action none: the finger's move is the drag, not a
+   scroll); .drag = in hand (no transition: it follows the finger); .stp-wrong = the kit's wiggle (wgNo) on its picture, so its box
+   keeps the place it was dropped at [stamp-drag] — stp-wrong, not "wrong": the engine's :is(.wrong,.wrong-flash,.ocean-wrong)
+   {background-color:#fff!important} would box it white */
+.stp-stamp{transform-origin:50% 50%;transition:filter .3s;touch-action:none;filter:drop-shadow(0 4px 100px rgba(0,0,0,.1));}
 .stp.live .stp-stamp{cursor:grab;}
 .stp-stamp.drag{transition:none!important;cursor:grabbing;}
 .stp-stamp.stp-wrong img.shown{animation:wgNo var(--fx-beat) ease-in-out both;}
-.stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 100%;}
+.stp-stamp img{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;transform-origin:50% 50%;}
 .stp-stamp img.pop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both;}
 .stp-stamp img.shown{opacity:1;}
 .stp-stamp img.unpop{animation:stpPop .45s cubic-bezier(.3,1.4,.5,1) both reverse;}   /* [stamp-rounds] shrinks away: the pop backwards */
 @keyframes stpPop{from{transform:scale(0);opacity:0;}to{transform:none;opacity:1;}}
-.stp-stamp.lift{z-index:5;filter:drop-shadow(0 16px 8px rgba(0,0,0,.28));}                 /* lifted off the table, over the sheet */
-/* the sentence: Noto Sans Devanagari SemiBold in Baloo Bhai 2's line box, black, centred; each word arrives as it is read */
+.stp-stamp.lift{z-index:5;filter:drop-shadow(0 18px 14px rgba(0,0,0,.3));}                /* lifted off the table toward the camera */
+/* the sentence: Baloo 2 ExtraBold (the frames' face), black, centred, each row on the frame's; each word lit as it is read */
 .stp-sent{white-space:nowrap;text-align:center;font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;margin:0;}
 .stp-sent .sfig-w{display:inline-block;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sent .sfig-w.on{opacity:1;transform:none;}
-.stp-sent .stp-gap{display:inline-block;height:1px;vertical-align:baseline;}            /* [stamp-rounds] the room the slot sits in, between two words */
-/* [stamp-rounds] the letter's sign-off (frame 593:151, data.sign): small centred lines under the sentence, arriving as a word does */
+.stp-sent .stp-gap{display:inline-block;height:1px;vertical-align:baseline;}            /* [stamp-rounds] the room the box sits in, between two words */
+/* [stamp-rounds] a sign-off (data.sign): small centred lines under the sentence, arriving as a word does */
 .stp-sign{white-space:nowrap;text-align:center;font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;margin:0;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sign.on{opacity:1;transform:none;}
-/* the empty slot: the frame's box, the demos' blink (dmfBlink, three slow blinks = blink_ms — asked to be just like the pages
-   before); .gone = the box goes, the mark stays */
-.stp-slot{background:#FFF1B6;border-radius:8px;opacity:0;transition:opacity .3s,background-color .4s;}
+/* the empty box: 90x90 #FD9337, 17 px corners, the 2 px dashed stroke inside it (an SVG rect carrying the frame's runs); it blinks
+   blink_ms (three times: there, gone, there); .gone = the box goes, the mark stays */
+.stp-slot{background:#FD9337;border-radius:17px;opacity:0;transition:opacity .3s,background-color .4s;}
 .stp-slot.in{opacity:1;}
-.stp-slot.blink{animation:dmfBlink 1.16667s ease-in-out 3;}
-.stp-slot svg{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;transition:opacity .4s;}
+.stp-slot.blink{animation:stpBoxBlink 1s ease-in-out 3;}
+@keyframes stpBoxBlink{0%,100%{opacity:1;}50%{opacity:0;}}
+.stp-slot svg{position:absolute;left:0;top:0;display:block;overflow:visible;fill:none;stroke:rgba(0,0,0,.85);stroke-width:2;transition:opacity .4s;}
 .stp-slot.gone{background:transparent;}
 .stp-slot.gone svg{opacity:0;}
 .stp-slot.out{opacity:0;}                                                                /* [stamp-rounds] between rounds: fades with its mark */
-/* the printed mark: the sentence's own letter (its font, size and black), its INK on the slot's centre (--ix / --iy measured by the
-   module), pressed in: it lands from a little large and tilted, as a stamp's print */
+/* the printed mark: the sentence's own letter (its font, size and black), its ink across the box's centre and on its row's baseline
+   (--ix / --iy measured by the module), pressed in: it lands from a little large and tilted, as a stamp's print */
 .stp-mark{position:absolute;left:50%;top:50%;opacity:0;--ix:0px;--iy:0px;white-space:pre;line-height:normal;
   font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
   transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
 .stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
-/* [stamp-final] the finale: the final picture over the whole stage (the title bar too), dissolving in over fin_fade (the module sets
-   the duration); over the envelope a soft gold glow (fin_glitter_ms, --glit) and the sparks, each twinkling once (fill both: gone when done) */
+/* [stamp-final] the finale: the final picture over the whole stage, dissolving in over fin_fade (the module sets the duration); over
+   the envelope a soft gold glow (fin_glitter_ms, --glit) and the sparks, each twinkling once (fill both: gone when done) */
 .stp-final{left:0;top:0;width:1280px;height:720px;z-index:20;opacity:0;transition:opacity 3s ease-in-out;pointer-events:none;}
 .stp-final.in{opacity:1;}
 .stp-final > img{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
@@ -3522,7 +3735,7 @@ stamp_css = """
 @keyframes stpSpark{0%{transform:translate(-50%,-50%) scale(0) rotate(0deg);opacity:0;}45%{transform:translate(-50%,-50%) scale(1) rotate(60deg);opacity:1;}100%{transform:translate(-50%,-50%) scale(0) rotate(120deg);opacity:0;}}
 @keyframes stpGlow{0%{opacity:0;}35%{opacity:1;}100%{opacity:0;}}
 /* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
-.stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;}
+.stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;z-index:30;}
 .stp.lit .stp-veil{opacity:0;}
 """
 sent_css = """
