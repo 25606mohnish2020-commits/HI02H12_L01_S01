@@ -3020,8 +3020,11 @@ body.tut-page:has(.sfig-card), .stage.tut:has(.sfig-card){background:#F6FBFF;}
 .rcf-v-alp .rcf-mark{left:88px;top:61px;}            /* the comma's line box: its ink sits 31.5 px below the box's centre */
 .rcf-v-alp .rcf-name{left:579px;top:141px;}
 .rcf-v-alp .rcf-ebox{left:197px;}
-.rcf-v-alp .rcf-eg{left:485.5px;top:306px;}
-.rcf-v-alp .rcf-pic{left:804px;top:131px;width:219px;height:146px;filter:none;}
+.rcf-v-alp .rcf-eg{left:490px;top:306px;}   /* [recap-eg] (2026-11-04) the new, longer sentence (549 px of ink in the 578 box at the frames' 40 px)
+   centred by its ink on the box (was 485.5 for the frame's "आम, केला, ..."); the line box's top kept, so its baseline is the frame's */
+.rcf-v-alp .rcf-pic{left:804px;top:84.18px;width:219px;height:239.65px;filter:none;}
+/* [recap-eg] (2026-11-04) the user's girl painting (1199x1312) in the fruits' place: their width (219) and centre (925.5,216 card px), its
+   own aspect (239.65 tall: 84.18 here, was 131 for the 146-tall fruits); no shadow, as the fruits had none */
 /* [recap-prashn] (2026-11-01) T1C, the प्रश्नवाचक चिह्न page = frame 764:945 (variant "prashn"), T1's design with the frame's own
    placements (card px - 12): the sign's box 764:1127 at 199,65 (T1's place) and the sentence's box 764:1129 at 199,274, 580 wide (2
    px wider than T1's); the "?", the name and the sentence by their INK in the frame's render (centres, card px: the ? 286.5,145.5;
@@ -3426,9 +3429,8 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .ltr-scene{object-fit:cover;}                                                             /* each frame's picture in its own Figma box (the module), cover: as Figma fills it */
 .ltr-scene.w{opacity:0;transform:scale(1.04);transition:opacity .9s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}   /* 792:1257, the girl writing: comes in on the magic's first frame, settling */
 .ltr.w-in .ltr-scene.w{opacity:1;transform:none;}
-.ltr-scene.t,.ltr-scene.p{opacity:.005;transition:opacity .65s ease-in-out;}               /* 792:1245 on "दादाजी", 792:1249 at the first sentence's end; at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would decode on the beat: [letter-idea]) */
-.ltr-scene.p{transition-duration:.35s;}                                                    /* only her face and hand change: quick, as the old pensive swap (.65 s showed both faces) */
-.ltr.t-in .ltr-scene.t,.ltr.p-in .ltr-scene.p{opacity:1;}
+.ltr-scene.t{opacity:.005;transition:opacity .65s ease-in-out;}                          /* 792:1245 on "दादाजी" — and [l1-cloud] it stays to the end (792:1249 is off the page); at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would decode on the beat: [letter-idea]) */
+.ltr.t-in .ltr-scene.t{opacity:1;}
 .ltr-bub{border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(120,90,60,.15);transform:scale(0);opacity:0;
   transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .2s ease-out;}
 .ltr-bub.in{transform:none;opacity:1;}
@@ -3436,9 +3438,12 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
   transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly; its layer made at mount, not on the beat */
 .ltr-cloud.in{opacity:1;transform:none;}
 .ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;}
-.ltr-cloud .ltr-cw{opacity:.005;transition:opacity .5s ease-in-out;}                    /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
-.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* [l1-fig] at the letter's moment ([l1-late]: 2 s before the speech ends) the same cloud, white (558:2), comes OVER the grandfather (same alpha: no dip) ... */
-.ltr-cloud.white2 .ltr-cg{opacity:0;}                                                    /* ... and he goes from under it once it is whole */
+.ltr-cloud .ltr-cc{opacity:.005;transition:opacity .5s ease-in-out;}                    /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
+.ltr-cloud.clean .ltr-cc{opacity:1;}                                                     /* [l1-clean] at the letter's moment ([l1-late]: 2 s before the speech ends) the same cloud goes CLEAN WHITE: its own
+   mist white over its whole opaque body (the grandfather, his glow, the hearts, the bushes), its soft pink rim untouched (the patch is 0
+   there, so the rim never doubles) and the grandfather's layer left at 1 under it (nothing swapped); the letter grows in it once it is
+   clean (pace.env_after). It was [l1-fig]'s white cloud (558:2) over the whole of it with the letter in the same frame, then [l1-cloud]'s
+   patch over him alone (his pastel backdrop kept), again with the letter in the same frame */
 .ltr-blur{left:0;top:0;width:1280px;height:720px;opacity:0;transition:opacity .9s ease-in-out;}   /* 610:6's backdrop, flattened */
 .ltr.zoom .ltr-blur{opacity:1;}
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}

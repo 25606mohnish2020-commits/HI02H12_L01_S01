@@ -32,8 +32,12 @@ usage: python -I -X utf8 recap_check.py <index.html> <render 1280x720> <outdir> 
    20 px corners; the picture's shadow (T1's girl: the frame's drop shadow; T1B's fruits: none); per-pixel diffs vs the render over
    the boxes and the whole card (less Swiftie / chip / आगे, the three ink bands, the sentence box's shadow band — the frame's own
    shadow differs by design — and the picture, which is compared on its own: the same bitmap, resampled).
+[recap-eg] (2026-11-04) T1's and T1B's examples and pictures are the user's ("मुझे आम खाना पसंद है।" + the girl with a mango; "मुझे लाल,
+हरा और पीला रंग पसंद है ।" + the girl painting), not the renders': their sentence is judged by its ink centred on its white box (the
+box interior is masked from the card diff), their picture against the user's own bitmap drawn into its box, and only the page's own
+mark is kept (T1B's closing "।" lights and goes with its word).
 """
-import sys, re, json, pathlib
+import sys, re, io, json, pathlib
 import numpy as np
 from playwright.sync_api import sync_playwright
 from PIL import Image
@@ -41,6 +45,7 @@ from PIL import Image
 html = pathlib.Path(sys.argv[1]).resolve(); target = Image.open(sys.argv[2]).convert("RGB")
 out = pathlib.Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
 PAGE = sys.argv[4] if len(sys.argv) > 4 else "T1"
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 fails = []
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
@@ -56,26 +61,29 @@ AS_T0 = {   # stage px: the frame's card box; page 1 T0's Swiftie, chip and आ�
 CX, CY = 96, 106   # the frames' card origin (page px at 1280x720)
 PAGES = {
   "T1": {   # frame 764:144 (its metadata: a group's children are in CARD px)
-    "key": "purn", "mark": "।", "image": "img_recap_girl", "variant": None, "name": "पूर्ण विराम", "sent": "पिंकी स्कूल गई ।",
-    "lead": "vo_recap_lead", "intro": "vo_recap_intro", "next": "T1B",
+    # [recap-eg] (2026-11-04) the example and the picture are the user's (not in the render): "new_eg" judges the sentence by its ink
+    # centred on its box, "pic_src" the picture against the user's own bitmap; the box interior is masked from the card diff
+    "key": "purn", "mark": "।", "image": "img_recap_mango", "variant": None, "name": "पूर्ण विराम", "sent": "मुझे आम खाना पसंद है।",
+    "lead": "vo_recap_lead", "intro": "vo_recap_intro", "next": "T1B", "new_eg": True, "pic_src": "recap_assets/src_recap_mango.png",
     "FRAME": {".rcf-sign": (CX+199-4, CY+65-4, 183, 177.355),   # node 764:326: 175x169.355 + its 4px OUTSIDE stroke
               ".rcf-ebox": (CX+199, CY+274, 578, 84),           # node 764:752
-              ".rcf-pic":  (CX+835, CY+91, 176, 264)},          # node 764:753
-    "INK": {"sign": (310, 186, 460, 326), "name": (480, 200, 900, 320), "sentence": (310, 384, 860, 462)},
+              ".rcf-pic":  (CX+835, CY+91, 176, 264)},          # node 764:753 (the user's 1024x1536 mango girl in it, as the old girl)
+    "INK": {"sign": (310, 186, 460, 326), "name": (480, 200, 900, 320)},
     "TOL": {"sign": (6, 2), "name": (3, 2), "sentence": (3, 2)},   # (width, height) px: the sign's 600 face vs the embedded 700
-    "BY_DESIGN": [(355, 190, 410, 310), (535, 203, 820, 303), (445, 390, 725, 460), (280, 462, 890, 512),
+    "BY_DESIGN": [(355, 190, 410, 310), (535, 203, 820, 303), (CX+199+8, CY+274+6, CX+199+578-8, CY+274+84-4), (280, 462, 890, 512),
                   (CX+835-6, CY+91-4, CX+835+176+6, CY+91+264+10)],
     "pic_filter": "drop-shadow(rgba(0, 0, 0, 0.25) 0px 2px 2px)"},
   "T1B": {   # frame 764:755
-    "key": "alp", "mark": ",", "image": "img_demo3_fruits", "variant": "alp", "name": "अल्प विराम", "sent": "आम, केला, संतरा और सेब",
-    "lead": None, "intro": None, "next": "T1C",
+    # [recap-eg] (2026-11-04) the user's sentence and picture (the girl painting, 1199x1312, in the fruits' width and centre)
+    "key": "alp", "mark": ",", "image": "img_recap_paint", "variant": "alp", "name": "अल्प विराम", "sent": "मुझे लाल, हरा और पीला रंग पसंद है ।",
+    "lead": None, "intro": None, "next": "T1C", "new_eg": True, "pic_src": "recap_assets/src_recap_paint.png",
     "FRAME": {".rcf-sign": (CX+209-4, CY+65-4, 183, 177.355),   # node 764:937
               ".rcf-ebox": (CX+209, CY+274, 578, 84),           # node 764:940
-              ".rcf-pic":  (CX+816, CY+143, 219, 146)},         # node 524:350 (its bitmap = T4's img_demo3_fruits)
-    "INK": {"sign": (316, 182, 470, 330), "name": (490, 200, 920, 320), "sentence": (320, 386, 870, 460)},
+              ".rcf-pic":  (CX+816, CY+96.18, 219, 239.65)},    # node 524:350's width and centre (816,143 219x146), the new bitmap's aspect
+    "INK": {"sign": (316, 182, 470, 330), "name": (490, 200, 920, 320)},
     "TOL": {"sign": (6, 4), "name": (3, 2), "sentence": (3, 2)},   # the comma's 700 face: 27x36 for the render's 23x33
-    "BY_DESIGN": [(368, 238, 414, 290), (540, 205, 840, 285), (388, 388, 800, 446), (290, 462, 900, 512),
-                  (CX+816-6, CY+143-4, CX+816+219+6, CY+143+146+10)],
+    "BY_DESIGN": [(368, 238, 414, 290), (540, 205, 840, 285), (CX+209+8, CY+274+6, CX+209+578-8, CY+274+84-4), (290, 462, 900, 512),
+                  (CX+816-6, CY+96-4, CX+816+219+6, CY+96+240+10)],   # the new picture's box (it covers the render's fruits too)
     "pic_filter": "none"},
   "T1C": {   # frame 764:945
     "key": "prashn", "mark": "?", "image": "img_recap_house", "variant": "prashn", "name": "प्रश्नवाचक चिह्न", "sent": "तुम्हारा घर कहाँ है ?",
@@ -91,7 +99,7 @@ PAGES = {
     "font_mark": '"Story Noto Q"', "font_eg": '"Story Noto Q"'},
 }
 P = PAGES[PAGE]; K = P["key"]; SENT = P["sent"]; FRAME = P["FRAME"]; INK = P["INK"]
-KEEP_WI = [i for i, w in enumerate(SENT.split()) if re.search(r"[।?,!]$", w)]   # the words whose mark stays lit
+KEEP_WI = [i for i, w in enumerate(SENT.split()) if w.endswith(P["mark"])]   # the words whose mark stays lit ([recap-eg]: the page's own mark only)
 NKEEP = len(KEEP_WI)
 x0p, y0p, x1p, y1p = FRAME[".rcf-pic"][0], FRAME[".rcf-pic"][1], FRAME[".rcf-pic"][0] + FRAME[".rcf-pic"][2], FRAME[".rcf-pic"][1] + FRAME[".rcf-pic"][3]
 PIC = (int(x0p), int(y0p), int(x1p), int(y1p))
@@ -388,13 +396,38 @@ with sync_playwright() as p:
         print(f"  {name:9s} page {[int(v) for v in a]} ({a[2]-a[0]}x{a[3]-a[1]})  render {[int(v) for v in t]} ({t[2]-t[0]}x{t[3]-t[1]})  centre d=({dc[0]:+.1f},{dc[1]:+.1f})  size d=({ds[0]:+d},{ds[1]:+d})")
         check(f"{name}: its ink sits where the render's does (centre within 1.5 px), its size within {tw} x {th} px",
               abs(dc[0]) <= 1.5 and abs(dc[1]) <= 1.5 and abs(ds[1]) <= th and abs(ds[0]) <= tw, (dc, ds))
+    if P.get("new_eg"):   # [recap-eg] the user's sentence (the render has the old one): its ink centred on its box, on one line, inside it
+        bx, by, bw, bh = boxes[".rcf-ebox"]
+        a = ink(mine, (int(bx) + 8, int(by) + 6, int(bx + bw) - 8, int(by + bh) - 6))
+        dc = ((a[0] + a[2]) / 2 - (bx + bw / 2), (a[1] + a[3]) / 2 - (by + bh / 2))
+        print(f"  sentence  page {[int(v) for v in a]} ({a[2]-a[0]}x{a[3]-a[1]})  box {[round(v, 1) for v in (bx, by, bw, bh)]}  centre d from the box's=({dc[0]:+.1f},{dc[1]:+.1f})"
+              f"  side white {a[0] - bx:.0f} / {bx + bw - a[2]:.0f}")
+        check("sentence (the user's): its ink centred on its white box across (within 1 px) and down (within 5 px: the frame's baseline kept — its own sentence sat 3.5 px low), "
+              "at least 10 px of white each side, the type's height (48-54 px of ink at 40 px)",
+              abs(dc[0]) <= 1.0 and abs(dc[1]) <= 5 and a[0] - bx >= 10 and bx + bw - a[2] >= 10 and 48 <= a[3] - a[1] <= 54, dc)
     A = np.asarray(mine, np.int16); B = np.asarray(target, np.int16)
     pad = np.pad(B, ((1, 1), (1, 1), (0, 0)), mode="edge")
     near = np.min([np.abs(A - pad[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2)
                    for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
-    x0, y0, x1, y1 = PIC; pc = near[y0:y1, x0:x1]
-    print(f"  the picture vs the render (within 1 px): mean {pc.mean():.2f} levels, {100 * (pc > 48).mean():.2f}% over 48")
-    check("the picture is the frame's bitmap, where the frame has it (within 1 px: mean diff under 12 levels, under 6% of its area over 48)", pc.mean() < 12 and (pc > 48).mean() < 0.06)
+    if P.get("pic_src"):   # [recap-eg] the user's picture: the page against the user's bitmap drawn into the picture's box over the page without it
+        src = Image.open(SCRIPT_DIR / P["pic_src"]).convert("RGBA")
+        info = pg.evaluate("(() => { const i = document.querySelector('.rcf-pic img'); return [decodeURIComponent(i.currentSrc.split('/').pop()), i.naturalWidth, i.naturalHeight, i.complete]; })()")
+        check(f"the picture is the user's ({P['image']}.webp, {src.size[0]}x{src.size[1]} like {P['pic_src']}), loaded", info == [P["image"] + ".webp", src.size[0], src.size[1], True], info)
+        pg.evaluate("document.querySelector('.rcf-pic').style.visibility = 'hidden'"); pg.wait_for_timeout(300)
+        bare = Image.open(io.BytesIO(pg.screenshot())).convert("RGBA")
+        pg.evaluate("document.querySelector('.rcf-pic').style.visibility = ''"); pg.wait_for_timeout(200)
+        px_, py_, pw_, ph_ = boxes[".rcf-pic"]; W, H = round(pw_), round(ph_)
+        lay = Image.new("RGBA", bare.size, (0, 0, 0, 0)); lay.paste(src.resize((W, H), Image.LANCZOS), (round(px_), round(py_)))
+        want = np.asarray(Image.alpha_composite(bare, lay).convert("RGB"), np.int16); opaque = np.asarray(lay)[..., 3] >= 243
+        padw = np.pad(want, ((1, 1), (1, 1), (0, 0)), mode="edge")
+        nearw = np.min([np.abs(A - padw[1+dy:1+dy+A.shape[0], 1+dx:1+dx+A.shape[1]]).max(axis=2) for dy in (-1, 0, 1) for dx in (-1, 0, 1)], axis=0)
+        pc = nearw[opaque]
+        print(f"  the picture vs the user's bitmap in its box (within 1 px, its opaque {int(opaque.sum())} px): mean {pc.mean():.2f} levels, {100 * (pc > 48).mean():.2f}% over 48")
+        check("the picture is the user's bitmap, undistorted in its box (within 1 px: mean diff under 12 levels, under 6% of its area over 48)", pc.mean() < 12 and (pc > 48).mean() < 0.06)
+    else:
+        x0, y0, x1, y1 = PIC; pc = near[y0:y1, x0:x1]
+        print(f"  the picture vs the render (within 1 px): mean {pc.mean():.2f} levels, {100 * (pc > 48).mean():.2f}% over 48")
+        check("the picture is the frame's bitmap, where the frame has it (within 1 px: mean diff under 12 levels, under 6% of its area over 48)", pc.mean() < 12 and (pc > 48).mean() < 0.06)
     keep = np.zeros(near.shape, bool); x0, y0, x1, y1 = WHOLE; keep[y0:y1, x0:x1] = True
     for x0, y0, x1, y1 in OWN_T0 + P["BY_DESIGN"]: keep[y0:y1, x0:x1] = False
     m = (near > 32) & keep; px = int(keep.sum())

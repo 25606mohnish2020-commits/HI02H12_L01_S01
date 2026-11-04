@@ -5,8 +5,8 @@ reference title page's, on its whoosh), the instruction with the bird's GIF on t
 the bird's exit (backwards, the whoosh again), the camera move onto the overhead table, round 1's sentence read with the word light,
 the box's 3 s blink. From there this script is the child: round 1 — it lets the guidance run (and come again after 7 s), takes hold of
 the guiding stamp mid-glide, drops it far off, drops the wrong stamp on the box, taps a stamp, drops the right stamp on the box off its
-centre; each later round — the clearing, the round's line, its stamps' pops, its sentence rising in and read, its boxes' blink, no
-guidance (the round's line again after 7 s idle), a wrong stamp on the box, then the right one on each box in turn; after the last round
+centre; each later round — the clearing, its stamps' pops at once ([l2-quiet] 2026-11-04: NO line as the round opens), its sentence rising in
+and read, its boxes' blink, no guidance (the round's own line only after 7 s idle), a wrong stamp on the box, then the right one on each box in turn; after the last round
 the finale; a re-run; a mid-way exit with a stamp in hand. [stamp-close] (2026-11-04) the finale = L1's envelope transition backwards, then Figma 792:1253 with the
 glitter — stamp_close_check.py has it beat by beat; here its moment, layer, sounds, landing, glitter and hand-over. The page's own frame trace (rAF) and a hook on every media play record the
 beats; they are checked against each other and against the clips' own clocks, so Playwright's own lag never fails a good build. The
@@ -385,12 +385,13 @@ with sync_playwright() as p:
               and all(imgsrc(fr, k) == R["stamps"][k] + ".webp" for k in range(n)) and all(boxnear(fr["st"][k], R["boxes"][k], 1.5) for k in range(n)) and boxes_ok(fr),
               (round(fr["t"] - fu[0]["t"]) if fr and fu else None, [imgsrc(fr, k) for k in range(len(fr["imgs"]))] if fr else None, [[round(v, 1) for v in s_["box"]] for s_ in fr["slots"]] if fr else None))
         clipI = R.get("intro_audio") or "vo_stamp_intro"; introR = snd(clipI); voiR = lambda f, c=clipI: f["vo"] and f["vo"][0] == c + ".ogg"
-        f_isr = first(tr, lambda f: voiR(f) and f["vo"][1] > 0, since=fr["t"] - 100) if fr else None; f_ier = first(tr, lambda f: voiR(f) and f["vo"][2], since=f_isr["t"]) if f_isr else None
-        t_pop0 = f_ier["t"] if f_ier else (fr["t"] if fr else 0)
-        fpr = [first(tr, lambda f, k=k: popping(f, k), since=fr["t"]) for k in range(n)] if fr else [None] * n; popsr = [x for x in pops if fr and t_pop0 - 50 < x["t"] < t_pop0 + P["after_intro"] + n * P["pop_gap"] + 500]
-        check(f"round {ri + 1}: its own line ({clipI}) as the round is set, then its {n} stamps pop in 0.5 s after it, 350 ms apart, each on its pop",
-              f_isr and f_ier and -100 < f_isr["t"] - fr["t"] < 500 and all(fpr) and len(popsr) == n and abs(fpr[0]["t"] - t_pop0 - P["after_intro"]) < 250 and all(abs(fpr[k]["t"] - fpr[k - 1]["t"] - P["pop_gap"]) < 110 for k in range(1, n))
-              and all(abs(popsr[k]["t"] - fpr[k]["t"]) < 60 for k in range(n)), ([round(f["t"] - t_pop0) for f in fpr] if all(fpr) and fr else None))
+        t_pop0 = fr["t"] if fr else 0   # [l2-quiet] no line first: the round's stamps pop in as it is set
+        fpr = [first(tr, lambda f, k=k: popping(f, k), since=fr["t"]) for k in range(n)] if fr else [None] * n; popsr = [x for x in pops if fr and t_pop0 - 50 < x["t"] < t_pop0 + n * P["pop_gap"] + 500]
+        fslr0 = first(tr, lambda f: len(f["slots"]) == nsl and all(has(s_["cl"], "in") for s_ in f["slots"]), since=fr["t"]) if fr else None
+        opened = [x for x in introR if fr and fslr0 and fr["t"] - 100 < x["t"] < fslr0["t"]]   # the round's line played from its setting to its boxes' appearance
+        check(f"round {ri + 1}: [l2-quiet] NO line as the round opens (its {clipI} not played from the round's setting to its boxes) — its {n} stamps pop in at once, 350 ms apart, each on its pop",
+              fr and fslr0 and not opened and all(fpr) and len(popsr) == n and abs(fpr[0]["t"] - t_pop0) < 150 and all(abs(fpr[k]["t"] - fpr[k - 1]["t"] - P["pop_gap"]) < 110 for k in range(1, n))
+              and all(abs(popsr[k]["t"] - fpr[k]["t"]) < 60 for k in range(n)), ([round(f["t"] - t_pop0) for f in fpr] if all(fpr) and fr else None, [round(x["t"] - fr["t"]) for x in opened] if fr else None))
         clip = R["sentence"]["audio"]; sentr = snd(clip); WEr = R["sentence"].get("word_end")
         fwr0 = first(tr, lambda f: f["words"] > 0 and f["round"] == str(ri), since=fr["t"]) if fr else None
         f_er = first(tr, lambda f: f["vo"] and f["vo"][0] == clip + ".ogg" and f["vo"][2], since=fr["t"] if fr else 0)

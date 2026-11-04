@@ -1,0 +1,30 @@
+{
+ "text": "उदाहरण- आम, केला, संतरा और सेब",
+ "shown": "आम, केला, संतरा और सेब",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   1.42,
+   2.54
+  ],
+  [
+   2.54,
+   3.6
+  ],
+  [
+   3.6,
+   4.3
+  ],
+  [
+   4.3,
+   4.94
+  ],
+  [
+   4.94,
+   5.62
+  ]
+ ],
+ "source": "recording vo_recap_alp_eg.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

@@ -6302,11 +6302,14 @@ const SlideModules = {
       // the sentence's marks keep their orange once the clip has lit them: a token of punctuation alone (T1's "।") whole; a mark
       // ending a word ([recap-alp] T1B's "आम," / "केला,") split off into its own span, so the word lights and goes as the others
       // do and only its mark stays lit
+      // [recap-eg] (2026-11-04) only the PAGE's own mark (d.mark) does: T1B's sentence now ends in a "।", which lights and goes with
+      // its word as the words do (T1's and T1C's sentences hold no other mark, so they are as before)
+      const own = (s)=> !d.mark || [...s].every(ch=> ch === d.mark);
       const keeps = [];
       Leg.words.forEach((w, i)=>{
-        if(/^[।?,!]+$/.test(w.textContent)){ keeps.push({ el: w, i }); return; }
+        if(/^[।?,!]+$/.test(w.textContent)){ if(own(w.textContent)) keeps.push({ el: w, i }); return; }
         const m = w.textContent.match(/^(.+?)([।?,!]+)$/);
-        if(m){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "rcf-mk"; s.textContent = m[2]; w.appendChild(s); keeps.push({ el: s, i }); }
+        if(m && own(m[2])){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "rcf-mk"; s.textContent = m[2]; w.appendChild(s); keeps.push({ el: s, i }); }
       });
       const egTimes = Leg.times || [];
       // the picture at the sentence's first word; each kept mark at its own word's start
@@ -6347,6 +6350,10 @@ const SlideModules = {
       const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);
       const appear = (el)=>{ if(el.classList.contains("in")) return false; el.classList.add("in"); return true; };
       if(d.pic_sfx && !_kitSfx.recapPic){ const a = _kitSfx.recapPic = new Audio("assets/Audio/" + d.pic_sfx); a.preload = "auto"; }   // fetched now, heard ~15 s later
+      /* [recap-eg] (2026-11-04) data.pic_decode: the picture's bitmap decoded now, ~15 s before it shows — a large one is otherwise decoded
+         on its first paint and Chrome holds the entrance until then (T1B's 1199x1312 painting girl: 50 ms behind its sound; the old
+         450x300 fruits: 0) — so it comes in on the frame its sound starts */
+      if(d.pic_decode){ const im = pic.querySelector("img"); if(im && im.decode) im.decode().catch(()=>{}); }
       const readAll = ()=>{
         const mine = ++run, live = ()=> mine === run && alive();
         state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
@@ -7193,15 +7200,17 @@ const SlideModules = {
      -> 792:1245 -> 792:1249: 1. the girl writing comes in full screen on the magic shimmer's first frame; 2. then the narration
      (data.intro_audio) with the mild piano bed; on the narration's own clock: 3. on "दादाजी" (pace.dada) the girl thinking fades in
      and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. [l1-late] 2 s
-     before the narration's speech ends (pace.letter) the girl pensive fades in and the grandfather fades to the white cloud as the
-     letter grows in it, where it stands (no sound); 5. once the narration has ended (and the letter has grown) it pulses and waits — the
+     before the narration's speech ends (pace.letter) [l1-cloud] the room stays as it is and [l1-clean] the grandfather's whole
+     picture fades out of the SAME cloud, leaving it clean white (data.cloud_clean: a patch of its own white over its body, the rim
+     untouched), and once it is (pace.env_after) the letter grows in it, where it stands (no sound);
+     5. once the narration has ended (and the letter has grown) it pulses and waits — the
      only tap: the pop, the envelope zooms to 610:6 over the blurred room, the seal pops, the flap swings open on the paper crackle,
      the sheet rises, the view dives into it, a veil — then the next page. Self-driving, no आगे. Timings in data.pace (ms), places
      in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
       const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 9070,
-        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, white: 500, ready_after: 300,
+        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, env_after: 700, ready_after: 300,
         zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {}, sc = d.scenes || {}, SB = L.scenes || {};
@@ -7210,10 +7219,10 @@ const SlideModules = {
       const box = (b)=> b ? 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px' : '';
       const fig = sfigMount(host,
         '<div class="ltr">' +
-          ['w', 't', 'p'].map(k=> '<img class="ltr-scene ' + k + '" src="' + imgSrc(sc[k]) + '" alt="" draggable="false" style="' + box(SB[k]) + '">').join("") +   // each frame's picture in its own box
+          ['w', 't', 'p'].filter(k=> sc[k]).map(k=> '<img class="ltr-scene ' + k + '" src="' + imgSrc(sc[k]) + '" alt="" draggable="false" style="' + box(SB[k]) + '">').join("") +   // each frame's picture in its own box ([l1-cloud] only those the card names: no p now)
           bubs.map(b=> '<span class="ltr-bub" style="left:' + (b[0] - b[2] / 2) + 'px;top:' + (b[1] - b[2] / 2) + 'px;width:' + b[2] + 'px;height:' + b[2] + 'px"></span>').join("") +
           '<div class="ltr-cloud" style="left:' + cl[0] + 'px;top:' + cl[1] + 'px;width:' + cl[2] + 'px;height:' + cl[2] + 'px">' +
-            '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cw" src="' + imgSrc(d.cloud_white) + '" alt="" draggable="false"></div>' +
+            '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cc" src="' + imgSrc(d.cloud_clean) + '" alt="" draggable="false"></div>' +   // [l1-clean] over the grandfather's picture: the same cloud, clean white
           '<img class="ltr-blur" src="' + imgSrc(d.blur) + '" alt="" draggable="false">' +
           '<div class="ltr-env-pos" role="button" aria-label="पत्र" style="left:' + full[0] + 'px;top:' + full[1] + 'px;width:' + full[2] + 'px;height:' + full[3] + 'px">' +
             '<div class="ltr-env-grow"><div class="ltr-env-pulse"><div class="ltr-env3d">' +
@@ -7296,11 +7305,11 @@ const SlideModules = {
       cues.push({ ms: P.dada, fn: ()=>{ root.classList.add("t-in");
         bubEls.forEach((b, k)=> at(P.bub_after + k * P.bub_gap, ()=> b.classList.add("in")));
         at(P.cloud_after, ()=> cloud.classList.add("in")); } });
-      // 4. [l1-late] 2 s before the speech ends: the girl pensive (792:1249) fades in, and with her the white cloud comes over the
-      //    grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s) — no sound
-      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in"); cloud.classList.add("white"); root.classList.add("letter-in");
-        at(P.white + 20, ()=> cloud.classList.add("white2"));
-        at(900, ()=>{ grown = true; tryReady(); }); } });
+      // 4. [l1-late] 2 s before the speech ends: [l1-cloud] the room stays (792:1245) and [l1-clean] the grandfather's whole picture
+      //    fades out of the same cloud (its clean white comes over its body, .5 s; the rim never changes), and once the cloud is clean
+      //    white (env_after) the letter grows in it (the CSS: .9 s) — no sound
+      cues.push({ ms: P.letter, fn: ()=>{ cloud.classList.add("clean");
+        at(P.env_after, ()=>{ root.classList.add("letter-in"); at(900, ()=>{ grown = true; tryReady(); }); }); } });
       // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
@@ -7639,9 +7648,10 @@ const SlideModules = {
       }
       // [stamp-remind] the title's line said again (never over another clip, never with a stamp in hand); the idle count starts over
       // [vo-rec] a later round opens with its own instruction (rounds[i].intro_audio: the deck's line for that round) before its
-      // stamps pop in; the idle reminder says that line too
+      // stamps pop in; the idle reminder says that line too. [l2-quiet] (2026-11-04) data.intro_on_idle: a later round does NOT open
+      // with it — its stamps pop in at once — and the line is said only by the idle reminder, after 7 s without a touch
       const roundSrc = ()=> (R && R.D.intro_audio) ? A(R.D.intro_audio) : introSrc;
-      function roundIntro(then){ const src = R && R.D.intro_audio ? A(R.D.intro_audio) : null; if(!src){ then(); return; }
+      function roundIntro(then){ const src = R && R.D.intro_audio && !d.intro_on_idle ? A(R.D.intro_audio) : null; if(!src){ then(); return; }
         let done = false; const go = ()=>{ if(done || !alive()) return; done = true; at(P.after_intro, then); };
         play(src, go); at(authoredVoHoldMs(src) + 10000, ()=>{ if(!done){ stopAudio(); go(); } }); }
       function remind(){

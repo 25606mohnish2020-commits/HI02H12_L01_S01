@@ -1954,6 +1954,46 @@ Page 5 T1C: the प्रश्नवाचक चिह्न page ([recap-pras
   (the engine makes it on the first sound; a page mounted on its own made it on the sign's pop, holding that frame 30-60 ms).
   `../_before_recap_prashn/` holds the [recap-alp] dist, build.py, README, recap_check.py, smoke.py and word_sync_check.py.
 
+Pages 3 T1 and 4 T1B: the user's example sentences and pictures ([recap-eg], 2026-11-04)
+- Asked: "At Page 3 T1 replace the text in the white text box with मुझे आम खाना पसंद है। instead of पिंकी स्कूल गई । and replace the
+  existing image with this image [a girl in pink holding a mango] keeping the whole functionality and the flow as it is and generate
+  the new VO and sync it with the exact same animations and sound effects accordingly. At Page 4 T1B replace the text with मुझे लाल,
+  हरा और पीला रंग पसंद है । instead of आम , केला , संतरा और सेब and replace the image with this image [the same girl painting at an
+  easel] ... Rest keep everything exactly the same."
+- The texts are the user's, as typed: T1's "है।" with the danda joined (it is split off into its own .rcf-mk span and kept orange, as
+  T1B's "आम," was), T1B's "है ।" with a space before the danda.
+- VO: two new PLACEHOLDER takes, `recap_vo.py recap purn_eg --gain=2.5` / `alp_eg --gain=1.0` (edge-tts 7.3.1 in a venv,
+  hi-IN-SwaraNeural -15%, the voice of the lesson's other placeholder lines), "उदाहरण- मुझे आम खाना पसंद है।" (3.22 s) and "उदाहरण-
+  मुझे लाल, हरा और पीला रंग पसंद है ।" (4.85 s) — said with "उदाहरण-" first, as the recordings they replace were. New --gain option:
+  each take brought to the loudness of the recording it replaces (ebur128 integrated: -18.0 / -19.1 LUFS; the synthesiser reads ~2 dB
+  under). Word times = the synthesiser's own boundaries (whisper re-heard both: every word, within ~50 ms); T1B's lone "।" shares
+  "है"'s start (recap_vo.py's rule for a punctuation-only word). The old recordings stay in voiceovers/ and in ../_before_recap_eg/;
+  vo_rec.py SKIPs vo_recap_purn_eg.wav / vo_recap_alp_eg.wav now, so a re-run does not put the old sentences back; build.py sets the
+  two clips' audio_text after the [vo-rec] texts. The rest of both pages' lines (lead, intro, names, uses) are the recordings, as before.
+- Pictures: the user's PNGs kept as recap_assets/src_recap_mango.png / src_recap_paint.png, shipped as img_recap_mango.webp /
+  img_recap_paint.webp (WebP q90, alpha exact). T1's is 1024x1536 like the old girl's bitmap, so it takes her box (176x264 at 835,91
+  card px) and drop shadow as is. T1B's (1199x1312) takes the fruits' width (219) and centre (925.5,216 card px) at its own aspect:
+  219x239.65, no shadow (the fruits had none). img_recap_girl.webp is out of the dist (no page shows it); img_demo3_fruits stays
+  registered by T4's block, unshown.
+- Placement: T1's new sentence lands centred by the unchanged rule (ink 352x50, centre 0.0 across / +4.1 down from its box's — the
+  frame's own sentence sat 3.5 low: the frame's baseline is kept). T1B's is 549 px of ink in the 578 box at the frames' 40 px: centred
+  across by .rcf-v-alp .rcf-eg left 485.5 -> 490 (14 px of white each side, -0.9 down); the type is the other pages' 40 px.
+- Two module changes (MARKS_RECAP): (1) only the PAGE's own mark (data.mark) keeps its orange — T1B's sentence now ends in a "।",
+  which lights and goes with "है" as the words do (T1's and T1C's sentences hold only their own mark: unchanged); (2) data.pic_decode
+  (T1, T1B): the picture's bitmap is decoded at mount. Measured (scratchpad pic_lag.py, 4 mounts each): a large bitmap is otherwise
+  decoded on its first paint and Chrome holds the entrance transition until then — T1B's painting girl came in 50 ms (3 frames) after
+  the class and its sound (the old 450x300 fruits: 0 ms), T1's girl 34 ms (as before); with the decode both are 0 ms. T1C has no flag
+  (its house still starts ~34 ms late, as it always did — that is what makes recap_check's horse-trace check flaky on T1C).
+- The rebuilt dist differs from ../_before_recap_eg/dist/ in: T1 / T1B data (image_id, example, pic_decode), the image entries, the two
+  clips' audio_text, the module lines above, the two .rcf-v-alp rules; assets: vo_recap_purn_eg.ogg / vo_recap_alp_eg.ogg replaced,
+  img_recap_mango.webp / img_recap_paint.webp added, img_recap_girl.webp removed. The VO manifest xlsx is not updated.
+- Checked: recap_check.py now knows the two pages' sentences / pictures ("new_eg": the sentence's ink centred on its white box, across
+  within 1 px, down within 5, >= 10 px white each side; "pic_src": the picture against the user's bitmap drawn into its box over the
+  page without it — mean 5.8 / 5.4 levels; the box interior masked from the card diff; KEEP_WI = the page's mark only). Tallies on the
+  final build: recap_check T1 44/44, T1B 44/44, T1C 43/43 ALL PASS; word_sync_check T1 / T1B / T1C every line OK; smoke 53/53.
+  `../_before_recap_eg/` holds the dist's three files, build.py, recap_vo.py, vo_rec.py, README, recap_check.py, smoke.py,
+  word_sync_check.py and the two recorded example clips + their words.json.
+
 Page 2 T0B: T1's text sounds ([relisten-sfx], 2026-11-01)
 - Asked: "apply the exact same sound effects of the texts as of page 3 T1 on page 2 T0B of this file; rest exactly the same."
 - T1's text sound ([recap-sfx]) is the reference's sfxPopSoft, _tone([720], "sine", 0.10, 0.07), played as a text appears and
@@ -2797,6 +2837,59 @@ Page 16 L2: the finale = the letter page's envelope transition backwards, then F
   the finale's code, the finale's CSS); built into a scratch copy first, the live dist then built in place byte-identical to it.
 - `../_before_stamp_close/` holds the dist's three files, build.py, stamp_check.py, smoke.py, gate_check.py, letter_check.py and
   README.md from before.
+
+Page 15 L1: the room stays; the grandfather's picture leaves the SAME cloud, clean white, then the letter ([l1-cloud] / [l1-clean], 2026-11-04)
+- Asked ([l1-cloud]): "when the image of the grandfather's cloud comes, after that the whole image should not change: the grandfather
+  inside that cloud should disappear and the letter envelope should come in the same cloud, instead of changing the whole image into a
+  new one and then appearing a new cloud with a letter envelope; keep the whole functionality exactly the same in this page." Then
+  ([l1-clean], on the first take): "why is the cloud from which the grandfather disappeared not fully clean white before the letter
+  envelope appeared in it? it seems that the letter envelope appeared on the grandpa's image. Fix this."
+- Was ([l1-fig] / [l1-late]): at the letter's moment (9.07 s on the narration's clock) the picture of 792:1249 (the girl pensive — a
+  different drawing of the room: the window, the plant, her pose) faded in over 792:1245, and a plain white cloud of the same outline
+  (img_letter_cloud_white, its rim white too) came over the grandfather's cloud, his picture switched off under it 520 ms later, as the
+  letter grew in it — in that same frame. The first take ([l1-cloud], in ../_before_l1_clean/) kept the room but painted out only the
+  grandfather (his pastel glow, hearts and bushes stayed: "not clean white") and still started the letter in the very frame he began
+  to fade (0.5 s), so the letter grew over him.
+- Now: the room stays 792:1245 (the girl thinking) to the end — the pensive picture is off the page. At the letter's moment (9.07 s,
+  as before) the grandfather's whole picture fades out of the same cloud (.5 s): img_letter_cloud_clean (make_letter_cloud_clean.py) is
+  a PATCH of the cloud's own mist white (252,251,252: the median of the outer 8 px of its opaque body) over the whole of that body
+  (alpha >= 250 — the grandfather, his glow, the hearts, the bushes), its alpha ramping 1 -> 0 over the cloud's alpha 250 -> 240 and 0 on
+  the soft pink rim itself (measured free of the picture's colours), laid over the grandfather's cloud in the same box. So the cloud
+  keeps its outline and rim (the rim never doubles: the patch is 0 there) and is left clean white; the grandfather's layer stays at 1
+  under it (nothing swapped). Once it is clean, pace.env_after (700 ms) after the moment, the letter grows in it (the same .9 s growth,
+  the same pulse, tap, zoom, opening, dive, veil, sounds); the page is still ready (pulsing, tappable) only when the narration has ended
+  (+300 ms), at the same time as before. The zoom's backdrop is that room blurred: img_letter_blur_t, from Figma 792:1245's render by
+  blur_p's recipe (Gaussian 7.5 px, 90 % over white; the recipe re-makes blur_p within WebP noise, mean 0.8 / 765). Re-make both:
+  `python -I -X utf8 make_letter_cloud_clean.py [--debug <dir>]`.
+- Code: the card (scenes w / t only, blur = img_letter_blur_t, cloud_clean in place of cloud_white, pace: no "white", env_after 700),
+  the module (the scenes it builds = those the card names; the .ltr-cc layer; the letter's cue adds .clean, then .letter-in env_after
+  later, no p-in / white / white2), the CSS (.ltr-scene.t alone; .ltr-cloud .ltr-cc / .clean in place of .ltr-cw / .white / .white2),
+  LETTER_IMGS; img_letter_scene_p, img_letter_blur_p, img_letter_cloud_white (and the first take's img_letter_cloud_empty) are out of
+  the dist (the first three kept in letter_assets/). L2's finale reuses L1's envelope CSS but none of these rules (its layer has no
+  scene and no cloud): untouched.
+
+Page 16 L2: the later rounds open without their instruction; it comes after 7 s idle ([l2-quiet], 2026-11-04)
+- Asked: "after the first sentence is over, from the second sentence till the last sentence the instruction VO should not come in
+  the beginning, but the instruction VO should come in the case of 7 seconds of inactivity from the user end."
+- Was ([vo-rec]): each later round (2-5) opened with its own instruction (rounds[i].intro_audio: vo_stamp_intro, vo_g1_intro,
+  vo_stamp4_intro, vo_stamp4_intro) and its stamps popped in 0.5 s after it; in those rounds (no guidance glide, [stamp-remind]) the
+  idle reminder already said that same line after 7 s without a touch.
+- Now: data.intro_on_idle — roundIntro skips the line, so a later round's stamps pop in the moment it is set (then its sentence, its
+  boxes' blink, as before); the round's own line is said only by the idle reminder: 7 s after its boxes appear without a touch, and
+  again after every further 7 s (never over a clip or with a stamp in hand). Round 1 (the bird's instruction at the page's start, its
+  guidance glide on idle) is unchanged; the wrong-drop ladder (hint 2 / hint 3) and the praise unchanged.
+- Code: one condition in the [vo-rec] roundIntro patch (`&& !d.intro_on_idle`) and SL["L2"]["data"]["intro_on_idle"] = True.
+- Checked: letter_check.py ([l1-cloud] / [l1-clean]: the card, no pensive picture / white cloud ever, the cloud clean white
+  0.45 s after the moment with the grandfather's layer, the cloud and the room at 1 in every frame, the letter's first frame 700 ms after
+  the moment and 250 ms after the white is whole, unseen until then; the rim identical to the grandfather shot's, mean 2.2 / 765; the
+  body off the envelope exactly the cloud's white, mean 0.0; the room still 792:1245; the zoom over img_letter_blur_t) 51/51 ALL PASS;
+  stamp_check.py (its later-round opening check flipped: no line, the stamps pop in at once — 0-44 ms after the round is set — and the
+  round's own line once, 7.0 s after its boxes appear) 111/111 ALL PASS; smoke.py 53/53; gate_check.py 13/13 ALL PASS. stamp_close_check.py
+  (L2's finale, untouched) is timing-flaky on this machine: interleaved A/B with both builds in Temp (--quick), the pre-change build
+  failed all its runs (setTimeout jitter 40 ms vs its 30 ms tolerance, 67-100 ms frame gaps), the new build passed 31/31 once.
+  `../_before_l1_clean/` holds the [l1-cloud] dist, build.py, letter_check.py, stamp_check.py, make_letter_cloud_empty.py and its patch;
+  `../_before_l1_cloud/` holds the dist's three files, build.py, README.md, letter_check.py, stamp_check.py, stamp_close_check.py,
+  smoke.py and gate_check.py from before.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

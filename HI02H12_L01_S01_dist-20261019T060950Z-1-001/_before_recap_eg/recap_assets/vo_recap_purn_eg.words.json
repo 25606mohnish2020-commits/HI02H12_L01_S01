@@ -1,0 +1,26 @@
+{
+ "text": "उदाहरण- पिंकी स्कूल गई ।",
+ "shown": "पिंकी स्कूल गई ।",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.86,
+   1.74
+  ],
+  [
+   1.74,
+   2.16
+  ],
+  [
+   2.16,
+   2.39
+  ],
+  [
+   2.39,
+   2.44
+  ]
+ ],
+ "source": "recording vo_recap_purn_eg.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

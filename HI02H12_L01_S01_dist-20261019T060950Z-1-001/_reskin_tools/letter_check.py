@@ -2,10 +2,13 @@
 itself on the narration's clock and its sounds start with their visual beats; the envelope waits for the tap, zooms to 610:6, opens
 and hands over to the stamp page. [l1-fig]: the girl writing (Figma 792:1257) comes in on the magic shimmer's first frame; the
 narration (vo_letter_intro) 1.2 s later with the piano bed (.2); on its "दादाजी" (0.84 s) the girl thinking (792:1245), the bubbles,
-the grandfather cloud; [l1-late] 2 s before its speech ends (9.07 s) the girl pensive (792:1249) and the white cloud over the
-grandfather with the letter growing in it, no sound (the "aahaha" removed); once the narration has ended the letter pulses, tappable.
+the grandfather cloud; [l1-late] 2 s before its speech ends (9.07 s) — [l1-cloud] the room unchanged (792:1245 to the end, the pensive
+792:1249 off the page) — [l1-clean] the grandfather's whole picture fades out of the SAME cloud, leaving it clean white (the patch
+img_letter_cloud_clean over its body, .5 s; its soft rim untouched, the cloud's own picture left under it: nothing swapped), and only
+once it is clean (pace.env_after) the letter grows in it, no sound (the "aahaha" removed); once the narration has ended the letter
+pulses, tappable; the zoom's backdrop = 792:1245's room blurred (img_letter_blur_t).
 usage: python -I -X utf8 letter_check.py <index.html> <outdir> [<dir with render_610-6.png>]
-Screenshots: l1_write.png (792:1257), l1_grandpa.png (792:1245 + the cloud), l1_letter.png (792:1249 + the letter), l1_zoom.png
+Screenshots: l1_write.png (792:1257), l1_grandpa.png (792:1245 + the cloud), l1_letter.png (792:1245 + the letter in the same cloud), l1_zoom.png
 (610:6), l1_flap.png, l1_open.png, l1_end.png; against the frames' renders (letter_assets/fig_792-*_render.png) outside the thought.
 Samples come from the page's OWN frames (rAF) and the clip's own clock, so screenshot time does not drift them."""
 import sys, json, pathlib
@@ -26,12 +29,13 @@ HOOK = """(() => { window._plays = []; const P = HTMLMediaElement.prototype.play
 STATE = """() => { const r = document.querySelector('.ltr'); if(!r) return null; const cs = (sel, p) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[p] : null; };
   const env = document.querySelector('.ltr-env-pos'), st = document.getElementById('stage'), sr = st.getBoundingClientRect(), k = sr.width / 1333;
   const fr = (e) => { const b = e.getBoundingClientRect(); const s = 1333 / 1280 * k; return { x: (b.left - sr.left) / s, y: (b.top - sr.top) / s, w: b.width / s, h: b.height / s }; };
-  return { cls: r.className, slide: CARD.slides[state.idx].id, wOp: +cs('.ltr-scene.w', 'opacity'), tOp: +cs('.ltr-scene.t', 'opacity'), pOp: +cs('.ltr-scene.p', 'opacity'),
+  return { cls: r.className, slide: CARD.slides[state.idx].id, wOp: +cs('.ltr-scene.w', 'opacity'), tOp: +cs('.ltr-scene.t', 'opacity'), pEl: !!document.querySelector('.ltr-scene.p'),
     cloudOp: +cs('.ltr-cloud', 'opacity'), cloudCls: (document.querySelector('.ltr-cloud') || {}).className || '', growOp: +cs('.ltr-env-grow', 'opacity'), growTf: cs('.ltr-env-grow', 'transform'),
-    cgOp: +cs('.ltr-cloud .ltr-cg', 'opacity'), cwOp: +cs('.ltr-cloud .ltr-cw', 'opacity'), blurOp: +cs('.ltr-blur', 'opacity'),
+    cgOp: +cs('.ltr-cloud .ltr-cg', 'opacity'), ccOp: +cs('.ltr-cloud .ltr-cc', 'opacity'), cwEl: !!document.querySelector('.ltr-cw'), blurOp: +cs('.ltr-blur', 'opacity'),
+    blurSrc: (document.querySelector('.ltr-blur') || {}).src ? document.querySelector('.ltr-blur').src.split('/').pop() : null,
     bubs: [...document.querySelectorAll('.ltr-bub')].map(b => +getComputedStyle(b).opacity), pulseOp: +cs('.ltr-env-pulse', 'opacity'),
     pulseTf: cs('.ltr-env-pulse', 'transform'), envRect: env ? fr(env) : null, heartOp: +cs('.ltr-heart', 'opacity'), flapTf: cs('.ltr-flap', 'transform'),
-    scenes: ['w', 't', 'p'].map(k => fr(document.querySelector('.ltr-scene.' + k))), cloudRect: fr(document.querySelector('.ltr-cloud')),
+    scenes: ['w', 't'].map(k => fr(document.querySelector('.ltr-scene.' + k))), cloudRect: fr(document.querySelector('.ltr-cloud')),
     veilOp: +cs('.ltr-veil', 'opacity'), isEnd: document.body.classList.contains('is-end'), nav: getComputedStyle(document.getElementById('navBtn')).display,
     bgm: (typeof backgroundMusic !== 'undefined' && backgroundMusic) ? +backgroundMusic.volume.toFixed(3) : null, demo: state.demoRunning,
     cleanup: typeof window.oceanCleanup === 'function' }; }"""
@@ -40,7 +44,7 @@ STATE = """() => { const r = document.querySelector('.ltr'); if(!r) return null;
 TRACE_IN = """() => { window.__tin = []; (function loop(){ const r = document.querySelector('.ltr'); if(!r) return; const q = (s) => document.querySelector(s), o = (s) => +getComputedStyle(q(s)).opacity;
   const a = currentAudio, vo = !!a && String(a.src).includes('vo_letter_intro');
   window.__tin.push({ t: performance.now(), voT: vo ? a.currentTime : null, cls: r.className, cloudCls: q('.ltr-cloud').className, bubs: document.querySelectorAll('.ltr-bub.in').length,
-    w: o('.ltr-scene.w'), tO: o('.ltr-scene.t'), p: o('.ltr-scene.p'), cloud: o('.ltr-cloud'), cg: o('.ltr-cg'), cw: o('.ltr-cw'), grow: o('.ltr-env-grow') });
+    w: o('.ltr-scene.w'), tO: o('.ltr-scene.t'), cloud: o('.ltr-cloud'), cg: o('.ltr-cg'), cc: o('.ltr-cc'), grow: o('.ltr-env-grow'), env: q('.ltr').classList.contains('letter-in') });
   if(!r.classList.contains('ready') || window.__tin.length < 3) requestAnimationFrame(loop); })(); }"""
 PLAYS = "() => window._plays.map(p => ({ src: p.src, t: p.t, loop: p.loop, paused: p.el.paused, cur: p.el.currentTime, vol: +p.el.volume.toFixed(3) }))"
 
@@ -88,15 +92,18 @@ with sync_playwright() as p:
     until(t0, 500); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); magic = first(pl, "sfx_letter_magic")
     bq = pg.evaluate("window.__bgm ? [window.__bgm.wanted, window.__bgm.el ? window.__bgm.el.paused : null, window.__bgm.target] : null")   # [l1-quiet]
     check("the music bed is off on this page: not wanted, its target 0, the element paused ([l1-quiet])", bq is not None and bq[0] is False and bq[1] is True and bq[2] == 0, bq)
-    check("mounts as a whole-stage page: no आगे, the girl writing coming in (.w-in), the other two pictures, the letter's wrapper at 1/255 (painted so decoded, unseen), no cloud, the cleanup hook set",
-          s and s["nav"] == "none" and "w-in" in s["cls"] and s["wOp"] > 0.2 and s["tOp"] < 0.01 and s["pOp"] < 0.01 and s["cloudOp"] == 0 and s["growOp"] < 0.01 and s["cleanup"],
-          {k: s[k] for k in ("nav", "cls", "wOp", "tOp", "pOp", "cloudOp", "growOp", "cleanup")} if s else s)
+    check("mounts as a whole-stage page: no आगे, the girl writing coming in (.w-in), the thinking picture unseen, the letter's wrapper at 1/255 (painted so decoded, unseen), no cloud, the cleanup hook set; [l1-cloud] no pensive picture, no white cloud on the page",
+          s and s["nav"] == "none" and "w-in" in s["cls"] and s["wOp"] > 0.2 and s["tOp"] < 0.01 and not s["pEl"] and not s["cwEl"] and s["cloudOp"] == 0 and s["growOp"] < 0.01 and s["cleanup"],
+          {k: s[k] for k in ("nav", "cls", "wOp", "tOp", "pEl", "cwEl", "cloudOp", "growOp", "cleanup")} if s else s)
+    check("[l1-cloud] [l1-clean] the card: the pensive picture, its blur, the white cloud and the first take's patch are out (the scenes w / t, the blur of 792:1245, the clean white patch)",
+          sorted(D["scenes"]) == ["t", "w"] and D["blur"] == "img_letter_blur_t" and D.get("cloud_clean") == "img_letter_cloud_clean" and "cloud_white" not in D and "cloud_empty" not in D
+          and not pg.evaluate("['img_letter_scene_p', 'img_letter_blur_p', 'img_letter_cloud_white', 'img_letter_cloud_empty'].some(k => k in CARD.assets.image)"), (D["scenes"], D["blur"], D.get("cloud_clean")))
     tin = pg.evaluate("window.__tin"); w_first = next((f for f in tin if "w-in" in f["cls"]), None)
     check("the magic shimmer sounds as the page opens and the picture starts to come in with it (its first frame within 300 ms of the sound's start: the module waits for its \"playing\")",
           magic is not None and magic["t"] - t0 < 300 and w_first is not None and -20 <= w_first["t"] - magic["t"] <= 300 and not any(f["w"] > 0.01 for f in tin if f["t"] < magic["t"]),
           (round(magic["t"] - t0) if magic else None, round(w_first["t"] - magic["t"]) if (w_first and magic) else None))
-    want = [LY["scenes"][k] for k in ("w", "t", "p")]
-    check("each picture is its frame's own box (792:1257 -262,-91 1563x880; 792:1245 -231,-42 1516x853; 792:1249 -237,-38 1520x856), within 1 px",
+    want = [LY["scenes"][k] for k in ("w", "t")]
+    check("each picture is its frame's own box (792:1257 -262,-91 1563x880; 792:1245 -231,-42 1516x853), within 1 px",
           all(abs(g[k2] - w_[i]) < 1 for g, w_ in zip(s["scenes"][1:], want[1:]) for i, k2 in enumerate(("x", "y", "w", "h"))), [{k: round(v, 1) for k, v in g.items()} for g in s["scenes"]])
     check("the envelope is the drawing's own layers: the body (the pocket), ONE flap, the inside, the heart — no re-cut side flaps",
           pg.evaluate("!!document.querySelector('.ltr-body') && document.querySelectorAll('.ltr-flap').length === 1 && !document.querySelector('.ltr-fl, .ltr-fr, .ltr-fb')"))
@@ -125,42 +132,51 @@ with sync_playwright() as p:
     check(f"the bubbles pop one by one ({PC['bub_after']} / +{PC['bub_gap']} / +{PC['bub_gap']} ms after her, within 60) and the cloud begins to grow in {PC['cloud_after']} ms after her (within 60), as before",
           all(x is not None for x in tb + [f_c]) and all(abs(dt(x) - (PC["bub_after"] + k * PC["bub_gap"])) <= 60 for k, x in enumerate(tb)) and abs(dt(f_c) - PC["cloud_after"]) <= 60,
           ([dt(x) for x in tb], dt(f_c)))
-    check("the grandfather cloud stands before the letter's moment (opacity 1, its white twin at 1/255), the bubbles up, the girl thinking over the writing one",
-          s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["cwOp"] < 0.01 and all(o > 0.99 for o in s["bubs"]) and s["tOp"] == 1 and s["pOp"] < 0.01, (s["cloudOp"], s["cgOp"], s["cwOp"], s["bubs"], s["tOp"]))
+    check("the grandfather cloud stands before the letter's moment (opacity 1, its clean white twin at 1/255), the bubbles up, the girl thinking over the writing one",
+          s["cloudOp"] > 0.99 and s["cgOp"] > 0.99 and s["ccOp"] < 0.01 and all(o > 0.99 for o in s["bubs"]) and s["tOp"] == 1, (s["cloudOp"], s["cgOp"], s["ccOp"], s["bubs"], s["tOp"]))
     cr = s["cloudRect"]; lc = LY["cloud"]
     check("the cloud in its place on the new girl (layout.cloud = the old thought carried onto her head: x 1.12 about (808,245) -> (730,240)) and its visible top inside the frame",
           abs(cr["x"] - lc[0]) < 1 and abs(cr["y"] - lc[1]) < 1 and abs(cr["w"] - lc[2]) < 1 and lc[1] + 98 / 820 * lc[2] > 0, ({k: round(v, 1) for k, v in cr.items()}, lc))
     if c2: check("the girl thinking against Figma's 792:1245 render outside the thought (mean < 8 of 765)", c2["outside_mean"] < 8, c2)
-    # 4. [l1-late] 2 s before the narration's speech ends (9.07 s): the girl pensive, the white cloud over the grandfather, the letter
-    #    growing in — no sound
+    # 4. [l1-late] 2 s before the narration's speech ends (9.07 s): [l1-cloud] the room unchanged; [l1-clean] the grandfather's picture
+    #    fades out of the same cloud, leaving it clean white, and only then the letter grows in it — no sound
     pg.wait_for_function("!!document.querySelector('.ltr.ready')", timeout=20000, polling=20)
     t_ready = pg.evaluate("performance.now()"); until(t_ready, 600); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS)
     tin = pg.evaluate("window.__tin")
-    f_p = at(lambda f: "p-in" in f["cls"]); f_l = at(lambda f: "letter-in" in f["cls"]); f_w2 = at(lambda f: "white2" in f["cloudCls"])
+    f_c = at(lambda f: "clean" in f["cloudCls"].split()); f_l = at(lambda f: "letter-in" in f["cls"])
     check(f"the letter's moment = 2 s before the narration's speech ends ({SPEECH_END} s: pace.letter {PC['letter'] / 1000} s)", abs(SPEECH_END - 2 - PC["letter"] / 1000) < 0.03, PC["letter"])
-    check(f"the girl pensive (792:1249) at the letter's moment ({PC['letter'] / 1000} s on the narration's clock, its first frame within 50 ms after), and in that same frame the white cloud comes over the grandfather and the letter begins to grow; the grandfather goes from under it {PC['white']} ms later",
-          f_p is not None and f_p["voT"] is not None and 0 <= f_p["voT"] - PC["letter"] / 1000 <= 0.05 and f_l is f_p and "white" in f_p["cloudCls"] and f_w2 is not None and abs(f_w2["t"] - f_l["t"] - PC["white"] - 20) <= 60,
-          (round(f_p["voT"], 3) if f_p and f_p["voT"] is not None else None, f_l is f_p, round(f_w2["t"] - f_l["t"]) if (f_w2 and f_l) else None))
-    f_full = at(lambda f: f["cloud"] > 0.99 and f["cg"] > 0.99); stand = [f for f in tin if f_full and f_p and f_full["t"] <= f["t"] < f_p["t"]]
-    check("the grandfather cloud stays, whole, from its entrance to the letter's moment (over 6 s; it was ~2 s): the cloud and he at 1, no white, the girl thinking",
-          len(stand) > 300 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cw"] < 0.01 and f["p"] < 0.01 and "letter-in" not in f["cls"] for f in stand) and f_p["voT"] - f_full["voT"] > 6,
-          (len(stand), round(f_full["voT"], 2) if f_full and f_full["voT"] is not None else None, round(f_p["voT"], 2) if f_p and f_p["voT"] is not None else None))
-    near = [x["src"] for x in pl if f_p and f_p["t"] - 300 <= x["t"] <= f_p["t"] + 1500]
-    check("no sound with the letter: nothing starts from 0.3 s before its moment to 1.5 s after, the \"aahaha\" never (and out of the card)",
-          f_p is not None and not near and not any(x["src"].startswith("sfx_letter_aha") for x in pl) and "aha" not in D["sfx"]
+    check(f"[l1-clean] at the letter's moment ({PC['letter'] / 1000} s on the narration's clock, its first frame within 50 ms after) the cloud begins to go clean white (.clean) — the letter NOT yet; no other picture ever (no p-in, no white cloud)",
+          f_c is not None and f_c["voT"] is not None and 0 <= f_c["voT"] - PC["letter"] / 1000 <= 0.05 and "letter-in" not in f_c["cls"]
+          and not any("p-in" in f["cls"] or "white" in f["cloudCls"] for f in tin),
+          (round(f_c["voT"], 3) if f_c and f_c["voT"] is not None else None, f_c["cls"] if f_c else None))
+    f_full = at(lambda f: f["cloud"] > 0.99 and f["cg"] > 0.99); stand = [f for f in tin if f_full and f_c and f_full["t"] <= f["t"] < f_c["t"]]
+    check("the grandfather cloud stays, whole, from its entrance to the letter's moment (over 6 s): the cloud and he at 1, its clean white twin unseen, the girl thinking",
+          len(stand) > 300 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cc"] < 0.01 and f["tO"] == 1 and "letter-in" not in f["cls"] for f in stand) and f_c["voT"] - f_full["voT"] > 6,
+          (len(stand), round(f_full["voT"], 2) if f_full and f_full["voT"] is not None else None, round(f_c["voT"], 2) if f_c and f_c["voT"] is not None else None))
+    near = [x["src"] for x in pl if f_c and f_c["t"] - 300 <= x["t"] <= f_c["t"] + PC["env_after"] + 1500]
+    check("no sound with the letter: nothing starts from 0.3 s before its moment to 1.5 s after the letter's growth began, the \"aahaha\" never (and out of the card)",
+          f_c is not None and not near and not any(x["src"].startswith("sfx_letter_aha") for x in pl) and "aha" not in D["sfx"]
           and not pg.evaluate("'sfx_letter_aha' in CARD.assets.audio"), (near, D["sfx"]))
-    swap = [f for f in tin if f_l and f_w2 and f_l["t"] <= f["t"] < f_w2["t"]]
-    check("no dip as the cloud whitens: the grandfather stays whole under the white one until it is whole, the cloud itself at 1 throughout",
-          len(swap) > 10 and all(f["cg"] == 1 and f["cloud"] == 1 for f in swap) and swap[-1]["cw"] > 0.97, (len(swap), min((f["cg"] for f in swap), default=None), swap[-1]["cw"] if swap else None))
+    fade = [f for f in tin if f_c and f["t"] >= f_c["t"]]
+    f_white = next((f for f in fade if f["cc"] > 0.99), None)
+    check("[l1-clean] the cloud goes clean white over ~0.5 s (its white rising 0 -> 1, never back), while the cloud's own picture under it, the cloud and the room (792:1245) stay at 1 in every frame — nothing swapped, nothing of the room changes",
+          len(fade) > 10 and f_white is not None and 380 <= f_white["t"] - f_c["t"] <= 700 and all(b_["cc"] >= a_["cc"] - 1e-3 for a_, b_ in zip(fade, fade[1:]))
+          and all(f["cg"] == 1 and f["cloud"] == 1 and f["tO"] == 1 for f in fade),
+          (len(fade), round(f_white["t"] - f_c["t"]) if f_white else None, min((f["cg"] for f in fade), default=None), min((f["tO"] for f in fade), default=None)))
+    pre = [f for f in fade if f_l and f["t"] < f_l["t"]]
+    check(f"[l1-clean] the letter grows in only once the cloud is fully clean white: its first frame {PC['env_after']} ms after the moment (within 60), at least 150 ms after the white is whole; until then the letter is unseen (its resting 1/255) in every frame",
+          f_l is not None and f_white is not None and abs(f_l["t"] - f_c["t"] - PC["env_after"]) <= 60 and f_l["t"] - f_white["t"] >= 150
+          and pre and all(f["grow"] < 0.01 and not f["env"] for f in pre),
+          (round(f_l["t"] - f_c["t"]) if (f_l and f_c) else None, round(f_l["t"] - f_white["t"]) if (f_l and f_white) else None, max((f["grow"] for f in pre), default=None)))
     ready_vo = next((f for f in reversed(tin) if f["voT"] is not None), None)
     pl_vo = first(pl, "vo_letter_intro")
     check(f"tappable only once the narration has ended (~{PC['ready_after']} ms after) and the letter has grown: never before",
           ready_vo is not None and ready_vo["voT"] > 11.2 and t_ready - (pl_vo["t"] if pl_vo else 0) > 11000 and not any("ready" in f["cls"] for f in tin[:-1]),
           (round(ready_vo["voT"], 2) if ready_vo else None, round(t_ready - pl_vo["t"]) if pl_vo else None))
     settled = s["growTf"] == "none" or (s["growTf"].startswith("matrix(") and abs(float(s["growTf"][7:].split(",")[0]) - 1) < 0.001)
-    check("then the white cloud stands with the letter in it (its growth done), the grandfather gone, pulsing and tappable",
-          s["cloudOp"] > 0.99 and s["cgOp"] == 0 and s["cwOp"] == 1 and s["growOp"] == 1 and settled and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"],
-          (s["cloudOp"], s["cgOp"], s["cwOp"], s["growOp"], s["growTf"], s["cls"]))
+    check("then the same cloud, clean white, stands with the letter in it (its growth done; its white at 1 over the cloud's own picture, still at 1 under it), the room unchanged, pulsing and tappable",
+          s["cloudOp"] > 0.99 and s["cgOp"] == 1 and s["ccOp"] == 1 and s["tOp"] == 1 and not s["pEl"] and s["growOp"] == 1 and settled and "letter-in" in s["cls"] and "ready" in s["cls"] and s["pulseOp"] == 1 and not s["demo"],
+          (s["cloudOp"], s["cgOp"], s["ccOp"], s["tOp"], s["growOp"], s["growTf"], s["cls"]))
     check("the narration plays once, the old chime never", sum(1 for x in pl if x["src"].startswith("vo_letter_intro")) == 1
           and not any(x["src"].startswith("sfx_letter_idea") for x in pl), [x["src"] for x in pl if "letter" in x["src"]])
     ts = [f["t"] for f in tin]; gaps = [y - x for x, y in zip(ts, ts[1:]) if x - t0 > 600]
@@ -171,8 +187,29 @@ with sync_playwright() as p:
           {k: round(v, 1) for k, v in r.items()} if r else r)
     tf1 = s["pulseTf"]; until(t_ready, 900); tf2 = pg.evaluate(STATE)["pulseTf"]
     check("the envelope pulses (its scale changes over 0.3 s)", tf1 != tf2, (tf1, tf2))
-    l = shot(pg, "l1_letter.png"); c3 = compare(l, "fig_792-1249_render.png", "l1_letter", outside=THOUGHT)
-    if c3: check("the girl pensive against Figma's 792:1249 render outside the thought (mean < 8 of 765)", c3["outside_mean"] < 8, c3)
+    l = shot(pg, "l1_letter.png"); c3 = compare(l, "fig_792-1245_render.png", "l1_letter", outside=THOUGHT)
+    if c3: check("[l1-cloud] the room has not changed: still Figma's 792:1245 (the girl thinking) outside the thought (mean < 8 of 765)", c3["outside_mean"] < 8, c3)
+    # [l1-clean] the SAME cloud, clean white: its soft rim (the grandfather cloud's alpha 8..238, where the patch is 0) is the grandfather
+    # shot's, pixel for pixel; inside its body (alpha >= 250, 6 px in) and off the envelope (its pulsing box + 12 %) every pixel is the
+    # cloud's own white (the patch's colour) — nothing of the grandfather, his glow, the hearts or the bushes left
+    from PIL import Image as _Ic, ImageFilter as _Fc
+    import numpy as _nc
+    cx, cy, csz = LY["cloud"]; n_ = int(round(csz)); IMG = html.parent / "assets" / "Images"
+    ga = _nc.asarray(_Ic.open(IMG / "img_letter_cloud_grandpa.webp").convert("RGBA").getchannel("A").resize((n_, n_), _Ic.LANCZOS)).astype(int)
+    cw_ = _nc.asarray(_Ic.open(IMG / "img_letter_cloud_clean.webp").convert("RGBA"))
+    white = cw_[..., :3][cw_[..., 3] == 255].reshape(-1, 3)[0].astype(int)
+    def place(m):
+        M = _nc.zeros((720, 1280), bool); X0, Y0 = int(round(cx)), int(round(cy)); sy_ = max(0, -Y0); M[max(0, Y0):Y0 + n_, X0:X0 + n_] = m[sy_:, :]; return M
+    body6 = _nc.asarray(_Ic.fromarray(((ga >= 250) * 255).astype("uint8")).filter(_Fc.MinFilter(13))) > 127
+    rim = place((ga > 8) & (ga < 238)); inner = place(body6)
+    lx, ly, lw = LY["letter"]; lh = lw * 758 / 1138; mx_, my_ = lw * 0.56, lh * 0.56
+    inner[max(0, int(ly - my_)):int(ly + my_), int(lx - mx_):int(lx + mx_)] = False
+    cA = _nc.asarray(_Ic.open(g).convert("RGB").resize((1280, 720), _Ic.LANCZOS)).astype(int); cB = _nc.asarray(_Ic.open(l).convert("RGB").resize((1280, 720), _Ic.LANCZOS)).astype(int)
+    dr = _nc.abs(cA - cB).sum(axis=2)[rim]; dw = _nc.abs(cB - white).sum(axis=2)[inner]
+    check("[l1-clean] the same cloud: its soft rim is the grandfather shot's, pixel for pixel (mean < 3 of 765, under 0.5 % over 30)",
+          rim.sum() > 3000 and dr.mean() < 3 and (dr > 30).mean() < 0.005, (int(rim.sum()), round(float(dr.mean()), 2), round(float((dr > 30).mean()) * 100, 3)))
+    check(f"[l1-clean] ... and clean white inside: off the envelope, every pixel of its body is its own white {white.tolist()} (mean < 4 of 765, none over 30)",
+          inner.sum() > 15000 and dw.mean() < 4 and int((dw > 30).sum()) == 0, (int(inner.sum()), round(float(dw.mean()), 2), int((dw > 30).sum())))
     # 5. the tap: the pop, the zoom to 610:6, the loop fades out
     bb = pg.locator(".ltr-env-pos").bounding_box()
     pg.evaluate("(() => { const cs = completeSlide; completeSlide = function(){ window.__csT = performance.now(); return cs.apply(this, arguments); }; })()")   # the hand-over, on the page's own clock
@@ -192,12 +229,12 @@ with sync_playwright() as p:
         requestAnimationFrame(loop); })(); }"""
     pg.evaluate(MARK); pg.evaluate(TRACE)
     until(t_tap, 1300); s = pg.evaluate(STATE); pl = pg.evaluate(PLAYS); r = s["envRect"]
-    check("1.3 s after the tap the envelope fills the screen as 610:6 (71,-50 1138x758) over the blurred room", r and abs(r["x"] - 71) < 3 and abs(r["y"] + 50) < 3 and abs(r["w"] - 1138) < 4 and s["blurOp"] > 0.99,
-          ({k: round(v, 1) for k, v in r.items()} if r else r, s["blurOp"]))
+    check("1.3 s after the tap the envelope fills the screen as 610:6 (71,-50 1138x758) over the blurred room — [l1-cloud] 792:1245's, the room that was on screen (img_letter_blur_t)", r and abs(r["x"] - 71) < 3 and abs(r["y"] + 50) < 3 and abs(r["w"] - 1138) < 4 and s["blurOp"] > 0.99 and s["blurSrc"] == "img_letter_blur_t.webp",
+          ({k: round(v, 1) for k, v in r.items()} if r else r, s["blurOp"], s["blurSrc"]))
     music = first(pl, "bgm_letter")
     check("the piano loop has faded out by then", music is not None and (music["paused"] or music["vol"] < 0.05), (music["paused"], music["vol"]) if music else None)
     z = shot(pg, "l1_zoom.png"); cmp_z = compare(z, "render_610-6.png", "l1_zoom")
-    if cmp_z: print("INFO the full-screen envelope against Figma's 610:6 render (its backdrop is the OLD room, blurred; [l1-fig] the page's is 792:1249's):", cmp_z)
+    if cmp_z: print("INFO the full-screen envelope against Figma's 610:6 render (its backdrop is the OLD room, blurred; [l1-cloud] the page's is 792:1245's):", cmp_z)
     # the envelope AS DRAWN: the dist's own layers (inner, body, flap, heart) stacked over the blurred room at 610:6's box ARE the
     # drawing (make_env_layers_exact.py: lossless, the drawing's pixels); the shot is judged on the envelope's flat parts — inside
     # its silhouette eroded 4 px, off the drawing's own edges, outside the seal's box (its hard red edge resamples differently in
@@ -206,7 +243,7 @@ with sync_playwright() as p:
     import numpy as _np
     env_box = pg.evaluate("CARD.slides.find(s => s.id === 'L1').data.layout.full"); IM = html.parent / "assets" / "Images"
     bx, by, bw, bh = (int(round(v)) for v in env_box)
-    T = _Im.open(IM / "img_letter_blur_p.webp").convert("RGB").resize((1280, 720), _Im.LANCZOS)
+    T = _Im.open(IM / "img_letter_blur_t.webp").convert("RGB").resize((1280, 720), _Im.LANCZOS)
     for n in ("inner", "body", "flap", "heart"):
         Ly = _Im.open(IM / f"img_letter_env_{n}.webp").convert("RGBA").resize((bw, bh), _Im.LANCZOS); T.paste(Ly, (bx, by), Ly)
     sil = _np.zeros((720, 1280), bool)
@@ -242,7 +279,7 @@ with sync_playwright() as p:
           abs(f["t"] - t_tap - 3000) < 80 and f["env"][2] > 1138 * 3.5 and f["heart"] == 0 and f["veil"] < 0.05, (round(f["t"] - t_tap), round(f["env"][2]), f["heart"], f["veil"]))
     f = frame_at(t_shot)
     check("the shot there (%d ms; the veil %.2f): the sheet fills the screen (over 90 %% sheet pixels)" % (t_shot, f["veil"]), sheet > 0.9 or f["veil"] > 0.2, round(sheet, 3))
-    def fmt(f): return (round(f["t"] - t_tap), f["heart"], f["cls"].replace("ltr w-in t-in p-in letter-in ", ""), {k: [round(v) for v in f[k]] for k in ("apex", "hinge", "env") if f[k]})
+    def fmt(f): return (round(f["t"] - t_tap), f["heart"], f["cls"].replace("ltr w-in t-in letter-in ", ""), {k: [round(v) for v in f[k]] for k in ("apex", "hinge", "env") if f[k]})
     f = frame_at(1700)
     check("1.7 s after the tap (the page's frame): the seal has popped off, the flap is lifting (its tip risen, still below its hinge), the sheet is rising, the view still 610:6's",
           abs(f["t"] - t_tap - 1700) < 80 and f["heart"] == 0 and "paper" in f["cls"] and "dive" not in f["cls"] and f["hinge"][1] + 20 < f["apex"][1] < 400, fmt(f))

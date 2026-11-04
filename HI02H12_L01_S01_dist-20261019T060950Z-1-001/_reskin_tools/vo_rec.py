@@ -65,6 +65,9 @@ TRIM = { "3.wav": ("vo_story_c1", 1.40), "vo_story_s1.wav": ("vo_story_c2", 1.45
 SKIP = {
   "vo_g1_sent.wav": "says राजू गेंद से खेल रहा था; the frame (656:66) shows पिंकी गेंद से खेल रही थी — the TTS line stays",
   "vo_g1_hint3.wav": "says राजू ... (the sentence as recorded) — not played on G1 (hint 2's line is said again there)",
+  # [recap-eg] (2026-11-04) the user replaced T1's / T1B's examples: their clips are recap_vo.py takes of the new sentences now
+  "vo_recap_purn_eg.wav": "says the old T1 example पिंकी स्कूल गई; T1 shows मुझे आम खाना पसंद है। (recap_vo.py purn_eg take stays)",
+  "vo_recap_alp_eg.wav": "says the old T1B example आम, केला, संतरा और सेब; T1B shows मुझे लाल, हरा और पीला रंग पसंद है । (recap_vo.py alp_eg take stays)",
 }
 # the synced lines: Audio ID -> its words.json (the SHOWN words are what the page lights)
 SYNC = {

@@ -210,19 +210,26 @@ part = lambda k: {"text_hi": rl[k]["shown"], "audio": f"vo_recap_{k}", "word_tim
 # the अल्प विराम / प्रश्नवाचक rows' clips stay registered: T3 / T4 name their marks with vo_recap_prashn_name / vo_recap_alp_name.)
 card["slides"][i_t1] = {"id": "T1", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
     "prompt_hi": rl["purn_name"]["shown"], "audio": {"prompt": "vo_recap_intro"},
-    "data": {"intro_audio": "vo_recap_intro", "mark": "।", "image_id": "img_recap_girl",
+    "data": {"intro_audio": "vo_recap_intro", "mark": "।", "image_id": "img_recap_mango",
              "name": part("purn_name"), "when": part("purn_when"), "example": part("purn_eg"),
-             "pic_sfx": "sfx_fb_correct.ogg"}}   # [recap-sfx] the reference's horse sound (hi02h11l02s04-file5 T2's fbCorrect), bytes as given
-card["assets"]["image"]["img_recap_girl"] = "assets/Images/img_recap_girl.webp"   # node 764:753's source bitmap (1024x1536, WebP q90, alpha exact)
+             "pic_sfx": "sfx_fb_correct.ogg", "pic_decode": True}}   # [recap-sfx] the reference's horse sound (hi02h11l02s04-file5 T2's fbCorrect), bytes as given
+# [recap-eg] (2026-11-04) the user's new example "मुझे आम खाना पसंद है।" (recap_vo.py purn_eg, a placeholder take brought to the old
+# recording's loudness) and their picture of the girl with a mango (1024x1536 like node 764:753's, so it takes the girl's box as is;
+# recap_assets/src_recap_mango.png -> WebP q90, alpha exact). Was "पिंकी स्कूल गई ।" (recorded) with img_recap_girl.
+card["assets"]["image"]["img_recap_mango"] = "assets/Images/img_recap_mango.webp"
 # [recap-alp] (2026-11-01) frame 764:755: the same page for अल्प विराम, right after T1 (T1B) — the sign ",", its name, the example
 # "आम, केला, संतरा और सेब" (both commas kept lit, each from its word), the fruit picture (node 524:350's bitmap = T4's img_demo3_fruits)
 # with T1's sounds; the recorded अल्प-विराम lines (the use is said, not shown). No lead / intro line — those open T1 only — so its
 # name beat starts 0.7 s after the page appears.
 card["slides"].insert(i_t1 + 1, {"id": "T1B", "phase": "tutorial", "eis": "symbolic", "type": "MARKS_RECAP",
     "prompt_hi": rl["alp_name"]["shown"], "audio": {"prompt": "vo_recap_alp_name"},
-    "data": {"variant": "alp", "mark": ",", "image_id": "img_demo3_fruits",
+    "data": {"variant": "alp", "mark": ",", "image_id": "img_recap_paint",
              "name": part("alp_name"), "when": part("alp_when"), "example": part("alp_eg"),
-             "pic_sfx": "sfx_fb_correct.ogg"}})
+             "pic_sfx": "sfx_fb_correct.ogg", "pic_decode": True}})
+# [recap-eg] (2026-11-04) the user's new example "मुझे लाल, हरा और पीला रंग पसंद है ।" (recap_vo.py alp_eg, a placeholder take at the old
+# recording's loudness) and their picture of the girl painting (1199x1312; recap_assets/src_recap_paint.png -> WebP q90, alpha exact),
+# in the fruits' place (.rcf-v-alp .rcf-pic). Was "आम, केला, संतरा और सेब" (recorded) with T4's img_demo3_fruits.
+card["assets"]["image"]["img_recap_paint"] = "assets/Images/img_recap_paint.webp"
 # [recap-prashn] (2026-11-01) frame 764:945: the same page for प्रश्नवाचक चिह्न, right after T1B (T1C) — the sign "?", its name, the
 # example "तुम्हारा घर कहाँ है ?" (its ? kept lit), the house picture (node 766:1140's source bitmap) with T1's sounds; the recorded
 # प्रश्नवाचक lines (the use is said, not shown). No lead / intro line, as T1B.
@@ -786,8 +793,21 @@ assert not any(sig == "qtype_sort_done" for s in card["slides"] for sig in (s.ge
 # file stays in the dist, unused); the letter's moment (the girl pensive, the white cloud over the grandfather, the letter growing
 # in it — the picture of 792:1249 came WITH the letter in the user's flow, so it moves with it) at 9.07 s on the narration's clock:
 # its speech ends at 11.07 s (the clip 11.37 s, the rest silence), so the grandfather stands from ~2 s to 9.07 s (was to 4.3 s).
-LETTER_IMGS = {"img_letter_scene_w": "✏️", "img_letter_scene_t": "🤔", "img_letter_scene_p": "🤔", "img_letter_blur_p": "✏️", "img_letter_cloud_grandpa": "💭",
-               "img_letter_cloud_white": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}   # [l1-fig] (the old scene_a / _b / _c and blur stay in the dist, unused)
+# [l1-cloud] (asked 2026-11-04): "when the image of the grandfather's cloud comes, after that the whole image should not change: the
+# grandfather inside that cloud should disappear and the letter envelope should come in the same cloud, instead of changing the whole
+# image into a new one and then a new cloud with the envelope; keep the whole functionality exactly the same". At the letter's moment
+# the room stays 792:1245 (the girl thinking — the pensive 792:1249 picture is off the page), and instead of the white cloud coming over
+# the grandfather's (a plain white one: "a new cloud"), the SAME cloud loses him (the zoom's backdrop = that room blurred:
+# img_letter_blur_t, the recipe of img_letter_blur_p; the pensive picture, its blur and the white cloud are out of the card and the
+# dist, kept in letter_assets/). [l1-clean] (asked the same day): "why is the cloud from which the grandfather disappeared not fully
+# clean white before the letter envelope appeared in it? it seems the envelope appeared on the grandpa's image" — the first take
+# painted only him out (his pastel backdrop, the hearts and the bushes stayed) and faded him out over .5 s in the very frame the letter
+# began to grow, so it grew over him. Now at the letter's moment (pace.letter, 9.07 s, as before) his whole picture fades out of the
+# cloud (.5 s): img_letter_cloud_clean (make_letter_cloud_clean.py), a patch of the cloud's own mist white over its whole opaque body,
+# its soft pink rim untouched — the same cloud, fully clean white — and the letter grows in it pace.env_after (700 ms) later, once it
+# is (its growth, pulse, tap, zoom, opening and the page's readiness as before: ready still waits for the narration's end).
+LETTER_IMGS = {"img_letter_scene_w": "✏️", "img_letter_scene_t": "🤔", "img_letter_blur_t": "✏️", "img_letter_cloud_grandpa": "💭",
+               "img_letter_cloud_clean": "💭", "img_letter_env_body": "✉️", "img_letter_env_flap": "✉️", "img_letter_env_inner": "✉️", "img_letter_env_heart": "❤️"}   # [l1-fig] (the old scene_a / _b / _c and blur stay in the dist, unused); [l1-cloud] scene_p / blur_p / cloud_white out; [l1-clean] the clean white patch
 LETTER_SND = ["sfx_letter_magic", "sfx_letter_pop", "sfx_letter_paper", "bgm_letter_nostalgia"]   # [l1-late] no "aahaha" (sfx_letter_aha stays in the dist, unused)
 _lt = lambda v: [round(730 + 1.12 * (v[0] - 808), 2), round(240 + 1.12 * (v[1] - 245), 2)] + [round(1.12 * x, 2) for x in v[2:]]   # [l1-fig] the old thought onto the new girl
 for k, emo in LETTER_IMGS.items():
@@ -797,21 +817,22 @@ for k in LETTER_SND:
 i_p2 = next(i for i, s in enumerate(card["slides"]) if s["id"] == "P2")
 assert card["slides"][i_p2 + 1]["id"] == "CEL"
 card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic", "type": "LETTER_STORY", "prompt_hi": "", "audio": {},
-    "data": {"scenes": {"w": "img_letter_scene_w", "t": "img_letter_scene_t", "p": "img_letter_scene_p"}, "blur": "img_letter_blur_p",   # [l1-fig] 792:1257 / 792:1245 / 792:1249
-             "cloud": "img_letter_cloud_grandpa", "cloud_white": "img_letter_cloud_white",
+    "data": {"scenes": {"w": "img_letter_scene_w", "t": "img_letter_scene_t"}, "blur": "img_letter_blur_t",   # [l1-fig] 792:1257 / 792:1245; [l1-cloud] no 792:1249, 792:1245's blur
+             "cloud": "img_letter_cloud_grandpa", "cloud_clean": "img_letter_cloud_clean",   # [l1-clean] the same cloud, clean white (a patch over its body, the rim untouched)
              "env": {"body": "img_letter_env_body", "flap": "img_letter_env_flap", "inner": "img_letter_env_inner", "heart": "img_letter_env_heart"},
              "sfx": {"magic": "sfx_letter_magic", "pop": "sfx_letter_pop", "paper": "sfx_letter_paper"},   # [l1-late] no "aha"
              "music": "bgm_letter_nostalgia",
-             "layout": {"scenes": {"w": [-262, -91, 1563, 880], "t": [-231, -42, 1516, 853], "p": [-237, -38, 1520, 856]},   # [l1-fig] each frame's picture box (cover)
+             "layout": {"scenes": {"w": [-262, -91, 1563, 880], "t": [-231, -42, 1516, 853]},   # [l1-fig] each frame's picture box (cover)
                         "cloud": _lt([862.09, 8.61, 314.5]), "bubbles": [_lt(b) for b in ([814.7, 242.8, 8], [831.4, 230.5, 16], [854.0, 211.2, 26])],
                         "letter": _lt([1020, 166, 189]), "full": [71, -50, 1138, 758], "mouth": [568.8, 292.4]},
              # [l1-fig] ms: w_in = the first picture's entrance (from the magic's first frame), vo_at = the narration after the magic's
              # start; on the narration's clock: dada (its "दादाजी", read off the clip: 0.84 s), letter ([l1-late] 2 s before its speech
              # ends at 11.07 s: 9.07 s; was the first sentence's end, 4.3 s); from "दादाजी": xfade (the picture), bub_after / bub_gap
-             # (the bubbles), cloud_after (the cloud's entrance, 1.2 / 1.6 s as before); white = the grandfather to white; ready_after =
-             # after the narration
+             # (the bubbles), cloud_after (the cloud's entrance, 1.2 / 1.6 s as before); ready_after = after the narration ([l1-cloud] no
+             # "white": nothing is swapped under the cloud after); [l1-clean] env_after = the letter's growth after the letter's moment,
+             # once the cloud is clean white (its .5 s fade + 0.2 s of it clean)
              "pace": {"w_in": 900, "vo_at": 1200, "music_vol": 0.2, "music_in": 1200, "dada": 840, "letter": 9070, "xfade": 650, "bub_after": 300, "bub_gap": 230,
-                      "cloud_after": 1000, "white": 500, "ready_after": 300,
+                      "cloud_after": 1000, "env_after": 700, "ready_after": 300,
                       "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2, "veil_at": 1900, "done_at": 2450}}})
 # [stamp-fig] L2 = the Figma frame 565:28 "G3 guided story question" (the stamp page), after the letter page: the letter's sentence on a
 # sheet on a wooden table, a tray with two stamps (। and ?), the demos' title bar. It drives itself: the table (under the letter
@@ -1323,11 +1344,14 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
       // the sentence's marks keep their orange once the clip has lit them: a token of punctuation alone (T1's "।") whole; a mark
       // ending a word ([recap-alp] T1B's "आम," / "केला,") split off into its own span, so the word lights and goes as the others
       // do and only its mark stays lit
+      // [recap-eg] (2026-11-04) only the PAGE's own mark (d.mark) does: T1B's sentence now ends in a "।", which lights and goes with
+      // its word as the words do (T1's and T1C's sentences hold no other mark, so they are as before)
+      const own = (s)=> !d.mark || [...s].every(ch=> ch === d.mark);
       const keeps = [];
       Leg.words.forEach((w, i)=>{
-        if(/^[।?,!]+$/.test(w.textContent)){ keeps.push({ el: w, i }); return; }
+        if(/^[।?,!]+$/.test(w.textContent)){ if(own(w.textContent)) keeps.push({ el: w, i }); return; }
         const m = w.textContent.match(/^(.+?)([।?,!]+)$/);
-        if(m){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "rcf-mk"; s.textContent = m[2]; w.appendChild(s); keeps.push({ el: s, i }); }
+        if(m && own(m[2])){ w.textContent = m[1]; const s = document.createElement("span"); s.className = "rcf-mk"; s.textContent = m[2]; w.appendChild(s); keeps.push({ el: s, i }); }
       });
       const egTimes = Leg.times || [];
       // the picture at the sentence's first word; each kept mark at its own word's start
@@ -1368,6 +1392,10 @@ recap_mod = r"""  /* ===== [recap-fig] MARKS_RECAP — the mark page after the r
       const popSoft = ()=> _tone([720], "sine", 0.10, 0.07);
       const appear = (el)=>{ if(el.classList.contains("in")) return false; el.classList.add("in"); return true; };
       if(d.pic_sfx && !_kitSfx.recapPic){ const a = _kitSfx.recapPic = new Audio("assets/Audio/" + d.pic_sfx); a.preload = "auto"; }   // fetched now, heard ~15 s later
+      /* [recap-eg] (2026-11-04) data.pic_decode: the picture's bitmap decoded now, ~15 s before it shows — a large one is otherwise decoded
+         on its first paint and Chrome holds the entrance until then (T1B's 1199x1312 painting girl: 50 ms behind its sound; the old
+         450x300 fruits: 0) — so it comes in on the frame its sound starts */
+      if(d.pic_decode){ const im = pic.querySelector("img"); if(im && im.decode) im.decode().catch(()=>{}); }
       const readAll = ()=>{
         const mine = ++run, live = ()=> mine === run && alive();
         state.demoRunning = true;   // the chip is ignored until the page has been read; a replay hides आगे meanwhile
@@ -2197,15 +2225,17 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
      -> 792:1245 -> 792:1249: 1. the girl writing comes in full screen on the magic shimmer's first frame; 2. then the narration
      (data.intro_audio) with the mild piano bed; on the narration's own clock: 3. on "दादाजी" (pace.dada) the girl thinking fades in
      and the grandfather's memory cloud appears (the bubbles pop one by one, the cloud grows in from their corner); 4. [l1-late] 2 s
-     before the narration's speech ends (pace.letter) the girl pensive fades in and the grandfather fades to the white cloud as the
-     letter grows in it, where it stands (no sound); 5. once the narration has ended (and the letter has grown) it pulses and waits — the
+     before the narration's speech ends (pace.letter) [l1-cloud] the room stays as it is and [l1-clean] the grandfather's whole
+     picture fades out of the SAME cloud, leaving it clean white (data.cloud_clean: a patch of its own white over its body, the rim
+     untouched), and once it is (pace.env_after) the letter grows in it, where it stands (no sound);
+     5. once the narration has ended (and the letter has grown) it pulses and waits — the
      only tap: the pop, the envelope zooms to 610:6 over the blurred room, the seal pops, the flap swings open on the paper crackle,
      the sheet rises, the view dives into it, a veil — then the next page. Self-driving, no आगे. Timings in data.pace (ms), places
      in data.layout (frame px). ===== */
   LETTER_STORY: {
     mount(host, slide){
       const d = slide.data || {}, L = d.layout || {}, P = Object.assign({ w_in: 900, vo_at: 1200, music_vol: 0.2, music_in: 1200, dada: 840, letter: 9070,
-        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, white: 500, ready_after: 300,
+        xfade: 650, bub_after: 300, bub_gap: 230, cloud_after: 1000, env_after: 700, ready_after: 300,
         zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const sfx = d.sfx || {}, env = d.env || {}, sc = d.scenes || {}, SB = L.scenes || {};
@@ -2214,10 +2244,10 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
       const box = (b)=> b ? 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px' : '';
       const fig = sfigMount(host,
         '<div class="ltr">' +
-          ['w', 't', 'p'].map(k=> '<img class="ltr-scene ' + k + '" src="' + imgSrc(sc[k]) + '" alt="" draggable="false" style="' + box(SB[k]) + '">').join("") +   // each frame's picture in its own box
+          ['w', 't', 'p'].filter(k=> sc[k]).map(k=> '<img class="ltr-scene ' + k + '" src="' + imgSrc(sc[k]) + '" alt="" draggable="false" style="' + box(SB[k]) + '">').join("") +   // each frame's picture in its own box ([l1-cloud] only those the card names: no p now)
           bubs.map(b=> '<span class="ltr-bub" style="left:' + (b[0] - b[2] / 2) + 'px;top:' + (b[1] - b[2] / 2) + 'px;width:' + b[2] + 'px;height:' + b[2] + 'px"></span>').join("") +
           '<div class="ltr-cloud" style="left:' + cl[0] + 'px;top:' + cl[1] + 'px;width:' + cl[2] + 'px;height:' + cl[2] + 'px">' +
-            '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cw" src="' + imgSrc(d.cloud_white) + '" alt="" draggable="false"></div>' +
+            '<img class="ltr-cg" src="' + imgSrc(d.cloud) + '" alt="" draggable="false"><img class="ltr-cc" src="' + imgSrc(d.cloud_clean) + '" alt="" draggable="false"></div>' +   // [l1-clean] over the grandfather's picture: the same cloud, clean white
           '<img class="ltr-blur" src="' + imgSrc(d.blur) + '" alt="" draggable="false">' +
           '<div class="ltr-env-pos" role="button" aria-label="पत्र" style="left:' + full[0] + 'px;top:' + full[1] + 'px;width:' + full[2] + 'px;height:' + full[3] + 'px">' +
             '<div class="ltr-env-grow"><div class="ltr-env-pulse"><div class="ltr-env3d">' +
@@ -2300,11 +2330,11 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
       cues.push({ ms: P.dada, fn: ()=>{ root.classList.add("t-in");
         bubEls.forEach((b, k)=> at(P.bub_after + k * P.bub_gap, ()=> b.classList.add("in")));
         at(P.cloud_after, ()=> cloud.classList.add("in")); } });
-      // 4. [l1-late] 2 s before the speech ends: the girl pensive (792:1249) fades in, and with her the white cloud comes over the
-      //    grandfather (he goes from under it once it is whole) as the letter grows in it (the CSS: .9 s) — no sound
-      cues.push({ ms: P.letter, fn: ()=>{ root.classList.add("p-in"); cloud.classList.add("white"); root.classList.add("letter-in");
-        at(P.white + 20, ()=> cloud.classList.add("white2"));
-        at(900, ()=>{ grown = true; tryReady(); }); } });
+      // 4. [l1-late] 2 s before the speech ends: [l1-cloud] the room stays (792:1245) and [l1-clean] the grandfather's whole picture
+      //    fades out of the same cloud (its clean white comes over its body, .5 s; the rim never changes), and once the cloud is clean
+      //    white (env_after) the letter grows in it (the CSS: .9 s) — no sound
+      cues.push({ ms: P.letter, fn: ()=>{ cloud.classList.add("clean");
+        at(P.env_after, ()=>{ root.classList.add("letter-in"); at(900, ()=>{ grown = true; tryReady(); }); }); } });
       // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
@@ -3196,8 +3226,11 @@ recap_css = """
 .rcf-v-alp .rcf-mark{left:88px;top:61px;}            /* the comma's line box: its ink sits 31.5 px below the box's centre */
 .rcf-v-alp .rcf-name{left:579px;top:141px;}
 .rcf-v-alp .rcf-ebox{left:197px;}
-.rcf-v-alp .rcf-eg{left:485.5px;top:306px;}
-.rcf-v-alp .rcf-pic{left:804px;top:131px;width:219px;height:146px;filter:none;}
+.rcf-v-alp .rcf-eg{left:490px;top:306px;}   /* [recap-eg] (2026-11-04) the new, longer sentence (549 px of ink in the 578 box at the frames' 40 px)
+   centred by its ink on the box (was 485.5 for the frame's "आम, केला, ..."); the line box's top kept, so its baseline is the frame's */
+.rcf-v-alp .rcf-pic{left:804px;top:84.18px;width:219px;height:239.65px;filter:none;}
+/* [recap-eg] (2026-11-04) the user's girl painting (1199x1312) in the fruits' place: their width (219) and centre (925.5,216 card px), its
+   own aspect (239.65 tall: 84.18 here, was 131 for the 146-tall fruits); no shadow, as the fruits had none */
 /* [recap-prashn] (2026-11-01) T1C, the प्रश्नवाचक चिह्न page = frame 764:945 (variant "prashn"), T1's design with the frame's own
    placements (card px - 12): the sign's box 764:1127 at 199,65 (T1's place) and the sentence's box 764:1129 at 199,274, 580 wide (2
    px wider than T1's); the "?", the name and the sentence by their INK in the frame's render (centres, card px: the ? 286.5,145.5;
@@ -3651,9 +3684,8 @@ letter_css = """
 .ltr-scene{object-fit:cover;}                                                             /* each frame's picture in its own Figma box (the module), cover: as Figma fills it */
 .ltr-scene.w{opacity:0;transform:scale(1.04);transition:opacity .9s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}   /* 792:1257, the girl writing: comes in on the magic's first frame, settling */
 .ltr.w-in .ltr-scene.w{opacity:1;transform:none;}
-.ltr-scene.t,.ltr-scene.p{opacity:.005;transition:opacity .65s ease-in-out;}               /* 792:1245 on "दादाजी", 792:1249 at the first sentence's end; at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would decode on the beat: [letter-idea]) */
-.ltr-scene.p{transition-duration:.35s;}                                                    /* only her face and hand change: quick, as the old pensive swap (.65 s showed both faces) */
-.ltr.t-in .ltr-scene.t,.ltr.p-in .ltr-scene.p{opacity:1;}
+.ltr-scene.t{opacity:.005;transition:opacity .65s ease-in-out;}                          /* 792:1245 on "दादाजी" — and [l1-cloud] it stays to the end (792:1249 is off the page); at rest 1/255 (painted, so decoded, with the page's first frame — unseen; 0 would decode on the beat: [letter-idea]) */
+.ltr.t-in .ltr-scene.t{opacity:1;}
 .ltr-bub{border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(120,90,60,.15);transform:scale(0);opacity:0;
   transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .2s ease-out;}
 .ltr-bub.in{transform:none;opacity:1;}
@@ -3661,9 +3693,12 @@ letter_css = """
   transition:opacity 1.2s ease-out,transform 1.6s cubic-bezier(.2,.7,.2,1);}             /* grows in from the bubbles' corner, slowly; its layer made at mount, not on the beat */
 .ltr-cloud.in{opacity:1;transform:none;}
 .ltr-cloud img{position:absolute;left:0;top:0;width:100%;height:100%;}
-.ltr-cloud .ltr-cw{opacity:.005;transition:opacity .5s ease-in-out;}                    /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
-.ltr-cloud.white .ltr-cw{opacity:1;}                                                     /* [l1-fig] at the letter's moment ([l1-late]: 2 s before the speech ends) the same cloud, white (558:2), comes OVER the grandfather (same alpha: no dip) ... */
-.ltr-cloud.white2 .ltr-cg{opacity:0;}                                                    /* ... and he goes from under it once it is whole */
+.ltr-cloud .ltr-cc{opacity:.005;transition:opacity .5s ease-in-out;}                    /* 1/255: painted (so decoded) with the grandfather's entrance, unseen, not on the beat */
+.ltr-cloud.clean .ltr-cc{opacity:1;}                                                     /* [l1-clean] at the letter's moment ([l1-late]: 2 s before the speech ends) the same cloud goes CLEAN WHITE: its own
+   mist white over its whole opaque body (the grandfather, his glow, the hearts, the bushes), its soft pink rim untouched (the patch is 0
+   there, so the rim never doubles) and the grandfather's layer left at 1 under it (nothing swapped); the letter grows in it once it is
+   clean (pace.env_after). It was [l1-fig]'s white cloud (558:2) over the whole of it with the letter in the same frame, then [l1-cloud]'s
+   patch over him alone (his pastel backdrop kept), again with the letter in the same frame */
 .ltr-blur{left:0;top:0;width:1280px;height:720px;opacity:0;transition:opacity .9s ease-in-out;}   /* 610:6's backdrop, flattened */
 .ltr.zoom .ltr-blur{opacity:1;}
 .ltr-env-pos{transform-origin:0 0;transform:var(--ltr-icon);pointer-events:none;transition:transform 1.2s cubic-bezier(.45,0,.2,1);}
@@ -4206,6 +4241,8 @@ VR = json.loads((SCR / "vo_rec" / "derived.json").read_text(encoding="utf-8"))
 for vid, text in VR["texts"].items():
     card["assets"]["audio"][vid] = f"assets/Audio/{vid}.ogg"; card["assets"]["audio_text"][vid] = text
     assert (DIST / "assets" / "Audio" / f"{vid}.ogg").exists(), f"[vo-rec] missing {vid}.ogg — run vo_rec.py"
+# [recap-eg] (2026-11-04) T1's / T1B's examples are new placeholder takes (recap_vo.py), not the recordings derived.json lists: their text
+for k in ("purn_eg", "alp_eg"): card["assets"]["audio_text"][f"vo_recap_{k}"] = rl[k]["text"]
 SL = {s["id"]: s for s in card["slides"]}
 SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
 SL["T0"]["data"]["beat1_sfx"] = "sfx_story_cat.mp3"   # [story-cat] the user's stu9-cute-cat-352656.mp3 (0.89 s, as given): once, as beat 1's line ends, with the picture's pop
@@ -4230,6 +4267,12 @@ _rounds[1].update({"intro_audio": "vo_stamp_intro", "hint2_audio": "vo_stamp2_hi
 _rounds[2].update({"intro_audio": "vo_g1_intro", "hint2_audio": "vo_stamp3_hint2", "hint3_audio": "vo_stamp3_hint3"})
 _rounds[3].update({"intro_audio": "vo_stamp4_intro", "hint2_audio": "vo_stamp4_hint2", "hint3_by_mark": _by_mark})
 _rounds[4].update({"intro_audio": "vo_stamp4_intro", "hint2_audio": "vo_stamp4_hint2", "hint3_by_mark": _by_mark})
+# [l2-quiet] (asked 2026-11-04): "after the first sentence is over, from the second sentence till the last the instruction VO should not
+# come in the beginning, but it should come in the case of 7 seconds of inactivity from the user": rounds 2-5 open straight into their
+# stamps' pops (no line first); each round's own line (its intro_audio above) is said by the idle reminder alone — 7 s after its boxes
+# appear without a touch, and again after every further 7 s (rounds 2-5 have no guidance glide: [stamp-remind]). Round 1 (the bird's
+# instruction, then its guidance glide on idle) is as before.
+SL["L2"]["data"]["intro_on_idle"] = True
 # the JS: the story's intro line
 js = rep1(js, "      state.replayAudio = start;\n      start();\n",
 """      state.replayAudio = start;
@@ -4318,9 +4361,10 @@ js = rep1(js, "hinting = false; hintT = []; lastAct = Date.now();\n      }\n    
 js = rep1(js, "setRound(r + 1); stage3(); });", "setRound(r + 1); roundIntro(stage3); });   // [vo-rec] the round's own instruction first", "stamp round intro call")
 js = rep1(js, "      function remind(){\n",
 """      // [vo-rec] a later round opens with its own instruction (rounds[i].intro_audio: the deck's line for that round) before its
-      // stamps pop in; the idle reminder says that line too
+      // stamps pop in; the idle reminder says that line too. [l2-quiet] (2026-11-04) data.intro_on_idle: a later round does NOT open
+      // with it — its stamps pop in at once — and the line is said only by the idle reminder, after 7 s without a touch
       const roundSrc = ()=> (R && R.D.intro_audio) ? A(R.D.intro_audio) : introSrc;
-      function roundIntro(then){ const src = R && R.D.intro_audio ? A(R.D.intro_audio) : null; if(!src){ then(); return; }
+      function roundIntro(then){ const src = R && R.D.intro_audio && !d.intro_on_idle ? A(R.D.intro_audio) : null; if(!src){ then(); return; }
         let done = false; const go = ()=>{ if(done || !alive()) return; done = true; at(P.after_intro, then); };
         play(src, go); at(authoredVoHoldMs(src) + 10000, ()=>{ if(!done){ stopAudio(); go(); } }); }
       function remind(){
@@ -4563,11 +4607,13 @@ for name in ("story_font_nsd600_deva.woff2", "story_font_nsd600_latin.woff2"):  
 for name, sub in (("img_story_chintu.webp", "Images"), ("img_story_chintu_2.webp", "Images"), ("vo_story_s1.ogg", "Audio"), ("vo_story_s2.ogg", "Audio")):
     (DIST / "assets" / sub / name).unlink(missing_ok=True)   # [story-pinki] the Chintu beats' files: no page uses them now
 # [recap-fig2] T1's picture (frame 764:144's node 764:753, its source bitmap as WebP), kept in recap_assets/
-for name, sub in (("img_recap_girl.webp", "Images"), ("sfx_fb_correct.ogg", "Audio"),   # [recap-sfx] the picture's sound
+for name, sub in (("img_recap_mango.webp", "Images"), ("sfx_fb_correct.ogg", "Audio"),   # [recap-sfx] the picture's sound; [recap-eg] T1's picture
+                  ("img_recap_paint.webp", "Images"),    # [recap-eg] T1B's picture
                   ("img_recap_house.webp", "Images")):   # [recap-prashn] T1C's picture (node 766:1140's source bitmap)
     f, dst = SCR / "recap_assets" / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing recap asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+(DIST / "assets" / "Images" / "img_recap_girl.webp").unlink(missing_ok=True)   # [recap-eg] T1's old picture: no page shows it now (kept in recap_assets/)
 
 # ---------- 7c. [recap-fig] the recap's clips (kept next to this script, in recap_assets/, made by recap_vo.py) ----------
 RECAP_SRC = SCR / "recap_assets"
@@ -4654,6 +4700,9 @@ for name, sub in [(f"{k}.webp", "Images") for k in LETTER_IMGS] + [(f"{k}.ogg", 
     f, dst = LETTER_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing letter asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+for name in ("img_letter_scene_p.webp", "img_letter_blur_p.webp", "img_letter_cloud_white.webp",   # [l1-cloud] no page shows them now (kept in letter_assets/)
+             "img_letter_cloud_empty.webp"):   # [l1-clean] the first take's patch (in ../_before_l1_clean/)
+    (DIST / "assets" / "Images" / name).unlink(missing_ok=True)
 # ---------- 7m. [stamp-fig] L2's bitmaps (stamp_assets/: the frame's own assets, by the scratchpad's make_stamp_assets.py), its two
 #               clips (recap_vo.py stamp) and the user's two sound effects as ogg (see README) ----------
 STAMP_SRC = SCR / "stamp_assets"

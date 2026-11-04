@@ -4,7 +4,7 @@ T4, the third (frame 523:320, "demo3"), G1, the first sentence the child punctua
 second (frame 600:197, "g2"), G3, the third (frame 528:424, "g3"), G4 (the reference game's P4 layout, "g4"), P1 and P2 (the
 same layout again, "p1", "p2").
 
-usage: python -I -X utf8 recap_vo.py <page> <line>|all [--voice hi-IN-SwaraNeural] [--rate=-15%] [--pitch=+0Hz]
+usage: python -I -X utf8 recap_vo.py <page> <line>|all [--voice hi-IN-SwaraNeural] [--rate=-15%] [--pitch=+0Hz] [--gain=0]
        pages: recap (T1), demo1 (T2), demo2 (T3), demo3 (T4), g1 (G1), g2 (G2), g3 (G3), g4 (G4), p1 (P1), p2 (P2), stamp (L2) — see LINES
        (needs edge-tts >= 7.3 — 7.2.x is refused by the server with HTTP 403 — and ffmpeg on PATH)
        Each run gives a slightly different take, so regenerate only the line(s) that changed.
@@ -62,10 +62,12 @@ LINES = {
     "intro":       ("आइए समझते हैं कि कौन-से चिह्न का प्रयोग कब किया जाता है ।", "ये हैं तीन विराम चिह्न"),
     "purn_name":   ("पूर्ण विराम", None),
     "purn_when":   ("बात पूरी होने पर", None),
-    "purn_eg":     ("उदाहरण- रीना स्कूल गई ।", "रीना स्कूल गई ।"),
+    # [recap-eg] (2026-11-04) T1's example is the user's new sentence (was "उदाहरण- पिंकी स्कूल गई ।", recorded; first "रीना ...")
+    "purn_eg":     ("उदाहरण- मुझे आम खाना पसंद है।", "मुझे आम खाना पसंद है।"),
     "alp_name":    ("अल्प विराम", None),
     "alp_when":    ("वाक्य में थोड़ा रुकने पर", None),
-    "alp_eg":      ("उदाहरण- आम, केला, संतरा और सेब", "आम, केला, संतरा और सेब"),
+    # [recap-eg] (2026-11-04) T1B's example is the user's new sentence (was "उदाहरण- आम, केला, संतरा और सेब", recorded)
+    "alp_eg":      ("उदाहरण- मुझे लाल, हरा और पीला रंग पसंद है ।", "मुझे लाल, हरा और पीला रंग पसंद है ।"),
     "prashn_name": ("प्रश्नवाचक चिह्न", None),
     "prashn_when": ("सवाल पूछने पर", None),
     "prashn_eg":   ("उदाहरण- तुम्हारा घर कहाँ है ?", "तुम्हारा घर कहाँ है ?"),
@@ -146,6 +148,9 @@ ap.add_argument("line")
 ap.add_argument("--voice", default="hi-IN-SwaraNeural")
 ap.add_argument("--rate", default="-15%")
 ap.add_argument("--pitch", default="+0Hz")
+# [recap-eg] (2026-11-04) a level change in dB, applied as the clip is encoded: a take that replaces a RECORDING is brought to that
+# recording's loudness (ebur128 integrated), so the page's level does not dip on it (the synthesiser reads ~2 dB under the recordings)
+ap.add_argument("--gain", type=float, default=0.0)
 args = ap.parse_args()
 PAGE = LINES[args.page]
 if args.line != "all" and args.line not in PAGE: raise SystemExit(f"lines of {args.page}: {', '.join(sorted(PAGE))}")
@@ -200,9 +205,10 @@ for key in (sorted(PAGE) if args.line == "all" else [args.line]):
         # the synthesiser leaves ~1.1 s of silence after the last word; several such tails would make a page drag, so
         # the tail is cut to 0.3 s (the page adds its own breath between beats). Only the end is cut: the word times stand.
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(mp3), "-ac", "1", "-ar", "48000",
-                        "-af", "areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.3,areverse",
+                        "-af", "areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.3,areverse"
+                               + (f",volume={args.gain}dB" if args.gain else ""),
                         "-c:a", "libopus", "-b:a", "32k", str(OUT / f"vo_{args.page}_{key}.ogg")], check=True)
     (OUT / f"vo_{args.page}_{key}.words.json").write_text(json.dumps({"text": spoken, "shown": shown_text, "voice": args.voice,
-        "rate": args.rate, "pitch": args.pitch, "word_times": times}, ensure_ascii=False, indent=1), encoding="utf-8")
+        "rate": args.rate, "pitch": args.pitch, **({"gain_db": args.gain} if args.gain else {}), "word_times": times}, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"== {key}: {spoken}   (boundaries: {' | '.join(m[0] for m in marks)})")
     for w, (t0, t1) in zip(shown_text.split(), times): print(f"   {t0:6.3f}-{t1:6.3f}  {w}")
