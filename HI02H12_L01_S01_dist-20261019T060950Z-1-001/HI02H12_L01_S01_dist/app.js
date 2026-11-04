@@ -7340,9 +7340,10 @@ const SlideModules = {
      [stamp-remind]: after 7 s without a touch the title's line is said again instead. A round with several boxes (data.slots): all
      blink together; the right stamp on one prints there and that box goes on the chime, then the stamps are the child's again for
      the rest; the confetti after the last; a box may want its own stamp (sl.mark, sl.pick). After the LAST round's confetti
-     [stamp-final] the finale: the stage dissolves slowly into the final picture (images.final) over fin_fade as its chime sounds,
-     the envelope in it glitters gold for fin_glitter_ms on the second chime, and at fin_done the page moves on (no आगे). Places in
-     frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
+     [stamp-close] the finale: the letter page's envelope transition backwards (the veil, the pull-back out of the envelope, the sheet
+     down, the flap shut on its paper crackle, the seal back, the closed envelope shrinking into Pinki's hand as the room of Figma
+     792:1253 comes into focus), then [stamp-final] the envelope there glitters gold for fin_glitter_ms on its chime, and fin_done
+     after it the page moves on (no आगे). Places in frame px (data.layout, each round's boxes), moments in data.pace (ms). ===== */
   STAMP_DEMO: {
     mount(host, slide){
       const d = slide.data || {}, LY = d.layout || {}, im = d.images || {}, sfx = d.sfx || {};
@@ -7352,7 +7353,8 @@ const SlideModules = {
         after_intro: 500, stamps_at: 700, pop_gap: 350, sent_at: 700, blink_ms: 3000, blinks: 3,
         hint_at: 500, glide: 1500, hover_up: 0, hold: 450, back: 1100, idle_ms: 7000, tol_x: 60, tol_y: 60, tap_px: 10, wiggle: 450, reset: 500,
         lift_scale: 1.1, press_scale: 0.96, snap: 220, press: 140, press_down: 0, thud_at: 280, mark_at: 400, lift_at: 560, back_at: 800, back_home: 800,
-        gone_at: 1600, confetti_at: 2100, done_at: 4400, words_out: 40, next_at: 1300, fin_fade: 3000, fin_glitter_at: 3400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 5400 }, d.pace || {});
+        gone_at: 1600, confetti_at: 2100, done_at: 4400, words_out: 40, next_at: 1300,
+        close_veil: 600, close_hold: 250, close_paper_at: 420, land_lead: 100, land_ms: 250, fin_glitter_at: 400, fin_glitter_ms: 1300, fin_sparks: 16, fin_done: 700 }, d.pace || {});
       const A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const box = (b)=> 'left:' + b[0] + 'px;top:' + b[1] + 'px;width:' + b[2] + 'px;height:' + b[3] + 'px';
       const pic = (cls, id, b)=> '<img class="' + cls + '" src="' + imgSrc(id) + '" alt="" draggable="false" style="' + box(b || [0, 0, 0, 0]) + '">';
@@ -7412,10 +7414,10 @@ const SlideModules = {
       // too; every round's pictures and clip fetched now too, so a round starts without a load gap
       const sounds = [];
       const mk = (id)=>{ const src = A(id); if(!src) return null; try{ const a = new Audio(src); a.preload = "auto"; a.load(); sounds.push(a); return a; }catch(e){ return null; } };
-      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), finSnd = mk(sfx.final), glitSnd = mk(sfx.glitter), whoosh = mk(sfx.whoosh);   // [stamp-final] the finale's two chimes; [stamp-868] the whoosh
+      const pops = Array.from({ length: maxN }, ()=> mk(sfx.pop)), thud = mk(sfx.press), paperSnd = mk(sfx.paper), glitSnd = mk(sfx.glitter), whoosh = mk(sfx.whoosh);   // [stamp-close] the finale's crackle (L1's) and [stamp-final] its chime; [stamp-868] the whoosh
       [A(d.intro_audio)].concat(rounds.map(R=> A(R.sentence && R.sentence.audio))).forEach(src=>{ if(src) try{ new Audio(src).load(); }catch(e){} });
       rounds.forEach(R=> (R.stamps || []).forEach(id=>{ try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} }));
-      if(im.final) try{ const i = new Image(); i.src = imgSrc(im.final); }catch(e){}   // [stamp-final] the final picture, fetched now
+      [im.final, im.fin_blur].concat(Object.values(im.env || {})).forEach(id=>{ if(id) try{ const i = new Image(); i.src = imgSrc(id); }catch(e){} });   // [stamp-close] the finale's pictures (792:1253, its blurred room, L1's envelope), fetched now
       const sound = (a, vol)=>{ if(!a) return; try{ a.volume = isMuted ? 0 : vol; a.currentTime = 0; const p = a.play(); if(p && p.catch) p.catch(()=>{}); }catch(e){} };
       // clearHost runs this when the page is left (the next page, the dev nav): every timer and sound stops
       window.oceanCleanup = ()=>{ timers.forEach(clearTimeout); if(idleIv) clearInterval(idleIv); sounds.forEach(a=>{ try{ a.pause(); a.removeAttribute("src"); a.load(); }catch(e){} });
@@ -7730,18 +7732,60 @@ const SlideModules = {
         at(P.confetti_at, ()=> confettiCannon());
         at(P.done_at, ()=>{ if(r + 1 < rounds.length) clearRound(C); else finale(); });   // [stamp-final] after the last round, the finale
       }
-      // [stamp-final] after the last round's confetti: the stage dissolves into the final picture (the girl holding up her stamped
-      // letter) over fin_fade as its chime sounds (started together), the envelope glitters gold for fin_glitter_ms on the second
-      // chime at fin_glitter_at, and at fin_done the page hands over to the end screen. The layer sits over everything; its picture
-      // was fetched at mount
+      // [stamp-close] after the last round's confetti, the finale: the letter page's envelope transition played BACKWARDS — the veil
+      // falls over the table and lifts off the sheet filling the screen (where L1's dive ended); the view pulls back out of the
+      // envelope (the sheet's ruled lines coming back), the sheet sinks into the pocket, the flap comes down on L1's paper crackle
+      // (sfx.paper) and the seal comes back: the envelope closed, full screen, over the room of Figma 792:1253 blurred (images.fin_blur);
+      // then — L1's zoom backwards — it shrinks into Pinki's raised hand (layout.hand: the drawing's envelope laid onto the picture's,
+      // their hearts on one spot) as the room comes into focus (images.final, the frame's picture), the drawing's envelope dissolving into
+      // the picture's own as it lands; fin_glitter_at later [stamp-final] the envelope there glitters gold for fin_glitter_ms on its chime,
+      // and fin_done after it the page hands over to the end screen. Every beat comes at the moment that mirrors L1's: L1's moment t
+      // after its tap (pace.close = L1's pace + its CSS lengths) at R0 + T - t on a clock that starts when the veil is full (T = L1's tap
+      // to its page change; R0 = this clock's mirror of that change: the hold, less the forward's last 50 ms, when its veil was already
+      // full); the curves are mirrored in the CSS (.ltr-rev). The layer is built in L1's end state (zoomed, open, the sheet risen, dived
+      // in) the moment the veil's fall has really ended (its transitionend — a transition starts in the frame that resolves its class
+      // change, which can come 30+ ms after it: a fixed timer showed the sheet through a veil still at 95 %; a fallback timer if the end is
+      // never reported), and painted (decoded) in the hold, unseen: built as the veil began to fall, its first paint (six large pictures,
+      // the box at 5.2x) cost 50-84 ms frames on the fall's first beats
       function finale(){
-        const EB = LY.envelope || [783, 168, 112, 102];
-        const fin = document.createElement("div"); fin.className = "stp-final"; fin.style.transitionDuration = P.fin_fade + "ms";
-        fin.innerHTML = '<img src="' + imgSrc(im.final) + '" alt="" draggable="false"><div class="stp-glit" style="' + box(EB) + '"></div>';
-        root.appendChild(fin);
-        nextFrame(()=> nextFrame(()=>{ if(!alive()) return; fin.classList.add("in"); sound(finSnd, 0.9); }));
-        at(P.fin_glitter_at, ()=>{ glitter(fin.querySelector(".stp-glit"), EB[2], EB[3]); sound(glitSnd, 0.7); });
-        at(P.fin_done, ()=>{ state.demoRunning = false; completeSlide(true); });
+        const C = Object.assign({ zoom: 1200, paper_at: 350, dive_at: 700, dive: 1700, dive_scale: 5.2, veil_at: 1900, done_at: 2450,
+          veil_ms: 500, sheet_ms: 900, flap_ms: 1000, seal_ms: 350, lines_ms: 1200, blur_ms: 900 }, P.close || {});
+        const T = C.zoom + C.done_at, R0 = P.close_hold - (T - (C.zoom + C.veil_at + C.veil_ms)), m = (t)=> R0 + T - t;   // from the full veil
+        const full = LY.env_full || [71, -50, 1138, 758], mo = LY.env_mouth || [568.8, 292.4], HD = LY.hand || {}, hc = HD.c || [592.47, 393.24], ht = HD.to || [810.54, 172.47],
+              EB = LY.envelope || [741, 109, 139, 125], env = im.env || {}, ei = (cls, id)=> '<img class="' + cls + '" src="' + imgSrc(id) + '" alt="" draggable="false">';
+        const fin = document.createElement("div"); fin.className = "stp-close ltr ltr-rev zoom letter-in paper dive";   // L1's classes as its transition ends
+        fin.innerHTML = pic("stp-fin-pic", im.final, LY.final || [0, -1, 1280, 721]) + ei("ltr-blur", im.fin_blur) +
+          '<div class="ltr-env-pos" style="' + box(full) + '"><div class="ltr-env-grow"><div class="ltr-env-pulse"><div class="ltr-env3d">' +
+            ei("ltr-inner", env.inner) + '<div class="ltr-paper"></div>' + ei("ltr-body", env.body) + '<div class="ltr-flap">' + ei("", env.flap) + '</div>' + ei("ltr-heart", env.heart) +
+          '</div></div></div></div><div class="stp-glit" style="' + box(EB) + '"></div>';
+        const ep = fin.querySelector(".ltr-env-pos");
+        // L1's dive (its box scaled about the mouth's centre, which lands on the frame's centre) and the landing: the box about the
+        // drawing's envelope's centre (hand.c, box px) carried onto the picture's envelope's centre (hand.to, frame px), turned and scaled
+        ep.style.setProperty("--ltr-dive", "translate(" + (640 - full[0] - C.dive_scale * mo[0]) + "px, " + (360 - full[1] - C.dive_scale * mo[1]) + "px) scale(" + C.dive_scale + ")");
+        ep.style.setProperty("--ltr-icon", "translate(" + (ht[0] - full[0] - hc[0]).toFixed(2) + "px, " + (ht[1] - full[1] - hc[1]).toFixed(2) + "px) rotate(" + (HD.rot || 0) + "deg) scale(" + (HD.scale || 0.12) + ")");
+        ep.style.setProperty("--ltr-ho", hc[0] + "px " + hc[1] + "px");
+        [["--ltr-dive-ms", C.dive], ["--ltr-zoom-ms", C.zoom], ["--ltr-lines-delay", C.dive - C.lines_ms], ["--ltr-blur-delay", C.zoom - C.blur_ms], ["--ltr-land-ms", P.land_ms]]
+          .forEach(([k, v])=> fin.style.setProperty(k, v + "ms"));
+        veil.style.setProperty("--stp-veil-fall", P.close_veil + "ms"); veil.style.setProperty("--stp-veil-lift", C.veil_ms + "ms");
+        veil.classList.add("fall");                                                       // the veil falls over the table (its lift as this page began, backwards; the class on the veil alone: on the page's root it re-styled the whole page)
+        // the veil is full when its fall has really ended (its transitionend; a fallback timer if that is never reported): the layer goes
+        // in under it, the sheet as L1's dive left it, and the beats run from there
+        let veilFull = false;
+        const onEnd = (e)=>{ if(e.target === veil && e.propertyName === "opacity") onFull(); };
+        const onFull = ()=>{ if(veilFull || !alive()) return; veilFull = true; veil.removeEventListener("transitionend", onEnd);
+          root.insertBefore(fin, veil); fin.querySelectorAll("img").forEach(i=>{ try{ if(i.decode) i.decode().catch(()=>{}); }catch(e){} });
+          at(m(C.zoom + C.veil_at + C.veil_ms), ()=> veil.classList.add("lift"));          // the veil lifts off it as ...
+          at(m(C.zoom + C.dive_at + C.dive), ()=> fin.classList.remove("dive"));           // ... the view pulls back out of the envelope (its ruled lines come back)
+          at(m(C.zoom + C.paper_at + C.sheet_ms), ()=> fin.classList.remove("paper"));      // the sheet sinks into the pocket
+          at(m(C.zoom + C.flap_ms), ()=> fin.classList.add("shut"));                        // the flap comes down ...
+          at(m(C.zoom + C.flap_ms) + P.close_paper_at, ()=> sound(paperSnd, 0.7));          // ... on L1's paper crackle (its burst on the fall and the seal)
+          at(m(C.zoom + C.seal_ms), ()=> fin.classList.add("seal"));                        // the seal comes back: closed, as drawn
+          at(m(C.zoom), ()=> fin.classList.remove("zoom"));                                 // it shrinks into her hand as the room comes into focus
+          at(m(0) - P.land_lead, ()=> fin.classList.add("land"));                           // the drawing's envelope dissolves into the picture's own
+          at(m(0) + P.fin_glitter_at, ()=>{ glitter(fin.querySelector(".stp-glit"), EB[2], EB[3]); sound(glitSnd, 0.7); });   // [stamp-final] the glitter, as before
+          at(m(0) + P.fin_glitter_at + P.fin_glitter_ms + P.fin_done, ()=>{ state.demoRunning = false; completeSlide(true); });
+        };
+        veil.addEventListener("transitionend", onEnd); at(P.close_veil + 400, onFull);
       }
       // the glitter: a soft gold glow over the envelope and fin_sparks four-point sparks scattered over it, each twinkling once (up and
       // away in .65 s) at its own moment within the chime

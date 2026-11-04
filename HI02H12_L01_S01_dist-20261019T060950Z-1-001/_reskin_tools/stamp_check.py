@@ -7,7 +7,8 @@ the box's 3 s blink. From there this script is the child: round 1 — it lets th
 the guiding stamp mid-glide, drops it far off, drops the wrong stamp on the box, taps a stamp, drops the right stamp on the box off its
 centre; each later round — the clearing, the round's line, its stamps' pops, its sentence rising in and read, its boxes' blink, no
 guidance (the round's line again after 7 s idle), a wrong stamp on the box, then the right one on each box in turn; after the last round
-the finale; a re-run; a mid-way exit with a stamp in hand. The page's own frame trace (rAF) and a hook on every media play record the
+the finale; a re-run; a mid-way exit with a stamp in hand. [stamp-close] (2026-11-04) the finale = L1's envelope transition backwards, then Figma 792:1253 with the
+glitter — stamp_close_check.py has it beat by beat; here its moment, layer, sounds, landing, glitter and hand-over. The page's own frame trace (rAF) and a hook on every media play record the
 beats; they are checked against each other and against the clips' own clocks, so Playwright's own lag never fails a good build. The
 angled view (the bird landed), the overhead view (after the move) and every round's box moment (the blink paused) are compared with
 the frames' renders. usage: python -I -X utf8 stamp_check.py <index.html> <outdir> [<stamp_assets dir with stamp868_*_render.png>]"""
@@ -18,7 +19,7 @@ import numpy as np
 html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).resolve(); out.mkdir(parents=True, exist_ok=True)
 here = pathlib.Path(__file__).resolve().parent
 REF = pathlib.Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else here / "stamp_assets"
-final_img = here / "stamp_assets" / "img_stamp_final.webp"   # [stamp-final] the finale's picture, as built
+final_render = here / "stamp_assets" / "fig_792-1253_render.png"   # [stamp-close] the finale's last screen: Figma 792:1253's render
 fails = []
 def check(name, ok, detail=""):
     print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail != "" else ""))
@@ -57,7 +58,7 @@ TRACE = """() => { window.__tr = []; const st = document.getElementById('stage')
       words: document.querySelectorAll('.stp-sent .sfig-w.on').length, nwords: document.querySelectorAll('.stp-sent .sfig-w').length, rise: se ? se.classList.contains('sfig-rise') : false,
       hot: [...document.querySelectorAll('.stp-sent .sfig-w')].findIndex(w => w.classList.contains('hot')),
       slots: [...document.querySelectorAll('.stp-slot')].map(s => ({ cl: s.className, op: +getComputedStyle(s).opacity, anim: getComputedStyle(s).animationName, box: q(s), mark: !!s.querySelector('.stp-mark.in') })),
-      fin: (() => { const f = document.querySelector('.stp-final'); if(!f) return null; const i = f.querySelector('img'), w = document.querySelector('.stp-glit.on .stp-glow'); return { op: +getComputedStyle(f).opacity, inn: f.classList.contains('in'), src: i ? i.src.split('/').pop() : '', sparks: document.querySelectorAll('.stp-glit.on .stp-spark').length, glow: w ? getComputedStyle(w).animationName : '', gbox: q(f.querySelector('.stp-glit')) }; })(),
+      fin: (() => { const f = document.querySelector('.stp-close'); if(!f) return null; const i = f.querySelector('.stp-fin-pic'), w = document.querySelector('.stp-glit.on .stp-glow'); return { op: +getComputedStyle(f).opacity, cls: f.className, src: i ? i.src.split('/').pop() : '', sparks: document.querySelectorAll('.stp-glit.on .stp-spark').length, glow: w ? getComputedStyle(w).animationName : '', gbox: q(f.querySelector('.stp-glit')), pulse: +getComputedStyle(f.querySelector('.ltr-env-pos')).opacity, blur: +getComputedStyle(f.querySelector('.ltr-blur')).opacity }; })(),
       mark: !!document.querySelector('.stp-mark.in'), st: ss.map(q), cl: ss.map(s => s.className), stf: ss.map(s => getComputedStyle(s).transform), conf: !!document.querySelector('.fx-confetti'),
       veil: +getComputedStyle(document.querySelector('.stp-veil')).opacity, nav: getComputedStyle(document.getElementById('navBtn')).display,
       vo: (typeof currentAudio !== 'undefined' && currentAudio) ? [String(currentAudio.src).split('/').pop(), currentAudio.currentTime, currentAudio.ended] : null });
@@ -191,9 +192,9 @@ with sync_playwright() as p:
             pg.wait_for_function(f"document.querySelectorAll('.stp-slot.gone').length >= {j + 1}", timeout=8000); until(now(), 450); rec["dones"].append(shot(pg, f"l2_r{ri}_done{sfx_}.png"))
         pg.wait_for_function(f"!!document.querySelector('.fx-confetti') || window.__tr.some(f => f.conf && f.t > {rec['t_drop']})", timeout=8000); until(now(), 500); shot(pg, f"l2_r{ri}_confetti.png")
         LT.append(rec)
-    # [stamp-final] the finale: the dissolve shot as it completes, the glitter shot mid-chime
-    pg.wait_for_function("!!document.querySelector('.stp-final.in')", timeout=12000); t_fin = now(); until(t_fin, P["fin_fade"] + 150); fin_shot = shot(pg, "l2_final.png")
-    until(t_fin, P["fin_glitter_at"] + 400); shot(pg, "l2_glitter.png")
+    # [stamp-close] the finale: L1's envelope transition backwards; the shot once the envelope has landed in her hand (792:1253), the glitter's
+    pg.wait_for_function("!!document.querySelector('.stp-close.land')", timeout=20000, polling=10); t_land = now(); until(t_land, P["land_lead"] + P["land_ms"] + 30); fin_shot = shot(pg, "l2_final.png")
+    until(t_land, P["land_lead"] + P["fin_glitter_at"] + 500); shot(pg, "l2_glitter.png")
     pg.wait_for_function("CARD.slides[state.idx].id === 'CEL' && document.body.classList.contains('is-end')", timeout=15000); t_cel = now()
     tr = pg.evaluate("window.__tr"); pl = pg.evaluate(PLAYS); tr_end = pg.evaluate("window.__trEnd || 0"); cs_t = pg.evaluate("window.__csT || 0")
     snd = lambda name: [x for x in pl if x["src"] == name + ".ogg"]
@@ -464,29 +465,30 @@ with sync_playwright() as p:
         L_["fdr"] = fdr; prev_drop = fdr; prev_n = n
     fr1 = first(tr, lambda f: f["round"] == "1")
     check("the right-hand stamp lifted four times in round 1 (two guidances, the far drop, the right drop): no guidance while the child was at work", fr1 and len([t for t in lifts1 if t < fr1["t"]]) == 4, len([t for t in lifts1 if fr1 and t < fr1["t"]]))
-    # ==== 9. [stamp-final] after the last round's confetti: the dissolve into the final picture on its chime, the envelope's glitter on the second
-    fdl = LT[-1]["fdr"]; ff = first(tr, lambda f: f["fin"] is not None, since=fdl["t"]) if fdl else None; fin_in = first(tr, lambda f: f["fin"] and f["fin"]["inn"], since=fdl["t"]) if fdl else None
-    finsnd = [x for x in snd("sfx_stamp_final") if fdl and x["t"] > fdl["t"]]; glsnd = [x for x in snd("sfx_stamp_glitter") if fdl and x["t"] > fdl["t"]]
-    ops = [(f["t"], f["fin"]["op"]) for f in tr if fin_in and f["fin"] and fin_in["t"] <= f["t"] <= fin_in["t"] + P["fin_fade"] + 400]
-    steps = [b_ - a_ for (_, a_), (_, b_) in zip(ops, ops[1:])]; f95 = next((t for t, o in ops if o >= 0.995), None)
-    check("the finale begins 4.4 s after the last drop: the final picture's layer comes in over the whole stage with its chime (within 60 ms of its first frame), its picture the final asset",
-          ff and fdl and abs(ff["t"] - fdl["t"] - P["done_at"]) < 220 and fin_in and fin_in["t"] - ff["t"] < 200 and ff["fin"]["src"] == "img_stamp_final.webp" and len(finsnd) == 1 and abs(finsnd[0]["t"] - fin_in["t"]) < 120,
-          (round(ff["t"] - fdl["t"]) if ff and fdl else None, round(finsnd[0]["t"] - fin_in["t"]) if finsnd and fin_in else None))
-    check(f"the dissolve is slow and smooth: the layer's opacity only rises, by under .12 a frame, to full in {P['fin_fade']} ms (within 300 ms)",
-          ops and ops[0][1] < 0.1 and all(s_ >= -0.001 for s_ in steps) and max(steps, default=0) < 0.12 and f95 and abs(f95 - fin_in["t"] - P["fin_fade"]) < 300 and ops[-1][1] > 0.99,
-          (round(ops[0][1], 3) if ops else None, round(max(steps), 3) if steps else None, round(f95 - fin_in["t"]) if f95 and fin_in else None))
-    fg_ = first(tr, lambda f: f["fin"] and f["fin"]["sparks"] > 0, since=fin_in["t"]) if fin_in else None; EB = LY["envelope"]
-    check(f"the envelope's gold glitter: {P['fin_sparks']} sparks and the glow over the envelope's box at {P['fin_glitter_at']} ms into the finale (within 120), with the second chime (within 60 ms)",
-          fg_ and fin_in and abs(fg_["t"] - fin_in["t"] - P["fin_glitter_at"]) < 200 and fg_["fin"]["sparks"] == P["fin_sparks"] and fg_["fin"]["glow"] == "stpGlow" and boxnear(fg_["fin"]["gbox"], EB, 1.5) and len(glsnd) == 1 and abs(glsnd[0]["t"] - fg_["t"]) < 120,
-          (round(fg_["t"] - fin_in["t"]) if fg_ and fin_in else None, fg_["fin"]["sparks"] if fg_ else None))
-    FS = np.asarray(Image.open(fin_shot).convert("RGB").resize((1280, 720), Image.LANCZOS)).astype(float); FI = np.asarray(Image.open(final_img).convert("RGB")).astype(float) if final_img.exists() else None
-    dfin = float(np.abs(FS - FI).sum(axis=2).mean()) if FI is not None else None
-    check("at the dissolve's end the whole stage IS the final picture (mean difference < 6)", dfin is not None and dfin < 6, round(dfin, 2) if dfin is not None else "no final picture built")
-    check("after the last round the page hands over to the end screen 4.4 s + the finale's 5.4 s after the drop (completeSlide on the page's own clock, within 150 ms), the end screen up within 1.5 s of that, no round gate",
-          fdl and cs_t and abs(cs_t - fdl["t"] - P["done_at"] - P["fin_done"]) < 150 and 0 <= t_cel - cs_t < 1500 and not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"),
-          (round(cs_t - fdl["t"]) if fdl and cs_t else None, round(t_cel - fdl["t"]) if fdl else None))
-    until(t_cel, 800); shot(pg, "l2_end.png"); pl = pg.evaluate(PLAYS); own = [x for x in pl if x["src"].startswith("sfx_stamp")]
-    check("leaving the page stopped its own sounds (the whoosh twice, the pops 2 + 3 + 3 + 3 for the later rounds, the thud nine times: once a box, the finale's two chimes)", len(own) == 24 and all(x["paused"] for x in own),
+    # ==== 9. [stamp-close] after the last round's confetti: L1's envelope transition backwards, then 792:1253 with the glitter (stamp_close_check.py
+    #      has every beat against L1's own, frame by frame); here: its moment, its layer under the full veil, its sounds, the landing, the glitter
+    C_ = P["close"]; T_ = C_["zoom"] + C_["done_at"]; R0_ = P["close_hold"] - (T_ - (C_["zoom"] + C_["veil_at"] + C_["veil_ms"])); m_ = lambda t: R0_ + T_ - t
+    fdl = LT[-1]["fdr"]; vf = first(tr, lambda f: f["veil"] > 0.01, since=fdl["t"]) if fdl else None; ff = first(tr, lambda f: f["fin"] is not None, since=fdl["t"]) if fdl else None
+    papsnd = [x for x in snd("sfx_letter_paper") if fdl and x["t"] > fdl["t"]]; glsnd = [x for x in snd("sfx_stamp_glitter") if fdl and x["t"] > fdl["t"]]; finsnd = [x for x in snd("sfx_stamp_final") if fdl and x["t"] > fdl["t"]]
+    check("the finale begins 4.4 s after the last drop (the old finale's moment): the veil falls over the table, and the envelope's layer (L1's end state: zoomed, open, the sheet up, dived in) goes in only under the full veil",
+          vf and fdl and abs(vf["t"] - fdl["t"] - P["done_at"]) < 260 and ff and ff["veil"] > 0.999 and all(c_ in ff["fin"]["cls"].split() for c_ in ("ltr", "ltr-rev", "zoom", "letter-in", "paper", "dive")),
+          (round(vf["t"] - fdl["t"]) if vf and fdl else None, ff["veil"] if ff else None, ff["fin"]["cls"] if ff else None))
+    fz = first(tr, lambda f: f["fin"] and "zoom" not in f["fin"]["cls"].split(), since=ff["t"]) if ff else None; fl_ = first(tr, lambda f: f["fin"] and "land" in f["fin"]["cls"].split(), since=ff["t"]) if ff else None
+    check("then backwards, step by step (the classes taken back: dive, paper; shut and seal; zoom; then land) — the paper crackle once at .7 after the flap starts down, the glitter's chime once at .7, no dissolve chime",
+          ff and fz and fl_ and fz["t"] < fl_["t"] and len(papsnd) == 1 and papsnd[0]["vol"] == 0.7 and papsnd[0]["t"] > ff["t"] and len(glsnd) == 1 and glsnd[0]["vol"] == 0.7 and not finsnd,
+          (round(papsnd[0]["t"] - ff["t"]) if papsnd and ff else None, round(glsnd[0]["t"] - ff["t"]) if glsnd and ff else None, len(finsnd)))
+    fg_ = first(tr, lambda f: f["fin"] and f["fin"]["sparks"] > 0, since=ff["t"]) if ff else None; EB = LY["envelope"]
+    check(f"the envelope in her hand glitters gold, as before: {P['fin_sparks']} sparks and the glow over its box {EB}, {P['fin_glitter_at']} ms after it lands (within 120), with its chime (within 60 ms)",
+          fg_ and fl_ and abs(fg_["t"] - fl_["t"] - P["land_lead"] - P["fin_glitter_at"]) < 120 and fg_["fin"]["sparks"] == P["fin_sparks"] and fg_["fin"]["glow"] == "stpGlow" and boxnear(fg_["fin"]["gbox"], EB, 1.5) and glsnd and abs(glsnd[0]["t"] - fg_["t"]) < 60,
+          (round(fg_["t"] - fl_["t"]) if fg_ and fl_ else None, fg_["fin"]["sparks"] if fg_ else None))
+    FS = np.asarray(Image.open(fin_shot).convert("RGB").resize((1280, 720), Image.LANCZOS)).astype(float); FR = np.asarray(Image.open(final_render).convert("RGB")).astype(float) if final_render.exists() else None
+    dfin = float(np.abs(FS - FR).sum(axis=2).mean()) if FR is not None else None
+    check("once it has landed the whole stage IS Figma 792:1253 (the shot against its render: mean < 8 of 765), its picture 792:1253's", dfin is not None and dfin < 8 and ff and ff["fin"]["src"] == "img_stamp_final_pinki.webp", round(dfin, 2) if dfin is not None else "no render")
+    check(f"then the page hands over to the end screen fin_done after the glitter (completeSlide on the page's own clock: {m_(0) + P['fin_glitter_at'] + P['fin_glitter_ms'] + P['fin_done']} ms after the layer goes in, within 150 ms), the end screen up within 1.5 s of that, no round gate",
+          ff and cs_t and abs(cs_t - ff["t"] - (m_(0) + P["fin_glitter_at"] + P["fin_glitter_ms"] + P["fin_done"])) < 150 and 0 <= t_cel - cs_t < 1500 and not pg.evaluate("document.getElementById('phaseGate').classList.contains('show')"),
+          (round(cs_t - ff["t"]) if ff and cs_t else None, round(t_cel - cs_t) if cs_t else None))
+    until(t_cel, 800); shot(pg, "l2_end.png"); pl = pg.evaluate(PLAYS); own = [x for x in pl if x["src"].startswith("sfx_stamp") or x["src"] == "sfx_letter_paper.ogg"]
+    check("leaving the page stopped its own sounds (the whoosh twice, the pops 2 + 3 + 3 + 3 for the later rounds, the thud nine times: once a box, [stamp-close] the finale's paper crackle and glitter chime)", len(own) == 24 and all(x["paused"] for x in own),
           sorted(__import__("collections").Counter(x["src"] for x in own).items()))
     # ==== 10. a re-run, and leaving mid-way (the dev nav) with a stamp in hand: a clean stop
     # the re-run also measures the page's smoothness bare: only its frames' times (no reads), from the mount to the box

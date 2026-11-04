@@ -2729,6 +2729,75 @@ Page 16 L2: the stamp page on Figma 868:3 (the angled table, the bird) and 868:1
   of github.com/siddharthsharma-ctrl/Ek-aur-Anek was needed (the older scratchpad's copy had been emptied, only its folders left);
   its build is byte-identical outside L2. `../_before_stamp868/` holds the dist's three files, build.py and the checks from before.
 
+Page 16 L2: the finale = the letter page's envelope transition backwards, then Figma 792:1253 with the gold glitter ([stamp-close], 2026-11-04)
+- Asked: "after all the sentences are done with the stamps, the same transition screen of the letter envelope will be shown in the reverse
+  order, as of closing this envelope, with the exact same paper sound effect as of the envelope opening transition screen, and after the
+  envelope is closed this screen (Figma 792:1253) will come, with the exact same letter envelope golden effect as of now but on this
+  image; rest exactly the same."
+- 792:1253 (get_metadata / get_design_context / download_assets) = one picture: "image 295" at 0,-1 1280x721, its fill 1672x941 (the
+  design context's imgImage295 = download_assets' rawImages[0], md5 eb12fc22...; rawImages[1] is a 418 px thumbnail of it) drawn cover:
+  Pinki (the braided girl of L1's new frames) at her desk holding up the sealed letter. `make_stamp_close_assets.py` (here) makes, from
+  the frame's downloads: img_stamp_final_pinki.webp (the fill, LOSSLESS at its native size, 1.27 MB, round trip exact), the backdrop
+  of the closed envelope img_stamp_final_blur.webp (the render blurred as L1's img_letter_blur_p was made from 792:1249's: Gaussian
+  7.5 px, 90 % on white — re-derived on that file, mean 0.9), stamp_assets/fig_792-1253_render.png (the checks), and it prints the
+  landing numbers below.
+- Gone: the old finale's 3 s dissolve into img_stamp_final and its "simple notification" chime (sfx_stamp_final) — out of the card,
+  the files left in the dist. Kept as it was: the glitter (the soft gold glow + 16 sparks, its "notification 037" chime at .7, 1.3 s,
+  0.7 s to the end screen), now over 792:1253's envelope: its box = the envelope outline's box 753..868 x 123..222 + the old margins
+  12 / 14 / 12 / 12 = [741, 109, 139, 125].
+- The flow (STAMP_DEMO finale(), from done_at after the last drop as before): the veil (#FDE9A8) falls over the table — this page's
+  own .6 s ease-out lift at its start, backwards (ease-in; the class `fall` on the veil itself: on the page's root it re-styled the
+  whole page) —; on its transitionend (the moment it really is full; a 1 s fallback) the finale's layer goes in under it: L1's own
+  layers and rules (.ltr: 610:6's box at 71,-50 1138x758, the inside, the sheet, the body, the flap, the seal — L1's data.env, the
+  same four lossless pictures) built in the state L1's transition ENDS in (classes zoom letter-in paper dive: the box at 5.2x about the
+  mouth's centre on the frame's centre, the flap standing at 80 deg, the seal popped, the sheet 35 px up, its ruled lines gone) over
+  792:1253's picture under its blurred room. Then L1's transition runs backwards, every step at the moment that mirrors L1's and on
+  L1's curve mirrored in time (the .ltr-rev rules: cubic-bezier(a,b,c,d) -> (1-c,1-d,1-a,1-b), keyframes in reverse): L1's moment t
+  after its tap comes at R0 + T - t after the full veil (pace.close = L1's pace, copied from L1's card data by build.py, + the lengths
+  its CSS gives the veil / sheet / flap / seal / lines / backdrop; T = 3650 = L1's tap to its page change; R0 = close_hold 250 - 50:
+  L1's veil was already full its last 50 ms) — at 250 ms the veil lifts (.5 s) as the view pulls back out of the envelope (1.7 s),
+  the ruled lines coming back (1.2 s from 0.5 s in); the sheet sinks into the pocket (.9 s, 1400); the flap comes down (1 s, 1650) and
+  the seal comes back (.35 s, 2300): closed, as drawn, full screen; then L1's zoom out of the cloud, backwards (1.2 s, 2650): the
+  closed envelope shrinks into Pinki's raised hand as the room comes into focus (the blur's .9 s, ending with the landing at 3850):
+  the box about the drawing's envelope's centre (592.47, 393.24 box px) carried straight onto the picture's envelope's centre
+  (810.54, 172.47), turned -7.04 deg and scaled .12072 — layout.hand, from both envelopes' outlines fitted (a similarity on the four
+  corners): the hearts land 0.46 px apart, the corners within 4 px (the two drawings' proportions differ, 1.66 / 1.50) —, the
+  drawing's envelope dissolving into the picture's own as it lands (its box's opacity, 250 ms from 100 ms before); at 4250 the
+  glitter; at 6250 the end screen. The finale: ~0.62 s of fall + 6.25 s (the old one 5.4 s).
+- The sound: L1's paper crackle (sfx_letter_paper, its own file, at L1's .7). A sound cannot run backwards: it starts 420 ms into the
+  flap's fall (pace.close_paper_at; 2070), so its burst (0.1-0.35 s into the clip) lands on the flap's fastest fall and the seal
+  coming back. L1's tap pop is not replayed (it was the tap's); no other sound is added.
+- Smoothness (bare rAF times, fresh browsers, variants interleaved: the scratchpad's jank_close.py): built as the veil began to fall,
+  the layer's first paint (six large pictures, the box at 5.2x) cost 50-84 ms frames on the fall's first beats — built under the full
+  veil those frames fall in its hold, unseen; a layer first made on its own beat (the seal's pop, the landing's dissolve) came with a
+  50-67 ms frame — every part the finale moves later is a layer from the start (will-change on the box, the backdrop, the seal, the
+  sheet and its lines). The layer goes in on the veil's transitionend, not on a timer: a transition starts in the frame that resolves
+  its class change (30+ ms after the change on a busy frame), and a 600 ms timer showed the sheet through a veil still at 95 % for two
+  frames. What is left seen: 33 ms frames in the finale's first ~0.3 s while the last round's confetti (the kit's 100 3-D pieces,
+  unchanged) is still falling, and the glitter's first frame (up to 50 ms: the [stamp-final] effect unchanged, the old finale paid it
+  too). L1's own opening, measured alongside: 50-67 ms at its tap, 33 ms at its flap.
+- Checked: `python -I -X utf8 stamp_close_check.py ../HI02H12_L01_S01_dist/index.html out [--quick]` (new; 31 checks, ALL PASS with all
+  five rounds played by drag and with --quick). L1's opening is traced first and the finale judged AGAINST IT, each property frame by
+  frame on the document timeline from its own animation's start (Animation.startTime — the class-change moments lag it by 0-50 ms here,
+  120-220 ms at L2's busy mount): the veil's lift = L1's veil coming down, the pull-back = L1's dive (scale 5.2 -> 1), the ruled lines,
+  the sheet's sink, the flap (80 -> 0 deg), the seal (opacity and its 1.18 overshoot), the shrink (L1's zoom, normalised), the room's
+  focus, the veil's fall = this page's own lift — every frame on L1's curve read backwards (worst 0.0004); every beat within 30 ms
+  of its mirrored moment; the layer in on the fall's end (within 25 ms); the dived state as the veil lifts (5.2x, the mouth on the
+  frame's centre within 1.5 px); closed as L1's zoom left it; the shrink's centre on a straight line (0.005 px); landed: centre 0.0 px,
+  heart 0.51, corners 3.6 / 2.4, scale .12072, -7.04 deg; the dissolve only fading, 250 ms; the glitter's 16 sparks + glow on its box
+  400 ms after the landing; the crackle once at .7 (420 ms into the fall), the chime once, no dissolve chime or tap pop; the old picture
+  and chime never fetched; the hand-over 6250 ms after the full veil (within 60). Frozen through DevTools (Animation.setPlaybackRate 0,
+  in runs of their own): the closed envelope IS the drawing as drawn (flat parts mean 3.05 of 765, 0 px over 40; the blurred room
+  1.15) and the landed screen IS Figma 792:1253 (against its render: mean 3.0 over the frame, 2.55 over the envelope's box); the sheet
+  fills 95-98 % of the screen at L1's 3.0 s moment mirrored; leaving mid-finale (to P2, the crackle sounding) clean; smooth as above.
+  stamp_check.py's section 9 rewritten for the finale (its moment, the layer under the full veil, the steps' order, the sounds, the
+  glitter, the landed screen against the render mean 3.11, the hand-over; its own-sounds count 24: the crackle and the glitter's chime
+  in place of the two chimes) 111/111; smoke.py's L2 finale step (the envelope landed in her hand, 792:1253's picture at its native
+  1672 px) 53/53; letter_check.py 47/47 (L1 untouched); gate_check.py 13/13. The build changes only L2 (its card data and asset rows,
+  the finale's code, the finale's CSS); built into a scratch copy first, the live dist then built in place byte-identical to it.
+- `../_before_stamp_close/` holds the dist's three files, build.py, stamp_check.py, smoke.py, gate_check.py, letter_check.py and
+  README.md from before.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
@@ -2746,6 +2815,9 @@ Checking it (needs Python 3.12, `pip install playwright`, and Chrome installed)
   letter page to its pulsing envelope, then the tap), to the end screen (its validator clean), and the dev nav; prints PASS/FAIL
   per step.
 - `python -I -X utf8 letter_check.py ../HI02H12_L01_S01_dist/index.html out` — the letter page beat by beat (see its section).
+- `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out` — the stamp page beat by beat; `python -I -X utf8
+  stamp_close_check.py ../HI02H12_L01_S01_dist/index.html out [--quick]` — its finale against the letter page's own opening, read
+  backwards ([stamp-close]).
 
 In the browser: open `index.html?dev=1` for the slide-jump bar (bottom-right) and the signal banner;
 `index.html?slide=N` mounts slide N directly.

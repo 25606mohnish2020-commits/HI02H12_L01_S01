@@ -3570,11 +3570,31 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
   transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy))) scale(1.35) rotate(-8deg);transform-origin:calc(50% + var(--ix)) calc(50% + var(--iy));
   transition:opacity .2s ease-out,transform .28s cubic-bezier(.2,.9,.3,1.3);}
 .stp-mark.in{opacity:1;transform:translate(calc(-50% - var(--ix)),calc(-50% - var(--iy)));}
-/* [stamp-final] the finale: the final picture over the whole stage, dissolving in over fin_fade (the module sets the duration); over
-   the envelope a soft gold glow (fin_glitter_ms, --glit) and the sparks, each twinkling once (fill both: gone when done) */
-.stp-final{left:0;top:0;width:1280px;height:720px;z-index:20;opacity:0;transition:opacity 3s ease-in-out;pointer-events:none;}
-.stp-final.in{opacity:1;}
-.stp-final > img{position:absolute;left:0;top:0;width:100%;height:100%;display:block;}
+/* [stamp-close] the finale: the letter page's envelope transition backwards over Figma 792:1253 — L1's own layers and rules (.ltr: the
+   envelope's box, the sheet, the flap, the seal, the backdrop) in one layer over the whole stage, built in the state L1's transition
+   ends in (classes zoom letter-in paper dive; below: the flap standing, the seal gone) and taken back step by step; each step runs
+   L1's curve mirrored in time (cubic-bezier(a,b,c,d) -> (1-c,1-d,1-a,1-b); keyframes in reverse) at the mirrored moment (the module).
+   It is built under the full veil (its first paint unseen), every part it moves later a layer from the start (made in the hold too: a
+   layer first made on its beat — the seal's pop, the landing's dissolve — came with a 50-67 ms frame) */
+.stp-close{z-index:20;pointer-events:none;}
+.stp-close .stp-fin-pic{object-fit:cover;}                                                  /* 792:1253's picture in its box (0,-1 1280x721), as Figma fills it */
+.stp-close .ltr-env-pos{will-change:transform,opacity;}
+.stp-close .ltr-blur{will-change:opacity;}
+.stp-close .ltr-heart,.stp-close .ltr-paper{will-change:transform,opacity;}
+.stp-close .ltr-paper::after{will-change:opacity;}
+.ltr-rev .ltr-flap{transform:rotate(-12.72deg) rotateX(80deg) rotate(12.72deg);}            /* standing open: L1's ltrFlap's end */
+.ltr-rev .ltr-heart{opacity:0;transform:scale(.55);}                                          /* the seal popped: L1's ltrSeal's end */
+.ltr-rev.zoom:not(.dive) .ltr-env-pos{transition:transform var(--ltr-dive-ms,1.7s) cubic-bezier(.45,0,.55,1);}   /* out of the dive: its own curve (symmetric) */
+.ltr-rev:not(.dive) .ltr-paper::after{transition:opacity 1.2s ease-out var(--ltr-lines-delay,.5s);}               /* the ruled lines back: L1's 1.2 s ease-in fade, backwards (ends with the pull-back) */
+.ltr-rev:not(.paper) .ltr-paper{transition-timing-function:cubic-bezier(.7,0,.7,.3);}                             /* the sheet sinks: L1's rise (.3,.7,.3,1), backwards */
+.ltr-rev.shut .ltr-flap{animation:ltrFlap 1s cubic-bezier(.5,0,.3,1) reverse both;}                               /* the flap comes down: L1's lift, backwards */
+.ltr-rev.seal .ltr-heart{animation:ltrSeal .35s ease-in reverse both;}                                            /* the seal comes back: L1's pop, backwards */
+/* into her hand: L1's zoom (1.2 s, (.45,0,.2,1)) backwards, onto --ltr-icon = the landing, about the drawing's envelope's centre (--ltr-ho;
+   the origin moves while the box is untransformed, so nothing jumps); the backdrop clears as L1's came, ending with the landing */
+.ltr-rev:not(.zoom) .ltr-env-pos{transform-origin:var(--ltr-ho,0 0);transition:transform var(--ltr-zoom-ms,1.2s) cubic-bezier(.8,0,.55,1),opacity var(--ltr-land-ms,.25s) ease-in-out;}
+.ltr-rev:not(.zoom) .ltr-blur{transition:opacity .9s ease-in-out var(--ltr-blur-delay,.3s);}
+.ltr-rev.land .ltr-env-pos{opacity:0;}   /* the drawing's envelope dissolves into the picture's, in her hand (the box: a layer already, so the fade costs no new one) */
+/* [stamp-final] over the envelope a soft gold glow (fin_glitter_ms, --glit) and the sparks, each twinkling once (fill both: gone when done) */
 .stp-glit{position:absolute;--glit:1300ms;}
 .stp-glit .stp-glow{position:absolute;left:-25%;top:-25%;width:150%;height:150%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,226,130,.6),rgba(255,226,130,0));opacity:0;}
 .stp-glit.on .stp-glow{animation:stpGlow var(--glit) ease-in-out both;}
@@ -3586,6 +3606,10 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 /* the hand-over from the letter page: its veil's colour over the table, lifting as this page starts */
 .stp-veil{left:0;top:0;width:1280px;height:720px;background:#FDE9A8;pointer-events:none;transition:opacity .6s ease-out;z-index:30;}
 .stp.lit .stp-veil{opacity:0;}
+/* [stamp-close] at the finale it falls again over the table (its lift backwards: ease-out -> ease-in) and lifts off the sheet (L1's veil, .5 s
+   ease-in, backwards) */
+.stp.lit .stp-veil.fall{opacity:1;transition:opacity var(--stp-veil-fall,.6s) ease-in;}
+.stp.lit .stp-veil.fall.lift{opacity:0;transition:opacity var(--stp-veil-lift,.5s) ease-out;}
 
 /* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) — see build.py ===== */
 /* ---- the cover's sky: the kit's sky-drift + sky-burst + sky-adapt, the reference's block verbatim ---- */
