@@ -1,0 +1,30 @@
+{
+ "text": "मुझे उपहार बहुत पसंद है",
+ "shown": "मुझे उपहार बहुत पसंद हैं",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.0,
+   0.74
+  ],
+  [
+   0.74,
+   1.4
+  ],
+  [
+   1.4,
+   1.96
+  ],
+  [
+   1.96,
+   2.42
+  ],
+  [
+   2.42,
+   2.58
+  ]
+ ],
+ "source": "recording vo_stamp_sent3.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

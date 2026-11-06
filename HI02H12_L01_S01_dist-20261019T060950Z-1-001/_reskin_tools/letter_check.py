@@ -76,7 +76,8 @@ def compare(a, ref, name, region=None, mask=None, outside=None):
     return res
 def first(pl, prefix, since=0): return next((x for x in pl if x["src"].startswith(prefix) and x["t"] >= since), None)
 THOUGHT = (715, 0, 1190, 310)   # [l1-fig] the bubbles, the cloud and the letter (frame px): the renders have none
-SPEECH_END = 11.07   # [l1-late] vo_letter_intro's last sound (s; ffmpeg silencedetect -45 dB: silence from 11.072 to the clip's end, 11.37)
+VO_DUR = json.loads((pathlib.Path(__file__).resolve().parent / "vo_rec" / "derived.json").read_text(encoding="utf-8"))["applied"]["vo_letter_intro"]["dur"]   # [vo-rec2] the narration clip's length
+SPEECH_END = json.loads((pathlib.Path(__file__).resolve().parent / "vo_rec" / "derived.json").read_text(encoding="utf-8"))["cues"]["letter_speech_end_s"]   # [vo-rec2] vo_letter_intro's last sound, read by vo_rec.py (ffmpeg silencedetect -45 dB; the first batch's take: 11.07 s)
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--autoplay-policy=no-user-gesture-required", "--mute-audio", "--allow-file-access-from-files"])
@@ -150,8 +151,11 @@ with sync_playwright() as p:
           and not any("p-in" in f["cls"] or "white" in f["cloudCls"] for f in tin),
           (round(f_c["voT"], 3) if f_c and f_c["voT"] is not None else None, f_c["cls"] if f_c else None))
     f_full = at(lambda f: f["cloud"] > 0.99 and f["cg"] > 0.99); stand = [f for f in tin if f_full and f_c and f_full["t"] <= f["t"] < f_c["t"]]
-    check("the grandfather cloud stays, whole, from its entrance to the letter's moment (over 6 s): the cloud and he at 1, its clean white twin unseen, the girl thinking",
-          len(stand) > 300 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cc"] < 0.01 and f["tO"] == 1 and "letter-in" not in f["cls"] for f in stand) and f_c["voT"] - f_full["voT"] > 6,
+    # [vo-rec2] the stand ends at the letter's moment (pace.letter, 2 s before the speech ends) and starts once the cloud is whole (~3.0 s on the
+    # narration's clock): over pace.letter - 3.2 s (the first batch's 11.37 s take: 9.07 - 3.2 = 5.87, measured 6.0; the second's 8.64 - 3.2)
+    STAND_MIN = PC["letter"] / 1000 - 3.2
+    check(f"the grandfather cloud stays, whole, from its entrance to the letter's moment (over {STAND_MIN:.2f} s): the cloud and he at 1, its clean white twin unseen, the girl thinking",
+          len(stand) > 300 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cc"] < 0.01 and f["tO"] == 1 and "letter-in" not in f["cls"] for f in stand) and f_c["voT"] - f_full["voT"] > STAND_MIN,
           (len(stand), round(f_full["voT"], 2) if f_full and f_full["voT"] is not None else None, round(f_c["voT"], 2) if f_c and f_c["voT"] is not None else None))
     near = [x["src"] for x in pl if f_c and f_c["t"] - 300 <= x["t"] <= f_c["t"] + PC["env_after"] + 1500]
     check("no sound with the letter: nothing starts from 0.3 s before its moment to 1.5 s after the letter's growth began, the \"aahaha\" never (and out of the card)",
@@ -171,7 +175,7 @@ with sync_playwright() as p:
     ready_vo = next((f for f in reversed(tin) if f["voT"] is not None), None)
     pl_vo = first(pl, "vo_letter_intro")
     check(f"tappable only once the narration has ended (~{PC['ready_after']} ms after) and the letter has grown: never before",
-          ready_vo is not None and ready_vo["voT"] > 11.2 and t_ready - (pl_vo["t"] if pl_vo else 0) > 11000 and not any("ready" in f["cls"] for f in tin[:-1]),
+          ready_vo is not None and ready_vo["voT"] > VO_DUR - 0.17 and t_ready - (pl_vo["t"] if pl_vo else 0) > VO_DUR * 1000 - 370 and not any("ready" in f["cls"] for f in tin[:-1]),   # [vo-rec2] relative to the clip (the first batch's 11.37 s take: 11.2 / 11000)
           (round(ready_vo["voT"], 2) if ready_vo else None, round(t_ready - pl_vo["t"]) if pl_vo else None))
     settled = s["growTf"] == "none" or (s["growTf"].startswith("matrix(") and abs(float(s["growTf"][7:].split(",")[0]) - 1) < 0.001)
     check("then the same cloud, clean white, stands with the letter in it (its growth done; its white at 1 over the cloud's own picture, still at 1 under it), the room unchanged, pulsing and tappable",

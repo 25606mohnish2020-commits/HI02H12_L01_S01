@@ -448,7 +448,7 @@ with sync_playwright() as p:
     check("[t2-scene5] the slot's pop-in (sfigBoxIn) does not run again when the blink ends: opacity 1 and the identity transform through the 0.7 s after (before: opacity 0 and scale .9 -> 1 over 0.5 s)",
           all(s_["slotOp"] >= 0.99 and s_["slotTf"] in IDENT for s_ in tail), [(round(s_["ms"] - ms(i_ble)), s_["slotOp"], s_["slotTf"]) for s_ in tail if not (s_["slotOp"] >= 0.99 and s_["slotTf"] in IDENT)][:5])
     i_tk = [first(lambda s, k=k: s["tilesIn"] >= k) for k in (1, 2, 3)]; i_t1 = i_tk[0]; gap = d["tiles_gap_ms"]
-    pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.mp3"]
+    pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.mp3" and e.get("slide") in (None, PAGE)]   # [vo-rec2] this page's pops only (a slow poll read the log after the next page's first tile)
     gaps = [round(ms(i_tk[k]) - ms(i_tk[k - 1])) for k in (1, 2)]
     pop_dt = [round(min(abs(e["ms"] - ms(i)) for e in pop), 1) if pop else 999 for i in i_tk]   # each tile's first frame to its nearest pop
     check(f"[t2-scene3] the three tiles come in ONE BY ONE as the blink starts ({gap} ms apart), the pop (sfx_demo1_pop.mp3 at .8) in EACH tile's first frame — three pops",

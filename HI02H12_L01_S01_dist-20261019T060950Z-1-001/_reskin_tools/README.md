@@ -2891,6 +2891,68 @@ Page 16 L2: the later rounds open without their instruction; it comes after 7 s 
   `../_before_l1_cloud/` holds the dist's three files, build.py, README.md, letter_check.py, stamp_check.py, stamp_close_check.py,
   smoke.py and gate_check.py from before.
 
+The second recorded VO batch in its places ([vo-rec2], 2026-11-05)
+- Asked: "I have added the folder (voiceovers) which contains all the new VOs so now implement all these VOs to their respective
+  places and it must be sync." The folder now holds 74 new wavs (24 kHz mono, dated 2026-11-05) = the 74 rows of the regenerated
+  VO manifest (every clip the build plays), each named by its Audio ID, over the first batch's files (13 first-batch files that
+  the new batch does not replace are still in the folder). Loudness -14.6..-20.5 LUFS, within 3.5 dB of the clips they replace:
+  applied as recorded (no gain), like the first batch.
+- Heard (faster-whisper small, as vo_rec.py): 73 of 74 are their manifest line (whisper's spelling aside). vo_g1_intro.wav is NOT:
+  it says "वाह! क्या बात है!" (2.56 s; heard with and without the script as whisper's prompt) where the line is "यह वाक्य सुनकर
+  देखिए और वाक्य में सही जगह पर विराम चिह्न लगाइए ।" — mislabeled; NOT copied into vo_rec/, the first batch's take of the line stays
+  (G1-G3's instruction, L2 round 3's idle line): re-record it. Noted, not changed: P2's option 2 (no commas) is read with the
+  same ~0.45 s pauses after लाल / नीली as option 1 (dandas); option 3 (commas) has shorter ones (~0.3 s) — the first batch read
+  them the same way.
+- Pipeline: the 73 wavs copied into vo_rec/ (cp -p, dates kept), the first batch's 1-4.wav / vo_story_s1.wav out of it (their
+  roles — T0's four beats, T0B's two contrast sentences and the moral — are files of their own now), the new transcripts merged
+  into vo_rec/transcripts.json; `python -I -X utf8 vo_rec.py` then build.py. vo_rec.py ([vo-rec2] in its docstring): RENAME / TRIM /
+  the sent4 split idle (vo_stamp_sent5 is its own file); SKIP keeps only vo_g1_hint3; G1's sentence (now पिंकी) and the [recap-eg]
+  examples applied (the recap_vo.py placeholders gone); T2's explanation and G1's sentence synced lines; KEPT_FIRST records
+  vo_g1_intro; a clip the new manifest does not list keeps its last text (PREV_TEXTS). Two sync fixes in the alignment: every said
+  word starts where its sound does — whisper puts a word's start inside the pause before it (the first word at 0.00 over every
+  take's ~0.27 s of room tone; T1C's "तुम्हारा" at 1.22 s while the clip is quiet 0.87-1.50 s; G4's "पतंग" 0.47 s early, round 5's
+  "आपकी" 0.47 s), so a start inside a quiet run (below -35 dB of the peak for >= 60 ms) moves to the run's end (267 starts moved;
+  the first batch's lines had the same lead — they are re-aligned too); a bare mark keeps its time (it lights in the pause, by
+  design); and said words left within 40 ms of each other by a joined word (round 2's "माने" for "माँ ने") share the span to the
+  next word by their letters (a word with nothing free in front starts at the voice, never in the room tone); and an unspoken
+  closing mark ("है ?" with no "?" heard) lights where the voice ends, not at whisper's end for the last word (T1C's "है" had
+  been lit 30 ms: 2.62-2.65 with the voice running to 2.745; now "?" at 2.75).
+- Everything timed on a clip re-read off the new recordings (derived.json "cues" / "gate_cue_ms" / "cel_bits", the onsets in
+  "onsets"): onset() = whisper's start of the word moved to the end of the nearest quiet run (a pause or a stop's closure, below
+  -30 dB of the peak for >= 30 ms) — it gives the hand-read values on the first batch's takes (L2 "ठप्पा" 5.14 s, L1 "दादाजी"
+  0.84 s); speech_end() = ffmpeg silencedetect -45 dB (11.072 s on the first batch's L1 take, as [l1-late] measured):
+  T0B: the explanation's "पहले" / "जबकि" 0.74 / 5.58 s, the moral's "विराम" 3.56 s (were 0.68 / 5.28 / 4.2);
+  T2 / T3 / T4: the explanations' cue words from their words (T2 2.98 s, T3 / T4 from transcripts.json; T4's index 22 -> 24: whisper
+  writes two dandas for its pauses);
+  L1: pace.dada 860 (was 840), pace.letter = speech end 10.638 - 2 s = 8638 (was 9070);
+  L2: pace.thappa 4250 (was 5120), pace.intro_ms 5480 (was 6407) — the GIF still loops three times over the clip, so it runs
+  1.18x its own speed (was 1.01x);
+  the gates: the user's recordings now play (vo_pt_tutorial / guided / practice are in the batch) in place of the reference's
+  clips ([gate-ref-vo] copied those over every build — now only for a gate line with no recording), GATE_CAPTION_AT_MS 3570 / 3840 /
+  1255 (the onsets of "चलिए" / "चलिए" / "अब"; the reference's clips: 3660 / 3940 / 1120); bird, lift, wipe, scrim, blur, hold untouched;
+  the celebration: the user's vo_well_done (3.84 s) in place of the reference's ([cel-vo]), its beak bits by the [dun-chrome]
+  detector (153 x 25 ms; the detector reproduces dun_assets/cel_bits.json bit for bit at 48 kHz) — the reference's clip + bits stay
+  in dun_assets/ and are used again if the recording is ever taken out of vo_rec/.
+- Built: index.html (the card's word times, cues, texts, end_anim.bits), app.js (the GATE_CAPTION_AT_MS line only), style.css
+  identical. Registry texts now the regenerated manifest's (vo_landing "स्विफ़्टी", L1 "बातें", round 3 "हैं", sent4 / sent5 each
+  its own half of the letter, "अंत में"). No played clip is TTS any more; 76 played clips, 82 recordings applied — the first batch's
+  still in use: vo_g1_intro (above) and the registered-but-unspoken vo_g2_hint3 / vo_g3_hint3 (+ the unplayed demo extras).
+  Audit (scratchpad audit_clips.py): every recording's built clip decoded against its wav (length within 60 ms, correlation > .98)
+  and byte-identical to its *_assets copy — 82/82.
+- Checks updated: gate_check.py / smoke.py read the caption cues from vo_rec/derived.json, letter_check.py its SPEECH_END.
+  letter_check's two stand / tappable thresholds follow the clip (pace.letter - 3.2 s; the clip's length) instead of the 11.37 s
+  take's numbers; gate_check expects the recorded vo_pt_practice's length; scene_check counts only its own page's tile pops (a slow
+  poll had read the log after T3's first tile).
+- Checked (final build): story 75/75, relisten 42/42, recap T1 44/44 / T1B 44/44 / T1C 43/43, scene T2 37/37 / T3 47/47 (one later
+  run 46: a dropped frame in the glance) / T4 52/52 / G1 42/42 / G2 43/43 / G3 52/52, g4 G4 / P1 / P2 27/27 each, letter 51/51,
+  stamp 111/111, gate 13/13, title 24/24, smoke 53/53; word_sync_check: all 15 lines of T0-G3 OK (no persisting mismatch, nothing
+  lit without its clip); its five L2 rounds read BAD only because a round mounted first comes in through the [stamp-868] camera
+  move with its sentence already on the card (no rise) — the pre-change build reads BAD the same way, and their highlights have no
+  persisting mismatch. Runs made while the machine was loaded failed mount-time windows (first frame 0.9-1.3 s late) on T3 / T4 /
+  recap / stamp / letter; each passed alone (T1B's sign timing also passes on the pre-change build). Run checks one at a time.
+- `../_before_vo_rec2/` holds the dist's three files, build.py, vo_rec.py, README.md, every check script, every *_assets/*.words.json
+  (words/), the replaced *_assets clips (assets_ogg/) and dist clips (Audio/), and the first batch's vo_rec/ (wavs, transcripts, derived).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

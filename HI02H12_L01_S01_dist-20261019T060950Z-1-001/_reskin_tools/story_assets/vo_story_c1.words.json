@@ -4,25 +4,25 @@
  "frame": "654:567 (text 654:752)",
  "word_times": [
   [
-   0.1,
-   0.44
+   0.275,
+   0.56
   ],
   [
-   0.44,
-   0.96
+   0.56,
+   1.425
   ],
   [
-   0.96,
-   1.4
+   1.425,
+   1.74
   ],
   [
-   1.4,
-   1.84
+   1.74,
+   2.1
   ],
   [
-   1.84,
-   2.06
+   2.1,
+   2.44
   ]
  ],
- "source": "recording 3.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_story_c1.wav (2026-11-05), faster-whisper word times, vo_rec.py"
 }

@@ -1,34 +1,31 @@
 {
  "text": "लड़की पतंग उड़ा पूर्णविराम रही है",
  "shown": "लड़की पतंग उड़ा । रही है",
- "voice": "hi-IN-SwaraNeural",
- "rate": "-15%",
- "pitch": "+0Hz",
  "word_times": [
   [
-   0.0,
-   0.9
+   0.3,
+   1.335
   ],
   [
-   0.9,
-   1.92
+   1.335,
+   2.345
   ],
   [
-   1.92,
-   2.5
+   2.345,
+   3.315
   ],
   [
-   2.5,
-   3.78
+   3.315,
+   4.43
   ],
   [
-   3.78,
-   4.5
+   4.43,
+   4.82
   ],
   [
-   4.5,
-   4.7
+   4.82,
+   5.06
   ]
  ],
- "source": "recording vo_g4_o3.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_g4_o3.wav (2026-11-05), faster-whisper word times, vo_rec.py"
 }

@@ -831,7 +831,9 @@ card["slides"].insert(i_p2 + 1, {"id": "L1", "phase": "practice", "eis": "iconic
              # (the bubbles), cloud_after (the cloud's entrance, 1.2 / 1.6 s as before); ready_after = after the narration ([l1-cloud] no
              # "white": nothing is swapped under the cloud after); [l1-clean] env_after = the letter's growth after the letter's moment,
              # once the cloud is clean white (its .5 s fade + 0.2 s of it clean)
-             "pace": {"w_in": 900, "vo_at": 1200, "music_vol": 0.2, "music_in": 1200, "dada": 840, "letter": 9070, "xfade": 650, "bub_after": 300, "bub_gap": 230,
+             # [vo-rec2] (2026-11-05) dada / letter read off the second batch's recording by vo_rec.py (derived.json cues: the speech onset of
+             # "दादाजी"; the speech end at -45 dB less 2 s) — were 840 / 9070 on the first batch's 11.37 s take
+             "pace": {"w_in": 900, "vo_at": 1200, "music_vol": 0.2, "music_in": 1200, "dada": _vr0["letter_dada_ms"], "letter": int(round(_vr0["letter_speech_end_s"] * 1000)) - 2000, "xfade": 650, "bub_after": 300, "bub_gap": 230,
                       "cloud_after": 1000, "env_after": 700, "ready_after": 300,
                       "zoom": 1200, "paper_at": 350, "dive_at": 700, "dive": 1700, "dive_scale": 5.2, "veil_at": 1900, "done_at": 2450}}})
 # [stamp-fig] L2 = the Figma frame 565:28 "G3 guided story question" (the stamp page), after the letter page: the letter's sentence on a
@@ -1005,7 +1007,9 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
              # hand-over, cam_a = the angled table's fade, cam_squash = the standing stamps' height at the end, as fractions), the reading
              # read_gap after the move; the boxes blink blink_ms (blinks times); a stamp in hand / hovering at lift_scale, pressed at
              # press_scale; the rest as before
-             "pace": {"bird_at": 400, "bird_tempo": 2.2, "whoosh_vol": 0.75, "whoosh_ms": 556, "vo_gap": 200, "intro_ms": 6407, "bird_loops": 3, "thappa": 5120, "exit_gap": 300,
+             # [vo-rec2] (2026-11-05) intro_ms / thappa read off the second batch's recording by vo_rec.py (derived.json cues: its length; the
+             # burst of "ठप्पा" after the stop's closure) — were 6407 / 5120 on the first batch's take; three GIF loops over the clip as before
+             "pace": {"bird_at": 400, "bird_tempo": 2.2, "whoosh_vol": 0.75, "whoosh_ms": 556, "vo_gap": 200, "intro_ms": _vr0["stamp_intro_ms"], "bird_loops": 3, "thappa": _vr0["stamp_thappa_ms"], "exit_gap": 300,
                       "cam_gap": 250, "cam_ms": 2000, "cam_text": 0.12, "cam_a": [0.15, 0.7], "cam_tray": [0.2, 0.5, 0.3, 0.6], "cam_stamps": [0.25, 0.6, 0.1, 0.45], "cam_squash": 0.5, "read_gap": 450,
                       "after_intro": 500, "stamps_at": 700, "pop_gap": 350, "sent_at": 700, "blink_ms": 3000, "blinks": 3,
                       # [stamp-drag] the guidance: hint_at after the blink, the glide out, the hover, the glide home; again after idle_ms
@@ -4048,9 +4052,17 @@ _cel = next(s for s in card["slides"] if s["type"] == "CELEBRATION"); _cel.setde
 #            117 x 25 ms) and text; the arrow therefore goes live when THIS line ends (~4.9 s in, as there). vo_celebrate.ogg stays
 #            in assets/Audio, unused. ----------
 _ref_bits = json.loads((DUN / "cel_bits_ref.json").read_text(encoding="utf-8"))
-_src, _dst = DUN / "Audio" / "vo_well_done.ogg", DIST / "assets" / "Audio" / "vo_well_done.ogg"
-assert _src.exists(), f"missing {_src}"
-if not _dst.exists() or _dst.read_bytes() != _src.read_bytes(): shutil.copy2(_src, _dst)
+# [vo-rec2] (2026-11-05) the user's second VO batch records the celebration's line too (vo_well_done, the same words, the lesson's
+# narrator): vo_rec.py put it in assets/Audio and derived its beak bits with the [dun-chrome] detector (derived.json cel_bits) — so the
+# reference's clip is no longer copied over it; its bits give way to the recording's. (The reference's clip + bits stay in dun_assets/.)
+_vr_cel = json.loads((SCR / "vo_rec" / "derived.json").read_text(encoding="utf-8"))
+if _vr_cel.get("cel_bits") and "vo_well_done" in _vr_cel["texts"]:
+    _ref_bits = dict(_ref_bits, bits=_vr_cel["cel_bits"]["bits"], step_ms=_vr_cel["cel_bits"]["step_ms"], text=_vr_cel["texts"]["vo_well_done"])
+    assert (DIST / "assets" / "Audio" / "vo_well_done.ogg").exists(), "[vo-rec2] missing vo_well_done.ogg — run vo_rec.py"
+else:
+    _src, _dst = DUN / "Audio" / "vo_well_done.ogg", DIST / "assets" / "Audio" / "vo_well_done.ogg"
+    assert _src.exists(), f"missing {_src}"
+    if not _dst.exists() or _dst.read_bytes() != _src.read_bytes(): shutil.copy2(_src, _dst)
 card["assets"]["audio"]["vo_well_done"] = "assets/Audio/vo_well_done.ogg"
 card["assets"]["audio_text"]["vo_well_done"] = _ref_bits["text"]
 _cel["audio"]["prompt"] = "vo_well_done"; _cel["prompt_hi"] = _ref_bits["text"]
@@ -4233,6 +4245,13 @@ js = js + dun_js
 #      (rounds 4 / 5: the open slot's own line by its mark) + the guidance glide to the open slot; the round's last slot = "शाबाश!".
 #   The gate: the tutorial caption's cue at the recorded "चलिए". Title: vo_landing recorded. The celebration keeps vo_well_done.
 #   Not recorded (TTS still): vo_demo1/2/3_intro, vo_pt_guided, vo_pt_practice, the story's s1 / s2 / r1, G1's sentence. ----------
+# ---------- [vo-rec2] (asked 2026-11-05, the same words as [vo-rec]: "I have added the folder (voiceovers) which contains all the new
+#            VOs ..."): the SECOND batch = the 74 lines of the regenerated VO manifest (every clip the build plays), named by Audio ID.
+#            vo_rec.py heard them all and applied every one: no clip the pages play is TTS any more — T2's intro and explanation, G1's
+#            sentence, the [recap-eg] examples, the gate lines and the celebration's line included. Their timings follow the clips:
+#            every synced line's word times re-derived (T2's explanation and G1's sentence newly synced), T0B's cues, T3's / T4's
+#            explanation cues (transcripts.json), L1's "दादाजी" + speech end, L2's "ठप्पा" + length (both paces above), the gates'
+#            headline moments (GATE_CAPTION_AT_MS) and the celebration's beak bits ([cel-vo] above). The data hooks below are as before. ----------
 def rep1(text, old, new, what=""):
     n = text.count(old)
     if n != 1: raise SystemExit(f"[vo-rec] anchor '{what or old[:70]}' found {n} times (need exactly 1)")
@@ -4242,6 +4261,7 @@ for vid, text in VR["texts"].items():
     card["assets"]["audio"][vid] = f"assets/Audio/{vid}.ogg"; card["assets"]["audio_text"][vid] = text
     assert (DIST / "assets" / "Audio" / f"{vid}.ogg").exists(), f"[vo-rec] missing {vid}.ogg — run vo_rec.py"
 # [recap-eg] (2026-11-04) T1's / T1B's examples are new placeholder takes (recap_vo.py), not the recordings derived.json lists: their text
+# ([vo-rec2] 2026-11-05: they ARE the recordings now — the words.json text vo_rec.py wrote, the same as derived.json's)
 for k in ("purn_eg", "alp_eg"): card["assets"]["audio_text"][f"vo_recap_{k}"] = rl[k]["text"]
 SL = {s["id"]: s for s in card["slides"]}
 SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
@@ -4424,14 +4444,27 @@ js = rep1(js, "at(P.gone_at, ()=>{ o.el.classList.add(\"gone\"); sfxCorrect();",
 #   The texts, the bird file (peeking_talk_up.webp, md5-identical), its size / lift / sink, the headline's look and wipe, the 4 s hold
 #   were already identical and are untouched. vo_rec.py still writes the user's vo_pt_tutorial recording into assets/Audio when
 #   re-run; this step copies the reference's clips over it on every build, so a re-run cannot bring the old line back. ----------
+# [vo-rec2] (2026-11-05) the user's second VO batch records the three gate lines too (vo_pt_tutorial / guided / practice: the
+# reference's words, the lesson's narrator) — vo_rec.py put them in assets/Audio and read each headline's moment off its recording
+# (derived.json gate_cue_ms: the speech onset of "चलिए" / "चलिए" / "अब"), so a recorded line is NOT overwritten by the reference's
+# clip here and GATE_CAPTION_AT_MS takes the recordings' moments (below). The bird, lift, wipe, scrim, blur and hold stay the reference's.
 for _k, _txt in (("tutorial", "ध्यान से देखिए और मेरे साथ जानिए। चलिए, शुरू करें!"),
                  ("guided", "बहुत बढ़िया! अब हम साथ मिलकर शुरू करते हैं। चलिए, साथ में करें!"),
                  ("practice", "वाह! अब आपकी बारी।")):
     _src, _dst = DUN / "Audio" / f"vo_pt_{_k}.ogg", DIST / "assets" / "Audio" / f"vo_pt_{_k}.ogg"
+    if _k in VR["gate_cue_ms"] and f"vo_pt_{_k}" in VR["texts"]:   # [vo-rec2] the recording
+        assert _dst.exists(), f"[vo-rec2] missing {_dst} — run vo_rec.py"
+        card["assets"]["audio"][f"vo_pt_{_k}"] = f"assets/Audio/vo_pt_{_k}.ogg"
+        card["assets"]["audio_text"][f"vo_pt_{_k}"] = VR["texts"][f"vo_pt_{_k}"]
+        continue
     assert _src.exists(), f"[gate-ref-vo] missing {_src}"
     if not _dst.exists() or _dst.read_bytes() != _src.read_bytes(): shutil.copy2(_src, _dst)
     card["assets"]["audio"][f"vo_pt_{_k}"] = f"assets/Audio/vo_pt_{_k}.ogg"
     card["assets"]["audio_text"][f"vo_pt_{_k}"] = _txt   # the reference card's audio_text, as written there
+_gcue = {**{"tutorial": 3660, "guided": 3940, "practice": 1120}, **{k: v for k, v in VR["gate_cue_ms"].items() if k in ("tutorial", "guided", "practice")}}
+js = rep1(js, "GATE_CAPTION_AT_MS = { tutorial: 3660, guided: 3940, practice: 1120 };",
+              "GATE_CAPTION_AT_MS = { tutorial: %d, guided: %d, practice: %d };   /* [vo-rec2] the recorded lines' headline onsets (vo_rec.py; the reference's clips: 3660 / 3940 / 1120) */"
+              % (_gcue["tutorial"], _gcue["guided"], _gcue["practice"]), "vo-rec2: gate caption cues")
 vo_css = """
 /* ===== [vo-rec] the pointing hand of the picks' hint 3 (G1-G3: the sentence picks' reveal hand, on the stage) ===== */
 .stage .slide-stage .reveal-hand.dmf-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;pointer-events:none;

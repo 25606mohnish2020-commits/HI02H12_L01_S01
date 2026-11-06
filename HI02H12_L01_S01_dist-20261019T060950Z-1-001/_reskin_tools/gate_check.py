@@ -31,7 +31,10 @@ def gate_after(log, frm, to, title, clip, opens_expected):
     opens_expected, in order); the bird is up and the clip sounds AT ONCE; the headline is written in when the clip says its
     words (GATE_CAPTION_AT_MS, the reference's own: 3660 / 3940 / 1120 ms into its clips, [gate-ref-vo]); `to` only
     once the clip has ended and the 4 s hold has run (the gate gone)"""
-    CAPTION = { "vo_pt_tutorial.ogg": 3660, "vo_pt_guided.ogg": 3940, "vo_pt_practice.ogg": 1120 }   # [gate-ref-vo] the reference's clips and cues (before: 2940 / 3540 / 210, this lesson's clips)
+    # [vo-rec2] (2026-11-05) the gate lines are the user's recordings: their headline moments come from vo_rec.py (vo_rec/derived.json
+    # gate_cue_ms, the page's GATE_CAPTION_AT_MS); the reference's clips' own were 3660 / 3940 / 1120
+    _gc = json.loads((pathlib.Path(__file__).resolve().parent / "vo_rec" / "derived.json").read_text(encoding="utf-8")).get("gate_cue_ms", {})
+    CAPTION = { "vo_pt_tutorial.ogg": _gc.get("tutorial", 3660), "vo_pt_guided.ogg": _gc.get("guided", 3940), "vo_pt_practice.ogg": _gc.get("practice", 1120) }
     opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
     if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
     o = opens[-1]
@@ -83,8 +86,10 @@ with sync_playwright() as p:
             # [gate-ref-vo] the reference's look and line: the scrim rgba(57,55,55,.6) + 10px backdrop blur, its vo_pt_practice (2.32 s)
             look = pg.evaluate("(() => { const c = getComputedStyle(document.getElementById('phaseGate')); const a = currentAudio;"
                                " return [c.backgroundColor, c.backdropFilter, a ? +a.duration.toFixed(2) : null, a ? a.src.split('/').pop() : null]; })()")
-            check("the gate wears the reference's scrim (rgba(57,55,55,.6), backdrop blur 10px) and plays the reference's vo_pt_practice (2.32 s)",
-                  look[0] == "rgba(57, 55, 55, 0.6)" and look[1] == "blur(10px)" and look[2] is not None and abs(look[2] - 2.32) < 0.03 and look[3] == "vo_pt_practice.ogg", look)
+            # [vo-rec2] the line is the user's recording now (vo_rec/derived.json applied vo_pt_practice dur; the reference's clip: 2.32 s)
+            _pd = json.loads((pathlib.Path(__file__).resolve().parent / "vo_rec" / "derived.json").read_text(encoding="utf-8"))["applied"].get("vo_pt_practice", {}).get("dur", 2.32)
+            check(f"the gate wears the reference's scrim (rgba(57,55,55,.6), backdrop blur 10px) and plays vo_pt_practice ({_pd} s: the user's recording)",
+                  look[0] == "rgba(57, 55, 55, 0.6)" and look[1] == "blur(10px)" and look[2] is not None and abs(look[2] - _pd) < 0.03 and look[3] == "vo_pt_practice.ogg", look)
         pg.wait_for_function("CARD.slides[state.idx].id === 'L1' && !!document.querySelector('.ltr')", timeout=40000); pg.wait_for_timeout(300)
         check(f'P2 run {run} in the same load -> the gate (the peeking Swiftie, then "अब आपकी बारी!" as vo_pt_practice sounds) -> L1, the letter page',
               *gate_after(pg.evaluate("window._gate"), "P2", "L1", "अब आपकी बारी!", "vo_pt_practice.ogg", opens_expected))

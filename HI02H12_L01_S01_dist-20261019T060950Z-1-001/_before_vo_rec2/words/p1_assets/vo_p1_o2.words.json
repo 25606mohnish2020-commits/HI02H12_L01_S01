@@ -1,0 +1,30 @@
+{
+ "text": "क्या? यह आपकी किताब है",
+ "shown": "क्या? यह आपकी किताब है",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.0,
+   1.04
+  ],
+  [
+   1.04,
+   1.48
+  ],
+  [
+   1.48,
+   1.94
+  ],
+  [
+   1.94,
+   2.34
+  ],
+  [
+   2.34,
+   2.48
+  ]
+ ],
+ "source": "recording vo_p1_o2.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

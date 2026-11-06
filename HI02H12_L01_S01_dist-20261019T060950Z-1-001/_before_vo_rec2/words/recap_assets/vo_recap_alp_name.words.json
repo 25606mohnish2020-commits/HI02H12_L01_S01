@@ -1,0 +1,18 @@
+{
+ "text": "अल्प विराम",
+ "shown": "अल्प विराम",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.0,
+   0.66
+  ],
+  [
+   0.66,
+   1.12
+  ]
+ ],
+ "source": "recording vo_recap_alp_name.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

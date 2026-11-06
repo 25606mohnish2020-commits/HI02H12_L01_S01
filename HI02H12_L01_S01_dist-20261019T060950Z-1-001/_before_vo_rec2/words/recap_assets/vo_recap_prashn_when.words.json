@@ -1,0 +1,22 @@
+{
+ "text": "सवाल पूछने पर",
+ "shown": "सवाल पूछने पर",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.0,
+   0.76
+  ],
+  [
+   0.76,
+   1.28
+  ],
+  [
+   1.28,
+   1.5
+  ]
+ ],
+ "source": "recording vo_recap_prashn_when.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

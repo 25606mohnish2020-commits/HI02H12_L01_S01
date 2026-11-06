@@ -1,30 +1,27 @@
 {
  "text": "तुम कहाँ जा रहे हो",
  "shown": "तुम कहाँ जा रहे हो",
- "voice": "hi-IN-SwaraNeural",
- "rate": "-15%",
- "pitch": "+0Hz",
  "word_times": [
   [
-   0.0,
-   0.48
+   0.315,
+   0.54
   ],
   [
-   0.48,
+   0.54,
    0.9
   ],
   [
    0.9,
-   1.08
+   1.04
   ],
   [
-   1.08,
-   1.34
+   1.04,
+   1.32
   ],
   [
-   1.34,
+   1.32,
    1.54
   ]
  ],
- "source": "recording vo_g2_sent.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_g2_sent.wav (2026-11-05), faster-whisper word times, vo_rec.py"
 }

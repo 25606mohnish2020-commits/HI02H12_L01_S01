@@ -1,0 +1,18 @@
+{
+ "text": "प्रश्नवाचक चिह्न",
+ "shown": "प्रश्नवाचक चिह्न",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.0,
+   1.02
+  ],
+  [
+   1.02,
+   1.3
+  ]
+ ],
+ "source": "recording vo_recap_prashn_name.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

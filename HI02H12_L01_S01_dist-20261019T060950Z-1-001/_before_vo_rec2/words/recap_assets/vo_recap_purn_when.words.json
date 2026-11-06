@@ -1,0 +1,26 @@
+{
+ "text": "बात पूरी होने पर",
+ "shown": "बात पूरी होने पर",
+ "voice": "hi-IN-SwaraNeural",
+ "rate": "-15%",
+ "pitch": "+0Hz",
+ "word_times": [
+  [
+   0.0,
+   0.74
+  ],
+  [
+   0.74,
+   1.14
+  ],
+  [
+   1.14,
+   1.5
+  ],
+  [
+   1.5,
+   1.74
+  ]
+ ],
+ "source": "recording vo_recap_purn_when.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+}

@@ -1,5 +1,5 @@
 """Functional smoke test of the re-skinned build: drive the real UI with clicks and check the engine advances."""
-import sys, pathlib
+import sys, pathlib, json
 from playwright.sync_api import sync_playwright
 html = pathlib.Path(sys.argv[1]).resolve()
 LEAVE = """() => { const sg=document.getElementById('startGate'); if(sg) sg.classList.add('hidden');
@@ -25,7 +25,10 @@ def gate_after(log, frm, to, title, clip, opens_expected):
     opens_expected, in order); the bird is up and the clip sounds AT ONCE; the headline is written in when the clip says its
     words (GATE_CAPTION_AT_MS, the reference's own: 3660 / 3940 / 1120 ms into its clips, [gate-ref-vo]); `to` only
     once the clip has ended and the 4 s hold has run (the gate gone)"""
-    CAPTION = { "vo_pt_tutorial.ogg": 3660, "vo_pt_guided.ogg": 3940, "vo_pt_practice.ogg": 1120 }   # [gate-ref-vo] the reference's clips and cues
+    # [vo-rec2] (2026-11-05) the gate lines are the user's recordings: their headline moments come from vo_rec.py (vo_rec/derived.json
+    # gate_cue_ms, the page's GATE_CAPTION_AT_MS); the reference's clips' own were 3660 / 3940 / 1120
+    _gc = json.loads((pathlib.Path(__file__).resolve().parent / "vo_rec" / "derived.json").read_text(encoding="utf-8")).get("gate_cue_ms", {})
+    CAPTION = { "vo_pt_tutorial.ogg": _gc.get("tutorial", 3660), "vo_pt_guided.ogg": _gc.get("guided", 3940), "vo_pt_practice.ogg": _gc.get("practice", 1120) }
     opens = [i for i, r in enumerate(log) if r["show"] and (i == 0 or not log[i - 1]["show"])]
     if [log[i]["slide"] for i in opens] != opens_expected: return False, [log[i]["slide"] for i in opens]
     o = opens[-1]

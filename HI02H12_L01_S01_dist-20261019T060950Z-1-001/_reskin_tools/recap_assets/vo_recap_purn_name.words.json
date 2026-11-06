@@ -1,18 +1,15 @@
 {
  "text": "पूर्ण विराम",
  "shown": "पूर्ण विराम",
- "voice": "hi-IN-SwaraNeural",
- "rate": "-15%",
- "pitch": "+0Hz",
  "word_times": [
   [
-   0.0,
+   0.32,
    0.62
   ],
   [
    0.62,
-   1.18
+   1.12
   ]
  ],
- "source": "recording vo_recap_purn_name.wav (2026-10-28), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_recap_purn_name.wav (2026-11-05), faster-whisper word times, vo_rec.py"
 }
