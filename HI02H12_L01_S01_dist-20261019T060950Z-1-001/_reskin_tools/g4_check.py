@@ -11,10 +11,9 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
    Reported: evidence_qa_first_try (first try), slide_completed success; P1 also one mastery attempt and hit.
 2. Three wrong pills, then the guided tap: each wrong tap wiggles the pill (no line of its own), Swiftie tries again, taps
-   wait 1 s; then the 1st: the try-again line, the pill dead ("crossed") until it ends; the 2nd: all three pills read in row
-   order, 0.5 s apart, each lifted while its clip plays and its words lit in sync (a lone danda lit in the pause it makes,
-   a word carrying its "?" through the pause after it),
-   taps ignored meanwhile; the 3rd: the reveal — two pills greyed and dead, the right one ringed, the 96px hand under it.
+   wait 1 s; then the 1st: the try-again line (the page's hint 1), the pill dead ("crossed") until it ends; the 2nd: [vo-rec3]
+   the page's hint 2 line (audio.hint2: vo_g4_hint2 / vo_p1_hint2 / vo_p2_hint2), the pill dead until it ends, no pill read out
+   (was: all three pills read in row order — the old deck's hint 2), taps ignored meanwhile; the 3rd: the reveal — two pills greyed and dead, the right one ringed, the 96px hand under it.
    A tap on the hand: the green mark at once, 1 s, the ding + confetti, no line, and the page moves on (success false).
 3. Left alone: the instruction again ~5 s after each time it ends (with the picture's pop-and-hold, not on entry); a tap
    during a repeat cuts it and counts. [tap-lock] 2026-10-28: while a FEEDBACK sound or line plays (the buzz, the try-again
@@ -187,8 +186,8 @@ with sync_playwright() as p:
     check("a tap on another pill while the try-again line speaks does nothing: the pills wait for silence ([tap-lock])", lockd == [1, False, True], lockd)
     pg.wait_for_function("!document.querySelector('#slideHost .opt-cell.crossed')", timeout=15000, polling=20); pg.wait_for_timeout(300)
     pg.click(f"#slideHost .opt-cell >> nth={wr[1]}")
-    pg.wait_for_function("!!document.querySelector('#slideHost .so-pill.p6-say')", timeout=10000, polling=20); pg.wait_for_timeout(500)
-    pg.screenshot(path=str(out / "e_review.png"))
+    pg.wait_for_function(f"currentAudio && currentAudio.src.includes('{d['audio']['hint2']}') && isPlaying", timeout=10000, polling=20); pg.wait_for_timeout(500)   # [vo-rec3] the page's hint 2 line
+    pg.screenshot(path=str(out / "e_hint2.png"))
     pg.click(f"#slideHost .opt-cell >> nth={right}", force=True); pg.wait_for_timeout(100)
     held = pg.evaluate("[state.attempts, !!document.querySelector('#slideHost .opt-cell.correct')]")
     pg.wait_for_function("!state.hintActive && !document.querySelector('#slideHost .so-pill.p6-say') && !isPlaying", timeout=30000, polling=20); pg.wait_for_timeout(300)
@@ -212,21 +211,14 @@ with sync_playwright() as p:
     check("...1 s later the try-again line; the pill is dead until it ends", 950 <= ms(i_try) - ms(i_w1) <= 1300 and abs(ms(i_unx) - ms(i_try_end)) <= 120,
           f"line {ms(i_try) - ms(i_w1):.0f} ms after the tap, un-crossed {ms(i_unx) - ms(i_try_end):+.0f} ms from its end")
     i_w2 = first(lambda s: s["attempts"] == 2)
-    order = [s["clip"] for i, s in enumerate(tl[i_w2:], i_w2) if s["clip"] in ("o1", "o2", "o3") and s["playing"] and not (tl[i - 1]["clip"] == s["clip"] and tl[i - 1]["playing"])]
-    want = [clip_of(opt[l]) for l in labels]
-    check("wrong tap 2: 1 s later all three pills are read in row order", order[:3] == want, (order, want))
-    lifted = all(any(s["say"][k] and s["clip"] == want[k] and s["playing"] for s in tl[i_w2:]) for k in range(3))
-    starts = [first(lambda s, c=c: s["clip"] == c and s["playing"], i_w2) for c in want]
-    ends = [first(lambda s, c=c: s["clip"] == c and not s["playing"], st) for c, st in zip(want, starts)]
-    gaps = [ms(starts[k + 1]) - ms(ends[k]) for k in range(2)]
-    check("...each lifted while its clip plays, ~0.5 s apart", lifted and all(450 <= g <= 750 for g in gaps) and 950 <= ms(starts[0]) - ms(i_w2) <= 1700,
-          f"first {ms(starts[0]) - ms(i_w2):.0f} ms after the tap, gaps {[round(g) for g in gaps]}")
-    sync = [sync_ok(tl, k, opt[labels[k]]["word_times"], want[k]) for k in range(3)]
-    check("...each pill's words lit in sync with its clip (" + {"G4": "the danda of 'लड़की । पतंग ...' / '... उड़ा । रही है' lit in its pause)", "P1": "'क्या?' / 'आपकी?' lit through the pause after it)",
-                                                              "P2": "the dandas of 'लाल । नीली । ...' lit in their pauses, 'लाल,' / 'नीली,' through theirs)"}[PAGE],
-          all(not bad and seen == set(range(len(opt[labels[k]]["word_times"]) - 1)) for k, (bad, seen) in enumerate(sync)),
-          [(sorted(seen), bad[:2]) for bad, seen in sync])
-    check("...taps ignored meanwhile (the right pill tapped during the read-out did nothing)", held == [2, False], held)
+    # [vo-rec3] the 2nd wrong pill: the page's own hint 2 line (was the three pills read out)
+    i_h2 = first(lambda s: s["clip"] == "hint2" and s["playing"], i_w2); i_h2_end = first(lambda s: s["clip"] != "hint2" or not s["playing"], i_h2)
+    i_unx2 = first(lambda s: not any("crossed" in c for c in s["cls"]), i_w2)
+    check(f"[vo-rec3] wrong tap 2: 1 s later the page's hint 2 line ({d['audio'].get('hint2')}); the pill is dead until it ends; no pill read out",
+          d["audio"].get("hint2") == f"vo_{PAGE.lower()}_hint2" and 950 <= ms(i_h2) - ms(i_w2) <= 1300 and abs(ms(i_unx2) - ms(i_h2_end)) <= 120
+          and not any(s["clip"] in ("o1", "o2", "o3") and s["playing"] for s in tl[i_w2:i_h2_end]) and not any(any(s["say"]) for s in tl[i_w2:i_h2_end]),
+          f"line {ms(i_h2) - ms(i_w2):.0f} ms after the tap, un-crossed {ms(i_unx2) - ms(i_h2_end):+.0f} ms from its end")
+    check("...taps ignored meanwhile (the right pill tapped during hint 2's line did nothing)", held == [2, False], held)
     i_w3 = first(lambda s: s["attempts"] == 3)
     i_h3 = next((i for i in range(i_w3, len(tl)) if tl[i]["clip"] == "hint3" and tl[i]["playing"]), None)
     check("...the reveal's line (vo_pick_hint3, “यह सही वाक्य है, इस पर टैप कीजिए”) is said as the right pill is ringed", i_h3 is not None and ms(i_h3) - ms(i_w3) < 2000,

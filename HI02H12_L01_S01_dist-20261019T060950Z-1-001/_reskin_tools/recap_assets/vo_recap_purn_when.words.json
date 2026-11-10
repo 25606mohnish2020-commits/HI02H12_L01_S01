@@ -1,23 +1,23 @@
 {
- "text": "बात पूरी होने पर",
+ "text": "बात पूरी होने पर पूर्ण विराम लगाया जाता है ।",
  "shown": "बात पूरी होने पर",
  "word_times": [
   [
-   0.27,
-   0.7
+   0.255,
+   0.735
   ],
   [
-   0.7,
-   1.12
+   0.735,
+   1.0
   ],
   [
-   1.12,
-   1.585
+   1.0,
+   1.395
   ],
   [
-   1.585,
-   1.82
+   1.395,
+   3.56
   ]
  ],
- "source": "recording vo_recap_purn_when.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_recap_purn_when.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

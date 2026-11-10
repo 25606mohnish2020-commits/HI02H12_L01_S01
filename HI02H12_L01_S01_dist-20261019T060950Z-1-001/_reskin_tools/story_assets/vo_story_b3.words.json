@@ -4,37 +4,37 @@
  "frame": "660:127 (text 660:311)",
  "word_times": [
   [
-   0.3,
-   0.62
+   0.27,
+   0.6
   ],
   [
-   0.62,
-   0.82
+   0.6,
+   0.78
   ],
   [
-   0.82,
-   1.915
+   0.78,
+   1.67
   ],
   [
-   1.915,
-   2.605
+   1.67,
+   2.355
   ],
   [
-   2.605,
-   2.84
+   2.355,
+   2.6
   ],
   [
-   2.84,
-   3.2
+   2.6,
+   3.02
   ],
   [
-   3.2,
-   3.42
+   3.02,
+   3.24
   ],
   [
-   3.42,
-   3.56
+   3.24,
+   3.44
   ]
  ],
- "source": "recording vo_story_b3.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_story_b3.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

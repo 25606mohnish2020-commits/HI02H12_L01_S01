@@ -154,8 +154,9 @@ with sync_playwright() as p:
     # [vo-rec2] the stand ends at the letter's moment (pace.letter, 2 s before the speech ends) and starts once the cloud is whole (~3.0 s on the
     # narration's clock): over pace.letter - 3.2 s (the first batch's 11.37 s take: 9.07 - 3.2 = 5.87, measured 6.0; the second's 8.64 - 3.2)
     STAND_MIN = PC["letter"] / 1000 - 3.2
+    # [vo-rec3] the sampled frames over the stand: at least 50 per second of it (was a fixed > 300 — the earlier takes' 5.4-6 s stands; the third batch's is 4.65 s = 279 frames at 60 fps)
     check(f"the grandfather cloud stays, whole, from its entrance to the letter's moment (over {STAND_MIN:.2f} s): the cloud and he at 1, its clean white twin unseen, the girl thinking",
-          len(stand) > 300 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cc"] < 0.01 and f["tO"] == 1 and "letter-in" not in f["cls"] for f in stand) and f_c["voT"] - f_full["voT"] > STAND_MIN,
+          len(stand) > 50 * (f_c["t"] - f_full["t"]) / 1000 and all(f["cloud"] > 0.99 and f["cg"] > 0.99 and f["cc"] < 0.01 and f["tO"] == 1 and "letter-in" not in f["cls"] for f in stand) and f_c["voT"] - f_full["voT"] > STAND_MIN,
           (len(stand), round(f_full["voT"], 2) if f_full and f_full["voT"] is not None else None, round(f_c["voT"], 2) if f_c and f_c["voT"] is not None else None))
     near = [x["src"] for x in pl if f_c and f_c["t"] - 300 <= x["t"] <= f_c["t"] + PC["env_after"] + 1500]
     check("no sound with the letter: nothing starts from 0.3 s before its moment to 1.5 s after the letter's growth began, the \"aahaha\" never (and out of the card)",

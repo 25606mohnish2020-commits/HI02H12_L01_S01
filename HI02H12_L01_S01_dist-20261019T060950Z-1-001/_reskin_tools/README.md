@@ -2953,6 +2953,71 @@ The second recorded VO batch in its places ([vo-rec2], 2026-11-05)
 - `../_before_vo_rec2/` holds the dist's three files, build.py, vo_rec.py, README.md, every check script, every *_assets/*.words.json
   (words/), the replaced *_assets clips (assets_ogg/) and dist clips (Audio/), and the first batch's vo_rec/ (wavs, transcripts, derived).
 
+The third recorded VO batch in its places ([vo-rec3], 2026-11-10)
+- Asked: "I have added the folder [voiceovers_batch (32)] which contains all the new VOs so now implement all these VOs to their
+  respective places and it must be sync" (the [vo-rec] / [vo-rec2] words). The folder (= ~/Downloads/voiceovers_batch (32).zip, in the
+  dist folder as `voiceovers_batch (32)/voiceovers/`; the old `voiceovers/` folder was deleted by the user) holds 73 wavs, 24 kHz mono:
+  70 of the 79 rows of the deck-first VO manifest of 2026-11-09 — all but the nine option read-outs of G4 / P1 / P2, which keep their
+  second-batch takes — plus three oddly named files. Loudness -15.1..-21.6 LUFS, like the earlier batches: applied as recorded.
+- The odd names: the zip's entries are stamped 05:34 except vo_landing.wav (10:33, replaced in place) and three files appended at its
+  END: "vo_stamp3_intro .wav" (10:59), "vo_stamp3_intro  (1).wav" (11:00, byte-identical) and "vo_stamp3_hint2 .wav" (11:03) — later
+  re-takes of those two lines whose names took a stray space. The re-takes are used (copied as vo_stamp3_intro.wav / vo_stamp3_hint2.wav);
+  the batch's 05:34 takes of the two lines are not (both say the line too).
+- Heard (faster-whisper small, prompted with the script as vo_rec.py does; 4 shards ~10 min; scratchpad hear3.py / cmp3.py): every file
+  says its manifest line (whisper's spelling aside) except — checked again without the prompt —
+  vo_demo2_explain (T3): "यह एक प्रश्न है, प्रश्न के अंत में प्रश्नवाचक चिह्न ..." where the script says "सवाल";
+  vo_recap_prashn_when (T1C): "प्रश्न पूछने पर प्रश्नवाचक चिह्न ..." where the script says "सवाल";
+  vo_g1_intro adds "और" ("वाक्य सुनिए और सही जगह पर ..."); vo_stamp1_hint3 drops "एक" ("यह प्रश्न है"). All four are said, not shown:
+  applied, their registry texts = what is said (vo_rec.py SPOKEN). vo_g1_intro is the right line this time: KEPT_FIRST is empty.
+  The recap's three "when" lines are the deck's full sentences now (3.8 / 6.8 / 4.2 s; were the short "बात पूरी होने पर" forms) — said,
+  not shown, so they only lengthen T1 / T1B / T1C's spoken sequence.
+- Pipeline: scratchpad merge3.py copied the 70 into vo_rec/ (dates kept) and merged their transcripts into vo_rec/transcripts.json;
+  `python -I -X utf8 vo_rec.py`, then build.py. 89 recordings applied (70 new + the nine option takes + the registered-but-unplayed
+  extras of the earlier batches: vo_recap_lead, vo_pick_hint1, vo_g2/g3_hint3, the demo conclude/full/again lines).
+- The deck's lines the build had no place for (new in the 2026-11-09 manifest) now have theirs:
+  G1-G3: hint 3 "यह सही चिह्न है, इसपर टैप कीजिए ।" (vo_build_hint3, data.hint3_audio on all three) is SAID with the hand at the 3rd wrong
+  tap, 0.5 s after the wiggle as hints 1 / 2, as feedback (no tile answers while it speaks); after it nothing speaks, as [hand-quiet];
+  G4 / P1 / P2: their own hint 1 (try_again: vo_g4_hint1, vo_p1_hint1, vo_p2_hint1 — P1 / P2 shared vo_pick_hint1 before) and hint 2
+  (audio.hint2: vo_g4_hint2 / vo_p1_hint2 / vo_p2_hint2) — the 2nd wrong pill says hint 2 in place of reading the three pills out (the
+  old deck's hint 2 was that production note; SENT_PICK keeps the read-out for a page with no hint 2); hint 3 + the hand unchanged;
+  L2 round 3: its own line vo_stamp3_intro ("यह वाक्य सुनकर देखिए ...", the 7 s idle line since [l2-quiet]); was vo_g1_intro, whose words
+  G1-G3 now say differently;
+  T1: NO lead line — the deck removed "आपने देखा, वाक्य में विराम चिह्न कहीं गलत हो तो ..." (vo_recap_lead), the batch has none; T1 opens
+  with its intro line (the clip stays registered, unplayed; one line in build.py brings it back).
+- Sync: every synced line's word times re-derived from the new takes (T0's beats, T0B's sentences, the recap names / examples, T2-T4's
+  sentences, G1-G3's sentences, L2's five rounds; the nine option lines unchanged). Cues re-read, now ALL at the cue word's sound onset
+  (onset(): whisper's start moved to the end of the nearest quiet run):
+  T0B: "पहले" 0.915 s / "जबकि" 6.19 / the moral's "विराम" 3.035 (were whisper's starts 0.84 / 6.18 / 3.14 — "पहले"'s sat in the pause
+  0.78-0.92 before it); T3: the "?" tile at the LAST "प्रश्न…" word, 3.645 s (whisper 3.40, inside the pause 3.40-3.62: the word sounds
+  from 3.65 — whisper writes "प्रश्न वाचक" as two words in this take, so build.py finds the last "प्रश्न…" word instead of asserting
+  whisper's exact text); T4: the "," tile at "अल्पविराम" 7.105 s; T2: "पूर्णविराम" from its words.json (3.07 s);
+  L1: pace.dada 875 (was 860), pace.letter = speech end 9.665 - 2 s = 7665 (was 8638); L2: pace.thappa 3810 (was 4250), pace.intro_ms
+  4880 (was 5480); the gates: GATE_CAPTION_AT_MS 3725 / 3885 / 1220 (were 3570 / 3840 / 1255); the celebration's beak bits re-detected
+  (153 x 25 ms, the clip 3.84 s).
+- Built: index.html (the card: 7 new clips registered + their texts, registry texts now the 11-09 manifest's — L1's narration, round 2's
+  hints, the recap "when" lines —, word times, cues, the data hooks above), app.js (three edits: the scene pick's hint 3 line, the sentence
+  pick's hint 2 line, the gate cues), style.css identical. The unchanged build reproduced the pre-change dist byte for byte first (the
+  Ek-aur-Anek clone in this session's scratchpad, 677222f — both older scratchpad clones had lost their HTML to a temp cleanup).
+  The pages now play exactly the manifest's 79 ids (75 named by the slides + vo_landing + the three gate lines).
+  Audit (scratchpad audit3.py): every applied recording's built clip decoded against its wav — 89/89 (length within 60 ms, corr > .998),
+  *_assets copies byte-identical.
+- T3's / T4's explanation data (text_hi, word_times, cue_word) are on the registry text's own words now: vo_rec.py aligns them like the
+  synced lines (derived.json "explain"; whisper splits this take's words differently — "अंतमी प्रश्न वाचक" — and hears an extra "।" in
+  T4's), build.py takes the cue index from that text ("प्रश्नवाचक" 8, "अल्पविराम" 23) and its time from the onset cue (3.645 / 7.105 s).
+- Checks updated: recap_check (T1: no lead line, the intro first), scene_check (G1-G3: hint3_audio vo_build_hint3, and the third wrong
+  tap says it once 0.35-1 s after the tap), g4_check (the 2nd wrong pill: the page's hint 2 line, the pill dead until it ends, no pill
+  read out). stamp_check reads each round's line from the data. Two check bugs the new takes exposed: relisten_check crashed on a frame
+  sampled before GOTO mounted T0B (no sentences: dropped, as recap_check does); letter_check wanted > 300 frames of the grandfather's
+  stand — a fixed count from the longer takes (this take's stand is 4.65 s = 279 frames at 60 fps) — now >= 50 per second of the stand.
+- Checked (final build, one at a time): story 74/75, relisten 43/43, recap T1 45/45 / T1B 45/45 / T1C 44/44 (its picture-curve check
+  flaked once, then passed), scene T2 38/38 / T3 48/48 / T4 53/53 / G1 44/44 / G2 45/45 / G3 54/54, g4 G4 / P1 / P2 26/26 each,
+  letter 52/52, stamp 112/112, gate 14/14, title 25/25, smoke 53/53; word_sync_check: all 16 lines of T0-G3 OK (no persisting mismatch),
+  the five L2 rounds BAD only for the documented reason (a round mounted first has no rise). story's one FAIL = "no failed requests":
+  Chrome aborts the 7.7 MB standard_background_music_2.mp3 load in that check's run — the PRE-CHANGE build (a temp copy with the old
+  three files + clips) fails it identically (74 + the same request), so it is not this change.
+- `../_before_vo_rec3/` holds the dist's three files, every tool script + README (tools/), every *_assets/*.words.json (words/), every
+  *_assets/*.ogg (assets_ogg/), the dist's vo_*.ogg (Audio/) and the second batch's vo_rec/ (wavs, transcripts, derived).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

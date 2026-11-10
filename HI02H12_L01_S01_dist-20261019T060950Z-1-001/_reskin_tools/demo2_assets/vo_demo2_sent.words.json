@@ -3,21 +3,21 @@
  "shown": "तुम्हारा नाम क्या है",
  "word_times": [
   [
-   0.28,
-   0.7
+   0.285,
+   0.74
   ],
   [
-   0.7,
-   1.04
+   0.74,
+   1.1
   ],
   [
-   1.04,
-   1.32
+   1.1,
+   1.48
   ],
   [
-   1.32,
-   1.52
+   1.48,
+   1.68
   ]
  ],
- "source": "recording vo_demo2_sent.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_demo2_sent.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

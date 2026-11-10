@@ -147,6 +147,7 @@ with sync_playwright() as p:
     pg.wait_for_function("document.getElementById('navBtn').classList.contains('active')", timeout=60000, polling=20)
     pg.wait_for_timeout(300); pg.screenshot(path=str(out / "d_end_1333.png"))
     samples, taps = pg.evaluate("window._tl"), pg.evaluate("window._taps")
+    samples = [s for s in samples if s["shown"]]   # [vo-rec3] a frame sampled before GOTO has mounted the page has no sentences yet (as recap_check)
     tapped_intro, tapped_land = "intro" in taps, "landing" in taps
     with open(out / "timeline.json", "w", encoding="utf-8") as f: json.dump(samples, f, indent=0)
     ms = lambda i: samples[i]["ms"]

@@ -1,0 +1,19 @@
+{
+ "text": "सवाल पूछने पर",
+ "shown": "सवाल पूछने पर",
+ "word_times": [
+  [
+   0.295,
+   0.84
+  ],
+  [
+   0.84,
+   1.325
+  ],
+  [
+   1.325,
+   1.52
+  ]
+ ],
+ "source": "recording vo_recap_prashn_when.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+}

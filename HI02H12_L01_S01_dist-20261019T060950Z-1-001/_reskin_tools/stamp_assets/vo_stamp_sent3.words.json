@@ -3,25 +3,25 @@
  "shown": "मुझे उपहार बहुत पसंद हैं",
  "word_times": [
   [
-   0.27,
-   0.68
+   0.275,
+   0.66
   ],
   [
-   0.68,
-   1.26
+   0.66,
+   1.32
   ],
   [
-   1.26,
-   1.895
+   1.32,
+   2.015
   ],
   [
-   1.895,
-   2.26
+   2.015,
+   2.38
   ],
   [
-   2.26,
-   2.46
+   2.38,
+   2.58
   ]
  ],
- "source": "recording vo_stamp_sent3.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_stamp_sent3.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

@@ -5,8 +5,8 @@ in the frame's Noto Sans Devanagari, 'Story Noto Q').
 usage: python -I -X utf8 recap_check.py <index.html> <render 1280x720> <outdir> [T1|T1B|T1C]
        T1: recap2_figma_render_1280x720.png (the default page); T1B: recap_alp_figma_render_1280x720.png;
        T1C: recap_prashn_figma_render_1280x720.png
-1. At 1333x750, the page mounted on its own: no title (the frames have none). T1: the lead line ("आपने देखा, ...", vo_recap_lead,
-   [vo-rec]) then the intro line ("आइए समझते हैं कि कौन-से चिह्न का प्रयोग कब किया जाता है ।", vo_recap_intro) sound over the card
+1. At 1333x750, the page mounted on its own: no title (the frames have none). T1: [vo-rec3] no lead line any more (the deck dropped
+   "आपने देखा, ...", vo_recap_lead), the intro line ("आइए समझते हैं कि कौन-से चिह्न का प्रयोग कब किया जाता है ।", vo_recap_intro) sound over the card
    alone — nothing of the mark shows before the intro has ended — and 0.7 s after it the mark comes; T1B / T1C: no line first, the mark
    comes 0.7 s after the page appears. Then: the sign's box + sign pop in as the name rises in whole, and the name's clip (0.45 s
    later) lights the SIGN — the words' orange + pop — from its first word to its last word's end (the name's own words never lit);
@@ -64,7 +64,7 @@ PAGES = {
     # [recap-eg] (2026-11-04) the example and the picture are the user's (not in the render): "new_eg" judges the sentence by its ink
     # centred on its box, "pic_src" the picture against the user's own bitmap; the box interior is masked from the card diff
     "key": "purn", "mark": "।", "image": "img_recap_mango", "variant": None, "name": "पूर्ण विराम", "sent": "मुझे आम खाना पसंद है।",
-    "lead": "vo_recap_lead", "intro": "vo_recap_intro", "next": "T1B", "new_eg": True, "pic_src": "recap_assets/src_recap_mango.png",
+    "lead": None, "intro": "vo_recap_intro", "next": "T1B", "new_eg": True, "pic_src": "recap_assets/src_recap_mango.png",   # [vo-rec3] no lead line (was vo_recap_lead)
     "FRAME": {".rcf-sign": (CX+199-4, CY+65-4, 183, 177.355),   # node 764:326: 175x169.355 + its 4px OUTSIDE stroke
               ".rcf-ebox": (CX+199, CY+274, 578, 84),           # node 764:752
               ".rcf-pic":  (CX+835, CY+91, 176, 264)},          # node 764:753 (the user's 1024x1536 mango girl in it, as the old girl)
@@ -209,11 +209,17 @@ with sync_playwright() as p:
     start_of = lambda c, i0=0: first(lambda s: s["clip"] == c and s["playing"], i0)
     end_of = lambda c, i0: first(lambda s: s["clip"] != c or not s["playing"], i0 + 1)
     quiet = lambda s: not (s["signIn"] or s["signHot"] or s["nameShown"] or s["eboxIn"] or s["egShown"] or s["picIn"] or s["keep"])
-    if P["intro"]:
+    if P["intro"] and P["lead"]:
         i_lead = start_of("lead"); i_leade = end_of("lead", i_lead); i_intro = start_of("intro", i_leade); i_open = end_of("intro", i_intro)
         check("the lead line then the intro line sound first, over the card alone (nothing of the mark shows before the intro has ended)",
               i_lead < i_leade <= i_intro < i_open and all(quiet(s) for s in samples[:i_open]), (round(ms(i_leade) - ms(i_lead)), round(ms(i_open) - ms(i_intro))))
         CLIPS = ["lead", "intro"]
+    elif P["intro"]:   # [vo-rec3] T1: the deck dropped the lead line — the intro line alone, first, over the card alone
+        i_intro = start_of("intro"); i_open = end_of("intro", i_intro)
+        check("[vo-rec3] no lead line: the intro line sounds first (the first clip of the page), over the card alone (nothing of the mark shows before it has ended)",
+              not any(s["clip"] == "lead" for s in samples) and not any(s["clip"] and s["playing"] for s in samples[:i_intro])
+              and i_intro < i_open and all(quiet(s) for s in samples[:i_open]), (round(ms(i_intro) - ms(0)), round(ms(i_open) - ms(i_intro))))
+        CLIPS = ["intro"]
     else:
         i_open = 0
         check("no opening line: the page is silent and empty until its mark comes", not any(s["clip"] and s["playing"] for s in samples if not s["signIn"])

@@ -356,7 +356,17 @@ GIRL_BOX = (257, 385); _gsx, _gsy = GIRL_BOX[0] / _rig["bitmap"][0], GIRL_BOX[1]
 LOOK = {"every_ms": 7000, "active_ms": 2300, "gx": round(9 * _gsx, 2), "gy": round(4.5 * _gsy, 2), "arm_deg": 11, "lean_deg": 2}   # the eyes 9 / 4.5 bitmap px toward the tiles, the forearm 11 degrees up, the lean 2 degrees
 _vr_t3 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))   # vo_rec.py's whisper word times per recording
 _x3 = _vr_t3["vo_demo2_explain.wav"]; _x3_words = [w[0] for w in _x3["words"]]
-assert " ".join(_x3_words) == _x3["text"] == "यह एक सवाल है, सवाल के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।", _x3["text"]
+# [vo-rec3] (2026-11-10) the third batch's take says "यह एक प्रश्न है, प्रश्न के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।" (whisper: "… अंतमी प्रश्न वाचक
+# चिह्न …") — the cue is the LAST "प्रश्न…" word, at its sound onset (vo_rec.py derived.json cues.demo2_explain_s; whisper's start sits in
+# the pause before it); the text is the registry's (what the voice says). Was: the second batch's take, whisper's exact text asserted.
+_vrd = json.loads((SCR / "vo_rec" / "derived.json").read_text(encoding="utf-8"))
+_x3_heard_cue = max(i for i, w in enumerate(_x3_words) if w.startswith("प्रश्न"))
+assert _x3_words[_x3_heard_cue] == "प्रश्नवाचक" or _x3_words[_x3_heard_cue + 1].startswith("वाचक"), _x3["text"]   # the take says the mark's name
+# the page data's text = the registry's, its word times aligned on those words by vo_rec.py (derived.json "explain"), the cue word the
+# text's own "प्रश्नवाचक" at its sound onset
+_x3e = _vrd["explain"]["vo_demo2_explain"]; _x3_text = _x3e["text"]; _x3_cue = _x3_text.split().index("प्रश्नवाचक")
+assert _x3_text == _vrd["texts"]["vo_demo2_explain"] and len(_x3e["word_times"]) == len(_x3_text.split()), _x3e
+_x3_times = [t[0] for t in _x3e["word_times"]]; _x3_times[_x3_cue] = _vrd["cues"].get("demo2_explain_s", _x3_times[_x3_cue])
 assert dl2["sent"]["shown"] == "तुम्हारा नाम क्या है" and len(dl2["sent"]["word_times"]) == 4, dl2["sent"]
 card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
     "prompt_hi": dl2["sent"]["text"], "audio": {},
@@ -364,7 +374,7 @@ card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "typ
              "girl_rig": True, "girl_look": LOOK,   # [t3-look] her layers (the CSS) and the glance's amounts / timing
              "bubble_id": "img_demo2_bubble", "box_sfx": "sfx_demo2_sharp_pop.mp3", "slot_w": 59, "slot_h": 100,   # the frame's slot (T2's is 53x90)
              "sentence": dpart2("sent"), "mark": "?",
-             "explain": {"text_hi": _x3["text"], "audio": "vo_demo2_explain", "word_times": [w[1] for w in _x3["words"]], "word_end": _x3["words"][-1][2], "cue_word": _x3_words.index("प्रश्नवाचक")},
+             "explain": {"text_hi": _x3_text, "audio": "vo_demo2_explain", "word_times": _x3_times, "word_end": _x3e["word_times"][-1][1], "cue_word": _x3_cue},   # [vo-rec3]
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}, {"mark": ",", "name_hi": "अल्प विराम"}],   # the frame's order
              "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
     "signals": {"on_complete": []}}
@@ -426,6 +436,11 @@ LOOK4 = {"every_ms": 7000, "active_ms": 2400, "anim": "dscBasketLift", "lift_px"
 _vr_t4 = json.loads((SCR / "vo_rec" / "transcripts.json").read_text(encoding="utf-8"))["vo_demo3_explain.wav"]
 _x4_words = [w[0] for w in _vr_t4["words"]]
 assert _x4_words.count("अल्पविराम") == 1 and _vr_t4["text"].startswith("इस वाक्य में कई सारे नाम"), _vr_t4["text"]
+# [vo-rec3] (2026-11-10) the cue ("अल्पविराम") at its sound onset (derived.json cues.demo3_explain_s), the text the registry's
+#   on the registry text's own words (vo_rec.py derived.json "explain": whisper hears an extra "।" after "हों" in this take)
+_x4e = _vrd["explain"]["vo_demo3_explain"]; _x4_text = _x4e["text"]; _x4_cue = _x4_text.split().index("अल्पविराम")
+assert _x4_text == _vrd["texts"]["vo_demo3_explain"] and len(_x4e["word_times"]) == len(_x4_text.split()), _x4e
+_x4_times = [t[0] for t in _x4e["word_times"]]; _x4_times[_x4_cue] = _vrd["cues"].get("demo3_explain_s", _x4_times[_x4_cue])
 _sent4 = dict(dpart3("sent"), gaps=[2, 3])   # the slots sit after "आम" (word 2) and after "केला" (word 3)
 assert _sent4["text_hi"] == "मेरे पास आम केला सेब और संतरा है ।" and len(_sent4["word_times"]) == 9 and _sent4["text_hi"].split()[2:4] == ["आम", "केला"], _sent4
 card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "type": "PUNCT_SCENE",
@@ -434,7 +449,7 @@ card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "typ
              "girl_rig": "basket", "girl_look": LOOK4,   # [t4-basket] her layers (the CSS) and the look into the basket's amounts / timing
              "slots": 2, "slot_w": 37, "slot_h": 42.606, "mark_stagger_ms": 300,   # the frame's two slots; the comma left, then right
              "sentence": _sent4, "mark": ",",
-             "explain": {"text_hi": _vr_t4["text"], "audio": "vo_demo3_explain", "word_times": [w[1] for w in _vr_t4["words"]], "word_end": _vr_t4["words"][-1][2], "cue_word": _x4_words.index("अल्पविराम")},
+             "explain": {"text_hi": _x4_text, "audio": "vo_demo3_explain", "word_times": _x4_times, "word_end": _x4e["word_times"][-1][1], "cue_word": _x4_cue},   # [vo-rec3]
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
              "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
     "signals": {"on_complete": []}}
@@ -1671,7 +1686,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       // [g1-scene] the pick (type PUNCT_PICK): each tile is the child's from the frame it pops in (armTile); the feedback is the pick
       // page's own, as before on G1 — a wrong tile wiggles (the engine's wgNo) with the kit's wrong buzz and the deck's hint ladder
       // (hint 1, hint 2, 0.5 s after the wiggle; the 3rd wrong tap, [hand-quiet]: the pointing hand under the right tile, the other
-      // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
+      // two dead and dim, [vo-rec3] hint 3's line with it, then nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
       // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
       // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
       // no tile answers while a feedback sound or line plays; the 🔊 chip says the instruction line again (state.replayAudio; the
@@ -4266,16 +4281,22 @@ for k in ("purn_eg", "alp_eg"): card["assets"]["audio_text"][f"vo_recap_{k}"] = 
 SL = {s["id"]: s for s in card["slides"]}
 SL["T0"]["data"]["intro_audio"] = "vo_story_s0"
 SL["T0"]["data"]["beat1_sfx"] = "sfx_story_cat.mp3"   # [story-cat] the user's stu9-cute-cat-352656.mp3 (0.89 s, as given): once, as beat 1's line ends, with the picture's pop
-SL["T1"]["data"]["lead_audio"] = "vo_recap_lead"
+# [vo-rec3] (2026-11-10) no lead line on T1 any more: the deck (re-saved 2026-11-09) removed "आपने देखा, वाक्य में विराम चिह्न कहीं गलत
+# हो तो ..." from its page, so the VO manifest and the third batch have no vo_recap_lead — T1 opens with its intro line (the module's
+# say(null) goes straight on). The clip stays registered (unplayed). Was: SL["T1"]["data"]["lead_audio"] = "vo_recap_lead"
 # [t4-scene] T4's PUNCT_DEMO hooks (mark_audio vo_recap_alp_name, explain_audio vo_demo3_explain, again_audio vo_demo_again) are gone:
 # T4 is a scene whose explanation (vo_demo3_explain) is in its own data; [t2-scene] / [t3-scene] dropped T2's and T3's the same way
-for sid, mk, h3 in (("G1", "purn", None), ("G2", "prashn", "vo_g2_hint3"), ("G3", "alp", "vo_g3_hint3")):
-    SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": h3})
-SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+# [vo-rec3] (2026-11-10) hint 3 on G1-G3 = the deck's one line for all three pages, "यह सही चिह्न है, इसपर टैप कीजिए ।" (vo_build_hint3),
+# said with the hand (the [vo-rec3] patch below); was the pages' own vo_g2_hint3 / vo_g3_hint3 (unspoken since [hand-quiet])
+for sid, mk in (("G1", "purn"), ("G2", "prashn"), ("G3", "alp")):
+    SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": "vo_build_hint3"})
+# [vo-rec3] the sentence picks' own hints (the deck's slides 16-18): hint 1 in the try_again slot, hint 2 a line of its own (the 2nd wrong
+# pill; was the three pills read out — the old deck's production note); P1 / P2 no longer share vo_pick_hint1
+SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint2": "vo_g4_hint2", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
 SL["G4"]["data"]["tap_sfx"] = "sfx_g4_giggle.mp3"   # [g4-giggle] the user's jule_joule-giggling-like-a-little-girl-322689.mp3 (1.06 s, as given) with the right tap's pop
-SL["P1"]["audio"].update({"prompt": "vo_p1_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["P1"]["audio"].update({"prompt": "vo_p1_prompt", "try_again": "vo_p1_hint1", "hint2": "vo_p1_hint2", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})   # [vo-rec3] own hints
 SL["P1"]["data"]["tap_sfx"] = "sfx_p1_book.mp3"   # [p1-book] the user's soumages-book-opening-345808.mp3 (1.10 s, as given) with the right tap's pop, as G4's giggle
-SL["P2"]["audio"].update({"prompt": "vo_p2_prompt", "try_again": "vo_pick_hint1", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
+SL["P2"]["audio"].update({"prompt": "vo_p2_prompt", "try_again": "vo_p2_hint1", "hint2": "vo_p2_hint2", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})   # [vo-rec3] own hints
 SL["P2"]["data"]["tap_sfx"] = "sfx_p2_pencils.mp3"   # [p2-pencils] the user's freesound_community-pencils-shake-throw-33800.mp3 (17.3 s, as given) with the right tap's pop, as G4's giggle
 SL["P2"]["data"]["tap_sfx_from"] = 0.51   # [p2-pencils] the file is silent until 0.52 s: it starts just before its first shake, so the sound lands with the pop (the reference's 1 s rule then plays that first second)
 SL["L1"]["data"]["intro_audio"] = "vo_letter_intro"
@@ -4284,7 +4305,7 @@ _rounds = SL["L2"]["data"]["rounds"]; SL["L2"]["data"]["ok_audio"] = "vo_ok"
 _by_mark = {"।": "vo_stamp4_hint3_purn", "?": "vo_stamp4_hint3_prashn", ",": "vo_stamp4_hint3_alp"}
 _rounds[0].update({"hint2_audio": "vo_stamp1_hint2", "hint3_audio": "vo_stamp1_hint3"})
 _rounds[1].update({"intro_audio": "vo_stamp_intro", "hint2_audio": "vo_stamp2_hint2", "hint3_audio": "vo_stamp2_hint3"})
-_rounds[2].update({"intro_audio": "vo_g1_intro", "hint2_audio": "vo_stamp3_hint2", "hint3_audio": "vo_stamp3_hint3"})
+_rounds[2].update({"intro_audio": "vo_stamp3_intro", "hint2_audio": "vo_stamp3_hint2", "hint3_audio": "vo_stamp3_hint3"})   # [vo-rec3] round 3's own line (was vo_g1_intro, whose words G1-G3 now say differently)
 _rounds[3].update({"intro_audio": "vo_stamp4_intro", "hint2_audio": "vo_stamp4_hint2", "hint3_by_mark": _by_mark})
 _rounds[4].update({"intro_audio": "vo_stamp4_intro", "hint2_audio": "vo_stamp4_hint2", "hint3_by_mark": _by_mark})
 # [l2-quiet] (asked 2026-11-04): "after the first sentence is over, from the second sentence till the last the instruction VO should not
@@ -4465,6 +4486,27 @@ _gcue = {**{"tutorial": 3660, "guided": 3940, "practice": 1120}, **{k: v for k, 
 js = rep1(js, "GATE_CAPTION_AT_MS = { tutorial: 3660, guided: 3940, practice: 1120 };",
               "GATE_CAPTION_AT_MS = { tutorial: %d, guided: %d, practice: %d };   /* [vo-rec2] the recorded lines' headline onsets (vo_rec.py; the reference's clips: 3660 / 3940 / 1120) */"
               % (_gcue["tutorial"], _gcue["guided"], _gcue["practice"]), "vo-rec2: gate caption cues")
+# ---------- [vo-rec3] (asked 2026-11-10, the same words as [vo-rec] / [vo-rec2]: "I have added the folder [voiceovers_batch (32)] which
+#            contains all the new VOs so now implement all these VOs to their respective places and it must be sync"): the THIRD batch =
+#            70 lines of the deck-first VO manifest of 2026-11-09 (all but the nine option read-outs), applied by vo_rec.py; every synced
+#            line's word times and every cue re-derived from the new takes (T0B's three cues and T3's / T4's tile cues now at the words'
+#            sound onsets). The deck's lines the build had no place for get theirs: G1-G3's hint 3 (below), G4 / P1 / P2's own hint 1 and
+#            hint 2 (below + the audio slots above), L2 round 3's own line (vo_stamp3_intro); the deck's removed lead line leaves T1. ----------
+# G1-G3 (PUNCT_SCENE pick): the 3rd wrong tap — the hand under the right tile and the other two dead and dim as before ([hand-quiet]), and
+# now the deck's hint 3 line with it, 0.5 s after the wiggle like hints 1 / 2; it is feedback (fbAudio: no tile answers while it speaks).
+# Nothing speaks after it: no idle re-read, no chip, no praise after the guided tap ([hand-quiet] as before).
+js = rep1(js, """        if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } }); return; }   // the wiggle just started runs out on its own
+""", """        if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } });   // the wiggle just started runs out on its own
+          if(n === 3) after(500, ()=>{ if(!live || isPlaying) return; if(d.hint3_audio){ play(A(d.hint3_audio), ()=>{}); fbAudio = currentAudio; } });   // [vo-rec3] "यह सही चिह्न है, इसपर टैप कीजिए ।" with the hand
+          return; }
+""", "vo-rec3: scene pick hint 3")
+# G4 / P1 / P2 (SENT_PICK): the 2nd wrong pill says the page's hint 2 line (audio.hint2) in place of reading the three pills out (the
+# review stays for a page without one); feedback like the try-again line — no pill answers while it speaks, the cross clears at its end
+js = rep1(js, """          if(state.attempts >= 2){ state.scaffoldLevel = Math.max(state.scaffoldLevel, 2); review(()=> it.cell.classList.remove("crossed")); return; }
+""", """          if(state.attempts >= 2){ state.scaffoldLevel = Math.max(state.scaffoldLevel, 2);
+            if(audioFor(slide, "hint2")){ play(audioFor(slide, "hint2"), ()=> it.cell.classList.remove("crossed")); fbAudio = currentAudio; return; }   // [vo-rec3] the deck's hint 2 line
+            review(()=> it.cell.classList.remove("crossed")); return; }
+""", "vo-rec3: sentence pick hint 2")
 vo_css = """
 /* ===== [vo-rec] the pointing hand of the picks' hint 3 (G1-G3: the sentence picks' reveal hand, on the stage) ===== */
 .stage .slide-stage .reveal-hand.dmf-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;pointer-events:none;

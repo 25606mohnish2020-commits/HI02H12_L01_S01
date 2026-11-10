@@ -3,13 +3,13 @@
  "shown": "पूर्ण विराम",
  "word_times": [
   [
-   0.32,
-   0.62
+   0.2,
+   0.52
   ],
   [
-   0.62,
-   1.12
+   0.52,
+   0.94
   ]
  ],
- "source": "recording vo_recap_purn_name.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_recap_purn_name.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

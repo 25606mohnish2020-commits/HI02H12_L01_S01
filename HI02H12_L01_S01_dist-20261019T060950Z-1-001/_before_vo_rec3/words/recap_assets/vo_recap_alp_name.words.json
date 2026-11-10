@@ -1,0 +1,15 @@
+{
+ "text": "अल्प विराम",
+ "shown": "अल्प विराम",
+ "word_times": [
+  [
+   0.28,
+   0.58
+  ],
+  [
+   0.58,
+   1.02
+  ]
+ ],
+ "source": "recording vo_recap_alp_name.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+}

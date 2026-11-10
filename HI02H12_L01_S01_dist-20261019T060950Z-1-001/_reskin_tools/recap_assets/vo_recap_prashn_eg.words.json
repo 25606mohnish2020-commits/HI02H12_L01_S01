@@ -4,24 +4,24 @@
  "word_times": [
   [
    1.5,
-   1.9
+   1.94
   ],
   [
-   1.9,
-   2.275
+   1.94,
+   2.16
   ],
   [
-   2.275,
-   2.62
+   2.16,
+   2.56
   ],
   [
-   2.62,
-   2.745
+   2.56,
+   2.73
   ],
   [
-   2.745,
-   2.845
+   2.73,
+   2.83
   ]
  ],
- "source": "recording vo_recap_prashn_eg.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_recap_prashn_eg.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

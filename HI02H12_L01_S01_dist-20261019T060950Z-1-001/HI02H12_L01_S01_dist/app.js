@@ -6623,7 +6623,7 @@ const SlideModules = {
       // [g1-scene] the pick (type PUNCT_PICK): each tile is the child's from the frame it pops in (armTile); the feedback is the pick
       // page's own, as before on G1 — a wrong tile wiggles (the engine's wgNo) with the kit's wrong buzz and the deck's hint ladder
       // (hint 1, hint 2, 0.5 s after the wiggle; the 3rd wrong tap, [hand-quiet]: the pointing hand under the right tile, the other
-      // two dead and dim, no line, nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
+      // two dead and dim, [vo-rec3] hint 3's line with it, then nothing spoken again); the right one presses (dmfTap, its colours kept), its mark lands in the
       // slot in that frame (several slots: data.mark_stagger_ms apart) with the kit's correct sound, the confetti and the happy
       // Swiftie, "शाबाश!" (data.ok_audio) sounds and PACE.tail later the page moves on (after the hand: no line, 1.7 s). [tap-lock]:
       // no tile answers while a feedback sound or line plays; the 🔊 chip says the instruction line again (state.replayAudio; the
@@ -6636,7 +6636,9 @@ const SlideModules = {
         hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
         st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
       const hintLadder = (n)=>{
-        if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } }); return; }   // the wiggle just started runs out on its own
+        if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } });   // the wiggle just started runs out on its own
+          if(n === 3) after(500, ()=>{ if(!live || isPlaying) return; if(d.hint3_audio){ play(A(d.hint3_audio), ()=>{}); fbAudio = currentAudio; } });   // [vo-rec3] "यह सही चिह्न है, इसपर टैप कीजिए ।" with the hand
+          return; }
         const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
         after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // a hint line is feedback: no tile answers while it speaks
       };
@@ -7108,7 +7110,9 @@ const SlideModules = {
         after(BEAT_MS, ()=>{
           state.hintActive = false;
           if(state.attempts >= maxA){ reveal(); return; }
-          if(state.attempts >= 2){ state.scaffoldLevel = Math.max(state.scaffoldLevel, 2); review(()=> it.cell.classList.remove("crossed")); return; }
+          if(state.attempts >= 2){ state.scaffoldLevel = Math.max(state.scaffoldLevel, 2);
+            if(audioFor(slide, "hint2")){ play(audioFor(slide, "hint2"), ()=> it.cell.classList.remove("crossed")); fbAudio = currentAudio; return; }   // [vo-rec3] the deck's hint 2 line
+            review(()=> it.cell.classList.remove("crossed")); return; }
           state.scaffoldLevel = Math.max(state.scaffoldLevel, 1);
           play(audioFor(slide, "try_again"), ()=> it.cell.classList.remove("crossed")); fbAudio = currentAudio;   // [tap-lock] feedback: no other pill answers while it speaks
         });
@@ -9657,7 +9661,7 @@ SlideModules.CELEBRATION.mount = function(host, slide){
   if(typeof phaseBlurTransition !== "function") return;
   var GATE_MS = 4000;                                                          // the reference's minimum hold (this engine had no such constant: 2.8 s)
   var GATE_REF_SRC = "assets/UI/peeking_talk_up.webp";
-  var GATE_CAPTION_AT_MS = { tutorial: 3570, guided: 3840, practice: 1255 };   /* [vo-rec2] the recorded lines' headline onsets (vo_rec.py; the reference's clips: 3660 / 3940 / 1120) */   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
+  var GATE_CAPTION_AT_MS = { tutorial: 3725, guided: 3885, practice: 1220 };   /* [vo-rec2] the recorded lines' headline onsets (vo_rec.py; the reference's clips: 3660 / 3940 / 1120) */   // ms into vo_pt_tutorial / vo_pt_guided / vo_pt_practice at which the headline's words begin (silence analysis of the recordings: the last clause / after "वाह!")
   var SINK_MS = 340;
   var gateRefBlob = null;
   if(location.protocol !== "file:") (window.__afterTitle || function(f){ f(); })(function(){ try{ return fetch(GATE_REF_SRC).then(function(r){ return r.ok ? r.blob() : null; }).then(function(b){ if(b) gateRefBlob = b; }).catch(function(){}); }catch(e){} });   // [ASSET-WARM] once the title art is in

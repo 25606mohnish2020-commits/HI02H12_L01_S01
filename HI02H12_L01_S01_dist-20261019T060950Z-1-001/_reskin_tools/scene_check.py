@@ -23,7 +23,7 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    1 (the instruction line again — never the sentence: [g1-quiet]), the other wrong tile after it (the wiggle, the buzz, hint 2 vo_build_hint2), the right tile
    after hint 2 (the press dmfTap with its colours kept, the mark in the slot in that frame, the correct sound, the confetti and its
    sound, "शाबाश!" vo_ok at once, G2 1 s after it; the slot's box stays). A second run: three wrong taps -> the pointing hand under
-   the right tile, the other two dead and dim, a dead tile's tap nothing, the guided tap: the press, the mark, the confetti, no line,
+   the right tile, the other two dead and dim, [vo-rec3] hint 3's line vo_build_hint3 with it, a dead tile's tap nothing, the guided tap: the press, the mark, the confetti, no line,
    G2 1.7 s after.
 1. At 1333x750, the page mounted on its own (the engine's AudioContext warmed first, as the start tap would have):
    T2: the intro line (vo_demo1_intro) is the first clip and sounds over the hallway picture alone — the picture, the standing Swiftie
@@ -130,7 +130,7 @@ C = {
   # 53x90, the tiles at T4's columns on T2's row
   "G1": dict(prefix="g1", pick_mode=True, intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g1_room", girl="img_g1_girl_ball2", beat=False, GIRL=(229, 163, 481, 541), bubble=None, box_sfx=None, slot=(53, 90),
              sent="पिंकी गेंद से खेल रही थी", sent_clip="vo_g1_sent", nwords=6, explain_clip=None, cue=None, opts=["।", ",", "?"], mark="।", pick=0,
-             wrong=[1, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok",
+             wrong=[1, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_build_hint3",   # [vo-rec3] hint 3 is said with the hand
              next="G2", next_ok="CARD.slides[state.idx].id === 'G2' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick2 .dsc-bg')", next_what="G2 (the scene pick, [g2-scene])",
              FRAME={".dsc-bg > img": (CX - 3, CY - 3, 1095, 514.872), ".dsc-slot": (995, 186, 53, 90), ".dsc-girl": (229, 163, 252, 378), ".dsc-shade": (250, 501, 158, 34),
                     ".dsc-tile.t1": (494.0908, 397) + TILE, ".dsc-tile.t2": (721, 397) + TILE, ".dsc-tile.t3": (951.8184, 397) + TILE,
@@ -142,7 +142,7 @@ C = {
   # [g2-scene] G2 = frame 716:1058 (render g2b_figma_render_1280x720.png): G1's pick, the "?" the answer, the frame's own geometry
   "G2": dict(prefix="g2", pick_mode=True, variant="pick2", intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g2_street", girl="img_g2_girl_bag2", beat=False, GIRL=(934, 227, 1170, 581), bubble=None, box_sfx=None, slot=(59, 100),
              sent="तुम कहाँ जा रहे हो", sent_clip="vo_g2_sent", nwords=5, explain_clip=None, cue=None, opts=["।", ",", "?"], mark="?", pick=2,
-             wrong=[0, 1], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_g2_hint3", no_tshade=True,   # hint 3's line stays registered by [vo-rec], unspoken since [hand-quiet]
+             wrong=[0, 1], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_build_hint3", no_tshade=True,   # [vo-rec3] the deck's one hint 3 line, said with the hand (was vo_g2_hint3, unspoken)
              next="G3", next_ok="CARD.slides[state.idx].id === 'G3' && CARD.slides[state.idx].type === 'PUNCT_PICK' && !!document.querySelector('.tut-card.sfig-round.dsc-v-pick3 .dsc-bg')", next_what="G3 (the scene pick, [g3-scene])",
              FRAME={".dsc-bg > img": (CX - 34, CY - 5, 1152.714, 550), ".dsc-slot": (791, 184, 59, 100), ".dsc-girl": (934, 227, 236, 354), ".dsc-shade": (969, 534, 145, 38),
                     ".dsc-tile.t1": (334.0898, 426) + TILE, ".dsc-tile.t2": (561, 426) + TILE, ".dsc-tile.t3": (791.8203, 426) + TILE,
@@ -154,7 +154,7 @@ C = {
   # [g3-scene] G3 = frame 716:1262 (render g3b_figma_render_1280x720.png): G1's pick, the "," the answer in the sentence's own slot
   "G3": dict(prefix="g3", pick_mode=True, variant="pick3", intro=True, intro_clip="vo_g1_intro", open_ms=500, bg="img_g3_garden", girl="img_g3_girl_point", beat=False, GIRL=(234, 241, 452, 569), bubble=None, box_sfx=None, slot=(33, 38),
              sent="बाग में गुलाब गेंदा और चमेली के फूल हैं ।", sent_clip="vo_g3_sent", nwords=10, explain_clip=None, cue=None, opts=["।", ",", "?"], mark=",", pick=1,
-             wrong=[0, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_g3_hint3", gaps=[2],   # hint 3's line stays registered by [vo-rec], unspoken since [hand-quiet]
+             wrong=[0, 2], hints=["vo_build_hint1", "vo_build_hint2"], ok_clip="vo_ok", hint3="vo_build_hint3", gaps=[2],   # [vo-rec3] the deck's one hint 3 line, said with the hand (was vo_g3_hint3, unspoken)
              next="G4", next_ok="CARD.slides[state.idx].id === 'G4' && CARD.slides[state.idx].type === 'SENT_PICK' && document.querySelectorAll('#slideHost .sent-opt').length === 3", next_what="G4 (SENT_PICK, the reference's P4 page)",
              FRAME={".dsc-bg > img": (CX - 15, CY - 120, 1117, 630), ".dsc-slot": (484, 189, 33, 38), ".dsc-girl": (234, 241, 218, 328), ".dsc-shade": (243, 539, 172, 38),
                     ".dsc-tile.t1": (474.0908, 467) + TILE, ".dsc-tile.t2": (701, 467) + TILE, ".dsc-tile.t3": (931.8203, 467) + TILE,
@@ -733,12 +733,16 @@ with sync_playwright() as p:
         pg.wait_for_timeout(8500)   # [g1-quiet] 8.5 s of quiet with the tiles the child's: the engine's 7 s idle reminder must NOT re-read the sentence
         idle = pg.evaluate(f"[window._snd.filter(e => e.kind === 'media' && e.src === '{C['sent_clip']}.ogg').length, document.querySelectorAll('.dsc-sent .hot').length, isPlaying, !!_idleVoTimer]")
         check("[g1-quiet] 8.5 s of quiet once the tiles are the child's: the sentence's clip has sounded ONCE (no idle re-read), no word lit, nothing speaking, the idle ticker not running", idle[0] == 1 and idle[1] == 0 and not idle[2] and not idle[3], idle)
-        T(W1); quiet_(); T(W2); quiet_(); T(W1); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "h_hand_1333.png"))
+        T(W1); quiet_(); T(W2); quiet_(); t_w3 = pg.evaluate("performance.now()"); T(W1); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "h_hand_1333.png"))
         hand = pg.evaluate(f"""() => {{ const h = document.querySelector('.slide-stage .reveal-hand.dmf-hand'), t = document.querySelectorAll('.dsc-tile')[{PICK}]; if (!h) return null; const r = h.getBoundingClientRect(), tr = t.getBoundingClientRect();
           return [state.attempts, +(r.left + r.width / 2 - (tr.left + tr.width / 2)).toFixed(2), +(r.top - tr.bottom).toFixed(2), [...document.querySelectorAll('.dsc-tile')].map(x => [x.classList.contains('off'), x.classList.contains('live'), getComputedStyle(x).pointerEvents]), !!document.querySelector('.dsc-tile.on'), r.width]; }}""")
         check("[hand-quiet] the third wrong tap: the pointing hand (96px) centred under the right tile (its top within -12..12 px of the tile's bottom: the engine keeps the hand inside the stage, whose bottom clips and whose height varies by a few px, so here its fingertip sits at the tile's edge), the other two tiles dim and dead (.off, pointer-events none, no longer live), the right one still the child's, no press",
               hand is not None and hand[0] == 3 and abs(hand[1]) <= 2 and -12 <= hand[2] <= 12 and all(hand[3][k] == [k != PICK, k == PICK, "none" if k != PICK else "auto"] for k in range(3)) and not hand[4] and abs(hand[5] - 96) <= 1, hand)   # (the hand lives in .slide-stage, outside the card's scale: 96 px)
-        quiet_(); n0 = len(pg.evaluate("window._snd")); T(W2); pg.wait_for_timeout(300)
+        quiet_()
+        h3 = [e for e in pg.evaluate("window._snd") if e["kind"] == "media" and e["src"].startswith("vo_") and e["ms"] > t_w3 and e.get("slide") == PAGE]
+        check("[vo-rec3] with the hand, hint 3's line (vo_build_hint3, \"यह सही चिह्न है, इसपर टैप कीजिए ।\") and nothing else, once, 0.35-1 s after the third wrong tap (0.5 s after the wiggle, as hints 1 / 2)",
+              [e["src"] for e in h3] == ["vo_build_hint3.ogg"] and 350 <= h3[0]["ms"] - t_w3 <= 1000, [(e["src"], round(e["ms"] - t_w3)) for e in h3])
+        n0 = len(pg.evaluate("window._snd")); T(W2); pg.wait_for_timeout(300)
         check("a dead tile tapped: nothing (no sound, no attempt, no wiggle)", pg.evaluate("state.attempts") == 3 and len(pg.evaluate("window._snd")) == n0 and not pg.evaluate("[...document.querySelectorAll('.dsc-tile')].some(t => t.classList.contains('wiggle'))"))
         t_tap = pg.evaluate("performance.now()"); T(PICK); pg.wait_for_timeout(250)
         st3 = pg.evaluate("[!!document.querySelector('.dsc-tile.on'), !!document.querySelector('.dsc-slot .dsc-mark.in'), !!document.querySelector('.fx-confetti'), !document.querySelector('.slide-stage .reveal-hand'), isPlaying]")

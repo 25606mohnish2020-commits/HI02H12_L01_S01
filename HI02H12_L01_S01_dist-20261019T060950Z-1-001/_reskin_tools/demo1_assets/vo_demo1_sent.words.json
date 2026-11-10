@@ -3,25 +3,25 @@
  "shown": "पिंकी स्कूल जा रही है",
  "word_times": [
   [
-   0.28,
-   0.74
+   0.295,
+   0.78
   ],
   [
-   0.74,
-   1.32
+   0.78,
+   1.48
   ],
   [
-   1.32,
-   1.52
+   1.48,
+   1.68
   ],
   [
-   1.52,
-   1.74
+   1.68,
+   1.98
   ],
   [
-   1.74,
-   1.86
+   1.98,
+   2.46
   ]
  ],
- "source": "recording vo_demo1_sent.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_demo1_sent.wav (2026-11-10), faster-whisper word times, vo_rec.py"
 }

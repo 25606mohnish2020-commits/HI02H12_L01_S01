@@ -1,0 +1,15 @@
+{
+ "text": "प्रश्नवाचक चिह्न",
+ "shown": "प्रश्नवाचक चिह्न",
+ "word_times": [
+  [
+   0.205,
+   1.165
+  ],
+  [
+   1.165,
+   1.46
+  ]
+ ],
+ "source": "recording vo_recap_prashn_name.wav (2026-11-05), faster-whisper word times, vo_rec.py"
+}

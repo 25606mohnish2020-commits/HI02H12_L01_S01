@@ -26,7 +26,18 @@ the cues the pages time on their clips: L1's "दादाजी" + its speech e
 alignment: every said word starts where its sound does (whisper puts starts inside the pause before a word — the first word at 0.00
 over the takes' ~0.27 s of room tone; 305 of 923 starts moved, up to 0.65 s), and said words left on one start (a joined word) share
 the span to the next word by their letters. vo_g1_intro.wav of the second batch
-is a different line ("वाह! क्या बात है!"): not copied, the first batch's take stays (KEPT_FIRST)."""
+is a different line ("वाह! क्या बात है!"): not copied, the first batch's take stays (KEPT_FIRST).
+
+[vo-rec3] (2026-11-10) the user's THIRD batch (voiceovers_batch (32).zip): 70 of the 79 lines of the deck-first VO manifest (2026-11-09) —
+every line but the nine option read-outs of G4 / P1 / P2 (their second-batch takes stay) — copied over vo_rec/ with cp -p. New IDs
+the build had no take of: vo_build_hint3 (G1-G3's hint 3, said with the hand), vo_g4_hint2, vo_p1_hint1 / hint2, vo_p2_hint1 / hint2
+(the sentence picks' own hints), vo_stamp3_intro (L2 round 3's line). The zip carries two LATER re-takes added at its end with a stray
+space in the name ("vo_stamp3_intro .wav" 10:59, its copy "vo_stamp3_intro  (1).wav", "vo_stamp3_hint2 .wav" 11:03, the batch's own
+files 05:34): those are the takes copied as vo_stamp3_intro.wav / vo_stamp3_hint2.wav. vo_g1_intro says its line now (KEPT_FIRST empty).
+Heard: every file says its manifest line except two spoken-only lines that say "प्रश्न" for "सवाल" (vo_demo2_explain, vo_recap_prashn_when;
+heard so with and without the script as whisper's prompt) and two small ones (vo_g1_intro adds "और", vo_stamp1_hint3 drops "एक"):
+SPOKEN keeps what is said. T3's / T4's explanation cues (the "?" / "," tile lights) are read here now, by onset() on the LAST
+"प्रश्न…" / "अल्प…" word (whisper writes "प्रश्न वाचक" as two words in this take), instead of build.py's whisper start."""
 import sys, json, pathlib, subprocess, re, unicodedata, difflib, shutil, datetime
 import numpy as np, openpyxl
 
@@ -66,6 +77,11 @@ SPOKEN = {
   "vo_story_c1": "उसे रोको, मत जाने दो।", "vo_story_c2": "उसे रोको मत, जाने दो।",   # [relisten-pinki] frame 654:567's lines
   "vo_story_moral": "दोनों वाक्यों में शब्द एक जैसे हैं परन्तु विराम चिह्न अलग जगह लगा होने से वाक्य का पूरा अर्थ ही बदल गया।",
   "vo_story_r1": "यहाँ पहले वाक्य का अर्थ है, बिल्ली को रोको, उसे अंदर मत जाने दो। जबकि दूसरे वाक्य का अर्थ है, बिल्ली को मत भगाओ, उसे अंदर जाने दो।",
+  # [vo-rec3] the third batch's takes where the voice's words differ from the manifest (all four are said, not shown)
+  "vo_demo2_explain": "यह एक प्रश्न है, प्रश्न के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।",   # the manifest: "यह एक सवाल है, सवाल के अंत में ..."
+  "vo_recap_prashn_when": "प्रश्न पूछने पर प्रश्नवाचक चिह्न लगाया जाता है ।",   # the manifest: "सवाल पूछने पर ..."
+  "vo_g1_intro": "वाक्य सुनिए और सही जगह पर विराम चिह्न लगाइए ।",   # the manifest has no "और"
+  "vo_stamp1_hint3": "नमस्ते दादाजी, आप कैसे हैं? यह प्रश्न है । प्रश्न पूछने पर प्रश्न वाचक चिह्न लगाया जाता है ।",   # the manifest: "यह एक प्रश्न है"
 }
 SHOWN_OVERRIDE = {}   # [vo-rec2] (was {"vo_recap_purn_eg": "पिंकी स्कूल गई ।"}: the first batch's example) — the words.json "shown" is the page's
 # [story-pinki] the four story recordings are the new story page's beats (frames 652:3, 652:192, 660:127, 653:381): the two
@@ -85,8 +101,8 @@ SKIP = {
 }
 # [vo-rec2] files of the second batch NOT copied into vo_rec/ — the first batch's take of the line stays there (and is applied as before)
 KEPT_FIRST = {
-  "vo_g1_intro.wav": "the second batch's file says \"वाह! क्या बात है!\" (2.56 s; heard with and without the script as whisper's prompt), not "
-                     "\"यह वाक्य सुनकर देखिए और वाक्य में सही जगह पर विराम चिह्न लगाइए ।\" — mislabeled; the first batch's take (5.76 s) stays: re-record it",
+  # [vo-rec3] (2026-11-10) empty: the third batch's vo_g1_intro.wav says its line ("वाक्य सुनिए और सही जगह पर विराम चिह्न लगाइए ।", 4.32 s) and
+  # replaces the first batch's take. Was: "vo_g1_intro.wav": the second batch's file said "वाह! क्या बात है!" (mislabeled), not copied.
 }
 for _f in KEPT_FIRST: assert datetime.date.fromtimestamp((REC / _f).stat().st_mtime) < datetime.date(2026, 11, 5), f"{_f}: the second batch's file is in vo_rec/"
 # the synced lines: Audio ID -> its words.json (the SHOWN words are what the page lights)
@@ -239,6 +255,10 @@ def _env(fname):   # [vo-rec2] the clip's loudness in 10 ms windows every 5 ms, 
     r = np.array([np.sqrt(np.mean(x[i:i + w] ** 2)) for i in range(0, max(1, len(x) - w), h)]) + 1e-9
     return 20 * np.log10(r / r.max()), h / 48000
 lead_fixed = {}
+# [vo-rec3] T3's / T4's explanations are not synced lines (no words.json, nothing lit word by word) but the page data carries their text
+# and word times (its cue word lights the tile): aligned here on the registry text's OWN words like the synced lines, so text, times
+# and the cue index agree (whisper splits this take's words differently: "अंतमी प्रश्न वाचक" for "अंत में प्रश्नवाचक")
+EXPLAIN = ("vo_demo2_explain", "vo_demo3_explain"); explain_lines = {}
 # ---- 2+3. every named recording ----
 for f in sorted(REC.glob("*.wav")):
     if f.name in SKIP: skipped[f.name] = SKIP[f.name]; continue
@@ -279,6 +299,10 @@ for f in sorted(REC.glob("*.wav")):
     for pid, hw in parts.items():
         texts[pid] = SPOKEN.get(pid) or MAN.get(vid) or PREV_TEXTS.get(pid) or T[f.name]["text"]
         applied[pid] = {"file": f.name, "dur": durs[pid], "heard_to": round(hw[-1][2], 3) if hw else None, "heard": " ".join(h[0] for h in hw)}   # dur: the clip's length (whisper's last end may overrun it)
+        if pid in EXPLAIN and hw:   # [vo-rec3] the explanation's words as the page data shows them, timed on the clip
+            wt, nm, nl = align(texts[pid].split(), hw, durs[pid], t0=(li if pid == vid else 0.0), v_end=(v_end if pid == vid else None))
+            explain_lines[pid] = {"text": texts[pid], "word_times": wt, "matched": f"{nm}/{nl}"}
+            print(f"expl  {pid:22s} [{nm}/{nl}] {' '.join(f'{w}@{t[0]:.2f}' for w, t in zip(texts[pid].split(), wt))}")
         if pid in SYNC:
             tf = SYNC[pid]; data = json.loads(tf.read_text(encoding="utf-8"))
             shown = (SHOWN_OVERRIDE.get(pid) or data.get("shown") or data["text"]).split()
@@ -294,13 +318,15 @@ for f in sorted(REC.glob("*.wav")):
 # ---- 4. the cues the pages time on their clips ----
 # [relisten-pinki] T0B's cues on the clips' own clocks: the explanation lights sentence 1 at "पहले" and sentence 2 at "जबकि"; the
 # moral lights the commas at "विराम"
-def _at(fname, prefix): return round(next(h[1] for h in T[fname]["words"] if norm(h[0]).startswith(prefix)), 3)
-def onset(fname, prefix, back=0.25, fwd=0.35, quiet_db=-30.0, min_quiet=0.03):
+def _at(fname, prefix, last=False):   # [vo-rec3] last: the LAST word with the prefix (T3's cue: "यह एक प्रश्न है, प्रश्न के अंत में प्रश्नवाचक")
+    hits = [h[1] for h in T[fname]["words"] if norm(h[0]).startswith(norm(prefix))]
+    return round(hits[-1] if last else hits[0], 3)
+def onset(fname, prefix, back=0.25, fwd=0.35, quiet_db=-30.0, min_quiet=0.03, last=False):
     """[vo-rec2] the moment a word's sound starts: whisper's start of the first word beginning with `prefix`, moved to the end of the
     quiet run (a pause, or a stop's closure: below quiet_db under the peak for >= min_quiet) nearest to it within -back..+fwd s —
     whisper's word starts wander 0.1-0.2 s into a pause or a closure (L2's "ठप्पा": whisper 4.94, its burst 5.12 on the first
     batch). No quiet run there (a voiced stop running on) -> whisper's start."""
-    t = _at(fname, prefix); e, hop = _env(fname); lo, hi = int(max(0, t - back) / hop), min(len(e) - 1, int((t + fwd) / hop))
+    t = _at(fname, prefix, last); e, hop = _env(fname); lo, hi = int(max(0, t - back) / hop), min(len(e) - 1, int((t + fwd) / hop))
     runs, s = [], None
     for i in range(lo, hi + 1):
         q = e[i] < quiet_db
@@ -321,8 +347,12 @@ def beak_bits(ogg, step=0.025, win=12, rel=0.5, db=-18):   # [vo-rec2] the [dun-
     r = np.array([np.sqrt(np.mean(x[i * h:(i + 1) * h] ** 2)) for i in range(n)]); pk = r.max()
     return "".join("1" if (r[i] > rel * r[max(0, i - win):i + win + 1].max() and r[i] > pk * 10 ** (db / 20)) else "0" for i in range(n))
 moral_wav = "vo_story_moral.wav" if "vo_story_moral.wav" in T else "4.wav"
-cues = {"explain_s": [_at("vo_story_r1.wav", "पहल"), _at("vo_story_r1.wav", "जबक")], "moral_s": _at(moral_wav, "विराम")}
 onsets = {}
+# [vo-rec3] T0B's three cues at the words' sound onsets too (were whisper's starts: the third batch's "पहले" 0.84 s sits in the pause
+# 0.78-0.92 before it, the moral's "विराम" 3.14 s ~0.1 s after its onset)
+def _on(fname, pre):
+    o, w = onset(fname, pre); onsets[f"{fname[:-4]}:{pre}"] = {"word": pre, "whisper": w, "onset": o}; return o
+cues = {"explain_s": [_on("vo_story_r1.wav", "पहल"), _on("vo_story_r1.wav", "जबक")], "moral_s": _on(moral_wav, "विराम")}
 # the gates' headlines arrive with their words (the gate script's GATE_CAPTION_AT_MS): "चलिए, शुरू करें!", "चलिए, साथ में करें!", "अब आपकी बारी!"
 gate_cue = {}
 for k, pre in (("tutorial", "चल"), ("guided", "चल"), ("practice", "अब")):
@@ -336,9 +366,14 @@ if "vo_letter_intro" in applied:
 if "vo_stamp_intro" in applied:
     o, w = onset("vo_stamp_intro.wav", "ठप"); onsets["vo_stamp_intro"] = {"word": "ठप", "whisper": w, "onset": o}
     cues["stamp_thappa_ms"] = int(round(o * 1000)); cues["stamp_intro_ms"] = int(round(applied["vo_stamp_intro"]["dur"] * 1000))
+# [vo-rec3] T3 / T4: the tile of the explained mark lights as the explanation says its name — the speech onset of the LAST "प्रश्न…"
+# word of vo_demo2_explain ("… के अंत में प्रश्नवाचक चिह्न …") and of the last "अल्प…" word of vo_demo3_explain ("… उनके बीच अल्पविराम आता है")
+for _cid, _f, _pre in (("demo2_explain_s", "vo_demo2_explain", "प्रश्न"), ("demo3_explain_s", "vo_demo3_explain", "अल्प")):
+    if _f in applied:
+        o, w = onset(f"{_f}.wav", _pre, last=True); onsets[_f] = {"word": _pre, "last": True, "whisper": w, "onset": o}; cues[_cid] = o
 cel_bits = {"vo": "vo_well_done", "step_ms": 25, "bits": beak_bits(AUD / "vo_well_done.ogg"), "clip_s": applied["vo_well_done"]["dur"],
             "method": "dun_assets/cel_bits.json's detector on the recording (RMS per 25 ms, open above 0.5 x the local max over +-12 frames and within 18 dB of the peak)"} if "vo_well_done" in applied else None
-derived = {"applied": applied, "texts": texts, "skipped": skipped, "kept_first": KEPT_FIRST, "snapped": lead_fixed, "gate_cue_ms": gate_cue, "cues": cues, "onsets": onsets, "cel_bits": cel_bits,
+derived = {"applied": applied, "texts": texts, "explain": explain_lines, "skipped": skipped, "kept_first": KEPT_FIRST, "snapped": lead_fixed, "gate_cue_ms": gate_cue, "cues": cues, "onsets": onsets, "cel_bits": cel_bits,
            "stamp_sent4_split_s": split_at, "gain_db": GAIN, "note": "written by vo_rec.py; build.py reads texts, gate_cue_ms, cues, cel_bits"}
 (REC / "derived.json").write_text(json.dumps(derived, ensure_ascii=False, indent=1), encoding="utf-8")
 print(f"applied {len(applied)} clips, skipped {len(skipped)}; gate cue {derived['gate_cue_ms']} ms; sent4 split at {split_at} s")
