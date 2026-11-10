@@ -3159,7 +3159,7 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 .dsc-slot.in{opacity:1;transform:none;animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as the sentence rises */
 .dsc-dash{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;stroke-dasharray:10 5;transition:opacity .4s,stroke .25s;}
 /* the blink — [t2-scene5]: the WHOLE box APPEARS and DISAPPEARS, slowly (the module's --blink-ms = data.blink_cycle_ms 1.75 s,
-   --blink-n = blink_ms / that = 4). While it blinks the box wears its orange look — the fill the orange's .2 tint (#FAE1CC, an OPAQUE
+   --blink-n = blink_ms / that = 4 on the picks; [blink-2] 2 on T2-T4). While it blinks the box wears its orange look — the fill the orange's .2 tint (#FAE1CC, an OPAQUE
    colour: an rgba fill would show the hallway through the box), the ring the words' orange, the glow the pulsing tile's
    rgba(232,106,0,.6) 5px (dscGlow's rest look) — eased in and out by the slot's own .4 / .25 s transitions, and its OPACITY fades
    1 -> 0 -> 1 over each cycle (0.56 s fades, 0.21 s unseen, 0.42 s seen), the last cycle ending seen. sfigBoxIn (the slot's pop-in)
@@ -3405,6 +3405,11 @@ body.tut-page:has(.sfig-full), .stage.tut:has(.sfig-full){background:#F2F7FA;}
 /* a wrong pill: only the wiggle — P4's red ring on it is transparent, and the engine's greyed "crossed" look does not apply here */
 .stage.sent-page .opt-grid.sent-opts .opt-cell.wg-wrong .so-pill,.stage.sent-page .opt-grid.sent-opts .opt-cell.wg-rel .so-pill{outline:6px solid transparent;outline-offset:-1px;}
 .stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{opacity:1 !important;filter:none !important;}
+/* [wiggle-1] (asked 2026-11-10: "the wiggle animation of that option should come only once instead of two time") a wrong pill wiggles
+   ONCE — the engine's wgNo (.wg-wrong, one --fx-beat = 0.4 s, with the buzz). The "crossed" class the pill wears with it kept the
+   engine's older buzzShake .4s, which (wgNo's !important gone) started as .wg-wrong left at 640 ms: a second shake, measured on every
+   wrong tap of G4 / P1 / P2. wgNo still wins while .wg-wrong is on (!important); the crossed pill itself no longer moves. */
+.stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{animation:none;}
 /* a tap while a line speaks counts on P4 (it cuts the line): the engine's vo-lock must not swallow it here (the module gates its own beats) */
 body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.crossed){pointer-events:auto !important;}
 .stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{pointer-events:none !important;}   /* as P4's: a crossed pill is dead until it is un-crossed */

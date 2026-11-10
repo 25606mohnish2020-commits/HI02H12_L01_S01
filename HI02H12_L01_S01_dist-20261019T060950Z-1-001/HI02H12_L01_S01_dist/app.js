@@ -6394,7 +6394,8 @@ const SlideModules = {
      3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
         the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
         (CSS dscPop) as it starts;
-     4. 0.3 s after the sound the slot blinks for data.blink_ms ([t2-scene5]: 7 s in SLOW data.blink_cycle_ms = 1.75 s cycles —
+     4. 0.3 s after the sound the slot blinks for data.blink_ms ([blink-2] 2026-11-10: T2-T4 3.5 s = two cycles, the picks 7 s = four;
+        [t2-scene5]: 7 s in SLOW data.blink_cycle_ms = 1.75 s cycles —
         the WHOLE box, wearing its orange look (its fill the orange's tint, its ring the words' orange, its glow the pulsing tile's
         rgba(232,106,0,.6) 5px), FADES out and back in four times — 0.56 s fades, 0.21 s unseen, 0.42 s seen — and ends seen, the
         look easing back to plain; [t2-scene4] switched the look on / off on 1.2 s cycles, [t2-scene2] held the orange for half
@@ -6434,7 +6435,8 @@ const SlideModules = {
         stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
         frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
         the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
-        hint ladder (data.hint1_audio / hint2_audio 0.5 s after; the 3rd wrong tap the pointing hand under the right tile, the
+        hint ladder (data.hint1_audio / hint2_audio 0.5 s after — [hint2-lit] hint 2 lighting each sign's tile as it names it, on
+        data.hint2_signs; the 3rd wrong tap the pointing hand under the right tile, the
         other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
         frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
         page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
@@ -6573,7 +6575,8 @@ const SlideModules = {
         }
         after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks over blink_ms in blink_cycle_ms cycles ([t2-scene5]: 7 s of slow 1.75 s cycles = four fades of the whole
+      // 4. the slot blinks over blink_ms in blink_cycle_ms cycles ([blink-2]: T2-T4 3.5 s = two fades, then the box stays seen; the picks
+      //    [t2-scene5]'s 7 s of slow 1.75 s cycles = four fades of the whole
       //    box in its orange look; the CSS gets the cycle and the count) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms
       //    apart, each with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
@@ -6635,12 +6638,28 @@ const SlideModules = {
       const showHand = ()=>{ if(hintHand) return; const st = document.querySelector(".slide-stage"); if(!st) return;
         hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
         st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
+      // [hint2-lit] (asked 2026-11-10) hint 2 names the three signs one after another ("वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर
+      // अल्प विराम और प्रश्न पूछने पर प्रश्नवाचक चिह्न लगाते हैं ।"): as the line names a sign, its tile lights in T2-T4's lit look (.lit: the
+      // words' orange on the mark with its pop, the orange border and glow on the face, eased in and out by the face's own transitions)
+      // and holds it until the line goes on to the next sign's part — the last one until the line ends. data.hint2_signs: per mark its
+      // on / off on the clip's own clock (vo_rec.py: the words' sound onsets; off null = the line's end). Read off the clip every frame,
+      // so a line that ends, stops or is replaced takes its light with it (a 20 s cap for a clip that never starts).
+      const signLights = (a)=>{
+        const lit = (d.hint2_signs || []).map(s=> ({ t: tiles[opts.findIndex(o=> o.mark === s.mark)], on: s.on, off: s.off })).filter(s=> s.t);
+        if(!a || !lit.length) return;
+        const cap = performance.now() + 20000;
+        const tick = ()=>{
+          const gone = !alive() || a.ended || currentAudio !== a || (a.paused && a.currentTime > 0) || performance.now() > cap, t = a.currentTime + 0.04;
+          lit.forEach(s=> s.t.classList.toggle("lit", !gone && t >= s.on && (s.off == null || t < s.off)));
+          if(!gone) nextFrame(tick); };
+        nextFrame(tick);
+      };
       const hintLadder = (n)=>{
         if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } });   // the wiggle just started runs out on its own
           if(n === 3) after(500, ()=>{ if(!live || isPlaying) return; if(d.hint3_audio){ play(A(d.hint3_audio), ()=>{}); fbAudio = currentAudio; } });   // [vo-rec3] "यह सही चिह्न है, इसपर टैप कीजिए ।" with the hand
           return; }
         const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
-        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // a hint line is feedback: no tile answers while it speaks
+        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; if(n === 2) signLights(currentAudio); } });   // a hint line is feedback: no tile answers while it speaks; [hint2-lit] hint 2 lights the signs as it names them
       };
       function armTile(k){
         if(!live){ live = true; state.demoRunning = false; setSwMood("point");
@@ -6669,7 +6688,7 @@ const SlideModules = {
         live = false; state.locked = true; state.demoRunning = true; const guided = !!hintHand; if(hintHand){ hintHand.remove(); hintHand = null; }   // the hand goes with the answer
         lookOff();   // [t3-look] (no rig on G1; kept for a rigged girl)
         slots.forEach(sl=> sl.classList.remove("blink"));
-        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are
+        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live", "lit"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are ([hint2-lit] no sign light outlives hint 2)
         const stg = d.mark_stagger_ms || 300;
         marks.forEach((m, j)=>{ const land = ()=>{ centreInk(m); m.classList.add("in"); }; if(j) after(j * stg, land); else land(); });
         sfxCorrect(); confettiCannon(); setSwMood("happy");

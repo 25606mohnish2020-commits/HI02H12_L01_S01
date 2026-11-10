@@ -284,7 +284,7 @@ card["slides"][i_t2] = {"id": "T2", "phase": "tutorial", "eis": "enactive", "typ
              "sentence": dpart("sent"), "mark": "।", "explain": dict(dpart("explain"), cue_word=_cue),
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],
              "girl_pop": False,   # [t2-quiet] (2026-11-02) no school sound and no pop of the girl any more (was "pic_sfx": "sfx_demo1_school.mp3", "pic_sfx_ms": 2000 — the file stays in the dist, unused): she stands still as painted and the blink follows the sentence's clip, as T3's ([t3-girl]); the [girl-wave] wave built in their place was withdrawn the same day
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # [t2-scene5] the blink 7 s (2 -> 4 -> 6 -> 7) in SLOW 1.75 s cycles = four fades of the whole box (the module rounds blink_ms / blink_cycle_ms; [t2-scene4] had 1.2 s on / off cycles, [t2-scene3] ~667 ms); the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) ONCE PER TILE as the tiles pop in one by one, 350 ms apart ([t2-scene3]; was all three 90 ms apart under one pop)
+             "blink_ms": 3500, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # [blink-2] (asked 2026-11-10: "only 2 time appear and disappear") 3.5 s = TWO of the slow 1.75 s fades (gone, back, gone, back), then the box stays seen and the explanation follows 0.3 s later as before; was [t2-scene5] the blink 7 s (2 -> 4 -> 6 -> 7) in SLOW 1.75 s cycles = four fades of the whole box (the module rounds blink_ms / blink_cycle_ms; [t2-scene4] had 1.2 s on / off cycles, [t2-scene3] ~667 ms); the user's dragon-studio-pop-402323 (1).mp3 (0.72 s) ONCE PER TILE as the tiles pop in one by one, 350 ms apart ([t2-scene3]; was all three 90 ms apart under one pop)
     "signals": {"on_complete": []}}
 for k in DEMO_KEYS:
     card["assets"]["audio"][f"vo_demo1_{k}"] = f"assets/Audio/vo_demo1_{k}.ogg"
@@ -376,7 +376,7 @@ card["slides"][i_t3] = {"id": "T3", "phase": "tutorial", "eis": "enactive", "typ
              "sentence": dpart2("sent"), "mark": "?",
              "explain": {"text_hi": _x3_text, "audio": "vo_demo2_explain", "word_times": _x3_times, "word_end": _x3e["word_times"][-1][1], "cue_word": _x3_cue},   # [vo-rec3]
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}, {"mark": ",", "name_hi": "अल्प विराम"}],   # the frame's order
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
+             "blink_ms": 3500, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink ([blink-2] two fades, was 7000 = four) and tiles
     "signals": {"on_complete": []}}
 card["assets"]["image"]["img_demo2_room"] = "assets/Images/img_demo2_room.webp"
 card["assets"]["image"]["img_demo2_bubble"] = "assets/Images/img_demo2_bubble.svg"
@@ -451,7 +451,7 @@ card["slides"][i_t4] = {"id": "T4", "phase": "tutorial", "eis": "enactive", "typ
              "sentence": _sent4, "mark": ",",
              "explain": {"text_hi": _x4_text, "audio": "vo_demo3_explain", "word_times": _x4_times, "word_end": _x4e["word_times"][-1][1], "cue_word": _x4_cue},   # [vo-rec3]
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink and tiles
+             "blink_ms": 3500, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350},   # T2's blink ([blink-2] two fades of both slots, was 7000 = four) and tiles
     "signals": {"on_complete": []}}
 for k in DEMO3_CLIPS:   # [demo-intro] without the intro
     card["assets"]["audio"][f"vo_demo3_{k}"] = f"assets/Audio/vo_demo3_{k}.ogg"
@@ -516,7 +516,7 @@ card["slides"][i_g1] = {"id": "G1", "phase": "guided", "eis": "enactive", "type"
              "sentence": {"text_hi": gl["sent"]["shown"], "audio": "vo_g1_sent", "word_times": [t[0] for t in gl["sent"]["word_times"]], "word_end": gl["sent"]["word_times"][-1][1]},
              "mark": "।", "mark_audio": "vo_demo1_purn",   # ([vo-rec] sets the name, the praise and the hint lines below)
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # the 7 s blink (four fades: T2's until [blink-2] took T2-T4 to two; the picks keep theirs) and T2's tiles
              "no_idle_vo": True},   # [g1-quiet] (asked 2026-11-02): the sentence's clip and its word light play ONCE — the engine's idle reminder (after 7 s of quiet once the tiles are the child's, which fell right at the blink's end) is off on this page, and the 🔊 chip says the instruction line again (the module)
     "signals": {"on_complete": ["punct_build_done"]}}
 for k in G1_KEYS:
@@ -567,7 +567,7 @@ card["slides"][i_g2] = {"id": "G2", "phase": "guided", "eis": "enactive", "type"
              "sentence": {"text_hi": gl2["shown"], "audio": "vo_g2_sent", "word_times": [t[0] for t in gl2["word_times"]], "word_end": gl2["word_times"][-1][1]},
              "mark": "?", "mark_audio": "vo_demo2_prashn",   # ([vo-rec] sets the name, the praise and the hint lines below)
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # the 7 s blink (four fades: T2's until [blink-2] took T2-T4 to two; the picks keep theirs) and T2's tiles
              "no_idle_vo": True},   # [g1-quiet] as G1: the sentence's clip and its word light play once
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g2_sent"] = "assets/Audio/vo_g2_sent.ogg"
@@ -616,7 +616,7 @@ card["slides"][i_g3] = {"id": "G3", "phase": "guided", "eis": "enactive", "type"
                           "gaps": [2]},   # the slot sits after गुलाब (word 2): the gap's width is the variant's CSS (.dsc-gap)
              "mark": ",", "mark_audio": "vo_demo3_alp",   # ([vo-rec] sets the name, the praise and the hint lines below)
              "options": [{"mark": "।", "name_hi": "पूर्ण विराम"}, {"mark": ",", "name_hi": "अल्प विराम"}, {"mark": "?", "name_hi": "प्रश्नवाचक चिह्न"}],   # the frame's order (T2's)
-             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # T2's blink and tiles
+             "blink_ms": 7000, "blink_cycle_ms": 1750, "tiles_sfx": "sfx_demo1_pop.mp3", "tiles_gap_ms": 350,   # the 7 s blink (four fades: T2's until [blink-2] took T2-T4 to two; the picks keep theirs) and T2's tiles
              "no_idle_vo": True},   # [g1-quiet] as G1: the sentence's clip and its word light play once
     "signals": {"on_complete": ["punct_build_done"]}}
 card["assets"]["audio"]["vo_g3_sent"] = "assets/Audio/vo_g3_sent.ogg"
@@ -1457,7 +1457,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
      3. 0.3 s after the clip data.pic_sfx (the user's school sound) for data.pic_sfx_ms (2 s), faded out over its last 0.4 s, and
         the girl — in her place since the first frame ([t2-scene2]; she walked in from the doorway before) — gives a small pop
         (CSS dscPop) as it starts;
-     4. 0.3 s after the sound the slot blinks for data.blink_ms ([t2-scene5]: 7 s in SLOW data.blink_cycle_ms = 1.75 s cycles —
+     4. 0.3 s after the sound the slot blinks for data.blink_ms ([blink-2] 2026-11-10: T2-T4 3.5 s = two cycles, the picks 7 s = four;
+        [t2-scene5]: 7 s in SLOW data.blink_cycle_ms = 1.75 s cycles —
         the WHOLE box, wearing its orange look (its fill the orange's tint, its ring the words' orange, its glow the pulsing tile's
         rgba(232,106,0,.6) 5px), FADES out and back in four times — 0.56 s fades, 0.21 s unseen, 0.42 s seen — and ends seen, the
         look easing back to plain; [t2-scene4] switched the look on / off on 1.2 s cycles, [t2-scene2] held the orange for half
@@ -1497,7 +1498,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         stages 1, 2 and 4 as T2's (the intro line, the sentence and the slot, the blink with the tiles popping in), and from the
         frame each tile pops in it is live — no explanation (stage 5), no lit tile, no pulse, all three tappable. The feedback is
         the pick page's (PUNCT_DEMO's tap mode) as before on G1: a wrong tile wiggles (wgNo) with the kit's wrong buzz, then the
-        hint ladder (data.hint1_audio / hint2_audio 0.5 s after; the 3rd wrong tap the pointing hand under the right tile, the
+        hint ladder (data.hint1_audio / hint2_audio 0.5 s after — [hint2-lit] hint 2 lighting each sign's tile as it names it, on
+        data.hint2_signs; the 3rd wrong tap the pointing hand under the right tile, the
         other two dead and dim, no line); the right one presses (dmfTap, its colours kept), its mark lands in the slot in that
         frame with the kit's correct sound, the confetti and the happy Swiftie, "शाबाश!" (data.ok_audio) and PACE.tail later the
         page moves on (after the hand: no line, 1.7 s). No tile answers while a feedback sound or line plays ([tap-lock]); the
@@ -1636,7 +1638,8 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         }
         after(ms, ()=> after(300, stage4));
       };
-      // 4. the slot blinks over blink_ms in blink_cycle_ms cycles ([t2-scene5]: 7 s of slow 1.75 s cycles = four fades of the whole
+      // 4. the slot blinks over blink_ms in blink_cycle_ms cycles ([blink-2]: T2-T4 3.5 s = two fades, then the box stays seen; the picks
+      //    [t2-scene5]'s 7 s of slow 1.75 s cycles = four fades of the whole
       //    box in its orange look; the CSS gets the cycle and the count) — and the tiles pop in ONE BY ONE as it starts, tiles_gap_ms
       //    apart, each with its own pop in the frame its pop (dscTileIn) begins
       const stage4 = ()=>{
@@ -1698,10 +1701,26 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
       const showHand = ()=>{ if(hintHand) return; const st = document.querySelector(".slide-stage"); if(!st) return;
         hintHand = document.createElement("img"); hintHand.className = "reveal-hand dmf-hand"; hintHand.src = "assets/UI/nudge_hand_new.svg"; hintHand.alt = "";
         st.appendChild(hintHand); placeHintHand(); requestAnimationFrame(placeHintHand); };
+      // [hint2-lit] (asked 2026-11-10) hint 2 names the three signs one after another ("वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर
+      // अल्प विराम और प्रश्न पूछने पर प्रश्नवाचक चिह्न लगाते हैं ।"): as the line names a sign, its tile lights in T2-T4's lit look (.lit: the
+      // words' orange on the mark with its pop, the orange border and glow on the face, eased in and out by the face's own transitions)
+      // and holds it until the line goes on to the next sign's part — the last one until the line ends. data.hint2_signs: per mark its
+      // on / off on the clip's own clock (vo_rec.py: the words' sound onsets; off null = the line's end). Read off the clip every frame,
+      // so a line that ends, stops or is replaced takes its light with it (a 20 s cap for a clip that never starts).
+      const signLights = (a)=>{
+        const lit = (d.hint2_signs || []).map(s=> ({ t: tiles[opts.findIndex(o=> o.mark === s.mark)], on: s.on, off: s.off })).filter(s=> s.t);
+        if(!a || !lit.length) return;
+        const cap = performance.now() + 20000;
+        const tick = ()=>{
+          const gone = !alive() || a.ended || currentAudio !== a || (a.paused && a.currentTime > 0) || performance.now() > cap, t = a.currentTime + 0.04;
+          lit.forEach(s=> s.t.classList.toggle("lit", !gone && t >= s.on && (s.off == null || t < s.off)));
+          if(!gone) nextFrame(tick); };
+        nextFrame(tick);
+      };
       const hintLadder = (n)=>{
         if(n >= 3){ showHand(); tiles.forEach((t, k)=>{ if(k !== pick){ t.onclick = null; t.classList.remove("live"); t.classList.add("off"); } }); return; }   // the wiggle just started runs out on its own
         const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
-        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; } });   // a hint line is feedback: no tile answers while it speaks
+        after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; if(n === 2) signLights(currentAudio); } });   // a hint line is feedback: no tile answers while it speaks; [hint2-lit] hint 2 lights the signs as it names them
       };
       function armTile(k){
         if(!live){ live = true; state.demoRunning = false; setSwMood("point");
@@ -1730,7 +1749,7 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         live = false; state.locked = true; state.demoRunning = true; const guided = !!hintHand; if(hintHand){ hintHand.remove(); hintHand = null; }   // the hand goes with the answer
         lookOff();   // [t3-look] (no rig on G1; kept for a rigged girl)
         slots.forEach(sl=> sl.classList.remove("blink"));
-        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are
+        tiles.forEach((x, j)=>{ x.onclick = null; x.classList.remove("wiggle", "live", "lit"); if(j === pick) x.classList.add("on"); });   // only the tapped tile answers: the other two stay as they are ([hint2-lit] no sign light outlives hint 2)
         const stg = d.mark_stagger_ms || 300;
         marks.forEach((m, j)=>{ const land = ()=>{ centreInk(m); m.classList.add("in"); }; if(j) after(j * stg, land); else land(); });
         sfxCorrect(); confettiCannon(); setSwMood("happy");
@@ -3292,7 +3311,7 @@ scene_css = """
 .dsc-slot.in{opacity:1;transform:none;animation:sfigBoxIn .5s cubic-bezier(.2,.9,.3,1.2) both;}   /* pops in as the sentence rises */
 .dsc-dash{position:absolute;left:0;top:0;display:block;fill:none;stroke:rgba(86,86,86,.85);stroke-width:2;stroke-dasharray:10 5;transition:opacity .4s,stroke .25s;}
 /* the blink — [t2-scene5]: the WHOLE box APPEARS and DISAPPEARS, slowly (the module's --blink-ms = data.blink_cycle_ms 1.75 s,
-   --blink-n = blink_ms / that = 4). While it blinks the box wears its orange look — the fill the orange's .2 tint (#FAE1CC, an OPAQUE
+   --blink-n = blink_ms / that = 4 on the picks; [blink-2] 2 on T2-T4). While it blinks the box wears its orange look — the fill the orange's .2 tint (#FAE1CC, an OPAQUE
    colour: an rgba fill would show the hallway through the box), the ring the words' orange, the glow the pulsing tile's
    rgba(232,106,0,.6) 5px (dscGlow's rest look) — eased in and out by the slot's own .4 / .25 s transitions, and its OPACITY fades
    1 -> 0 -> 1 over each cycle (0.56 s fades, 0.21 s unseen, 0.42 s seen), the last cycle ending seen. sfigBoxIn (the slot's pop-in)
@@ -3940,6 +3959,11 @@ sent_css = """
 /* a wrong pill: only the wiggle — P4's red ring on it is transparent, and the engine's greyed "crossed" look does not apply here */
 .stage.sent-page .opt-grid.sent-opts .opt-cell.wg-wrong .so-pill,.stage.sent-page .opt-grid.sent-opts .opt-cell.wg-rel .so-pill{outline:6px solid transparent;outline-offset:-1px;}
 .stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{opacity:1 !important;filter:none !important;}
+/* [wiggle-1] (asked 2026-11-10: "the wiggle animation of that option should come only once instead of two time") a wrong pill wiggles
+   ONCE — the engine's wgNo (.wg-wrong, one --fx-beat = 0.4 s, with the buzz). The "crossed" class the pill wears with it kept the
+   engine's older buzzShake .4s, which (wgNo's !important gone) started as .wg-wrong left at 640 ms: a second shake, measured on every
+   wrong tap of G4 / P1 / P2. wgNo still wins while .wg-wrong is on (!important); the crossed pill itself no longer moves. */
+.stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{animation:none;}
 /* a tap while a line speaks counts on P4 (it cuts the line): the engine's vo-lock must not swallow it here (the module gates its own beats) */
 body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.crossed){pointer-events:auto !important;}
 .stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{pointer-events:none !important;}   /* as P4's: a crossed pill is dead until it is un-crossed */
@@ -4290,6 +4314,14 @@ SL["T0"]["data"]["beat1_sfx"] = "sfx_story_cat.mp3"   # [story-cat] the user's s
 # said with the hand (the [vo-rec3] patch below); was the pages' own vo_g2_hint3 / vo_g3_hint3 (unspoken since [hand-quiet])
 for sid, mk in (("G1", "purn"), ("G2", "prashn"), ("G3", "alp")):
     SL[sid]["data"].update({"mark_audio": f"vo_recap_{mk}_name", "ok_audio": "vo_ok", "hint1_audio": "vo_build_hint1", "hint2_audio": "vo_build_hint2", "hint3_audio": "vo_build_hint3"})
+# [hint2-lit] (asked 2026-11-10: "when each sign's VO plays then that sign in the options should get highlighted with the exact same
+# orange shade and the pop highlight and hold animation of the options, synced with the VOs") hint 2 lights each sign's tile as it names
+# it — T2-T4's lit look (the module's signLights) — on the moments vo_rec.py read off the recording (cues.build_hint2_s: per mark its
+# name's sound onset and the onset of the next sign's part, where its light goes; the last one lit to the line's end)
+_h2s = VR["cues"]["build_hint2_s"]
+assert [s["mark"] for s in _h2s] == ["।", ",", "?"] and all(a["on"] < (a["off"] or 99) <= b["on"] for a, b in zip(_h2s, _h2s[1:])) and _h2s[-1]["off"] is None, _h2s
+assert all(sorted(o["mark"] for o in SL[sid]["data"]["options"]) == sorted(s["mark"] for s in _h2s) for sid in ("G1", "G2", "G3"))   # every sign named has its tile
+for sid in ("G1", "G2", "G3"): SL[sid]["data"]["hint2_signs"] = _h2s
 # [vo-rec3] the sentence picks' own hints (the deck's slides 16-18): hint 1 in the try_again slot, hint 2 a line of its own (the 2nd wrong
 # pill; was the three pills read out — the old deck's production note); P1 / P2 no longer share vo_pick_hint1
 SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint2": "vo_g4_hint2", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})

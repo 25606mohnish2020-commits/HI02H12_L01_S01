@@ -10,7 +10,8 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
    1 s (taps wait), then the kit's correct-select, the confetti and the happy Swiftie, and its own line with each word lit
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
    Reported: evidence_qa_first_try (first try), slide_completed success; P1 also one mastery attempt and hit.
-2. Three wrong pills, then the guided tap: each wrong tap wiggles the pill (no line of its own), Swiftie tries again, taps
+2. Three wrong pills, then the guided tap: each wrong tap wiggles the pill ONCE ([wiggle-1] 2026-11-10: the engine's wgNo alone, still from
+   0.45 s — the crossed class's buzzShake had shaken it a second time at 0.64 s) (no line of its own), Swiftie tries again, taps
    wait 1 s; then the 1st: the try-again line (the page's hint 1), the pill dead ("crossed") until it ends; the 2nd: [vo-rec3]
    the page's hint 2 line (audio.hint2: vo_g4_hint2 / vo_p1_hint2 / vo_p2_hint2), the pill dead until it ends, no pill read out
    (was: all three pills read in row order — the old deck's hint 2), taps ignored meanwhile; the 3rd: the reveal — two pills greyed and dead, the right one ringed, the 96px hand under it.
@@ -59,13 +60,18 @@ SAMPLE = r"""() => { window._tl = []; let last = ''; const step = () => {
   const k = JSON.stringify(r); if (k !== last) { last = k; r.ms = performance.now(); window._tl.push(r); }
   if (r.slide !== window._stopAt) requestAnimationFrame(step); }; requestAnimationFrame(step); }"""
 LABELS = "[...document.querySelectorAll('#slideHost .so-pill')].map(p => p.textContent.trim())"
+# [wiggle-1] every frame: each pill cell's sideways offset (the wiggles are translateX) and the CSS animations running on the cell itself
+WIG = r"""() => { window._wig = []; const step = () => { const cells = [...document.querySelectorAll('#slideHost .opt-cell')];
+  if (cells.length === 3) window._wig.push({ ms: performance.now(), tx: cells.map(c => +new DOMMatrix(getComputedStyle(c).transform).m41.toFixed(2)),
+    an: cells.map(c => c.getAnimations().map(a => a.animationName).filter(Boolean)) });
+  if (CARD.slides[state.idx].id !== window._stopAt) requestAnimationFrame(step); }; requestAnimationFrame(step); }"""
 
 MEDIA_TRACE = """(() => { window.__media = []; const P = HTMLMediaElement.prototype, op = P.play, oq = P.pause;   // [g4-giggle] every play / pause, with its clock and volume
   P.play = function(){ window.__media.push({ ev: 'play', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume, ct: this.currentTime }); return op.apply(this, arguments); };
   P.pause = function(){ window.__media.push({ ev: 'pause', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume }); return oq.apply(this, arguments); }; })()"""
 def run(pg):
     pg.add_init_script(MEDIA_TRACE); pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate(LEAVE)
-    pg.evaluate(f"window._stopAt = '{NEXT}'"); pg.evaluate(SAMPLE); pg.evaluate(f"mountSlide(CARD.slides.findIndex(s => s.id === '{PAGE}'))")
+    pg.evaluate(f"window._stopAt = '{NEXT}'"); pg.evaluate(SAMPLE); pg.evaluate(WIG); pg.evaluate(f"mountSlide(CARD.slides.findIndex(s => s.id === '{PAGE}'))")
     d = pg.evaluate(f"CARD.slides.find(s => s.id === '{PAGE}')")
     pg.wait_for_function(f"!isPlaying && currentAudio && currentAudio.src.includes('{d['audio']['prompt']}')", timeout=15000, polling=20); pg.wait_for_timeout(400)   # [vo-rec] the page's own instruction clip
     labels = pg.evaluate(LABELS)
@@ -206,6 +212,15 @@ with sync_playwright() as p:
     check("wrong tap 1: the pill wiggles and goes dead, Swiftie tries again, no line of its own",
           "wg-wrong" in tl[i_w1]["cls"][wr[0]] and "crossed" in tl[i_w1]["cls"][wr[0]] and "tryagain" in tl[i_w1 + 2]["mood"]
           and not any(s["clip"] in ("o1", "o2", "o3") and s["playing"] for s in tl[i_w1:i_w1 + 40]), (tl[i_w1]["cls"], tl[i_w1 + 2]["mood"]))
+    # [wiggle-1] (2026-11-10) each wrong tap wiggles the tapped pill ONCE: the engine's wgNo alone (the crossed class's old buzzShake had
+    # run again as .wg-wrong left at 640 ms), the pill moving only in the wiggle's 0.4 s and still from 0.45 s to 0.95 s (the line / the reveal at 1 s)
+    wig = pg.evaluate("window._wig")
+    def shakes(t0, k):
+        fr = [w for w in wig if t0 - 50 <= w["ms"] <= t0 + 950]
+        return sorted({n for w in fr for n in w["an"][k]}), [round(w["ms"] - t0) for w in fr if abs(w["tx"][k]) > 0.3], len(fr)
+    wg = [(n, k) + shakes(ms(first(lambda s, n=n: s["attempts"] == n)), k) for n, k in ((1, wr[0]), (2, wr[1]), (3, wr[0]))]
+    check("[wiggle-1] every wrong tap (the 1st, 2nd and 3rd) wiggles the tapped pill ONCE: only the engine's wgNo runs on it (no second shake: buzzShake never), it moves only within the first 0.45 s and is still from then to 0.95 s",
+          all(r[2] == ["wgNo"] and r[3] and max(r[3]) <= 450 and r[4] > 40 for r in wg), [(n, k, names, (min(mv), max(mv)) if mv else None, nf) for n, k, names, mv, nf in wg])
     i_try = first(lambda s: s["clip"] == "try" and s["playing"], i_w1); i_try_end = first(lambda s: s["clip"] == "try" and not s["playing"], i_try)
     i_unx = first(lambda s: not any("crossed" in c for c in s["cls"]), i_w1)
     check("...1 s later the try-again line; the pill is dead until it ends", 950 <= ms(i_try) - ms(i_w1) <= 1300 and abs(ms(i_unx) - ms(i_try_end)) <= 120,

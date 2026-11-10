@@ -1,6 +1,8 @@
 """The recorded voice-overs (2026-10-28, the user's `voiceovers/` folder, copied to vo_rec/) into the build. [vo-rec]
 
-usage: python -I -X utf8 vo_rec.py [<dist folder>] [--retranscribe] [--gain <dB>]
+usage: python -I -X utf8 vo_rec.py [<dist folder>] [--retranscribe] [--gain <dB>] [--cues-only]
+  --cues-only ([hint2-lit] 2026-11-10): everything below but step 2 — no clip is re-encoded or copied (the Ogg muxer's random
+  stream serial makes every re-encode a new file of the same sound), the words.json files and derived.json are written again.
   1. transcribes every wav with faster-whisper (small, Hindi, word timestamps; vo_rec/transcripts.json is the cache — delete it
      or pass --retranscribe to hear them again);
   2. re-containers every recording whose words are the page's into assets/Audio/<Audio ID>.ogg (Opus 48 kHz, like every clip
@@ -37,7 +39,12 @@ files 05:34): those are the takes copied as vo_stamp3_intro.wav / vo_stamp3_hint
 Heard: every file says its manifest line except two spoken-only lines that say "प्रश्न" for "सवाल" (vo_demo2_explain, vo_recap_prashn_when;
 heard so with and without the script as whisper's prompt) and two small ones (vo_g1_intro adds "और", vo_stamp1_hint3 drops "एक"):
 SPOKEN keeps what is said. T3's / T4's explanation cues (the "?" / "," tile lights) are read here now, by onset() on the LAST
-"प्रश्न…" / "अल्प…" word (whisper writes "प्रश्न वाचक" as two words in this take), instead of build.py's whisper start."""
+"प्रश्न…" / "अल्प…" word (whisper writes "प्रश्न वाचक" as two words in this take), instead of build.py's whisper start.
+
+[hint2-lit] (2026-11-10) G1-G3's hint 2 (vo_build_hint2: "वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर अल्प विराम और प्रश्न पूछने पर
+प्रश्नवाचक चिह्न लगाते हैं ।") lights each sign's tile as the line names it: cues.build_hint2_s = per mark the sound onset of its name
+("पूर्ण…", "अल्प…", "प्रश्नवा…") and of the next sign's part (the second "वाक्य", "और") where its light goes; the last one's off is null
+(the line's end). Run with --cues-only (no clip re-encoded)."""
 import sys, json, pathlib, subprocess, re, unicodedata, difflib, shutil, datetime
 import numpy as np, openpyxl
 
@@ -46,6 +53,7 @@ args = [a for a in sys.argv[1:] if not a.startswith("--")]
 DIST = pathlib.Path(args[0]).resolve() if args else SCR.parent / "HI02H12_L01_S01_dist"
 REC = SCR / "vo_rec"; AUD = DIST / "assets" / "Audio"
 GAIN = float(sys.argv[sys.argv.index("--gain") + 1]) if "--gain" in sys.argv else 0.0
+CUES_ONLY = "--cues-only" in sys.argv   # [hint2-lit] derive, do not re-encode (the clips in the dist are the last full run's)
 
 # ---- 1. what was said ----
 wb = openpyxl.load_workbook(DIST / "HI02H12_L01_S01_VO_Manifest.xlsx", data_only=True)
@@ -224,6 +232,9 @@ def owners(vid):
     return [d for d in sorted(SCR.glob("*_assets")) if (d / f"{vid}.ogg").exists() or (d / f"{vid}.tts.ogg").exists()]
 
 def encode(src_wav, dst_ogg, ss=None, to=None):
+    if CUES_ONLY:   # [hint2-lit] the clip is the last full run's: it must be there
+        assert dst_ogg.exists(), f"--cues-only: {dst_ogg.name} is not in the dist — run vo_rec.py without it"
+        return
     cmd = ["ffmpeg", "-v", "error", "-y"]
     if ss is not None: cmd += ["-ss", f"{ss:.3f}"]
     if to is not None: cmd += ["-to", f"{to:.3f}"]
@@ -371,6 +382,15 @@ if "vo_stamp_intro" in applied:
 for _cid, _f, _pre in (("demo2_explain_s", "vo_demo2_explain", "प्रश्न"), ("demo3_explain_s", "vo_demo3_explain", "अल्प")):
     if _f in applied:
         o, w = onset(f"{_f}.wav", _pre, last=True); onsets[_f] = {"word": _pre, "last": True, "whisper": w, "onset": o}; cues[_cid] = o
+# [hint2-lit] G1-G3's hint 2 names the three signs in turn: each sign's tile lights at its name's sound onset and goes plain at the
+# onset of the next sign's part — "वाक्य पूरा होने पर [पूर्णविराम], | वाक्य में रुकने पर [अल्प विराम], | और प्रश्न पूछने पर [प्रश्नवाचक] चिह्न
+# लगाते हैं ।" — the last one lit to the line's end (off null)
+if "vo_build_hint2" in applied:
+    def _h2(pre, last=False):
+        o, w = onset("vo_build_hint2.wav", pre, last=last); onsets[f"vo_build_hint2:{pre}"] = {"word": pre, "last": last, "whisper": w, "onset": o}; return o
+    cues["build_hint2_s"] = [{"mark": "।", "on": _h2("पूर्ण"), "off": _h2("वाक्य", last=True)},
+                             {"mark": ",", "on": _h2("अल्प"), "off": _h2("और")},
+                             {"mark": "?", "on": _h2("प्रश्नवा"), "off": None}]
 cel_bits = {"vo": "vo_well_done", "step_ms": 25, "bits": beak_bits(AUD / "vo_well_done.ogg"), "clip_s": applied["vo_well_done"]["dur"],
             "method": "dun_assets/cel_bits.json's detector on the recording (RMS per 25 ms, open above 0.5 x the local max over +-12 frames and within 18 dB of the peak)"} if "vo_well_done" in applied else None
 derived = {"applied": applied, "texts": texts, "explain": explain_lines, "skipped": skipped, "kept_first": KEPT_FIRST, "snapped": lead_fixed, "gate_cue_ms": gate_cue, "cues": cues, "onsets": onsets, "cel_bits": cel_bits,

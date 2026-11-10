@@ -20,7 +20,8 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    the frame it pops in, no explanation / lit tile / pulse; the taps made in the page: the chip during the intro and a tile during
    the sentence's clip (ignored), a wrong tile 0.3 s after all three are live (the wiggle wgNo + the kit's wrong buzz in that frame,
    hint 1 vo_build_hint1 0.5 s after), the right tile 0.2 s after that (ignored: [tap-lock], the buzz sounds), the chip after hint
-   1 (the instruction line again — never the sentence: [g1-quiet]), the other wrong tile after it (the wiggle, the buzz, hint 2 vo_build_hint2), the right tile
+   1 (the instruction line again — never the sentence: [g1-quiet]), the other wrong tile after it (the wiggle, the buzz, hint 2 vo_build_hint2 —
+   [hint2-lit] 2026-11-10: as it names each sign that sign's tile lights in T2-T4's lit look, one at a time, on data.hint2_signs), the right tile
    after hint 2 (the press dmfTap with its colours kept, the mark in the slot in that frame, the correct sound, the confetti and its
    sound, "शाबाश!" vo_ok at once, G2 1 s after it; the slot's box stays). A second run: three wrong taps -> the pointing hand under
    the right tile, the other two dead and dim, [vo-rec3] hint 3's line vo_build_hint3 with it, a dead tile's tap nothing, the guided tap: the press, the mark, the confetti, no line,
@@ -43,7 +44,8 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    giving her small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and
    after ([t2-quiet] 2026-11-02: T2 no longer — it takes T3's path below; [t4-basket] T4's girl looks into her basket from the first
    tile's pop, every 7 s: the data, her layers, the lift / the forearm in lockstep / the dip / the eyes, smoothness, the period, the rest at the tap); T3 ([t3-girl]): no school sound and no pop at all, the girl still (opacity 1, transform none) in every frame; 0.3 s after
-   the sound (T3: after the sentence's clip) the slot blinks (data.blink_ms = 7 s in data.blink_cycle_ms = 1.75 s cycles, [t2-scene5]: the WHOLE box, in its
+   the sound (T3: after the sentence's clip) the slot blinks (data.blink_ms = 7 s in data.blink_cycle_ms = 1.75 s cycles — [blink-2] 2026-11-10: on
+   T2-T4 3.5 s, two cycles; the picks keep the four — [t2-scene5]: the WHOLE box, in its
    orange look — the ring the words' orange, the fill the slot's own colour warmed by the orange (#FAE1CC on T2's white, #FAD692 on
    T3's yellow), the glow the pulsing tile's rgba(232,106,0,.6) 5px in every frame from 0.45 s in to the end — APPEARS and
    DISAPPEARS: its opacity 1 -> 0 -> 1 each cycle, four unseen troughs 1.75 s apart, no frame-to-frame jump over .12, fully seen
@@ -208,7 +210,9 @@ SAMPLE = r"""() => { const a = currentAudio, src = a ? a.src.split('/').pop() : 
     eIris: [...qa('.dsc-eiris')].map(e => getComputedStyle(e).transform), growEnded: _kitSfx.sceneGrow ? _kitSfx.sceneGrow.ended : null,
     tTf: [...qa('.dsc-tile')].map(t => getComputedStyle(t).transform), tAn: [...qa('.dsc-tile')].map(t => getComputedStyle(t).animationName),
     faceGlow: lit >= 0 ? getComputedStyle(qa('.dsc-tile')[lit].querySelector('.dsc-face')).boxShadow : null,
-    tilesIn: qa('.dsc-tile.in').length, lit, off: qa('.dsc-tile.off').length, pulse: !!q('.dsc-tile.pulse'), live: !!q('.dsc-tile.live'), done: !!q('.dsc-tile.done'),
+    tilesIn: qa('.dsc-tile.in').length, lit, litN: qa('.dsc-tile.lit').length,
+    litLook: lit >= 0 ? (() => { const t = qa('.dsc-tile')[lit], f = getComputedStyle(t.querySelector('.dsc-face')), y = getComputedStyle(t.querySelector('.dsc-sym')); return [f.borderTopColor, f.borderTopWidth, f.boxShadow, y.color, y.animationName, y.transform]; })() : null,   /* [hint2-lit] */
+    off: qa('.dsc-tile.off').length, pulse: !!q('.dsc-tile.pulse'), live: !!q('.dsc-tile.live'), done: !!q('.dsc-tile.done'),
     liveN: qa('.dsc-tile.live').length, wig: [...qa('.dsc-tile')].map(t => t.classList.contains('wiggle')), on: !!q('.dsc-tile.on'), att: state.attempts, hand: !!q('.slide-stage .reveal-hand.dmf-hand'), conf: !!q('.fx-confetti'), demo: !!state.demoRunning,
     nav: getComputedStyle(document.getElementById('navBtn')).display }; }""".replace("PREFIX", C["prefix"]).replace("NAMES", json.dumps(NAMES))
 # the timeline sampled in the page every frame; the taps made in the page at their moments: the chip 1 s into the first clip (ignored),
@@ -292,7 +296,7 @@ with sync_playwright() as p:
               and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"] and d.get("bubble_id") == C["bubble"] and d.get("box_sfx") == C["box_sfx"] and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"]
               and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and d["explain"]["audio"] == C["explain_clip"]
               and d["explain"]["text_hi"].split()[d["explain"]["cue_word"]] == C["cue"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
-              and ((d.get("pic_sfx_ms"), d.get("pic_sfx"), d.get("girl_pop", True)) == ((2000, "sfx_demo1_school.mp3", True) if C["beat"] else (None, None, False))) and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,
+              and ((d.get("pic_sfx_ms"), d.get("pic_sfx"), d.get("girl_pop", True)) == ((2000, "sfx_demo1_school.mp3", True) if C["beat"] else (None, None, False))) and d["blink_ms"] == 3500 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,   # [blink-2] (2026-11-10) T2-T4 blink 3.5 s = two fades (was 7000 = four); the picks keep 7 s
               {k: d.get(k) for k in ("intro_audio", "open_ms", "bg_id", "image_id", "bubble_id", "box_sfx", "slot_w", "slot_h", "mark", "pic_sfx_ms", "blink_ms", "blink_cycle_ms", "tiles_gap_ms")})
     if C.get("nslots"):   # [t4-scene]
         check(f"[t4-scene] the page's data: {C['nslots']} slots ({C['slot'][0]}x{C['slot'][1]}), the marks {C['stagger']} ms apart, the gaps after \"आम\" and \"केला\" (words 2, 3)",
@@ -443,7 +447,7 @@ with sync_playwright() as p:
     look_bl = [s_ for s_ in samples[i_bl:i_ble] if s_["ms"] - ms(i_bl) >= 450]   # the look eases in over the slot's .25 / .4 s transitions
     ON = ("rgb(232, 106, 0)", C["blink_fill"], "rgba(232, 106, 0, 0.6) 0px 0px 0px 5px")
     check(f"[t2-scene5] the WHOLE box fades as one in its orange look: from 0.45 s into the blink to its end every frame has the ring the words' orange, the fill {C['blink_fill']} and the glow the pulsing tile's rgba(232,106,0,.6) 5px (the opacity alone moving)",
-          len(look_bl) > 200 and all((s_["ringStroke"], s_["slotBg"], s_["glow"]) == ON for s_ in look_bl), (len(look_bl), sorted({(s_["ringStroke"], s_["slotBg"], s_["glow"]) for s_ in look_bl})[:3]))
+          len(look_bl) > 50 * (d["blink_ms"] - 450) / 1000 and all((s_["ringStroke"], s_["slotBg"], s_["glow"]) == ON for s_ in look_bl), (len(look_bl), sorted({(s_["ringStroke"], s_["slotBg"], s_["glow"]) for s_ in look_bl})[:3]))   # [blink-2] the frames' floor is the window's at 50 fps (was > 200: the 7 s blink's; T2-T4's 3.5 s has ~183 at 60 fps)
     tail = [s_ for s_ in samples[i_ble:] if s_["ms"] - ms(i_ble) <= 700]
     check("[t2-scene5] the slot's pop-in (sfigBoxIn) does not run again when the blink ends: opacity 1 and the identity transform through the 0.7 s after (before: opacity 0 and scale .9 -> 1 over 0.5 s)",
           all(s_["slotOp"] >= 0.99 and s_["slotTf"] in IDENT for s_ in tail), [(round(s_["ms"] - ms(i_ble)), s_["slotOp"], s_["slotTf"]) for s_ in tail if not (s_["slotOp"] >= 0.99 and s_["slotTf"] in IDENT)][:5])
@@ -491,9 +495,11 @@ with sync_playwright() as p:
         W1, W2 = C["wrong"]; H1, H2 = [h[3:] for h in C["hints"]]; OKC = C["ok_clip"][3:]
         starts = lambda c: sum(1 for i, s in enumerate(samples) if s["clip"] == c and s["playing"] and (i == 0 or not (samples[i - 1]["clip"] == c and samples[i - 1]["playing"])))
         i_live = first(lambda s: s["liveN"] >= 1); i_on = first(lambda s: s["on"], i_live); before = samples[:i_on]
-        check("[g1-scene] each tile is the child's from the frame it pops in (.live with its pop: 1, 2, 3 live; the page's drive off from the first), all three live until the answer; no tile lit, pulsing or dim and no hand before it; the blink runs its full 7 s regardless",
+        h2_fr = [i for i, s in enumerate(samples) if s["clip"] == H2 and s["playing"]]
+        in_h2 = set(range(h2_fr[0], h2_fr[-1] + 4)) if h2_fr else set()   # [hint2-lit] hint 2's frames and the 3 after (its light leaves with the clip)
+        check("[g1-scene] each tile is the child's from the frame it pops in (.live with its pop: 1, 2, 3 live; the page's drive off from the first), all three live until the answer; no tile lit (but by hint 2's sign lights, [hint2-lit]), pulsing or dim and no hand before it; the blink runs its full 7 s regardless",
               all(samples[i]["liveN"] == k + 1 for k, i in enumerate(i_tk)) and i_live == i_t1 and not samples[i_live]["demo"] and samples[i_live - 1]["demo"]
-              and not any(s["lit"] >= 0 or s["pulse"] or s["off"] or s["hand"] for s in before) and all(s["liveN"] == 3 for s in samples[i_tk[2]:i_on]) and i_ble < i_on and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120,
+              and not any((s["lit"] >= 0 and i not in in_h2) or s["pulse"] or s["off"] or s["hand"] for i, s in enumerate(before)) and all(s["liveN"] == 3 for s in samples[i_tk[2]:i_on]) and i_ble < i_on and abs(ms(i_ble) - ms(i_bl) - d["blink_ms"]) <= 120,
               ([samples[i]["liveN"] for i in i_tk], samples[i_live - 1]["demo"], round(ms(i_ble) - ms(i_bl))))
         intro_before = sum(1 for i, s in enumerate(samples[:i_live]) if s["clip"] == "intro" and s["playing"] and (i == 0 or not (samples[i - 1]["clip"] == "intro" and samples[i - 1]["playing"])))
         check("the early tap (a tile 0.5 s into the sentence's clip) and 🔊 during the intro line were ignored: no wiggle and no attempt before the tiles are live, the intro line once before they are (the chip says it again later: [g1-quiet])",
@@ -514,6 +520,29 @@ with sync_playwright() as p:
         i_w2 = first(lambda s: s["wig"][W2], i_rre); i_h2 = start_of(H2, i_w2); i_h2e = end_of(H2, i_h2)
         check(f"[g1-scene] the second wrong tap (tile {W2 + 1}): the wiggle, the buzz in its frame, attempt 2, hint 2 ({C['hints'][1]}) 0.5 s after; no hand (that is the third tap's)",
               "wrong2" in taps and samples[i_w2 + 1]["att"] == 2 and len(buzz) == 2 and abs(buzz[1]["ms"] - ms(i_w2)) <= 50 and 400 <= ms(i_h2) - ms(i_w2) <= 800 and not any(s["hand"] for s in samples), (round(ms(i_h2) - ms(i_w2)), len(buzz)))
+        # [hint2-lit] (2026-11-10) hint 2 lights each sign's tile as it names it, one at a time, on data.hint2_signs (the clip's own clock):
+        # every frame of the line has the tile whose [on, off) holds its clip time lit (+-0.1 s at a boundary), never two; each tile first
+        # lit within -0.06/+0.12 s of its on and plain again within that of its off (the last to the line's end); plain after the line
+        SG = d.get("hint2_signs") or []; kof = {o["mark"]: k for k, o in enumerate(d["options"])}
+        want = lambda t: next((kof[g["mark"]] for g in SG if g["on"] <= t and (g["off"] is None or t < g["off"])), -1)
+        h2s = [s for s in samples[i_h2:i_h2e] if s["clip"] == H2 and s["playing"] and s["t"] is not None]
+        badl = [(round(s["t"], 2), s["lit"], s["litN"]) for s in h2s if s["litN"] > 1 or s["lit"] not in {want(s["t"] - 0.1), want(s["t"]), want(s["t"] + 0.1)}]
+        on_t = {k: next((s["t"] for s in h2s if s["lit"] == k), None) for k in range(3)}
+        off_t = {k: next((s["t"] for j, s in enumerate(h2s) if j and h2s[j - 1]["lit"] == k and s["lit"] != k), None) for k in range(3)}
+        after_h2 = samples[i_h2e + 3:i_on]   # after the line (its light leaves with the clip) to the right tap
+        dt = lambda v, w: round(v - w, 3) if v is not None else None
+        check(f"[hint2-lit] hint 2 ({C['hints'][1]}) lights each sign's tile as it names it — (mark, on, off) {[(g['mark'], g['on'], g['off']) for g in SG]} s on its clock: one tile at a time in every frame of the line, each first lit within -0.06/+0.12 s of its name's onset and plain again within that of its part's end (the \"?\" to the line's end), never two; no tile lit after the line",
+              len(SG) == 3 and [g["mark"] for g in SG] == ["।", ",", "?"] and len(h2s) > 400 and not badl
+              and all(on_t[kof[g["mark"]]] is not None and -0.06 <= on_t[kof[g["mark"]]] - g["on"] <= 0.12 for g in SG)
+              and all(g["off"] is None or (off_t[kof[g["mark"]]] is not None and -0.06 <= off_t[kof[g["mark"]]] - g["off"] <= 0.12) for g in SG)
+              and off_t[kof["?"]] is None and len(after_h2) > 10 and all(s["lit"] < 0 and s["litN"] == 0 for s in after_h2),
+              ({g["mark"]: (dt(on_t[kof[g["mark"]]], g["on"]), dt(off_t[kof[g["mark"]]], g["off"] or 0) if g["off"] else off_t[kof[g["mark"]]]) for g in SG}, badl[:5], len(h2s), len(after_h2)))
+        LITL = ["rgb(232, 106, 0)", "3px", "rgba(232, 106, 0, 0.45) 0px 0px 0px 5px", "rgb(232, 106, 0)", "p2WordPop"]   # T2-T4's .lit: the face's border + glow, the mark's orange and pop
+        lkh = {k: [s["litLook"] for s in h2s if s["lit"] == k and on_t[k] is not None and s["t"] - on_t[k] >= 0.35] for k in range(3)}
+        pkh = {k: max((scale_of(s["litLook"][5]) for s in h2s if s["lit"] == k and on_t[k] is not None and s["t"] - on_t[k] <= 0.3), default=1.0) for k in range(3)}
+        check("[hint2-lit] ... in T2-T4's lit look (\"the exact same orange\"): the mark the words' orange #E86A00 with its pop (p2WordPop: past 1.07 of its size in its first 0.3 s), the face's 3px #E86A00 border and its glow rgba(232,106,0,.45) 5px, all held while it is lit",
+              all(lkh[k] and all(x[:5] == LITL for x in lkh[k]) and pkh[k] >= 1.07 for k in range(3)),
+              {k: (len(lkh[k]), sorted({tuple(x[:5]) for x in lkh[k]})[:2], round(pkh[k], 3)) for k in range(3)})
         i_w2e = first(lambda s: not s["wig"][W2], i_w2)
         still = [(k, round(ms(j) - ms(e)), samples[j]["tTf"][k]) for k, e in ((W1, i_w1e), (W2, i_w2e)) for j in range(e, len(samples)) if ms(j) - ms(e) <= 1000 and j < i_on and samples[j]["tTf"][k] not in IDENT]
         check("[g1-quiet] a wrong tile's pop-in (dscTileIn) does NOT run again as its wiggle ends: both wiggled tiles at their size (the identity transform) through the second after the wiggle's class has left; the sentence's clip sounded ONCE on the page (the intro line twice: the page's and the chip's), every word's light only during that one reading",

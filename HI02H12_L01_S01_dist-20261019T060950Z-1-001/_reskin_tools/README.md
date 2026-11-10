@@ -3018,6 +3018,48 @@ The third recorded VO batch in its places ([vo-rec3], 2026-11-10)
 - `../_before_vo_rec3/` holds the dist's three files, every tool script + README (tools/), every *_assets/*.words.json (words/), every
   *_assets/*.ogg (assets_ogg/), the dist's vo_*.ogg (Audio/) and the second batch's vo_rec/ (wavs, transcripts, derived).
 
+T2-T4's blink twice, G1-G3's hint 2 lighting the signs, one wiggle on G4 / P1 / P2 ([blink-2], [hint2-lit], [wiggle-1], 2026-11-10)
+- Asked: "1. At Pages 6 T2, 7 T3 and 8 T4 ... reduce the duration of the empty blank box blinking animation in the sentence to only 2
+  time appear and disappear and after this no more appearing and disappearing animation of the blank box and then the VO should continue
+  with the exact same flow. 2. At Pages 9 G1, 10 G2 and 11 G3 ... when the user attempts the wrong option for the second time then the
+  VO about every sign comes but when each sign's VO plays then that sign in the options should get highlighted with the exact same
+  orange shade and the pop highlight and hold animation of the options synced with the VOs for each option when its VO plays. 3. At
+  Pages 12 G4, 13 P1 and 14 P2 when the user attempts any wrong option then the wiggle animation of that option should come only once
+  instead of two time ... Rest keep everything exactly the same."
+- [blink-2] T2 / T3 / T4: data.blink_ms 7000 -> 3500 with the same slow 1.75 s cycle (blink_cycle_ms) = TWO fades of the whole box
+  (gone, back, gone, back: the module rounds blink_ms / cycle), then the box stays seen in its plain look; the explanation follows 0.3 s
+  after the blink as before (stage 5, unchanged), so on these pages it now starts 3.5 s earlier; the tiles' pops (as the blink starts),
+  T3's glance and T4's basket look (from the first tile, every 7 s) are untouched. G1-G3 keep their 7 s blink (not asked).
+- [hint2-lit] G1 / G2 / G3: the 2nd wrong tap's hint 2 (vo_build_hint2, "वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर अल्प विराम और
+  प्रश्न पूछने पर प्रश्नवाचक चिह्न लगाते हैं ।") lights each sign's tile as it names it, in T2-T4's lit look — the tile's .lit: the mark the
+  words' orange #E86A00 with its p2WordPop pop, the face's 3px #E86A00 border and its glow rgba(232,106,0,.45) 5px, eased in / out by
+  the face's own .25 s transitions — and holds it until the line goes on to the next sign's part; one tile at a time:
+  "।" from "पूर्णविराम" (2.075 s on the clip) to the second "वाक्य" (3.345), "," from "अल्प" (4.82) to "और" (6.11), "?" from "प्रश्नवाचक"
+  (7.65) to the line's end (9.64). The moments are the words' SOUND onsets (vo_rec.py onset(); whisper's starts 1.92 / 3.12 / 4.66 /
+  5.82 / 7.42 sit in the breath before each word — checked on the waveform: each onset is the voice's first loud window), kept in
+  derived.json cues.build_hint2_s and put on the three pages as data.hint2_signs by build.py. The module (PUNCT_SCENE's pick, signLights)
+  reads the clip's own clock every frame (+40 ms, as cueOn), so a line that ends, stops or is replaced takes its light with it; the
+  right tap also drops any light. Hint 1, hint 3 (+ the hand), the taps' hold while a line speaks ([tap-lock]) are as before.
+  Read as: highlighted while its part of the line is spoken from its name on (the T2-T4 explanation lights its tile AT the mark's
+  name, the precedent the user asked to match); one at a time, so the "।" is not still lit while the line explains the comma.
+- [wiggle-1] G4 / P1 / P2 (SENT_PICK): a wrong pill shook TWICE, measured (scratchpad wig_probe.py, every frame): the engine's
+  wgNo (.wg-wrong, 0.4 s, with the buzz) and then — when .wg-wrong left at 640 ms — the engine's older buzzShake .4s on the "crossed"
+  class the pill wears until its line ends (.wg-wrong's animation is !important; once it left, crossed's took over). The sentence
+  picks' crossed pill no longer animates (style.css: `.stage.sent-page .opt-grid.sent-opts .opt-cell.crossed{animation:none}`), so
+  the one wiggle is wgNo, in the tap's frame with the buzz, on every wrong tap (1st, 2nd and 3rd). CSS only.
+- vo_rec.py --cues-only (new): every step but the re-encode, so the cue could be derived without making all 89 clips new files (the
+  Ogg muxer's random stream serial); checked: every clip and words.json byte-identical after it, derived.json differing only in the new
+  cue and its onsets.
+- Built: index.html (T2-T4 blink_ms 3500; G1-G3 data.hint2_signs), app.js (signLights + its call on hint 2, "lit" dropped at the right
+  tap; comments), style.css (the [wiggle-1] rule; a comment). Nothing else differs (diffed against ../_before_blink2/).
+- Checks updated: scene_check (T2-T4: blink_ms 3500 — its fades / troughs / look checks follow the data; the look check's frame floor is
+  the window's at 50 fps instead of the 7 s blink's 200; G1-G3: no tile lit before the answer EXCEPT hint 2's lights, and two new checks
+  — every frame of hint 2 has the right tile lit, one at a time, each on / off within -0.06/+0.12 s of its cue, none after the line; and
+  the lit look and the pop); g4_check (every wrong tap: wgNo alone on the tapped pill, moving only in its first 0.45 s, still to 0.95 s).
+- Checked: RESULTS
+- `../_before_blink2/` holds the dist's three files, build.py, vo_rec.py, scene_check.py, g4_check.py, README.md (tools/) and
+  vo_rec/derived.json.
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

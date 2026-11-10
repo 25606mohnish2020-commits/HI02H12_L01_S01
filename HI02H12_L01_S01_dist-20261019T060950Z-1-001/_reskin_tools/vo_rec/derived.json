@@ -3080,7 +3080,24 @@
   "stamp_thappa_ms": 3810,
   "stamp_intro_ms": 4880,
   "demo2_explain_s": 3.645,
-  "demo3_explain_s": 7.105
+  "demo3_explain_s": 7.105,
+  "build_hint2_s": [
+   {
+    "mark": "।",
+    "on": 2.075,
+    "off": 3.345
+   },
+   {
+    "mark": ",",
+    "on": 4.82,
+    "off": 6.11
+   },
+   {
+    "mark": "?",
+    "on": 7.65,
+    "off": null
+   }
+  ]
  },
  "onsets": {
   "vo_story_r1:पहल": {
@@ -3134,6 +3151,36 @@
    "last": true,
    "whisper": 7.14,
    "onset": 7.105
+  },
+  "vo_build_hint2:पूर्ण": {
+   "word": "पूर्ण",
+   "last": false,
+   "whisper": 1.92,
+   "onset": 2.075
+  },
+  "vo_build_hint2:वाक्य": {
+   "word": "वाक्य",
+   "last": true,
+   "whisper": 3.12,
+   "onset": 3.345
+  },
+  "vo_build_hint2:अल्प": {
+   "word": "अल्प",
+   "last": false,
+   "whisper": 4.66,
+   "onset": 4.82
+  },
+  "vo_build_hint2:और": {
+   "word": "और",
+   "last": false,
+   "whisper": 5.82,
+   "onset": 6.11
+  },
+  "vo_build_hint2:प्रश्नवा": {
+   "word": "प्रश्नवा",
+   "last": false,
+   "whisper": 7.42,
+   "onset": 7.65
   }
  },
  "cel_bits": {
