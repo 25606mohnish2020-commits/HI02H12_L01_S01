@@ -3563,9 +3563,10 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 /* [stamp-rounds] a sign-off (data.sign): small centred lines under the sentence, arriving as a word does */
 .stp-sign{white-space:nowrap;text-align:center;font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;margin:0;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sign.on{opacity:1;transform:none;}
-/* the empty box: 90x90 #FD9337, 17 px corners, the 2 px dashed stroke inside it (an SVG rect carrying the frame's runs); it blinks
-   blink_ms (three times: there, gone, there); .gone = the box goes, the mark stays */
-.stp-slot{background:#FD9337;border-radius:17px;opacity:0;transition:opacity .3s,background-color .4s;}
+/* the empty box: #FD9337, the 2 px dashed stroke inside it (an SVG rect carrying the frame's runs); it blinks
+   blink_ms (three times: there, gone, there); .gone = the box goes, the mark stays. [stamp-box] (2026-11-10) 60x60 with 11 px corners
+   (were the frames' 90x90 and 17 px: layout.box_r, data.rounds' boxes) */
+.stp-slot{background:#FD9337;border-radius:11px;opacity:0;transition:opacity .3s,background-color .4s;}
 .stp-slot.in{opacity:1;}
 .stp-slot.blink{animation:stpBoxBlink 1s ease-in-out 3;}
 @keyframes stpBoxBlink{0%,100%{opacity:1;}50%{opacity:0;}}

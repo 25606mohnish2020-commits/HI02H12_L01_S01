@@ -3064,6 +3064,35 @@ T2-T4's blink twice, G1-G3's hint 2 lighting the signs, one wiggle on G4 / P1 / 
 - `../_before_blink2/` holds the dist's three files, build.py, vo_rec.py, scene_check.py, g4_check.py, README.md (tools/) and
   vo_rec/derived.json.
 
+L2's stamp thud 40 % softer, its empty boxes smaller ([stamp-box], 2026-11-10)
+- Asked: "In this file at page 16 L2 make the following changes: 1. Reduce the stamp thumping sound by 40%. 2. Reduce the size of the
+  rounded square orange empty box in all the sentences of page 16 L2 such that when the correct stamp is placed there and when the empty
+  orange box disappears then the space between the sentence and the correct symbol filled may get reduced by little bit and there must
+  not be that much gap between the sentence and the correct symbol. ... Rest keep everything exactly the same in this file."
+- The thud (sfx_stamp_press, the press of a right drop) plays at data.pace.thud_vol .54 — 40 % below the .9 it played at (the module
+  reads pace.thud_vol, .9 without it). The file is untouched.
+- Every box (all five rounds, nine boxes) is 60x60 with 11 px corners (were the frames' 90x90, 17 px — the corners scaled 60/90); its
+  2 px dashes drawn as the frames draw theirs, one 13 px dash a side between the corner-wrapping ones (layout.box_dash from build.py's
+  _dash8; the 90 box had two). Each box keeps its frame's LEFT EDGE (its gap after the word before it: 4-14 px, as drawn) and its
+  vertical centre, so the printed mark — still on the box's centre and its row's baseline — lands 15 px nearer the word: the gap from
+  the word's ink to the mark's ink is now 23-39 px (was 38-54). The two boxes BETWEEN words (868:31's "खिलौने [ ] पेन", 868:74's
+  "आम [ ] केले") also have their room in the row 30 px narrower (sent.gap 90 -> 60, 97 -> 67), so the word after the comma comes 15 px
+  nearer too: those rows re-centre (each end 15 px in), the box moves 15 px right with them, its gaps to both words kept (4 / 3 px,
+  7 / 6 px). Drops are judged as before (the stamp's centre within 60 px of the box's centre); the stamp presses on the box's centre.
+- Measured (scratchpad measure_gaps.py: each round mounted first, its sentence alone, ink columns over the row's line box): word ->
+  box gaps identical to the old build's to 0.01 px; word -> mark 44.9 -> 29.9 (868:17 "हैं ?"), 43.1 -> 28.0 (868:31 ","), 52.5 -> 37.5
+  (868:44 "।"), 37.9 / 39.0 -> 22.9 / 24.0 (868:59), 46.5 / 47.4 / 51.4 / 54.5 -> 31.5 / 32.4 / 36.4 / 39.5 (868:74).
+- Built: index.html (L2's data only: the boxes, the two gaps, box_r, box_dash, pace.thud_vol — no other slide differs), app.js (the
+  thud line), style.css (.stp-slot's border-radius + its comment). Nothing else differs (diffed against ../_before_stamp_box/).
+- stamp_check.py updated: boxes 60x60 at the frames' left edges / vertical centres (+15 px for the two between words, their rooms
+  60 / 67), box_r 11, the dash runs, pace.thud_vol .54 and EVERY thud played at .54; the render comparisons mask the frames' 90 boxes,
+  judge each box as drawn (its fill, its dashes, no orange beyond its 60 px) and expect the two re-centred rows 15 px in at each end;
+  the mark ink crops are the box's own size.
+- Checked (one at a time, on the built dist): stamp_check 113/113 (every thud played at .54; each box drawn 60x60 at its place; the
+  marks across the boxes' centres on their rows' baselines; the rows against the renders), smoke 53/53, gate_check 14/14.
+- `../_before_stamp_box/` holds the dist's three files and build.py, stamp_check.py, stamp_close_check.py, smoke.py, gate_check.py,
+  README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

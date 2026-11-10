@@ -7754,7 +7754,7 @@ const SlideModules = {
         if(last && idleIv){ clearInterval(idleIv); idleIv = null; }
         move(stamp, o.HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
         at(P.snap, ()=> move(stamp, o.PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
-        at(P.thud_at, ()=> sound(thud, 0.9));
+        at(P.thud_at, ()=> sound(thud, P.thud_vol != null ? P.thud_vol : 0.9));   // [stamp-box] pace.thud_vol (.54: 40 % below the .9 it was)
         at(P.mark_at, ()=>{ centreInk(o.mark, o); o.mark.classList.add("in"); });
         at(P.lift_at, ()=> move(stamp, o.HOVER, 180, "cubic-bezier(0,0,.3,1)"));
         at(P.back_at, ()=> putBack(stamp, P.back_home));

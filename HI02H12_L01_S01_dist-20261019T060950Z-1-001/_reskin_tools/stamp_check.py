@@ -97,7 +97,9 @@ def ink(img1280, x0, y0, x1, y1, thr=200):
 def rows_of(img1280, boxes, y_lim=520):
     """each text row's ink (y0, y1, the densest row = its headline, x0, x1) on a 1280x720 shot, the boxes masked out"""
     a = np.asarray(img1280).astype(int); m = a.sum(axis=2) < 200; m[y_lim:, :] = False
-    for (bx, by) in boxes: m[max(0, by - 2):by + 92, max(0, bx - 2):bx + 92] = False
+    for b_ in boxes:   # (x, y) = a 90 box; [stamp-box] (x, y, w, h) any box
+        bx, by, bw, bh = (list(b_) + [90, 90])[:4] if len(b_) == 2 else b_; bx, by = int(bx), int(by)
+        m[max(0, by - 2):by + int(bh) + 2, max(0, bx - 2):bx + int(bw) + 2] = False
     ys = np.nonzero(m.any(axis=1))[0]
     if not len(ys): return []
     groups = []; s0 = p0 = ys[0]
@@ -109,6 +111,23 @@ def rows_of(img1280, boxes, y_lim=520):
         xs = np.nonzero(m[y0:y1 + 1].any(axis=0))[0]; dens = m[y0:y1 + 1].sum(axis=1)
         res.append((int(y0), int(y1), int(y0 + np.argmax(dens)), int(xs.min()), int(xs.max())))
     return res
+# [stamp-box] (2026-11-10) the boxes are BOX square (were the frames' 90): each keeps its frame's left edge and vertical centre; a box between
+# two words (mid) has its room in the row 90 - BOX narrower and moves with its re-centred row by half that. FIG = the frames' 90 boxes
+# (x, y, mid) per round, as drawn in 868:17 / 31 / 44 / 59 / 74.
+BOX = 60; BOXD = 90 - BOX
+FIG = [[(859, 226, False)], [(439, 293, True)], [(836, 232, False)], [(902, 193, False), (731, 266, False)],
+       [(596, 45, True), (886, 135, False), (879, 248, False), (699, 422, False)]]
+def box_drawn(img1280, x, y, w, h):
+    """[stamp-box] a box as the page draws it, on a 1280x720 shot: its fill (the inside, 6 px in, #FD9337 within 14 per channel), its
+    dashed stroke (the share of dark pixels along the line 1 px inside its edge: 0.6..0.92 — dashes and gaps, as both boxes draw them)
+    and nothing orange beyond it (the ring 3..5 px outside it not orange: the box no bigger than w x h)"""
+    a = np.asarray(img1280).astype(int); x, y, w, h = int(round(x)), int(round(y)), int(round(w)), int(round(h))
+    fill = a[y + 6:y + h - 6, x + 6:x + w - 6].reshape(-1, 3).mean(axis=0); fill_ok = bool(np.all(np.abs(fill - [253, 147, 55]) < 14))
+    edge = np.concatenate([a[y + 1, x + 1:x + w - 1], a[y + h - 2, x + 1:x + w - 1], a[y + 1:y + h - 1, x + 1], a[y + 1:y + h - 1, x + w - 2]])
+    dark = float((edge.sum(axis=1) < 300).mean())
+    ring = np.concatenate([a[y - 5:y - 2, x:x + w].reshape(-1, 3), a[y + h + 2:y + h + 5, x:x + w].reshape(-1, 3), a[y:y + h, x - 5:x - 2].reshape(-1, 3), a[y:y + h, x + w + 2:x + w + 5].reshape(-1, 3)])
+    orange = float(((np.abs(ring - [253, 147, 55]) < 30).all(axis=1)).mean())
+    return fill_ok and 0.6 <= dark <= 0.92 and orange < 0.05, (np.round(fill).tolist(), round(dark, 2), round(orange, 3))
 def diff(a_path, b_path, name):
     A = Image.open(a_path).convert("RGB").resize((1280, 720), Image.LANCZOS); B = Image.open(b_path).convert("RGB")
     d = np.asarray(ImageChops.difference(A, B)).astype(float).sum(axis=2)
@@ -131,12 +150,18 @@ with sync_playwright() as p:
     check("the pages: ... P2, L1 (the letter page), L2 (the stamp page), then the end screen (17)", ids == ["T0", "T0B", "T1", "T1B", "T1C", "T2", "T3", "T4", "G1", "G2", "G3", "G4", "P1", "P2", "L1", "L2", "CEL"], ids)
     D = pg.evaluate("CARD.slides.find(s => s.id === 'L2').data"); P = D["pace"]; RS = D["rounds"]; LY = D["layout"]
     slots_of = lambda R: R.get("slots") or [R["slot"]]
-    check("[stamp-868] five rounds on 868:17 (the ?, with the guidance), 868:31 (the comma, two rows), 868:44 (the danda), 868:59 (the ? for two questions: TWO boxes), 868:74 (the letter's closing lines: FOUR boxes — the comma, the ?, the danda twice; no sign-off); every box 90x90; the stamps in the frames' order (। ? / । , / । , ?)",
+    check("[stamp-868] five rounds on 868:17 (the ?, with the guidance), 868:31 (the comma, two rows), 868:44 (the danda), 868:59 (the ? for two questions: TWO boxes), 868:74 (the letter's closing lines: FOUR boxes — the comma, the ?, the danda twice; no sign-off); every box 60x60 ([stamp-box]); the stamps in the frames' order (। ? / । , / । , ?)",
           len(RS) == 5 and [R["frame"] for R in RS] == ["868:17", "868:31", "868:44", "868:59", "868:74"] and [R["mark"] for R in RS] == ["?", ",", "।", "?", "।"] and [R["pick"] for R in RS] == [1, 1, 0, 2, 0]
           and [len(R["stamps"]) for R in RS] == [2, 2, 3, 3, 3] and RS[0]["guide"] is True and all(R["guide"] is False for R in RS[1:]) and [len(slots_of(R)) for R in RS] == [1, 1, 1, 2, 4]
-          and all(s_["w"] == 90 and s_["h"] == 90 for R in RS for s_ in slots_of(R)) and [S_.get("mark", RS[4]["mark"]) for S_ in RS[4]["slots"]] == [",", "?", "।", "।"] and [S_.get("pick", RS[4]["pick"]) for S_ in RS[4]["slots"]] == [1, 2, 0, 0]
+          and all(s_["w"] == BOX and s_["h"] == BOX for R in RS for s_ in slots_of(R)) and [S_.get("mark", RS[4]["mark"]) for S_ in RS[4]["slots"]] == [",", "?", "।", "।"] and [S_.get("pick", RS[4]["pick"]) for S_ in RS[4]["slots"]] == [1, 2, 0, 0]
           and not RS[4].get("sign") and RS[2]["stamps"] == ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"] and "band_hi" not in D,
           [(R["frame"], R["mark"], R["pick"], len(R["stamps"]), len(slots_of(R))) for R in RS])
+    gw = lambda R: [g_["w"] for g_ in (R["sent"].get("gap") if isinstance(R["sent"].get("gap"), list) else [R["sent"]["gap"]] if R["sent"].get("gap") else [])]
+    check(f"[stamp-box] every box {BOX}x{BOX} at its frame's left edge and vertical centre (a box between two words: its room in the row {BOXD} px narrower — 868:31's 90 -> 60, 868:74's 97 -> 67 — and the box {BOXD // 2} px right, with the re-centred row), 11 px corners and the smaller box's dash runs; the thud at .54 (40 % below .9)",
+          all(abs(s_["x"] - (fx + (BOXD / 2 if mid else 0))) < 0.01 and abs(s_["y"] - (fy + BOXD / 2)) < 0.01 for R, F in zip(RS, FIG) for s_, (fx, fy, mid) in zip(slots_of(R), F))
+          and [len(slots_of(R)) for R in RS] == [len(F) for F in FIG] and gw(RS[1]) == [60, 3] and gw(RS[4]) == [67] and not gw(RS[0]) and not gw(RS[2]) and not gw(RS[3])
+          and LY["box_r"] == 11 and LY["box_dash"] == "7 5.5 13 5.5 29.71 5.5 13 5.5 29.71 5.5 13 5.5 29.71 5.5 13 5.5 22.71" and P.get("thud_vol") == 0.54,
+          ([[(s_["x"], s_["y"], s_["w"]) for s_ in slots_of(R)] for R in RS], gw(RS[1]), gw(RS[4]), LY["box_r"], P.get("thud_vol")))
     def geo(R):
         SLS = slots_of(R); SCS = [(S_["x"] + S_["w"] / 2, S_["y"] + S_["h"] / 2) for S_ in SLS]; bx = R["boxes"]; tp = R["tips"]
         PKS = [S_.get("pick", R["pick"]) for S_ in SLS]; MKS = [S_.get("mark", R["mark"]) for S_ in SLS]
@@ -283,14 +308,17 @@ with sync_playwright() as p:
     dips = sum(1 for a_, b_, c_ in zip(ops, ops[1:], ops[2:]) if b_ < 0.08 and b_ <= a_ and b_ <= c_)
     check(f"the orange box appears as the clip ends (within 300 ms) and blinks for {P['blink_ms'] / 1000:g} s — appearing and disappearing ({P['blinks']} times: stpBoxBlink, its opacity down to under .05 and back) — then stays",
           fsl and fbe and f_se and abs(fsl["t"] - f_se["t"]) < 300 and abs(fbe["t"] - fsl["t"] - P["blink_ms"]) < 150 and slotz(fsl, 0)["anim"] == "stpBoxBlink" and ops and min(ops) < 0.05 and dips == P["blinks"]
-          and boxnear(slotz(fsl, 0)["box"], [SL["x"], SL["y"], 90, 90], 1.5),
+          and boxnear(slotz(fsl, 0)["box"], [SL["x"], SL["y"], SL["w"], SL["h"]], 1.5),
           (round(fsl["t"] - f_se["t"]) if fsl and f_se else None, round(fbe["t"] - fsl["t"]) if fbe and fsl else None, slotz(fsl, 0)["anim"] if fsl else None, round(min(ops), 3) if ops else None, dips))
     fli = first(tr, lambda f: f["live"])
     check("the stamps are the child's from the moment the box appears (.live, the drag handles' touch-action none), not before", fli and fsl and abs(fli["t"] - fsl["t"]) < 40 and ta == "none", (T(fli), T(fsl), ta))
     if (REF / "stamp868_17_render.png").exists():
         A_, B_, db17 = diff(zb, REF / "stamp868_17_render.png", "l2_box")
-        bx_ = db17[220:322, 853:955].mean()
-        check("the box moment against Figma's 868:17 render: the whole frame (mean < 6 of 765), the box itself (its fill, corners and dashes: mean < 20 over its 102 px square)", db17.mean() < 6 and bx_ < 20, (round(float(db17.mean()), 2), round(float(bx_), 2)))
+        # [stamp-box] the frame's 90 box is drawn smaller now: the whole frame compared outside that box's square (and 6 px round it);
+        # the box itself judged as drawn (its fill, its dashes, nothing orange beyond its 60 px) at its place
+        km = np.ones(db17.shape, bool); km[220:322, 853:955] = False
+        bok, binfo = box_drawn(A_, SL["x"], SL["y"], SL["w"], SL["h"])
+        check("the box moment against Figma's 868:17 render: the whole frame outside the frame's box (mean < 6 of 765); [stamp-box] the box drawn 60x60 at its place (its fill, its dashed stroke, no orange beyond it)", db17[km].mean() < 6 and bok, (round(float(db17[km].mean()), 2), binfo))
     # ==== 7. the guidance: 0.5 s after the blink, the ? stamp glides SLOWLY over the box (its centre onto the box's centre, lifted to 1.1), hovers, glides home
     fh1 = first(tr, lambda f: has(f["cl"][1], "lift"), since=fsl["t"] if fsl else 0)
     fat = min((f for f in tr if fh1 and fh1["t"] <= f["t"] <= fh1["t"] + P["glide"] + 300 and f["st"][1]), key=lambda f: abs(cen(f["st"][1])[0] - sc[0]) + abs(cen(f["st"][1])[1] - sc[1]), default=None)
@@ -346,8 +374,9 @@ with sync_playwright() as p:
           fd3 and near(cd, (sc[0] + 30, sc[1] + 20), 8) and fpress and abs(fpress["t"] - fd3["t"] - (P["snap"] + P["press"])) < 150 and near(c3, sc, 4) and abs(fpress["st"][1][2] / S1[2] - P["press_scale"]) < 0.02,
           ([round(v) for v in cd] if cd else None, round(fpress["t"] - fd3["t"]) if fpress and fd3 else None, [round(v, 1) for v in c3] if c3 else None, round(fpress["st"][1][2] / S1[2], 3) if fpress else None))
     thud1 = [x for x in thud if fd3 and x["t"] < fd3["t"] + 2000]
-    check("the stamp thud sounds as it presses (0.28 s after the drop) and the mark is printed at 0.4 s", len(thud1) == 1 and fd3 and abs(thud1[0]["t"] - fd3["t"] - P["thud_at"]) < 80 and fm and abs(fm["t"] - fd3["t"] - P["mark_at"]) < 80,
-          (round(thud1[0]["t"] - fd3["t"]) if thud1 and fd3 else None, round(fm["t"] - fd3["t"]) if fm and fd3 else None))
+    check("the stamp thud sounds as it presses (0.28 s after the drop), [stamp-box] at .54 (every one of the page's thuds: 40 % below the .9 it was), and the mark is printed at 0.4 s", len(thud1) == 1 and fd3 and abs(thud1[0]["t"] - fd3["t"] - P["thud_at"]) < 80 and fm and abs(fm["t"] - fd3["t"] - P["mark_at"]) < 80
+          and thud and all(abs(x["vol"] - 0.54) < 0.005 for x in thud),
+          (round(thud1[0]["t"] - fd3["t"]) if thud1 and fd3 else None, round(fm["t"] - fd3["t"]) if fm and fd3 else None, sorted(set(round(x["vol"], 3) for x in thud))))
     fh3 = first(tr, lambda f: home(f, 1, S1) and not has(f["cl"][1], "lift"), since=fm["t"]) if fm else None
     check("the stamp lifts and glides back to its place in the tray (within 1.5 px), set down by 1.8 s after the drop", fh3 is not None and fh3["t"] - fd3["t"] < P["back_at"] + P["back_home"] + 200, round(fh3["t"] - fd3["t"]) if fh3 else None)
     corr = snd("sfx_correct_new"); corr1 = [x for x in corr if fd3 and x["t"] < fd3["t"] + 3000]
@@ -362,7 +391,7 @@ with sync_playwright() as p:
     # the row's baseline as CSS lays it: the line box's top + the half leading + the font's ascent ('Story Baloo 2': Noto's 0.896 / 0.408 em)
     baseline = lambda se_, row: se_["y"] + row * se_["lh"] + (se_["lh"] - 1.304 * se_["size"]) / 2 + 0.896 * se_["size"]
     DN = Image.open(done).convert("RGB").resize((1280, 720), Image.LANCZOS); b1 = baseline(RS[0]["sent"], SL.get("row", 0))
-    mk_ink = ink(DN, SL["x"] + 2, SL["y"] + 2, SL["x"] + 88, SL["y"] + 88)
+    mk_ink = ink(DN, SL["x"] + 2, SL["y"] + 2, SL["x"] + SL["w"] - 2, SL["y"] + SL["h"] - 2)   # [stamp-box] inside the box (was + 88: the 90 box)
     check("the printed ? stands in the box across its centre (its ink's middle within 3 px of the box's) and on the sentence's baseline, as if typed there (its foot within 3 px of it)",
           mk_ink and abs((mk_ink[0] + mk_ink[2]) / 2 - sc[0]) < 3 and abs(mk_ink[3] - b1) <= 3, (mk_ink, round(b1, 1), sc))
     lifts1 = [tr[i]["t"] for i in range(1, len(tr)) if has(tr[i]["cl"][1], "lift") and not has(tr[i - 1]["cl"][1], "lift")]
@@ -379,7 +408,7 @@ with sync_playwright() as p:
               all(fu) and abs(fu[0]["t"] - prev_drop["t"] - P["done_at"]) < 180 and all(abs(fu[k]["t"] - fu[k - 1]["t"] - P["pop_gap"]) < 110 for k in range(1, prev_n)) and not [x for x in pops if fu[0]["t"] - 200 < x["t"] < (fr["t"] if fr else 1e12) - 20]
               and first(tr, lambda f: f["words"] == 0, since=fu[0]["t"]) and first(tr, lambda f: f["slots"] and all(s_["op"] < 0.05 for s_ in f["slots"]), since=fu[0]["t"]),
               ([round(f["t"] - prev_drop["t"]) for f in fu] if all(fu) else None))
-        boxes_ok = lambda f: f and len(f["slots"]) == nsl and all(boxnear(f["slots"][j]["box"], [SLS[j]["x"], SLS[j]["y"], 90, 90], 1.5) for j in range(nsl))
+        boxes_ok = lambda f: f and len(f["slots"]) == nsl and all(boxnear(f["slots"][j]["box"], [SLS[j]["x"], SLS[j]["y"], SLS[j]["w"], SLS[j]["h"]], 1.5) for j in range(nsl))
         check(f"1.3 s into the clearing round {ri + 1} ({R['frame']}) is set: its sentence built ({len(WTr)} words, none shown), {nsl} empty box{'es' if nsl > 1 else ''} at {'their' if nsl > 1 else 'its'} place, {n} stamp divs with the round's pictures at the frame's boxes",
               fr and fu and abs(fr["t"] - fu[0]["t"] - P["next_at"]) < 120 and fr["nwords"] == len(WTr) and fr["words"] == 0 and not any(has(s_["cl"], "in") for s_ in fr["slots"]) and not fr["mark"] and shown_n(fr) == n
               and all(imgsrc(fr, k) == R["stamps"][k] + ".webp" for k in range(n)) and all(boxnear(fr["st"][k], R["boxes"][k], 1.5) for k in range(n)) and boxes_ok(fr),
@@ -433,7 +462,7 @@ with sync_playwright() as p:
             fgnr = first(tr, lambda f: slotz(f, j) and has(slotz(f, j)["cl"], "gone"), since=fr["t"]) if fr else None; corrr = [x for x in corr if fdr and fdr["t"] < x["t"] < fdr["t"] + 2500]
             check(f"{tag}: the stamp glides home (by 1.8 s); the box goes at 1.6 s on the correct chime (within 60 ms)", fhr and fdr and fhr["t"] - fdr["t"] < P["back_at"] + P["back_home"] + 200 and fgnr and abs(fgnr["t"] - fdr["t"] - P["gone_at"]) < 100
                   and len(corrr) == 1 and abs(corrr[0]["t"] - fgnr["t"]) < 60, (round(fhr["t"] - fdr["t"]) if fhr and fdr else None, round(fgnr["t"] - fdr["t"]) if fgnr and fdr else None))
-            DNr = Image.open(L_["dones"][j]).convert("RGB").resize((1280, 720), Image.LANCZOS); mi = ink(DNr, SLj["x"] + 2, SLj["y"] + 2, SLj["x"] + 88, SLj["y"] + 88)
+            DNr = Image.open(L_["dones"][j]).convert("RGB").resize((1280, 720), Image.LANCZOS); mi = ink(DNr, SLj["x"] + 2, SLj["y"] + 2, SLj["x"] + SLj["w"] - 2, SLj["y"] + SLj["h"] - 2)   # [stamp-box] inside the box (was + 88)
             bj = baseline(R["sent"], SLj.get("row", 0))
             ok_mark = mi and abs((mi[0] + mi[2]) / 2 - scj[0]) < 3 and ((mi[1] < bj - 2 and mi[3] > bj + 2) if mk == "," else abs(mi[3] - bj) <= 3)
             how = "crossing it: its head above, its tail below" if mk == "," else "its foot within 3 px of it"
@@ -458,11 +487,20 @@ with sync_playwright() as p:
         rp = REF / ("stamp868_%s_render.png" % R["frame"].split(":")[1])
         if rp.exists():
             A2, B2, d2 = diff(L_["z"], rp, f"l2_r{ri}_box")
-            bxs = [(int(s_["x"]), int(s_["y"])) for s_ in SLS]; mine, theirs = rows_of(A2, bxs), rows_of(B2, bxs)
-            boxd = max(float(d2[s_[1]:s_[1] + 90, s_[0]:s_[0] + 90].mean()) for s_ in bxs)
-            okr = len(mine) == len(theirs) and all(abs(m_[2] - t_[2]) <= 1 and abs(m_[3] - t_[3]) <= 3 and abs(m_[4] - t_[4]) <= 3 for m_, t_ in zip(mine, theirs))
-            check(f"round {ri + 1} against Figma's {R['frame']} render: the whole frame close (mean < 6 of 765), every text row's ink where the render's is (its headline within 1 px, its ends within 3 px), every box as drawn (mean < 20 over it)",
-                  d2.mean() < 6 and okr and boxd < 20, (round(float(d2.mean()), 2), [(m_[2], m_[3], m_[4]) for m_ in mine], "render:", [(t_[2], t_[3], t_[4]) for t_ in theirs], round(boxd, 2)))
+            # [stamp-box] both the frame's 90 boxes and the page's smaller ones masked out of the rows; a row holding a box between two
+            # words (mid) is BOXD narrower than the render's: its ends BOXD / 2 in on each side; the whole frame compared outside the boxes
+            # (the frame's, 6 px round them) and those rows; each box judged as drawn at its place
+            figb = [(fx, fy, 90, 90) for (fx, fy, _) in FIG[ri]]; ours = [(s_["x"], s_["y"], s_["w"], s_["h"]) for s_ in SLS]
+            mine, theirs = rows_of(A2, figb + ours), rows_of(B2, figb + ours)
+            mid_rows = [t_ for t_ in theirs if any(mid and fy < t_[1] and t_[0] < fy + 90 for (fx, fy, mid) in FIG[ri])]
+            sh = lambda t_: BOXD / 2 if t_ in mid_rows else 0
+            okr = len(mine) == len(theirs) and all(abs(m_[2] - t_[2]) <= 1 and abs(m_[3] - t_[3] - sh(t_)) <= 3 and abs(m_[4] - t_[4] + sh(t_)) <= 3 for m_, t_ in zip(mine, theirs))
+            km = np.ones(d2.shape, bool)
+            for (fx, fy, _, _) in figb: km[max(0, fy - 6):fy + 96, max(0, fx - 6):fx + 96] = False
+            for t_ in mid_rows: km[max(0, t_[0] - 6):t_[1] + 7, :] = False
+            bdr = [box_drawn(A2, *b_) for b_ in ours]
+            check(f"round {ri + 1} against Figma's {R['frame']} render: the whole frame close outside its boxes (mean < 6 of 765), every text row's ink where the render's is (its headline within 1 px, its ends within 3 px; [stamp-box] a row with a box between two words {BOXD // 2} px in at each end), every box drawn 60x60 at its place (its fill, its dashes, no orange beyond it)",
+                  d2[km].mean() < 6 and okr and all(b_[0] for b_ in bdr), (round(float(d2[km].mean()), 2), [(m_[2], m_[3], m_[4]) for m_ in mine], "render:", [(t_[2], t_[3], t_[4]) for t_ in theirs], [b_[1] for b_ in bdr]))
         L_["fdr"] = fdr; prev_drop = fdr; prev_n = n
     fr1 = first(tr, lambda f: f["round"] == "1")
     check("the right-hand stamp lifted four times in round 1 (two guidances, the far drop, the right drop): no guidance while the child was at work", fr1 and len([t for t in lifts1 if t < fr1["t"]]) == 4, len([t for t in lifts1 if fr1 and t < fr1["t"]]))

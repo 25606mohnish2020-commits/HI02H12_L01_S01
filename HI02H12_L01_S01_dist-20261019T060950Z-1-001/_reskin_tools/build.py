@@ -970,7 +970,23 @@ assert card["slides"][i_l1 + 1]["id"] == "CEL"
 # its centre); sent = the frame's text box with the line height that puts every row's ink on the render's (h = rows x lh), gap = the
 # room for a box between two words (its width giving the render's ink gap)
 _snt = lambda k: {"text_hi": sl_[k]["shown"], "audio": f"vo_stamp_{k}", "word_times": [t[0] for t in sl_[k]["word_times"]], "word_end": sl_[k]["word_times"][-1][1]}
-_box8 = lambda x, y, row, **kw: dict({"x": x, "y": y, "w": 90, "h": 90, "row": row}, **kw)
+# [stamp-box] (asked 2026-11-10: "reduce the size of the rounded square orange empty box in all the sentences of page 16 L2 so that, once
+# the correct stamp is placed and the box is gone, the space between the sentence and the mark is a little less") every box is BOX8 square
+# (was the frames' 90): each keeps the frame's left edge (its gap after the word before it) and its vertical centre, so the mark — printed
+# on the box's centre, on its row's baseline as before — lands (90 - BOX8) / 2 px nearer that word; a box BETWEEN two words (868:31's,
+# 868:74's first: mid=True) also has its room in the row (sent.gap) narrowed by 90 - BOX8, so the word after it comes nearer too, and moves
+# with its re-centred row by half that (its gaps to both words kept). x, y below are still the frames' 90x90 boxes.
+# Its corners 11 px (the frames' 17 x 60/90) and its 2 px dashed stroke drawn as the frames draw theirs: on every side a dash wrapping
+# each corner (7 px of it on the straight), between them as many 13 px dashes as fit with gaps of 5 px or more, the gaps evened out
+# (the 90 box's runs were 7 5 13 6 13 5 7: two dashes a side; this box's 7 5.5 13 5.5 7: one).
+BOX8 = 60; BOX8_D = 90 - BOX8; BOX8_R = 11
+def _dash8(s, r, c=7, d=13, g_min=5):
+    S = (s - 2) - 2 * (r - 1); arc = math.pi * (r - 1) / 2   # the rect 1 px inside the box: its straight run per side, its corner's arc
+    m = max(0, int((S - 2 * c - g_min) // (d + g_min))); g = (S - 2 * c - d * m) / (m + 1)
+    runs = [c]
+    for side in range(4): runs += [g, d] * m + [g, 2 * c + arc if side < 3 else c + arc]
+    return " ".join(f"{v:.2f}".rstrip("0").rstrip(".") for v in runs)
+_box8 = lambda x, y, row, mid=False, **kw: dict({"x": x + (BOX8_D / 2 if mid else 0), "y": y + BOX8_D / 2, "w": BOX8, "h": BOX8, "row": row}, **kw)
 _bx2 = [[484, 569, 105, 105], [683, 565, 114, 114]]                            # 868:17 / 868:31: image 290 (the danda) and 291 / 292
 _bx3 = [[403, 569, 105, 105], [579, 565, 114, 114], [764, 565, 114, 114]]      # 868:44 / 59 / 74: । , ?
 _tips = lambda bx: [[b[2] / 2, b[3] / 2] for b in bx]
@@ -997,7 +1013,7 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                         "a_text_ink": [343, 224, 869, 279], "b_text_ink": [349, 244, 848, 296],
                         "a_dash": [[283.58, 21.9], [1015.79, 21.9], [1060.91, 494.0], [243.15, 493.96]], "b_dash": [[280.38, 39.06], [998.98, 39.06], [998.89, 528.72], [280.38, 528.79]],
                         "bird": {"n": LY8["bird"]["n"], "cols": LY8["bird"]["cols"], "cell": LY8["bird"]["cell"], "box": LY8["bird"]["box"], "foot": LY8["bird"]["foot"]},
-                        "bird_shadow": [39, 682, 137, 23], "box_r": 17, "box_dash": "7 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 32.13",
+                        "bird_shadow": [39, 682, 137, 23], "box_r": BOX8_R, "box_dash": _dash8(BOX8, BOX8_R),   # [stamp-box] were 17 / "7 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 39.13 5 13 6 13 5 32.13" (the 90 box's)
                         "envelope": [741, 109, 139, 125],
                         "final": [0, -1, 1280, 721], "env_full": card["slides"][i_l1]["data"]["layout"]["full"], "env_mouth": card["slides"][i_l1]["data"]["layout"]["mouth"],
                         "hand": {"c": [592.47, 393.24], "to": [810.54, 172.47], "scale": 0.12072, "rot": -7.04}},
@@ -1007,15 +1023,15 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                {"frame": "868:17", "guide": True, "sentence": _snt("sent"), "mark": "?", "pick": 1, "stamps": ["img_stamp8_danda", "img_stamp8_question"],
                 "boxes": _bx2, "tips": _tips(_bx2), "sent": {"x": 60, "y": 241, "w": 1075, "h": 73, "size": 50, "lh": 73}, "slot": _box8(859, 226, 0)},
                {"frame": "868:31", "guide": False, "sentence": _snt("sent2"), "mark": ",", "pick": 1, "stamps": ["img_stamp8_danda", "img_stamp8_comma"],
-                "boxes": _bx2, "tips": _tips(_bx2), "sent": {"x": 294, "y": 206, "w": 691, "h": 144, "size": 45, "lh": 72, "gap": [{"before": 9, "w": 90}, {"before": 8, "w": 3}]}, "slot": _box8(439, 293, 1)},   # row 2's 3 px lead: Figma centres it with its trailing space (its ink 1.5 px right)
+                "boxes": _bx2, "tips": _tips(_bx2), "sent": {"x": 294, "y": 206, "w": 691, "h": 144, "size": 45, "lh": 72, "gap": [{"before": 9, "w": 90 - BOX8_D}, {"before": 8, "w": 3}]}, "slot": _box8(439, 293, 1, mid=True)},   # [stamp-box] the box's room 90 -> 60;   # row 2's 3 px lead: Figma centres it with its trailing space (its ink 1.5 px right)
                {"frame": "868:44", "guide": False, "sentence": _snt("sent3"), "mark": "।", "pick": 0, "stamps": ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"],
                 "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 63, "y": 236, "w": 1075, "h": 73, "size": 50, "lh": 73}, "slot": _box8(836, 232, 0)},
                {"frame": "868:59", "guide": False, "sentence": _snt("sent4"), "mark": "?", "pick": 2, "stamps": ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"],
                 "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 259, "y": 202.5, "w": 670, "h": 143, "size": 45, "lh": 71.5},
                 "slots": [_box8(902, 193, 0), _box8(731, 266, 1)]},
                {"frame": "868:74", "guide": False, "post": False, "sentence": _snt("sent5"), "mark": "।", "pick": 0, "stamps": ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"],   # post False: its card has no postmark
-                "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 383, "y": 47, "w": 494, "h": 475, "size": 44, "lh": 95, "gap": {"before": 2, "w": 97}},
-                "slots": [_box8(596, 45, 0, mark=",", pick=1), _box8(886, 135, 1, mark="?", pick=2), _box8(879, 248, 2), _box8(699, 422, 4)]}],
+                "boxes": _bx3, "tips": _tips(_bx3), "sent": {"x": 383, "y": 47, "w": 494, "h": 475, "size": 44, "lh": 95, "gap": {"before": 2, "w": 97 - BOX8_D}},   # [stamp-box] the first box's room 97 -> 67
+                "slots": [_box8(596, 45, 0, mid=True, mark=",", pick=1), _box8(886, 135, 1, mark="?", pick=2), _box8(879, 248, 2), _box8(699, 422, 4)]}],
              # [stamp-868] the intro (ms): the bird's entrance at bird_at (its length 680 x bird_tempo, the reference's), the instruction
              # vo_gap after it (intro_ms its length, the GIF's clock when the clip cannot be read), bird_loops GIF loops over it, the glow
              # at thappa on its clock, the exit exit_gap after it, the camera move cam_gap after that (cam_ms; cam_text = the sentence's
@@ -1034,6 +1050,8 @@ card["slides"].insert(i_l1 + 1, {"id": "L2", "phase": "practice", "eis": "enacti
                       # the right drop: over the box (snap), down (press) on the thud, the mark, up, home; the box goes; confetti; then at
                       # done_at the clearing: the words out words_out apart (in reverse), the stamps' pop backwards pop_gap apart, the next
                       # round's stamps popping in at next_at
+                      # [stamp-box] (2026-11-10) the thud at thud_vol: 40 % softer than the .9 it played at ("reduce the stamp thumping sound by 40%")
+                      "thud_vol": 0.54,
                       "snap": 220, "press": 140, "press_down": 0, "thud_at": 280, "mark_at": 400, "lift_at": 560, "back_at": 800, "back_home": 800,
                       "gone_at": 1600, "confetti_at": 2100, "done_at": 4400, "words_out": 40, "next_at": 1300,
                       # [stamp-close] the finale (from done_at after the last drop): the veil's fall (this page's own .6 s lift, backwards), the
@@ -2785,7 +2803,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
         if(last && idleIv){ clearInterval(idleIv); idleIv = null; }
         move(stamp, o.HOVER, P.snap, "cubic-bezier(.2,0,.2,1)");
         at(P.snap, ()=> move(stamp, o.PRESS, P.press, "cubic-bezier(.5,0,1,1)"));
-        at(P.thud_at, ()=> sound(thud, 0.9));
+        at(P.thud_at, ()=> sound(thud, P.thud_vol != null ? P.thud_vol : 0.9));   // [stamp-box] pace.thud_vol (.54: 40 % below the .9 it was)
         at(P.mark_at, ()=>{ centreInk(o.mark, o); o.mark.classList.add("in"); });
         at(P.lift_at, ()=> move(stamp, o.HOVER, 180, "cubic-bezier(0,0,.3,1)"));
         at(P.back_at, ()=> putBack(stamp, P.back_home));
@@ -3854,9 +3872,10 @@ stamp_css = """
 /* [stamp-rounds] a sign-off (data.sign): small centred lines under the sentence, arriving as a word does */
 .stp-sign{white-space:nowrap;text-align:center;font-family:'Story Baloo 2',var(--font-hi);font-weight:800;color:#000;margin:0;opacity:0;transform:translateY(6px);transition:opacity .22s ease-out,transform .26s cubic-bezier(.2,.9,.3,1.25);}
 .stp-sign.on{opacity:1;transform:none;}
-/* the empty box: 90x90 #FD9337, 17 px corners, the 2 px dashed stroke inside it (an SVG rect carrying the frame's runs); it blinks
-   blink_ms (three times: there, gone, there); .gone = the box goes, the mark stays */
-.stp-slot{background:#FD9337;border-radius:17px;opacity:0;transition:opacity .3s,background-color .4s;}
+/* the empty box: #FD9337, the 2 px dashed stroke inside it (an SVG rect carrying the frame's runs); it blinks
+   blink_ms (three times: there, gone, there); .gone = the box goes, the mark stays. [stamp-box] (2026-11-10) 60x60 with 11 px corners
+   (were the frames' 90x90 and 17 px: layout.box_r, data.rounds' boxes) */
+.stp-slot{background:#FD9337;border-radius:11px;opacity:0;transition:opacity .3s,background-color .4s;}
 .stp-slot.in{opacity:1;}
 .stp-slot.blink{animation:stpBoxBlink 1s ease-in-out 3;}
 @keyframes stpBoxBlink{0%,100%{opacity:1;}50%{opacity:0;}}
