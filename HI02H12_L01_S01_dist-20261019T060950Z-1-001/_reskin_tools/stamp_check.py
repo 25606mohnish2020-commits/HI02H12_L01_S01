@@ -117,6 +117,18 @@ def rows_of(img1280, boxes, y_lim=520):
 BOX = 60; BOXD = 90 - BOX
 FIG = [[(859, 226, False)], [(439, 293, True)], [(836, 232, False)], [(902, 193, False), (731, 266, False)],
        [(596, 45, True), (886, 135, False), (879, 248, False), (699, 422, False)]]
+# [stamp-fit] (2026-11-10) a row's baseline as CSS lays it ('Story Baloo 2': Noto's 0.896 / 0.408 em line metrics); each box's middle sits
+# layout.box_mid em above it (a "?"'s ink middle: on the row's letters), y in whole px; a stamp in hand is lift_scale away from the boxes and
+# the box's size (lift_scale x box / layout.stamp_body) once its centre is in an empty box's drop zone, smoothstep over fit_ramp px between
+base_ = lambda se_, row: se_["y"] + row * se_["lh"] + (se_["lh"] - 1.304 * se_["size"]) / 2 + 0.896 * se_["size"]
+def size_law(P, LY, slots, cx, cy):
+    near = None
+    for s_ in slots:
+        m = max(abs(cx - (s_["x"] + s_["w"] / 2)) - P["tol_x"], abs(cy - (s_["y"] + s_["h"] / 2)) - P["tol_y"], 0)
+        if near is None or m < near[0]: near = (m, s_)
+    if near is None: return P["lift_scale"]
+    fit = min(near[1]["w"], near[1]["h"]) / LY["stamp_body"]; e = min(1, near[0] / max(1, P["fit_ramp"])); tt = e * e * (3 - 2 * e)
+    return P["lift_scale"] * (fit + (1 - fit) * tt)
 def box_drawn(img1280, x, y, w, h):
     """[stamp-box] a box as the page draws it, on a 1280x720 shot: its fill (the inside, 6 px in, #FD9337 within 14 per channel), its
     dashed stroke (the share of dark pixels along the line 1 px inside its edge: 0.6..0.92 — dashes and gaps, as both boxes draw them)
@@ -157,8 +169,9 @@ with sync_playwright() as p:
           and not RS[4].get("sign") and RS[2]["stamps"] == ["img_stamp8_danda", "img_stamp8_comma", "img_stamp8_question"] and "band_hi" not in D,
           [(R["frame"], R["mark"], R["pick"], len(R["stamps"]), len(slots_of(R))) for R in RS])
     gw = lambda R: [g_["w"] for g_ in (R["sent"].get("gap") if isinstance(R["sent"].get("gap"), list) else [R["sent"]["gap"]] if R["sent"].get("gap") else [])]
-    check(f"[stamp-box] every box {BOX}x{BOX} at its frame's left edge and vertical centre (a box between two words: its room in the row {BOXD} px narrower — 868:31's 90 -> 60, 868:74's 97 -> 67 — and the box {BOXD // 2} px right, with the re-centred row), 11 px corners and the smaller box's dash runs; the thud at .54 (40 % below .9)",
-          all(abs(s_["x"] - (fx + (BOXD / 2 if mid else 0))) < 0.01 and abs(s_["y"] - (fy + BOXD / 2)) < 0.01 for R, F in zip(RS, FIG) for s_, (fx, fy, mid) in zip(slots_of(R), F))
+    check(f"[stamp-box] every box {BOX}x{BOX} at its frame's left edge ([stamp-fit] its middle on its row's letters: {LY.get('box_mid')} em above the row's baseline, whole px) (a box between two words: its room in the row {BOXD} px narrower — 868:31's 90 -> 60, 868:74's 97 -> 67 — and the box {BOXD // 2} px right, with the re-centred row), 11 px corners and the smaller box's dash runs; the thud at .54 (40 % below .9)",
+          all(abs(s_["x"] - (fx + (BOXD / 2 if mid else 0))) < 0.01 and s_["y"] == round(base_(R["sent"], s_["row"]) - LY["box_mid"] * R["sent"]["size"] - s_["h"] / 2) for R, F in zip(RS, FIG) for s_, (fx, fy, mid) in zip(slots_of(R), F))
+          and LY.get("box_mid") == 0.3125 and LY.get("stamp_body") == 90 and LY.get("tray_drop") == [334, 525, 946, 720] and P.get("fit_ramp") == 60
           and [len(slots_of(R)) for R in RS] == [len(F) for F in FIG] and gw(RS[1]) == [60, 3] and gw(RS[4]) == [67] and not gw(RS[0]) and not gw(RS[2]) and not gw(RS[3])
           and LY["box_r"] == 11 and LY["box_dash"] == "7 5.5 13 5.5 29.71 5.5 13 5.5 29.71 5.5 13 5.5 29.71 5.5 13 5.5 22.71" and P.get("thud_vol") == 0.54,
           ([[(s_["x"], s_["y"], s_["w"]) for s_ in slots_of(R)] for R in RS], gw(RS[1]), gw(RS[4]), LY["box_r"], P.get("thud_vol")))
@@ -194,6 +207,12 @@ with sync_playwright() as p:
     wshot = shot(pg, "l2_wrong.png"); until(t_d1, P["wiggle"] + P["reset"] + 300)
     drag(g0, on_(0)); t_d2 = now(); until(t_d2, P["wiggle"] + P["reset"] + 300)
     xt, yt = fp(*g1); pg.mouse.move(xt, yt); pg.mouse.down(); pg.wait_for_timeout(80); pg.mouse.move(xt + 3, yt + 2); pg.mouse.up(); t_tap = now(); until(t_tap, 450)
+    # [stamp-fit] two drops by the tray: the । stamp set down IN the tray (60 px right, 15 px down of its place) and just ABOVE it (its centre
+    # at y 535, on the card's foot, 20 px above the tray's rim) — both must glide home in silence: no buzz, no wiggle, no attempt counted
+    att0 = pg.evaluate("state.attempts || 0"); t_tr = []
+    for tgt in ((g0[0] + 60, g0[1] + 15), (g0[0] - 40, 535)):
+        drag(g0, tgt); t_tr.append(now()); until(t_tr[-1], P["reset"] + 350)
+    att1 = pg.evaluate("state.attempts || 0")
     drag(g1, on_(1, 30, 20)); t_d3 = now(); until(t_d3, P["snap"] + P["press"] - 30); shot(pg, "l2_press.png")
     pg.wait_for_function("!!document.querySelector('.stp-slot.gone')", timeout=8000); until(now(), 450); done = shot(pg, "l2_done.png")
     # the confetti seen by the frame trace (not merely present now: a shot slowed by the machine can outlast its life)
@@ -324,9 +343,9 @@ with sync_playwright() as p:
     fat = min((f for f in tr if fh1 and fh1["t"] <= f["t"] <= fh1["t"] + P["glide"] + 300 and f["st"][1]), key=lambda f: abs(cen(f["st"][1])[0] - sc[0]) + abs(cen(f["st"][1])[1] - sc[1]), default=None)
     fmid = min((f for f in tr if fh1 and f["st"][1]), key=lambda f: abs(f["t"] - (fh1["t"] + P["glide"] * 2 / 3)), default=None)
     dmid = (abs(cen(fmid["st"][1])[0] - sc[0]) + abs(cen(fmid["st"][1])[1] - sc[1])) if fmid else None
-    scale_at = fat["st"][1][2] / S1[2] if fat else None
-    check("the guidance starts 0.5 s after the blink ends: the ? stamp lifts and glides over the box in 1.5 s (its centre within 4 px of the box's as the glide ends, lifted to 1.1; still 15+ px away two thirds in — a slow glide)",
-          fh1 and fbe and abs(fh1["t"] - fbe["t"] - P["hint_at"]) < 150 and fat and abs(fat["t"] - fh1["t"] - P["glide"]) < 200 and near(cen(fat["st"][1]), sc, 4) and abs(scale_at - P["lift_scale"]) < 0.02 and dmid and dmid > 15,
+    scale_at = fat["st"][1][2] / S1[2] if fat else None; FIT1 = SL["w"] / LY["stamp_body"]
+    check("the guidance starts 0.5 s after the blink ends: the ? stamp lifts and glides over the box in 1.5 s (its centre within 4 px of the box's as the glide ends, [stamp-fit] at the box's size: 1.1 x 60/90; still 15+ px away two thirds in — a slow glide)",
+          fh1 and fbe and abs(fh1["t"] - fbe["t"] - P["hint_at"]) < 150 and fat and abs(fat["t"] - fh1["t"] - P["glide"]) < 200 and near(cen(fat["st"][1]), sc, 4) and abs(scale_at - P["lift_scale"] * FIT1) < 0.02 and dmid and dmid > 15,
           (round(fh1["t"] - fbe["t"]) if fh1 and fbe else None, round(fat["t"] - fh1["t"]) if fat else None, [round(v, 1) for v in cen(fat["st"][1])] if fat else None, list(sc), round(scale_at, 3) if scale_at else None, round(dmid, 1) if dmid else None))
     fh1e = first(tr, lambda f: not has(f["cl"][1], "lift"), since=fh1["t"] + 500) if fh1 else None
     home = lambda f, k, bx: f["st"][k] and boxnear(f["st"][k], bx, 1.5)
@@ -337,14 +356,20 @@ with sync_playwright() as p:
           (round(fh1e["t"] - fh1["t"]) if fh1 and fh1e else None, T(fhome1)))
     fh2 = first(tr, lambda f: has(f["cl"][1], "lift"), since=fh1e["t"] + 100) if fh1e else None
     check("the guidance comes again 7 s after it was set down (within 7.0..7.5 s: the page's 200 ms tick), and not before", fh2 and 6900 < fh2["t"] - fh1e["t"] < 7500, round(fh2["t"] - fh1e["t"]) if fh2 and fh1e else None)
+    # [stamp-fit] the guidance's glide sized as a drag there: past its first 15 % (the lift), every frame's size the drag's law at its centre
+    gl = [f for f in tr if fh1 and fh1["t"] + 0.2 * P["glide"] <= f["t"] <= fh1["t"] + P["glide"] - 40 and f["st"][1] and has(f["cl"][1], "lift") and not has(f["cl"][1], "drag")]
+    gerr = [abs(f["st"][1][2] / S1[2] - size_law(P, LY, [SL], *cen(f["st"][1]))) for f in gl]; gsz = [f["st"][1][2] / S1[2] for f in gl]
+    check("[stamp-fit] the guidance's glide sizes the stamp as a drag would: lifted (1.1) as it leaves, shrinking to the box's size as it nears the box (every frame past its first 15 % within .015 of the drag's size there)",
+          len(gl) >= 20 and max(gerr) < 0.015 and max(gsz) > P["lift_scale"] - 0.02 and min(gsz) < P["lift_scale"] * FIT1 + 0.03, (len(gl), round(max(gerr), 4) if gerr else None, round(max(gsz), 3) if gsz else None, round(min(gsz), 3) if gsz else None))
     fg = first(tr, lambda f: has(f["cl"][1], "drag"), since=fh2["t"] if fh2 else 0); ig = tr.index(fg) if fg else -1
     jump = max(abs(cen(tr[ig]["st"][1])[i] - cen(tr[ig - 1]["st"][1])[i]) for i in (0, 1)) if ig > 0 and tr[ig]["st"][1] and tr[ig - 1]["st"][1] else None
     fd1 = first(tr, lambda f: not has(f["cl"][1], "drag"), since=fg["t"] + 100) if fg else None
     moved = (cen(fd1["st"][1])[0] - cen(fg["st"][1])[0], cen(fd1["st"][1])[1] - cen(fg["st"][1])[1]) if fd1 and fg else None
     want_move = (150 - (r[0] + r[2] / 2), 380 - (r[1] + r[3] / 2))
-    check("taking hold of the guiding stamp mid-glide stops the guidance where it is (no jump: its centre moves under 10 px across the grab frame) and it follows the finger (its centre moved with the finger within 8 px)",
-          fg and 0.5 < (fg["t"] - fh2["t"]) / 1000 < 1.3 and jump is not None and jump < 10 and moved and abs(moved[0] - want_move[0]) < 8 and abs(moved[1] - want_move[1]) < 8,
-          (round(fg["t"] - fh2["t"]) if fg and fh2 else None, round(jump, 1) if jump is not None else None, [round(v) for v in moved] if moved else None, [round(v) for v in want_move]))
+    sjump = abs((tr[ig]["st"][1][2] - tr[ig - 1]["st"][1][2]) / S1[2] - (size_law(P, LY, [SL], *cen(tr[ig]["st"][1])) - size_law(P, LY, [SL], *cen(tr[ig - 1]["st"][1])))) if ig > 0 and tr[ig]["st"][1] and tr[ig - 1]["st"][1] else None   # [stamp-fit] the size change across the grab frame beyond what the move itself gives (the size law)
+    check("taking hold of the guiding stamp mid-glide stops the guidance where it is (no jump: its centre moves under 10 px across the grab frame, [stamp-fit] its size changing no more than the size law gives for that move: within .01) and it follows the finger (its centre moved with the finger within 8 px)",
+          fg and 0.5 < (fg["t"] - fh2["t"]) / 1000 < 1.3 and jump is not None and jump < 10 and sjump is not None and sjump < 0.01 and moved and abs(moved[0] - want_move[0]) < 8 and abs(moved[1] - want_move[1]) < 8,
+          (round(fg["t"] - fh2["t"]) if fg and fh2 else None, round(jump, 1) if jump is not None else None, round(sjump, 3) if sjump is not None else None, [round(v) for v in moved] if moved else None, [round(v) for v in want_move]))
     wrongs = snd("sfx_wrong_new"); fw1 = first(tr, lambda f: has(f["cl"][1], "stp-wrong"), since=fg["t"]) if fg else None
     fback1 = first(tr, lambda f: home(f, 1, S1) and not has(f["cl"][1], "lift"), since=fd1["t"]) if fd1 else None
     check("dropped far off the box: the incorrect buzz sounds as it lands (within 60 ms), it wiggles there (.stp-wrong, the kit's wgNo on its picture), then glides back to its place (set down within 1.4 s), nothing printed",
@@ -366,12 +391,21 @@ with sync_playwright() as p:
     fafter = min((f for f in tr if ftap and f["st"][1]), key=lambda f: abs(f["t"] - (ftap["t"] + 400)), default=None)
     check("a tap on a stamp (a move under 10 px) is a touch, not a placing: no buzz, the stamp is set back down where it is", ftap and len([x for x in wrongs if ftap["t"] < x["t"] < t_d3]) == 0 and fafter and home(fafter, 1, S1) and not has(fafter["cl"][1], "lift"),
           (T(ftap), [round(v, 1) for v in fafter["st"][1]] if fafter else None))
+    # [stamp-fit] the drops by the tray: home in silence (no buzz, no wiggle, nothing played, no attempt counted), set down by reset + 300 ms
+    twin = (t_tr[0] - 900, t_tr[-1] + P["reset"] + 350)
+    plw = [x["src"] for x in pl if twin[0] <= x["t"] <= twin[1]]; wgl = [f for f in tr if twin[0] <= f["t"] <= twin[1] and has(f["cl"][0], "stp-wrong")]
+    dropped = [last(tr, lambda f: has(f["cl"][0], "drag"), before=t_) for t_ in t_tr]
+    homes = [first(tr, lambda f: home(f, 0, S0) and not has(f["cl"][0], "lift") and not has(f["cl"][0], "drag"), since=t_) for t_ in t_tr]
+    LZ = LY["tray_drop"]; in_zone = [d_ and LZ[0] <= cen(d_["st"][0])[0] <= LZ[2] and LZ[1] <= cen(d_["st"][0])[1] <= LZ[3] for d_ in dropped]
+    check("[stamp-fit] the । stamp dropped IN the tray and just above it (its centre at y 535): each glides home in silence — no buzz, no wiggle, nothing played, no attempt counted (no hint line, no guidance) — set down within reset + 300 ms",
+          all(in_zone) and not plw and not wgl and att1 == att0 and all(homes) and all(h_["t"] - t_ < P["reset"] + 300 for h_, t_ in zip(homes, t_tr)),
+          ([[round(v) for v in cen(d_["st"][0])] for d_ in dropped if d_], plw, len(wgl), (att0, att1), [round(h_["t"] - t_) if h_ else None for h_, t_ in zip(homes, t_tr)]))
     fg3 = first(tr, lambda f: has(f["cl"][1], "drag"), since=ftap["t"] + 300) if ftap else None; fd3 = first(tr, lambda f: not has(f["cl"][1], "drag"), since=fg3["t"] + 100) if fg3 else None
     win = [f for f in tr if fd3 and fd3["t"] <= f["t"] <= fd3["t"] + P["snap"] + P["press"] + 300 and f["st"][1]]
-    fpress = min(win, key=lambda f: abs(cen(f["st"][1])[0] - sc[0]) + abs(cen(f["st"][1])[1] - sc[1]) + abs(f["st"][1][2] / S1[2] - P["press_scale"]) * 100) if win else None
+    fpress = min(win, key=lambda f: abs(cen(f["st"][1])[0] - sc[0]) + abs(cen(f["st"][1])[1] - sc[1]) + abs(f["st"][1][2] / S1[2] - P["press_scale"] * FIT1) * 100) if win else None
     c3 = cen(fpress["st"][1]) if fpress else None; cd = cen(tr[tr.index(fd3) - 1]["st"][1]) if fd3 else None
-    check("the ? stamp dropped on the box (its centre 30 px right, 20 px low of the box's) snaps over it and presses: its centre on the box's (within 4 px), pressed to .96, ~0.36 s after the drop",
-          fd3 and near(cd, (sc[0] + 30, sc[1] + 20), 8) and fpress and abs(fpress["t"] - fd3["t"] - (P["snap"] + P["press"])) < 150 and near(c3, sc, 4) and abs(fpress["st"][1][2] / S1[2] - P["press_scale"]) < 0.02,
+    check("the ? stamp dropped on the box (its centre 30 px right, 20 px low of the box's) snaps over it and presses: its centre on the box's (within 4 px), pressed to .96 [stamp-fit] of the box's size (.96 x 60/90), ~0.36 s after the drop",
+          fd3 and near(cd, (sc[0] + 30, sc[1] + 20), 8) and fpress and abs(fpress["t"] - fd3["t"] - (P["snap"] + P["press"])) < 150 and near(c3, sc, 4) and abs(fpress["st"][1][2] / S1[2] - P["press_scale"] * FIT1) < 0.02,
           ([round(v) for v in cd] if cd else None, round(fpress["t"] - fd3["t"]) if fpress and fd3 else None, [round(v, 1) for v in c3] if c3 else None, round(fpress["st"][1][2] / S1[2], 3) if fpress else None))
     thud1 = [x for x in thud if fd3 and x["t"] < fd3["t"] + 2000]
     check("the stamp thud sounds as it presses (0.28 s after the drop), [stamp-box] at .54 (every one of the page's thuds: 40 % below the .9 it was), and the mark is printed at 0.4 s", len(thud1) == 1 and fd3 and abs(thud1[0]["t"] - fd3["t"] - P["thud_at"]) < 80 and fm and abs(fm["t"] - fd3["t"] - P["mark_at"]) < 80
@@ -394,6 +428,8 @@ with sync_playwright() as p:
     mk_ink = ink(DN, SL["x"] + 2, SL["y"] + 2, SL["x"] + SL["w"] - 2, SL["y"] + SL["h"] - 2)   # [stamp-box] inside the box (was + 88: the 90 box)
     check("the printed ? stands in the box across its centre (its ink's middle within 3 px of the box's) and on the sentence's baseline, as if typed there (its foot within 3 px of it)",
           mk_ink and abs((mk_ink[0] + mk_ink[2]) / 2 - sc[0]) < 3 and abs(mk_ink[3] - b1) <= 3, (mk_ink, round(b1, 1), sc))
+    MID = []   # [stamp-fit] (box, mark, its ink's middle y - the box's middle y) for every printed ? / ।
+    if mk_ink: MID.append(("868:17", "?", round((mk_ink[1] + mk_ink[3]) / 2 - sc[1], 1)))
     lifts1 = [tr[i]["t"] for i in range(1, len(tr)) if has(tr[i]["cl"][1], "lift") and not has(tr[i - 1]["cl"][1], "lift")]
     # ==== 8. [stamp-rounds] each later round: the clearing, the round set, its line, its pops, its sentence, its boxes; no guidance,
     #         the round's line again after 7 s; the wrong drop; the right drops; the boxes gone, confetti
@@ -451,7 +487,7 @@ with sync_playwright() as p:
             SLj, scj = SLS[j], SCS[j]; ox, oy = L_["offs"][j]; pk, mk = PKS[j], MKS[j]; tag = f"round {ri + 1}" + (f", box {j + 1}" if nsl > 1 else "")
             fgr = first(tr, lambda f: has(f["cl"][pk], "drag"), since=since_); fdr = first(tr, lambda f: not has(f["cl"][pk], "drag"), since=fgr["t"] + 100) if fgr else None
             winr = [f for f in tr if fdr and fdr["t"] <= f["t"] <= fdr["t"] + P["snap"] + P["press"] + 300 and f["st"][pk]]
-            fpressr = min(winr, key=lambda f: abs(cen(f["st"][pk])[0] - scj[0]) + abs(cen(f["st"][pk])[1] - scj[1]) + abs(f["st"][pk][2] / g["bx"][pk][2] - P["press_scale"]) * 100) if winr else None
+            fpressr = min(winr, key=lambda f: abs(cen(f["st"][pk])[0] - scj[0]) + abs(cen(f["st"][pk])[1] - scj[1]) + abs(f["st"][pk][2] / g["bx"][pk][2] - P["press_scale"] * SLj["w"] / LY["stamp_body"]) * 100) if winr else None
             cr_ = cen(fpressr["st"][pk]) if fpressr else None; cdr = cen(tr[tr.index(fdr) - 1]["st"][pk]) if fdr else None
             fmr = first(tr, lambda f: slotz(f, j) and slotz(f, j)["mark"], since=fr["t"]) if fr else None; thudr = [x for x in thud if fdr and abs(x["t"] - fdr["t"] - P["thud_at"]) < 400]
             check(f"{tag}: the {mk} stamp dropped on the box ({ox:+} px, {oy:+} px off its centre) snaps over it and presses (its centre on the box's within 4 px, at .96); the thud at 0.28 s, the mark printed there at 0.4 s",
@@ -465,6 +501,7 @@ with sync_playwright() as p:
             DNr = Image.open(L_["dones"][j]).convert("RGB").resize((1280, 720), Image.LANCZOS); mi = ink(DNr, SLj["x"] + 2, SLj["y"] + 2, SLj["x"] + SLj["w"] - 2, SLj["y"] + SLj["h"] - 2)   # [stamp-box] inside the box (was + 88)
             bj = baseline(R["sent"], SLj.get("row", 0))
             ok_mark = mi and abs((mi[0] + mi[2]) / 2 - scj[0]) < 3 and ((mi[1] < bj - 2 and mi[3] > bj + 2) if mk == "," else abs(mi[3] - bj) <= 3)
+            if mi and mk != ",": MID.append((f"{R['frame']}#{j + 1}", mk, round((mi[1] + mi[3]) / 2 - scj[1], 1)))
             how = "crossing it: its head above, its tail below" if mk == "," else "its foot within 3 px of it"
             check(f"{tag}: the printed {mk} stands in the box across its centre (its ink's middle within 3 px of the box's) and on its row's baseline, as if typed there ({how})",
                   ok_mark, (mi, round(bj, 1), scj))
@@ -502,6 +539,21 @@ with sync_playwright() as p:
             check(f"round {ri + 1} against Figma's {R['frame']} render: the whole frame close outside its boxes (mean < 6 of 765), every text row's ink where the render's is (its headline within 1 px, its ends within 3 px; [stamp-box] a row with a box between two words {BOXD // 2} px in at each end), every box drawn 60x60 at its place (its fill, its dashes, no orange beyond it)",
                   d2[km].mean() < 6 and okr and all(b_[0] for b_ in bdr), (round(float(d2[km].mean()), 2), [(m_[2], m_[3], m_[4]) for m_ in mine], "render:", [(t_[2], t_[3], t_[4]) for t_ in theirs], [b_[1] for b_ in bdr]))
         L_["fdr"] = fdr; prev_drop = fdr; prev_n = n
+    check("[stamp-fit] every box sits on its row's letters: each printed ? and । (which stand on the row's baseline) is centred up and down in its box (its ink's middle within 2.5 px of the box's) — all seven",
+          len(MID) == 7 and all(abs(m_[2]) <= 2.5 for m_ in MID), MID)
+    # [stamp-fit] every frame of every drag on the page: the stamp in hand at the size the law gives at its centre (lift_scale away from the
+    # boxes, the box's size in a box's drop zone, smoothly between) — the boxes still empty in that frame (not yet .gone)
+    derr = []; dsz = []
+    for f in tr:
+        if f["round"] is None or not f["st"]: continue
+        R_ = RS[int(f["round"])]; SLf = slots_of(R_)
+        for k_, cl_ in enumerate(f["cl"]):
+            if not has(cl_, "drag") or not f["st"][k_] or k_ >= len(R_["boxes"]): continue
+            empty = [SLf[j] for j in range(len(SLf)) if j < len(f["slots"]) and not has(f["slots"][j]["cl"], "gone")]
+            sz = f["st"][k_][2] / R_["boxes"][k_][2]; want = size_law(P, LY, empty, *cen(f["st"][k_])); derr.append(abs(sz - want)); dsz.append((round(sz, 3), round(want, 3)))
+    nfar = sum(1 for a_, w_ in dsz if w_ > P["lift_scale"] - 0.005); nfit = sum(1 for a_, w_ in dsz if w_ < P["lift_scale"] * 60 / 90 + 0.005); nmid = len(dsz) - nfar - nfit
+    check("[stamp-fit] in every frame of every drag (all rounds) the stamp in hand has the size the drag's law gives where it is: lifted (1.1) away from the boxes, shrinking smoothly as it nears an empty box, the box's size (1.1 x 60/90) over it (within .015; frames far, between and over a box all seen)",
+          len(dsz) > 100 and max(derr) < 0.015 and nfar > 20 and nfit > 5 and nmid > 5, (len(dsz), round(max(derr), 4) if derr else None, nfar, nmid, nfit))
     fr1 = first(tr, lambda f: f["round"] == "1")
     check("the right-hand stamp lifted four times in round 1 (two guidances, the far drop, the right drop): no guidance while the child was at work", fr1 and len([t for t in lifts1 if t < fr1["t"]]) == 4, len([t for t in lifts1 if fr1 and t < fr1["t"]]))
     # ==== 9. [stamp-close] after the last round's confetti: L1's envelope transition backwards, then 792:1253 with the glitter (stamp_close_check.py

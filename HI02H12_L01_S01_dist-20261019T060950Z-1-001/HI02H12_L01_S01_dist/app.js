@@ -7504,8 +7504,11 @@ const SlideModules = {
           el.innerHTML = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true"><rect x="1" y="1" width="' + (w - 2) + '" height="' + (h - 2) + '" rx="' + (BR - 1) + '" ry="' + (BR - 1) + '" stroke-dasharray="' + DASH + '"/></svg>' +
               '<span class="stp-mark" style="font-size:' + se.size + 'px">' + (sl.mark || D.mark || '?') + '</span>';
           const dx = sl.x + w / 2 - (sb_[0] + tp_[0]), dy = sl.y + h / 2 + P.press_down - (sb_[1] + tp_[1]);
-          return { sl, w, h, el, row: sl.row || 0, mark: el.querySelector(".stp-mark"), done: false, pick: pk, stamp: st,
-                   HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(" + P.lift_scale + ")", PRESS: "translate(" + dx + "px, " + dy + "px) scale(" + P.press_scale + ")" }; });
+          // [stamp-fit] over a box the stamp is the box's size: fit = the box over the stamp's body at rest (layout.stamp_body), so
+          // lifted over it / pressed onto it keep the frames' stamp-to-box proportions (1.1 / .96 of the box)
+          const fit = Math.min(w, h) / (LY.stamp_body || Math.min(w, h));
+          return { sl, w, h, el, row: sl.row || 0, mark: el.querySelector(".stp-mark"), done: false, pick: pk, stamp: st, fit,
+                   HOVER: "translate(" + dx + "px, " + (dy - P.hover_up) + "px) scale(" + (P.lift_scale * fit) + ")", PRESS: "translate(" + dx + "px, " + dy + "px) scale(" + (P.press_scale * fit) + ")" }; });
         // the sign-off (data.sign): small lines under the sentence, shown with its last word
         const signs = (Array.isArray(D.sign) ? D.sign : []).map(sg=>{ const el = document.createElement("p"); el.className = "stp-sign";
           el.style.cssText = 'left:' + sg.x + 'px;top:' + sg.y + 'px;width:' + sg.w + 'px;height:' + sg.h + 'px;font-size:' + sg.size + 'px;line-height:' + sg.h + 'px'; el.textContent = sg.text || ""; return el; });
@@ -7690,7 +7693,7 @@ const SlideModules = {
       function hint(force){   // [vo-rec] force = hint 3's glide in a round without guidance; the glide goes to the OPEN slot's stamp
         if(hinting || solved || drag || !live || !R || (R.D.guide === false && !force)) return;
         const o = R.slots.find(q=> !q.done) || R.slots[0], stamp = o.stamp, HOV = o.HOVER; hinting = true; hintT = []; hintStamp = stamp;
-        stamp.classList.add("lift"); move(stamp, HOV, P.glide, "cubic-bezier(.45,0,.2,1)");
+        stamp.classList.add("lift"); guideGlide(stamp, o, P.glide);   // [stamp-fit] was move(stamp, HOV, P.glide, "cubic-bezier(.45,0,.2,1)")
         hat(P.glide + P.hold, ()=> move(stamp, "none", P.back, "cubic-bezier(.4,0,.2,1)"));
         hat(P.glide + P.hold + P.back - 150, ()=> stamp.classList.remove("lift"));
         hat(P.glide + P.hold + P.back + 50, ()=>{ hinting = false; lastAct = Date.now(); });
@@ -7699,18 +7702,51 @@ const SlideModules = {
         if(!hinting) return; hinting = false; hintT.forEach(clearTimeout); hintT = [];
         if(!taken) putBack(hintStamp || R.stamp, 350);
       }
+      // [stamp-fit] the guidance's glide over the box, as a hand would drag it: the stamp's centre along the old glide's path and curve
+      // (cubic-bezier(.45,0,.2,1), glide ms) frame by frame, its size the drag's (sizeAt: lifted as it leaves the tray — over its first
+      // 15 % —, the box's own size as it nears the box), ending exactly on the box's HOVER; it stops where it is once the guidance stops
+      // (a child taking hold of it finds it at the size a drag gives there: no jump)
+      const easeGlide = ((x1, y1, x2, y2)=> (x)=>{ if(x <= 0) return 0; if(x >= 1) return 1; let lo = 0, hi = 1, t = x;
+        for(let i = 0; i < 24; i++){ t = (lo + hi) / 2; const bx = 3 * (1 - t) * (1 - t) * t * x1 + 3 * (1 - t) * t * t * x2 + t * t * t; if(bx < x) lo = t; else hi = t; }
+        return 3 * (1 - t) * (1 - t) * t * y1 + 3 * (1 - t) * t * t * y2 + t * t * t; })(.45, 0, .2, 1);
+      function guideGlide(stamp, o, ms){
+        const k = stamps.indexOf(stamp), from = curXY(stamp), mm = String(o.HOVER).match(/translate\(([-\d.e]+)px, ([-\d.e]+)px\)/), to = mm ? [+mm[1], +mm[2]] : [0, 0];
+        const v = (getComputedStyle(stamp).transform || "").match(/matrix\(([^)]+)\)/), a = v ? v[1].split(",").map(Number) : null, s0 = a ? (Math.hypot(a[0], a[1]) || 1) : 1;
+        const t0 = performance.now(); stamp.style.transition = "filter .3s";
+        const step = (now)=>{
+          if(!alive() || !hinting || hintStamp !== stamp) return;
+          const u = Math.min(1, (now - t0) / ms), e = easeGlide(u), x = from[0] + (to[0] - from[0]) * e, y = from[1] + (to[1] - from[1]) * e;
+          setTf(stamp, x, y, +(s0 + (sizeAt(k, x, y) - s0) * Math.min(1, u / 0.15)).toFixed(4));
+          if(u < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
       // the child's drags: a stamp follows the finger from where it is (even mid-guidance, mid-return) at the lifted size; the
       // frame's px from the screen's through the stage's scale; the drop is judged by the stamp's centre (tips) against the box's
       const scaleNow = ()=> (root.getBoundingClientRect().width || 1280) / 1280;
       const curXY = (el)=>{ const m = getComputedStyle(el).transform, v = m && m !== "none" ? m.match(/matrix\(([^)]+)\)/) : null;
         if(!v) return [0, 0]; const a = v[1].split(",").map(Number); return [a[4] || 0, a[5] || 0]; };
       const setTf = (el, tx, ty, s)=>{ el.style.transform = "translate(" + tx.toFixed(2) + "px, " + ty.toFixed(2) + "px) scale(" + s + ")"; };
+      // [stamp-fit] the size of a stamp in hand at (lx, ly): lift_scale away from the boxes; as its centre nears an empty box's drop zone
+      // (tol_x / tol_y round the box's centre) it shrinks smoothly to the box's own size (fit), which it has all over the zone; the
+      // nearest empty box decides (its distance outside the zone, the larger of the two axes'); a function of where the stamp is, so it
+      // never jumps and grows back the same way as it is taken off
+      const sizeAt = (k, lx, ly)=>{
+        if(!R) return P.lift_scale;
+        const b = R.bx[k] || R.bx[0], tp = R.tips[k] || R.tips[0], cx = b[0] + tp[0] + lx, cy = b[1] + tp[1] + ly; let near = null;
+        R.slots.forEach(o=>{ if(o.done) return; const m = Math.max(Math.abs(cx - (o.sl.x + o.w / 2)) - P.tol_x, Math.abs(cy - (o.sl.y + o.h / 2)) - P.tol_y, 0); if(!near || m < near.m) near = { m, o }; });
+        if(!near) return P.lift_scale;
+        const e = Math.min(1, near.m / Math.max(1, P.fit_ramp != null ? P.fit_ramp : 60)), t = e * e * (3 - 2 * e);   // 0 in the zone, 1 fit_ramp px out
+        return +(P.lift_scale * (near.o.fit + (1 - near.o.fit) * t)).toFixed(4);
+      };
+      // [stamp-fit] a drop with the stamp's centre on the tray (layout.tray_drop: its drawn body, 30 px larger, down to the stage's bottom)
+      const onTray = (x, y)=>{ const z = LY.tray_drop; return !!z && x >= z[0] && x <= z[2] && y >= z[1] && y <= z[3]; };
       stamps.forEach((s, k)=>{
         s.addEventListener("pointerdown", (e)=>{
           if(!live || solved || drag || !R || (e.button != null && e.button > 0)) return;
           e.preventDefault(); acted = true; lastAct = Date.now();
           if(hinting) stopHint(s === hintStamp);
-          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], P.lift_scale);
+          const xy = curXY(s); s.style.transition = "none"; s.classList.remove("stp-wrong"); s.classList.add("lift", "drag"); setTf(s, xy[0], xy[1], sizeAt(k, xy[0], xy[1]));   // [stamp-fit] its size where it is taken (was lift_scale)
           drag = { el: s, k, id: e.pointerId, x0: e.clientX, y0: e.clientY, tx: xy[0], ty: xy[1], sc: scaleNow(), moved: 0, lx: xy[0], ly: xy[1] };
           try{ s.setPointerCapture(e.pointerId); }catch(err){}
         });
@@ -7718,7 +7754,7 @@ const SlideModules = {
           if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
           const dx = (e.clientX - drag.x0) / drag.sc, dy = (e.clientY - drag.y0) / drag.sc;
           drag.moved = Math.max(drag.moved, Math.hypot(dx, dy)); drag.lx = drag.tx + dx; drag.ly = drag.ty + dy;
-          setTf(s, drag.lx, drag.ly, P.lift_scale);
+          setTf(s, drag.lx, drag.ly, sizeAt(k, drag.lx, drag.ly));   // [stamp-fit] the box's size near a box (was lift_scale throughout)
         });
         const up = (e)=>{
           if(!drag || drag.el !== s || e.pointerId !== drag.id) return;
@@ -7729,6 +7765,7 @@ const SlideModules = {
           // the box the stamp is on: of the boxes still empty, one within tol_x / tol_y of its centre (the nearer, when two are)
           const dist = (o)=> Math.hypot(tipX - (o.sl.x + o.w / 2), tipY - (o.sl.y + o.h / 2));
           const hit = R.slots.filter(o=> !o.done && Math.abs(tipX - (o.sl.x + o.w / 2)) <= P.tol_x && Math.abs(tipY - (o.sl.y + o.h / 2)) <= P.tol_y).sort((a, c)=> dist(a) - dist(c))[0];
+          if(!hit && onTray(tipX, tipY)){ putBack(s, P.reset); return; }   // [stamp-fit] dropped on / by the tray: home in silence, no attempt
           if(hit && k === hit.pick) solve(hit); else wrong(s);
         };
         s.addEventListener("pointerup", up); s.addEventListener("pointercancel", up);

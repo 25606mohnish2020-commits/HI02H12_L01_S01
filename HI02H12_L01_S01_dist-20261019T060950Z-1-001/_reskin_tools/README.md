@@ -3093,6 +3093,42 @@ L2's stamp thud 40 % softer, its empty boxes smaller ([stamp-box], 2026-11-10)
 - `../_before_stamp_box/` holds the dist's three files and build.py, stamp_check.py, stamp_close_check.py, smoke.py, gate_check.py,
   README.md (tools/).
 
+L2's stamp sized to the box near it, tray drops not counted, the boxes on their lines ([stamp-fit], 2026-11-10)
+- Asked: "At Page 16 L2 ... 1. When the stamp is dragged close to or hovered by dragging it on the empty orange boxes for the stamps then
+  the stamp must adjust the size according to that empty orange box, right now it is looking big as compared to the orange blank box.
+  2. If the stamps are accidently dropped or intentionally dropped at or very close to the stamp tray shown at the bottom of the page then
+  it should not register as the wrong attempt, but it should reset to its original position, the wrong or right responce should only be
+  registered on the drop of the stamps on anywhere on the whole page only. 3. ... the empty blank orange box is not aligned with the
+  sentence at some places at page 16 L2, fix it and it should be aligned properly. ... Rest keep everything exactly the same."
+- 1. A stamp's body at rest is 90 px (both pictures: 220/256 of the 105 px danda, 202/256 of the 114 px ?/comma = the frames' old 90
+  box; layout.stamp_body). In hand it is 1.1 (lift_scale) as before until its centre comes within pace.fit_ramp (60) px of an empty
+  box's drop zone (60 px round the box's centre, tol_x / tol_y), then it shrinks smoothly (smoothstep on the distance, the nearest empty
+  box deciding) to the box's own size, which it keeps all over the zone: 1.1 x 60/90 (its body 66 px over the 60 px box), and grows
+  back the same way when taken off — a function of where it is, so it never jumps (module sizeAt). The right drop snaps and presses at
+  the box's size too (HOVER / PRESS: lift / press scale x box / stamp_body: .733 / .64 — the frames' stamp-to-box proportions); the
+  return glide home grows it back to its tray size. The round-1 guidance (and hint 3's glide) moves the stamp the same way, frame by
+  frame on the old path and curve (cubic-bezier(.45,0,.2,1), 1.5 s): lifted over its first 15 %, box-sized as it nears the box
+  (guideGlide) — so a child taking hold of it mid-glide finds it at a drag's size (no jump). Flagged: the guidance was not named.
+- 2. layout.tray_drop = the tray's drawn body (its picture's opaque part, 364..916 x 555..689) 30 px larger, down to the stage's bottom
+  ([334, 525, 946, 720]): a stamp whose centre is dropped there (and not in a box's drop zone) glides home in silence — no buzz, no
+  wiggle, no attempt counted (state.attempts and the hint ladder untouched). Anywhere else: as before (a box: right / wrong; off the
+  boxes: the wrong buzz + wiggle). Taps (< 10 px) as before.
+- 3. The frames' boxes sat from 6 px above to 28 px below their lines' letters (868:31's comma box 28 px low, 868:74's third 12 px,
+  868:44's 9 px — the 90 px boxes had hidden it). Each box's middle is now on its row's letters: 0.3125 em above the row's baseline
+  (a "?"'s ink middle in Baloo 2 ExtraBold; the danda's 0.320, the letters' headline-to-baseline 0.305 — layout.box_mid), in whole px
+  (build.py _box8_y); the printed ? and । (still on the baseline) now stand centred in their boxes (within 1 px). y: 868:17 241 -> 244,
+  868:31 308 -> 281, 868:44 247 -> 239, 868:59 208 / 281 -> 205 / 277, 868:74 60 / 150 / 263 / 437 -> 61 / 156 / 251 / 441. The x's
+  (gaps after the words, 4-14 px as the frames draw them) are unchanged; 868:59's two boxes sit 4-5 px after "हैं" (the tightest).
+- Built: index.html (L2's data only: nine box y's, layout.stamp_body / tray_drop / box_mid, pace.fit_ramp), app.js (the module: fit
+  per box, sizeAt, onTray, guideGlide + its call in hint). style.css unchanged. Nothing else differs (diffed against ../_before_stamp_fit/).
+- stamp_check.py updated ([stamp-fit]): the box y's from the rows' baselines; the guidance over the box at 1.1 x 60/90 and its glide on
+  the size law (every frame past 15 % within .015); the grab mid-glide changes size only as the law does for that move; every drag frame
+  of the run on the size law (811 frames: far, ramp, in zone — within .0001 measured); two drops of the । stamp in and just above the
+  tray (round 1) silent (no play, no wiggle, attempts unchanged, home in ~0.4 s); presses at .96 x 60/90; the seven printed ? / । centred
+  up and down in their boxes (within 2.5 px; measured 0 to -1 px).
+- `../_before_stamp_fit/` holds the dist's three files and build.py, stamp_check.py, stamp_close_check.py, smoke.py, gate_check.py,
+  README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
