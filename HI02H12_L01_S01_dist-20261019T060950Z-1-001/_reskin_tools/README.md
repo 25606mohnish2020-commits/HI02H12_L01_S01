@@ -3056,7 +3056,11 @@ T2-T4's blink twice, G1-G3's hint 2 lighting the signs, one wiggle on G4 / P1 / 
   the window's at 50 fps instead of the 7 s blink's 200; G1-G3: no tile lit before the answer EXCEPT hint 2's lights, and two new checks
   — every frame of hint 2 has the right tile lit, one at a time, each on / off within -0.06/+0.12 s of its cue, none after the line; and
   the lit look and the pop); g4_check (every wrong tap: wgNo alone on the tapped pill, moving only in its first 0.45 s, still to 0.95 s).
-- Checked: RESULTS
+- Checked (one at a time): scene T2 38/38 / T3 48/48 / T4 53/53 (two fades over 3.5 s, troughs 1750 ms apart, the explanation 0.3 s
+  after; T3's glance and T4's look still repeat before the tap) / G1 46/46 / G2 47/47 / G3 56/56 (each tile lit 8-20 ms before its cue
+  — the module's 40 ms lead — and plain within ~11 ms of its off, never two, the look exactly T2-T4's, the mark's pop to 1.099; the
+  picks' blink still 7 s = four fades), g4 G4 / P1 / P2 27/27 each (every wrong tap: wgNo alone, the pill moving 16-369 ms after the
+  tap, then still), smoke 53/53.
 - `../_before_blink2/` holds the dist's three files, build.py, vo_rec.py, scene_check.py, g4_check.py, README.md (tools/) and
   vo_rec/derived.json.
 
