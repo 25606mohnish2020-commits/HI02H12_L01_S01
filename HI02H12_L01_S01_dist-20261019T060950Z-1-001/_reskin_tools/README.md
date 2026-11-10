@@ -3126,6 +3126,9 @@ L2's stamp sized to the box near it, tray drops not counted, the boxes on their 
   of the run on the size law (811 frames: far, ramp, in zone — within .0001 measured); two drops of the । stamp in and just above the
   tray (round 1) silent (no play, no wiggle, attempts unchanged, home in ~0.4 s); presses at .96 x 60/90; the seven printed ? / । centred
   up and down in their boxes (within 2.5 px; measured 0 to -1 px).
+- Checked (on the built dist): smoke 53/53, gate_check 14/14; stamp_check twice: 115 PASS each, every [stamp-fit] check passing, with ONE
+  intro-timing check failing per run, a different one each time (the mount's first-frame / veil check; then a 50.2 ms frame gap vs
+  50) — machine timing: the PRE-change build with the pre-change check failed the same mount check in this session.
 - `../_before_stamp_fit/` holds the dist's three files and build.py, stamp_check.py, stamp_close_check.py, smoke.py, gate_check.py,
   README.md (tools/).
 
