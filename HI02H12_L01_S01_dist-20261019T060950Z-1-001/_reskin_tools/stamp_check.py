@@ -539,8 +539,11 @@ with sync_playwright() as p:
             check(f"round {ri + 1} against Figma's {R['frame']} render: the whole frame close outside its boxes (mean < 6 of 765), every text row's ink where the render's is (its headline within 1 px, its ends within 3 px; [stamp-box] a row with a box between two words {BOXD // 2} px in at each end), every box drawn 60x60 at its place (its fill, its dashes, no orange beyond it)",
                   d2[km].mean() < 6 and okr and all(b_[0] for b_ in bdr), (round(float(d2[km].mean()), 2), [(m_[2], m_[3], m_[4]) for m_ in mine], "render:", [(t_[2], t_[3], t_[4]) for t_ in theirs], [b_[1] for b_ in bdr]))
         L_["fdr"] = fdr; prev_drop = fdr; prev_n = n
-    check("[stamp-fit] every box sits on its row's letters: each printed ? and । (which stand on the row's baseline) is centred up and down in its box (its ink's middle within 2.5 px of the box's) — all seven",
-          len(MID) == 7 and all(abs(m_[2]) <= 2.5 for m_ in MID), MID)
+    # [q-noto] (2026-11-15) the printed "?" is Noto Sans Devanagari ExtraBold now: on the same baseline its ink is taller than Baloo's (40 vs 35 px
+    # at 55 px), so its middle stands ~2-3 px above the box's (set from Baloo's "?", [stamp-fit]); the boxes and the baseline are unchanged
+    check("[stamp-fit] every box sits on its row's letters: each printed ? and । (which stand on the row's baseline) is centred up and down in its box (its ink's middle within 2.5 px of the box's; "
+          "[q-noto] a ? within 3.5 px: Noto's taller glyph) — all seven",
+          len(MID) == 7 and all(abs(m_[2]) <= (3.5 if m_[1] == "?" else 2.5) for m_ in MID), MID)
     # [stamp-fit] every frame of every drag on the page: the stamp in hand at the size the law gives at its centre (lift_scale away from the
     # boxes, the box's size in a box's drop zone, smoothly between) — the boxes still empty in that frame (not yet .gone)
     derr = []; dsz = []

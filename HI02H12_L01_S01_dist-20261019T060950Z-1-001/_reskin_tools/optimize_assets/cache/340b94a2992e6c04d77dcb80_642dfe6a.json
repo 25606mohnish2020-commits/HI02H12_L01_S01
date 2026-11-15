@@ -1,0 +1,14 @@
+{
+ "keep": true,
+ "why": "opus 60 kb/s is already efficient",
+ "src": {
+  "codec": "opus",
+  "channels": 1,
+  "rate": 48000,
+  "duration": 17.299563,
+  "bit_rate": 60043,
+  "size": 129840
+ },
+ "src_bytes": 129840,
+ "out_bytes": 129840
+}

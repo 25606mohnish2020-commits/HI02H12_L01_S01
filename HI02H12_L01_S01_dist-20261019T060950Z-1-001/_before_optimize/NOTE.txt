@@ -1,0 +1,2 @@
+Before [optimize] (2026-11-15): the dist's index.html / style.css / app.js as they were, and tools/ = build.py, scene_check.py, story_check.py before that change.
+The assets: every file optimize.py converted is kept as it was in ../_reskin_tools/optimize_assets/originals/, every file it took out in ../_reskin_tools/optimize_assets/quarantine/ (same paths under assets/).

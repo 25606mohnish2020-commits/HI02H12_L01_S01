@@ -1,0 +1,14 @@
+{
+ "keep": true,
+ "why": "Opus 96k (23219 B) is not smaller than the source (19970 B)",
+ "src": {
+  "codec": "vorbis",
+  "channels": 2,
+  "rate": 44100,
+  "duration": 1.306122,
+  "bit_rate": 122316,
+  "size": 19970
+ },
+ "src_bytes": 19970,
+ "out_bytes": 19970
+}

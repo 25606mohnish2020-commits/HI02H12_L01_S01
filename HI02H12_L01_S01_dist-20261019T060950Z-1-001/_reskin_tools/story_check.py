@@ -169,11 +169,11 @@ with sync_playwright() as p:
           f"{len(bx_all)} samples, max spread {spread:.3f} px" if bx_all else "no samples")
     # the turns between the beats
     i_end = [first(lambda s, k=k: s["clip"] == f"b{k + 1}" and s["shown"][k] == len(T[k]) and not s["playing"]) for k in range(N)]
-    # [story-cat] as beat 1's line ends: its sound (sfx_story_cat.mp3, the kit element storyBeat1) once, with the picture's G4 pop
+    # [story-cat] as beat 1's line ends: its sound (sfx_story_cat.ogg, the kit element storyBeat1) once, with the picture's G4 pop
     firstor = lambda cond: next((i for i in range(len(samples)) if cond(samples[i])), None)
     i_cat = firstor(lambda s: s["cat"] == "playing"); i_pop = firstor(lambda s: s["pop"] == "p2BirdPop1s")
     cat_starts = sum(1 for i, s in enumerate(samples) if s["cat"] == "playing" and (i == 0 or samples[i - 1]["cat"] != "playing"))
-    check("as beat 1's line ends its sound (sfx_story_cat.mp3) starts within 150 ms, together with the picture's little pop (G4's p2BirdPop1s) ([story-cat])",
+    check("as beat 1's line ends its sound (sfx_story_cat.ogg) starts within 150 ms, together with the picture's little pop (G4's p2BirdPop1s) ([story-cat])",
           i_cat is not None and i_pop is not None and abs(ms(i_cat) - ms(i_end[0])) <= 150 and abs(ms(i_pop) - ms(i_cat)) <= 60
           and not any(s["cat"] == "playing" or s["pop"] == "p2BirdPop1s" for s in samples[:max(0, i_end[0] - 1)]),
           (None if i_cat is None else f"sound {ms(i_cat) - ms(i_end[0]):.0f} ms", None if i_pop is None else f"pop {ms(i_pop) - ms(i_end[0]):.0f} ms after the line's end"))
@@ -277,8 +277,9 @@ with sync_playwright() as p:
         check(f"beat {k}: the box is white with 26 px corners and the caption's shadow",
               cap["bg"] == "rgb(255, 255, 255)" and abs(cap["radius"] - 26) <= 0.05
               and "rgba(11, 42, 90, 0.1)" in cap["shadow"] and "rgba(11, 42, 90, 0.12)" in cap["shadow"], (cap["bg"], round(cap["radius"], 3)))
-        check(f"beat {k}: the caption's type — Baloo 2 declared 600, 31 px on 39.68 px, word spacing 6 px (stage px, [t0-font])",
-              cap["family"].startswith('"Baloo 2"') and cap["weight"] == "600" and abs(cap["size"] - 31) < 0.01
+        check(f"beat {k}: the caption's type — Baloo 2 declared 600, 31 px on 39.68 px, word spacing 6 px (stage px, [t0-font]); [q-noto] its \"?\" from Noto Sans "
+              "Devanagari Bold ('Story Noto Q 700' first in the list, U+3F only)",
+              cap["family"].startswith('"Story Noto Q 700", "Baloo 2"') and cap["weight"] == "600" and abs(cap["size"] - 31) < 0.01
               and abs(cap["lh"] - 39.68) < 0.01 and abs(cap["ws"] - 6) < 0.01)
         check(f"beat {k}: no word lit or orange once its line has ended", cap["hot"] == 0 and not cap["orange"], cap["orange"][:3])
         lines = pg.evaluate(LINES_OF, k); print("  text lines:", lines)

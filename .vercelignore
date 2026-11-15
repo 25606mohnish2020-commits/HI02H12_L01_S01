@@ -1,0 +1,15 @@
+# [optimize] (2026-11-15) Deploy only what the game serves: vercel.json and the game's dist folder (index.html, app.js,
+# style.css, assets/). Dev tooling (_reskin_tools), backups (_before_*), design docs (the review deck, the VO manifest) and the
+# raw voice-over recordings stay in git but are never uploaded to Vercel. Same syntax as .gitignore.
+/*
+!/vercel.json
+!/HI02H12_L01_S01_dist-20261019T060950Z-1-001
+/HI02H12_L01_S01_dist-20261019T060950Z-1-001/*
+!/HI02H12_L01_S01_dist-20261019T060950Z-1-001/HI02H12_L01_S01_dist
+/HI02H12_L01_S01_dist-20261019T060950Z-1-001/HI02H12_L01_S01_dist/*.pptx
+/HI02H12_L01_S01_dist-20261019T060950Z-1-001/HI02H12_L01_S01_dist/*.xlsx
+/HI02H12_L01_S01_dist-20261019T060950Z-1-001/HI02H12_L01_S01_dist/voiceovers_batch*
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp

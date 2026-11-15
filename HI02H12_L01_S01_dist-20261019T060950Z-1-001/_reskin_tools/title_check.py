@@ -239,7 +239,7 @@ with sync_playwright() as p:
     STATE = """() => { const a = (typeof currentAudio !== 'undefined') ? currentAudio : null; const btn = document.getElementById('sgBtn'), vo = document.getElementById('sgVo'), bird = document.getElementById('sgMascot');
       return { t: performance.now(), vo: !!(a && !a.paused && !a.ended && isPlaying), src: a ? a.src.split('/').pop().split('?')[0] : null,
                btn: getComputedStyle(btn).display !== 'none', ready: btn.classList.contains('ready'), breathe: btn.classList.contains('sg-breathe'), btnAnim: getComputedStyle(btn).animationName,
-               chipOff: vo.classList.contains('sg-vo-off'), bird: (bird.getAttribute('src') || '').split('/').pop().split('?')[0], loaded: document.body.classList.contains('loaded'),
+               chipOff: vo.classList.contains('sg-vo-off'), bird: (bird.src || '').split('/').pop().split('?')[0], loaded: document.body.classList.contains('loaded'),
                hd: (() => { const e = document.querySelector('.sg-card > .sgf-heading:not(.sgf-hclone)'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height, e.getAnimations().length]; })(),
                fly: window.__sgFly ? window.__sgFly.phase : null,   // [title-fly] the flight's phase and the two flyers' boxes, the question mark's box and gaze
                sym: ['.sgf-purn', '.sgf-commaw:not(.sgf-twin)', '.sgf-question'].map(s => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return [Math.round(r.left * 10) / 10, Math.round(r.top * 10) / 10, Math.round(r.width * 10) / 10]; }),
@@ -334,6 +334,17 @@ with sync_playwright() as p:
     star = pg.evaluate("""() => { for (const el of document.querySelectorAll('.sg-sky i')) { const r = el.getBoundingClientRect(); if (r.width > 6 && parseFloat(getComputedStyle(el).opacity) > 0.3 && r.top > 20 && r.top < 100) return [r.left + r.width / 2, r.top + r.height / 2]; } return null; }""")
     if star: pg.mouse.click(star[0], star[1]); pg.wait_for_timeout(120)
     check("a tapped star pops (the kit's sky-burst)", bool(star) and pg.evaluate("document.querySelectorAll('.sg-burst').length >= 1 && document.querySelectorAll('.sg-sky i.popped').length >= 1"), star)
+    # [sky-burst-fix] (2026-11-15) its colourful particles fly OUT and shrink as they fade — never back to the star: each particle's distance
+    # from the burst's centre as a share of its own flight (--dx, --dy), and its size as a share of its own (--ps), at ~0.12 / 0.35 / 0.65 s
+    BURST = """() => { const b = document.querySelector('.sg-burst'); if (!b) return null; const ox = parseFloat(b.style.left), oy = parseFloat(b.style.top), ps = [];
+      for (const i of b.querySelectorAll('i')) { const r = i.getBoundingClientRect(), c = getComputedStyle(i);
+        const D = Math.hypot(parseFloat(c.getPropertyValue('--dx')), parseFloat(c.getPropertyValue('--dy')));
+        ps.push([Math.hypot(r.left + r.width / 2 - ox, r.top + r.height / 2 - oy) / D, r.width / parseFloat(c.getPropertyValue('--ps'))]); }
+      const m = k => ps.reduce((s, p) => s + p[k], 0) / ps.length; return ps.length ? [+m(0).toFixed(3), +m(1).toFixed(3), ps.length] : null; }"""
+    bs1 = pg.evaluate(BURST); pg.wait_for_timeout(230); bs2 = pg.evaluate(BURST); pg.wait_for_timeout(300); bs3 = pg.evaluate(BURST)
+    check("[sky-burst-fix] ...its colourful particles fly out from the star and shrink as they fade: their distance grows (on its way out at ~0.35 s, at least .7 of "
+          "their flight by ~0.65 s) and they end smaller than they start — none goes back to the star",
+          None not in (bs1, bs2, bs3) and bs3[0] > bs2[0] > bs1[0] and bs3[0] >= 0.7 and bs3[1] <= 0.7, (bs1, bs2, bs3))
     # [cover-fx] the scene's ambient light: the flare breathing, the dust alive
     DUST = "(() => { const d = document.getElementById('sgDust'), x = d.getContext('2d'), im = x.getImageData(0, 0, d.width, d.height).data; let s = 0, n = 0; for (let i = 3; i < im.length; i += 4 * 97) { s += im[i]; n++; } return [s / n, window.__sgDust ? window.__sgDust.t : null]; })()"
     d1 = pg.evaluate(DUST); pg.wait_for_timeout(600); d2 = pg.evaluate(DUST)

@@ -1,0 +1,8 @@
+{
+ "keep": false,
+ "lossless": true,
+ "quality": "lossless",
+ "psnr": 99.0,
+ "src_bytes": 80834,
+ "out_bytes": 48232
+}

@@ -1,0 +1,11 @@
+{
+ "keep": false,
+ "quality": "lossless",
+ "psnr": 99.0,
+ "lossless": true,
+ "frames": 83,
+ "durations_ms": 1660,
+ "loop": 0,
+ "src_bytes": 325308,
+ "out_bytes": 223334
+}

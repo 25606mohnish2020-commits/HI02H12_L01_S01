@@ -126,6 +126,13 @@ def sub1(text, pattern, repl, flags=0, what=""):
     must(pattern, text, flags, what)
     return re.sub(pattern, repl, text, count=1, flags=flags)
 
+# ---------- [optimize] (2026-11-15) the post-build optimiser (optimize.py, next to this script; run last, step 8). First the dist goes back
+#            to what this script expects: the files optimize.py converted or quarantined in the last build are restored (some are
+#            asserted below); step 8 redoes all of it from its cache. ----------
+import importlib.util as _ilu
+_opt_spec = _ilu.spec_from_file_location("optimize", SCR / "optimize.py"); _opt = _ilu.module_from_spec(_opt_spec); _opt_spec.loader.exec_module(_opt)
+_opt.restore(DIST)
+
 # ---------- 0. one-time backup of the original split bundle ----------
 BACKUP.mkdir(exist_ok=True)
 for f in ("index.html", "style.css", "app.js"):
@@ -2437,7 +2444,7 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
         const t = (voA && currentAudio === voA) ? voA.currentTime * 1000 : performance.now() - voT0;
         cues.forEach(c=>{ if(!c.done && t >= c.ms){ c.done = true; c.fn(); } });
         if(cues.some(c=> !c.done)) requestAnimationFrame(watch); };
-      const tryReady = ()=>{ if(!voDone || !grown || tapped || root.classList.contains("ready")) return; root.classList.add("ready"); state.demoRunning = false; };
+      const tryReady = ()=>{ if(!voDone || !grown || tapped || root.classList.contains("ready")) return; root.classList.add("ready"); state.demoRunning = false; armNudge(); };   // [l1-nudge] the envelope pulses: the 5 s starts
       // 1. the girl writing (792:1257) comes in full screen on the magic shimmer's first frame; 2. the narration vo_at after it, with
       //    the piano bed fading in under it (mild: pace.music_vol)
       sound(sfx.magic, 0.6, ()=>{ root.classList.add("w-in"); at(P.vo_at, ()=>{
@@ -2458,11 +2465,39 @@ letter_mod = r"""  /* ===== [letter-fig] LETTER_STORY — the letter page, after
       //    white (env_after) the letter grows in it (the CSS: .9 s) — no sound
       cues.push({ ms: P.letter, fn: ()=>{ cloud.classList.add("clean");
         at(P.env_after, ()=>{ root.classList.add("letter-in"); at(900, ()=>{ grown = true; tryReady(); }); }); } });
+      // [l1-nudge] (asked 2026-11-15: "when the envelope of the letter starts pulsating in the cloud like dialogue box then in the case
+      // of 5 seconds of inactivity from the user end the exact same hand nudge should come with the same tapping animation on the
+      // envelope of the letter as previous pages"): once the envelope pulses (.ready), nudge_ms (5 s) with no tap anywhere brings the
+      // earlier pages' tapping hand onto it — the very element of P2's / G4's / P1's reveal hand in its rh-tap form (nudge_hand_new.svg,
+      // its finger pressing on a 1.3 s beat with G2's ripple and sparks round the tip: the same CSS rules, widened to this page), placed
+      // as theirs is: centred on the envelope, its top 56 px above the bottom edge of the envelope's box (.ltr-env-grow, which does not
+      // pulse), so the fingertip is in the envelope's lower part. A tap anywhere before then starts the 5 s again; once shown the hand
+      // stays, tapping, until the envelope is tapped (a tap on the hand is the envelope's tap); the envelope's tap takes it away
+      const NUDGE_MS = P.nudge_ms || 5000;
+      let nudgeT = 0, hand = null;
+      const armNudge = ()=>{ clearTimeout(nudgeT); if(tapped || hand || !alive()) return; nudgeT = setTimeout(showNudge, NUDGE_MS); timers.push(nudgeT); };
+      const poke = ()=>{ if(!alive() || tapped){ document.removeEventListener("pointerdown", poke, true); return; }
+        if(!hand && root.classList.contains("ready")) armNudge(); };
+      document.addEventListener("pointerdown", poke, true);
+      const showNudge = ()=>{
+        if(tapped || hand || !alive() || !root.classList.contains("ready")) return;
+        const st = document.querySelector(".slide-stage"), grow = fig.querySelector(".ltr-env-grow"); if(!st || !grow) return;
+        hand = document.createElement("div"); hand.className = "reveal-hand rh-tap ltr-hand";
+        hand.innerHTML = '<span class="rh-fx" aria-hidden="true"><i class="rh-ro"></i><i class="rh-ri"></i><i class="rh-sp"></i></span>' +
+                         '<img class="rh-img" src="assets/UI/nudge_hand_new.svg" alt="" draggable="false">';
+        hand.style.setProperty("pointer-events", "auto", "important"); hand.style.cursor = "pointer";
+        hand.onclick = (e)=>{ e.stopPropagation(); envPos.onclick(); };
+        const r = grow.getBoundingClientRect(), sw = st.getBoundingClientRect(), scale = sw.width / st.offsetWidth || 1;
+        hand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px";
+        hand.style.top = ((r.bottom - sw.top) / scale - 56) + "px";
+        st.appendChild(hand);
+      };
+      const clearNudge = ()=>{ clearTimeout(nudgeT); document.removeEventListener("pointerdown", poke, true); if(hand){ hand.remove(); hand = null; } };
       // 5. the tap: the pop, the zoom to 610:6 over the blurred room (the loop fades out), then the opening and the next page
       let tapped = false;
       envPos.onclick = ()=>{
         if(tapped || !root.classList.contains("ready") || !alive()) return;
-        tapped = true; state.demoRunning = true;
+        tapped = true; state.demoRunning = true; clearNudge();   // [l1-nudge]
         root.classList.remove("ready"); root.classList.add("zoom");
         GameBus.emit("letter_opened", { slide_id: slide.id });
         sound(sfx.pop, 0.7, null);
@@ -2536,7 +2571,7 @@ stamp_mod = r"""  /* ===== [stamp-fig] STAMP_DEMO — L2, the stamp page after t
           '<div class="stp-a"><div class="stp-ao">' + pic("stp-a-bg", im.a_bg, LY.a_bg) + '</div>' +
             '<div class="stp-ai">' + pic("stp-a-bg", im.a_bg, LY.a_bg) + pic("stp-a-post", im.a_post, LY.a_post) + pic("stp-a-text", im.a_text, LY.a_text) + '</div></div>' +
           pic("stp-tray", im.tray, LY.tray) + pic("stp-a-tray", im.a_tray, LY.a_tray) +
-          Array.from({ length: maxN }, (_, k)=> '<div class="stp-stamp s' + k + '" style="' + (k < (rounds[0].stamps || []).length ? box(boxes0[k] || boxes0[0]) : 'display:none') + '"><img src="' + (rounds[0].stamps && rounds[0].stamps[k] ? imgSrc(rounds[0].stamps[k]) : '') + '" alt="" draggable="false"></div>').join('') +
+          Array.from({ length: maxN }, (_, k)=> '<div class="stp-stamp s' + k + '" style="' + (k < (rounds[0].stamps || []).length ? box(boxes0[k] || boxes0[0]) : 'display:none') + '"><img' + (rounds[0].stamps && rounds[0].stamps[k] ? ' src="' + imgSrc(rounds[0].stamps[k]) + '"' : '') + ' alt="" draggable="false"></div>').join('') +   /* [optimize] a slot round 1 does not use has no src at all (src="" fired an image error) */
           // the standing stamps, each over its "ठप्पा" glow (a baked halo along its outline: images.a_glows, layout.a_glows)
           (im.a_glows || []).map((id, k)=> pic("stp-a-halo h" + k, id, (LY.a_glows || [])[k])).join('') +
           (im.a_stamps || []).map((id, k)=> pic("stp-a-stamp a" + k, id, (LY.a_stamps || [])[k])).join('') +
@@ -4168,7 +4203,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .stage.sent-page .opt-grid.sent-opts .opt-cell.opt-dim{filter:grayscale(1) !important;opacity:.5 !important;pointer-events:none !important;cursor:default !important;}
 .stage.sent-page .story-q-stim .story-q-thumb.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 .stage.sent-page .story-q-stim .story-q-thumb.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
-.stage.sent-page .reveal-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand{position:absolute;width:96px !important;height:96px !important;z-index:55;object-fit:contain;
   filter:drop-shadow(0 6px 10px rgba(0,0,0,.22));animation:guidedHandBob 1s ease-in-out infinite;}
 @keyframes p2WordPop{0%{transform:scale(1);}45%{transform:scale(1.1);}100%{transform:scale(1);}}
 @keyframes p2BirdPop1s{0%{transform:scale(1);animation-timing-function:cubic-bezier(.2,.8,.3,1);}20%{transform:scale(1.045);animation-timing-function:ease-in-out;}
@@ -4205,7 +4240,10 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 # ripples and the sparks, G2's :root --nh-ro / --nh-ri / --nh-sp SVGs) is kept in p2_assets/g2_tap_fx.json.
 _g2fx = json.loads((SCR / "p2_assets" / "g2_tap_fx.json").read_text(encoding="utf-8"))
 assert all(_g2fx[k].startswith("data:image/svg+xml,") and '"' not in _g2fx[k] for k in ("ro", "ri", "sp")), "g2_tap_fx.json: not the three SVG data URIs"
-sent_css += """/* ===== [p2-tap] P2, and since [g4p1-tap] G4 and P1 (data.hand_tap): the reveal hand after the 3rd wrong tap TAPS on the right sentence — the tap of
+sent_css += """/* [l1-nudge] (2026-11-15) the reveal hand's rules below and the 96 px base rule above are also L1's (its 5 s nudge on the pulsing
+   envelope: the stage holding .ltr-env-pos): ":is(.stage.sent-page, .stage:has(.ltr-env-pos))" in place of ".stage.sent-page", the same
+   specificity and order, so the sentence pages' hands are unchanged. */
+/* ===== [p2-tap] P2, and since [g4p1-tap] G4 and P1 (data.hand_tap): the reveal hand after the 3rd wrong tap TAPS on the right sentence — the tap of
    https://hind-dear-story.vercel.app/ page 15 (G2), its #nudgeHand read live, in place of the bob (guidedHandBob). The hand stays where it
    stands ([p2-side]'s place); its finger presses down and in (G2's nhTapNew: 45-62 % of a 1.3 s ease-in-out cycle, scale .93) while G2's
    outer ripple, inner ripple and sparks (its own SVG art) open round the fingertip on the same clock (the engine's nhRippleOuter /
@@ -4213,14 +4251,14 @@ sent_css += """/* ===== [p2-tap] P2, and since [g4p1-tap] G4 and P1 (data.hand_t
    painted over it). P2's hand keeps its 96px box: G2's 86x108 hand draws the 75x94 art 0.8906 as large here (96/94 vs 86/75), so G2's
    tap layer (94.6px at -13.08,-31.48 of its box) and press (6px) are scaled with it: 84.255px at -1.948,-28.133 (the art's left edge is
    9.702px into our box), 5.344px. (G4 and P1 kept the bob until [g4p1-tap].) */
-.stage.sent-page .reveal-hand.rh-tap{animation:none;overflow:visible;--rh-ro:url("@RO@");--rh-ri:url("@RI@");--rh-sp:url("@SP@");}
-.stage.sent-page .reveal-hand.rh-tap .rh-img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;animation:rhTapP2 1.3s ease-in-out infinite;}
-.stage.sent-page .reveal-hand.rh-tap .rh-fx{position:absolute;left:-1.948px;top:-28.133px;width:84.255px;height:84.255px;pointer-events:none;}
-.stage.sent-page .reveal-hand.rh-tap .rh-fx i{position:absolute;inset:0;display:block;background-repeat:no-repeat;background-position:center;background-size:contain;
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap{animation:none;overflow:visible;--rh-ro:url("@RO@");--rh-ri:url("@RI@");--rh-sp:url("@SP@");}
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap .rh-img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;animation:rhTapP2 1.3s ease-in-out infinite;}
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap .rh-fx{position:absolute;left:-1.948px;top:-28.133px;width:84.255px;height:84.255px;pointer-events:none;}
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap .rh-fx i{position:absolute;inset:0;display:block;background-repeat:no-repeat;background-position:center;background-size:contain;
   transform-origin:50% 50%;opacity:0;}
-.stage.sent-page .reveal-hand.rh-tap .rh-fx .rh-ro{background-image:var(--rh-ro);animation:nhRippleOuter 1.3s ease-out infinite;}
-.stage.sent-page .reveal-hand.rh-tap .rh-fx .rh-ri{background-image:var(--rh-ri);animation:nhRippleInner 1.3s ease-out infinite;}
-.stage.sent-page .reveal-hand.rh-tap .rh-fx .rh-sp{background-image:var(--rh-sp);animation:nhSparkPop 1.3s ease-out infinite;}
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap .rh-fx .rh-ro{background-image:var(--rh-ro);animation:nhRippleOuter 1.3s ease-out infinite;}
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap .rh-fx .rh-ri{background-image:var(--rh-ri);animation:nhRippleInner 1.3s ease-out infinite;}
+:is(.stage.sent-page, .stage:has(.ltr-env-pos)) .reveal-hand.rh-tap .rh-fx .rh-sp{background-image:var(--rh-sp);animation:nhSparkPop 1.3s ease-out infinite;}
 @keyframes rhTapP2{0%,100%{transform:translateY(0) scale(1);}45%,62%{transform:translateY(5.344px) scale(.93);}}
 """.replace("@RO@", _g2fx["ro"]).replace("@RI@", _g2fx["ri"]).replace("@SP@", _g2fx["sp"])
 css = (ref_css
@@ -4441,8 +4479,13 @@ function stdSfx(name){
   b.disabled = false;
   const reveal = ()=>{ if(b.classList.contains("ready")) return;
     // [title-fly2] the symbols' flight is over before the welcome ends; should it ever still be running, the button waits for it
-    const fly = window.__sgFly; if(fly && (fly.phase === "blue" || fly.phase === "green")){
-      if(!reveal.waiting){ reveal.waiting = true; window.addEventListener("sgflydone", ()=>{ reveal.waiting = false; sync(); }, { once:true }); } return; }
+    // ([optimize] at most 9 s: a flight that never reports its end holds nothing up)
+    const fly = window.__sgFly; if(fly && (fly.phase === "blue" || fly.phase === "green") && !reveal.flyLate){
+      if(!reveal.waiting){ reveal.waiting = true; window.addEventListener("sgflydone", ()=>{ reveal.waiting = false; sync(); }, { once:true });
+        setTimeout(()=>{ if(reveal.waiting){ reveal.waiting = false; reveal.flyLate = true; sync(); } }, 9000); } return; }
+    // [optimize] and only once every asset is in (the loading bar in the button's place has filled)
+    const pl = window.__preload; if(pl && !pl.done){
+      if(!reveal.plWait){ reveal.plWait = true; pl.whenDone(()=>{ reveal.plWait = false; sync(); }); } return; }
     b.disabled = false; b.classList.add("ready");
     let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
     b.addEventListener("animationend", breathe, { once:true }); setTimeout(breathe, 700); };   // 700 ms fallback: the pop-in is .52 s
@@ -4454,6 +4497,15 @@ function stdSfx(name){
     const a = currentAudio; if(isPlaying && a && !a.paused && a.currentTime > 0.25 && /vo_landing/.test(a.src)){
       if(!heard) try { window.dispatchEvent(new CustomEvent("sgwelcomestart", { detail: { left: (a.duration - a.currentTime) * 1000 } })); } catch(e){}   // [title-fly2] the welcome is sounding: the symbols fly (fitted into what is left of it)
       heard = true; sync(); } }, 100);
+  // [optimize] a welcome that failed to load or hung (the engine then holds its silent beat; the clip watchdog ends a hung one)
+  // counts as heard, so the button can never be held back by it; a welcome refused by autoplay is neither, and still waits for a tap
+  const lost = (ev)=>{ const s = ev && ev.detail && ev.detail.src; if(s && /vo_landing/.test(s) && document.body.classList.contains("is-start")){ heard = true; sync(); } };
+  window.addEventListener("plmediafail", lost); window.addEventListener("plmediastuck", lost);
+  // [optimize] the start itself waits for every asset: a tap, key or programmatic click before the bar has filled is held, and runs then
+  const go = b.onclick;
+  if(typeof go === "function") b.onclick = function(ev){ const pl = window.__preload;
+    if(pl && !pl.done){ if(!b.__plHeld){ b.__plHeld = true; pl.whenDone(()=>{ b.__plHeld = false; go.call(b, ev); }); } return; }
+    return go.apply(this, arguments); };
   const sync = ()=>{ if(heard && document.body.classList.contains("landing-play-ready")) reveal();
     if(vo){ const off = !b.classList.contains("ready"); vo.classList.toggle("sg-vo-off", off); vo.setAttribute("aria-disabled", String(off)); } };
   new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });
@@ -4818,7 +4870,7 @@ vo_css = """
 """
 # 5. the CSS, last in the cascade
 dun_css = ("\n/* ===== [dun-chrome] the chrome of HI02H04_L01_S01 (hi-02-h04-l01-s01-dun.vercel.app) — see build.py ===== */\n"
-  "/* ---- the cover's sky: the kit's sky-drift + sky-burst + sky-adapt, the reference's block verbatim ---- */\n" + dun_block("sky_css.css") +
+  "/* ---- the cover's sky: the kit's sky-drift + sky-burst + sky-adapt, the reference's block verbatim ---- */\n" + dun_block("sky_css.css").replace("calc(var(--dy) + var(--gy))", "calc(var(--dy) + var(--gy, var(--g, 0px)))") +   # [sky-burst-fix] the particles' drop: --gy (the kit's) or --g (the base game's burst, which claims the tap)
   r"""
 /* this lesson's adaptations of the sky: the Figma title card is 1160x475 on the stage (the reference's is 1114x456), so its hole is
    40 px inside THAT box; the title page keeps its own background element (.start-bg): the reference's plain sunburst goes there,
@@ -4981,6 +5033,7 @@ html = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><!-- [24a N9] pinch-zoom lock: a child two-finger-zooms the game off-centre in any real browser without it -->
 <title>SwiftPAL · {card['skill_code']} · {title_hi}</title>
+<link rel="icon" href="data:,"><!-- [optimize] no icon file: the browser's own /favicon.ico request 404'd on every load -->
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="is-start">
@@ -5127,7 +5180,9 @@ for name, sub in [(f"{k}.webp", "Images") for k in STAMP_IMGS] + [(f"{k}.ogg", "
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 
 # ---------- 7. assets the reference chrome needs ----------
-SKIP = {"assets/UI/title_swifty_swimming.mp4", "assets/UI/start_card_sea.webp"}
+# [optimize] (2026-11-15) the sources optimize.py converted (now WebP / Opus) and the files it quarantined are never brought in from
+# the reference here (the dist's own versions were restored at the top)
+SKIP = {"assets/UI/title_swifty_swimming.mp4", "assets/UI/start_card_sea.webp"} | _opt.skip_set()
 refs = set(re.findall(r"assets/(?:UI|Audio)/[A-Za-z0-9_.&-]+", html + css + js))
 for g in ("sw_head_*.webp", "sw_lg_hint_anim.webp", "bgdeco_*.svg"):
     refs.update("assets/UI/" + p.name for p in (REF_DIR / "assets" / "UI").glob(g))
@@ -5147,3 +5202,8 @@ print("phase_distribution:", card["phase_distribution"])
 print("index.html %d B · style.css %d B · app.js %d B" % tuple(len(x.encode("utf-8")) for x in (html, css, js)))
 print("copied %d assets:" % len(copied), " ".join(p.split("/", 1)[1] for p in copied))
 print("referenced but absent in reference (dynamic prefixes are expected here):", missing)
+
+# ---------- 8. [optimize] (2026-11-15) the dist made light and preloaded: media to Opus / WebP (only where smaller), unused files
+#            quarantined, every reference renamed and checked, the loading bar + blob resolver + media watchdogs written in
+#            (optimize.py; its report in optimize_assets/report.json) ----------
+_opt.run(DIST, SCR / "optimize_assets" / "report.json")

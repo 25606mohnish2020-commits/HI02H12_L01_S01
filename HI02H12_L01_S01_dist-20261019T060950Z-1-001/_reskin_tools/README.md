@@ -3500,16 +3500,138 @@ The "?" in Noto Sans Devanagari on pages 1, 7, 10, 13 and 16 ([q-noto], 2026-11-
   the words after them; the stamped "?" 25 -> 28); no height or line changed anywhere; T1C, T2, T4, G1, G3, G4 and P2 identical (P2 /
   G4 compared sentence by sentence: their options are shuffled). The landed "?" ink sits within 0.3 / 0.7 px (T3) and 0.5 / 1.2 px
   (G2) of the slot's centre in Noto (the face loaded before the tap; the canvas measures Noto's own "?").
-- Checked: (pending)
+- Checked: story_check.py 74/75 (the one FAIL = the music bed's aborted request under file://, there before), scene_check.py T3 47/47
+  and G2 46/46 (the landed mark's family = 'Story Noto Q'), g4_check.py --page P1 30/30, stamp_check.py 116/116 ([stamp-fit] 3.5 px for
+  the "?"), smoke.py 53/53, title_check.py 44/44.
 - `../_before_q_noto/` holds the dist's three files and build.py, smoke.py, README.md and the page checks story_check.py,
   scene_check.py, g4_check.py, stamp_check.py, recap_check.py (tools/).
+
+L1's hand nudge on the pulsing envelope; the title page's star burst no longer shrinks back ([l1-nudge] + [sky-burst-fix], 2026-11-15)
+- Asked: "1. At Page 15 L1 when the envelope of the letter starts pulsating in the cloud like dialogue box then in the case of 5 seconds
+  of inactivity from the user end the exact same hand nudge should come with the same tapping animation on the envelope of the letter as
+  previous pages. 2. If the user clicks on the animatied stars, circles in white color moving in the background of the title page, then
+  why the colorful stars and the shapes are shrinking back? after the user's click. Fix this issue."
+- 1. [l1-nudge] Once the envelope pulses in the cloud (.ltr.ready: the narration over and the letter grown in), 5 s (pace.nudge_ms) with
+  no tap anywhere brings the earlier pages' tapping hand onto it: the very element of P2's / G4's / P1's reveal hand in its rh-tap form
+  (div.reveal-hand.rh-tap: nudge_hand_new.svg, the finger pressing on a 1.3 s beat with G2's outer ripple, inner ripple and sparks round
+  the tip), drawn by the same CSS rules — their selector widened from ".stage.sent-page" to ":is(.stage.sent-page, .stage:has(.ltr-env-pos))"
+  (same specificity, same order: the sentence pages' hands are unchanged) — and placed as theirs is: centred on the envelope's box
+  (.ltr-env-grow, which does not pulse), its top 56 px above that box's bottom edge, so the fingertip is in the envelope's lower part.
+  A tap anywhere before then starts the 5 s again; once there the hand stays, tapping, until the envelope is tapped (a tap on the hand
+  is the envelope's tap); the envelope's tap takes it away at once and the letter opens as before. No sound with it (none was asked).
+- 2. [sky-burst-fix] Two copies of the sky-burst live on the title page: the base game's own (it claims the tap first) and the animation
+  kit's (from the reference's sky block). The base game's gives each particle its gravity drop as --g; the kit's @keyframes sgSpark —
+  which wins, coming later in style.css — reads --gy. Undefined, it made the last keyframe's transform invalid, so it fell to "none":
+  every particle flew 30 % of the way out, then glided back to the tapped star at full size ("shrinking back"). The kit's keyframe now
+  reads either (var(--gy, var(--g, 0px))): the particles arc out, fall a little and shrink to .3 as they fade, where they are — the
+  burst the kit describes. (Its flash, sound, colours, sizes and timing unchanged; the block file stays verbatim, build.py patches it.)
+- Built: style.css (the eight reveal-hand selectors + a note; the one keyframe value) and app.js (L1's nudge in the LETTER_STORY module);
+  index.html unchanged. Diffed against ../_before_l1_nudge/.
+- New check: l1_nudge_check.py (no input: no hand before 4.8 s, the hand at 5 s, the rh-tap element and animations, 96 px, its place,
+  it stays, a tap on it opens the letter and it goes, on to L2; a tap elsewhere at 3 s -> the hand at 8 s; the envelope tapped at 2 s ->
+  no hand; P2's hand's computed look unchanged). title_check.py: the burst's particles' distance grows and they end smaller (never back).
+- Checked: l1_nudge_check.py ALL PASS 15/15 (the build before: no hand, its A checks FAIL as they should); title_check.py 44/44 with the
+  new burst check (the build before FAILs it: the particles go back); letter_check.py 51/51 (a first run under load timed out, rerun
+  clean), smoke.py 53/53, stamp_check.py 116/116, gate_check.py 13/13, scene_check.py T3 / G2, g4_check.py P1 / P2 all pass.
+- `../_before_l1_nudge/` holds the dist's three files and build.py, README.md, smoke.py, letter_check.py, title_check.py,
+  story_check.py, scene_check.py, stamp_check.py (tools/).
+
+The whole lesson optimised: lighter media, every asset preloaded behind a loading bar, no media wait that can hang ([optimize], 2026-11-15)
+- Asked (a pasted six-part brief): media to efficient formats (every output smaller than its source, every reference updated); preload
+  every asset behind a themed progress bar before the start button; an event, an error path and a watchdog for every media-driven
+  state; GPU compositing pitfalls; remove unused code and files, keep dev tooling / design docs / backups off the deploy; verify like a
+  user over HTTP (throttled too), every page, zero JS errors / 4xx / 5xx; report before / after sizes.
+- Built as a post-build step, optimize.py (build.py runs it last, step 8; it also runs alone: python -I -X utf8 optimize.py <dist>),
+  its parts in optimize_assets/, cached by content (optimize_assets/cache/; every output is remembered by its hash and never taken for
+  a source again). build.py first puts the dist back as it expects it (optimize.restore: the converted originals and the quarantined
+  files, some of which it asserts), then builds as before; a second rebuild was checked to give a byte-identical dist (205 files):
+  1. Media, used only where the result is smaller than its source: the 8 MP3s in use -> Ogg Opus (the 240 s music bed at 64k stereo,
+     the effects 96k stereo / 64k mono: 8.05 -> 2.46 MB, the bed 7.5 -> 2.3 MB); 87 Ogg files re-encoded to Opus (the recorded voice
+     lines above 100 kb/s at 64k mono, Vorbis effects where smaller: 4.99 -> 3.34 MB, timelines unchanged); the 11 PNGs in use -> WebP
+     (q85 with lossless alpha for the cover's scene, sky and three characters; lossless, pixel-exact for the three eye-rig sheets, G3's
+     two eye sheets and the 245 px standing Swiftie, where q85 / q92 kept under 35 dB on the visible pixels): 5.07 -> 0.42 MB; the boot
+     loader's GIF -> animated WebP (lossless, its 1.66 s timeline exact): 317 -> 218 KB; the 19 inline PNG masks in style.css ->
+     lossless WebP and the inline pop in app.js -> Opus (204 -> 58 KB). Left as they were: every WebP (the lossless room / letter pictures were stored that way at the user's "don't degrade"
+     request; the reference's animations are lossy WebP already), the SVGs, the font, Opus at or under ~100 kb/s, and two Vorbis effects
+     whose Opus came out bigger (bgm_letter_nostalgia, sfx_stamp_glitter). Sources that left the dist are in optimize_assets/originals/.
+     The cover against the old build, every animation frozen: PSNR 44.7 dB inside the card (mean 1.7 levels), the heading identical.
+     Browser support (noted in preload_head.js): Ogg Opus and WebP play in Chrome / Edge / Firefox and in recent Safari.
+  2. Unused files: 150 assets moved to optimize_assets/quarantine/ (nothing deleted; unused_assets.txt says why for each): 97 named
+     only in the card's asset registry (earlier pages' and the old modules' lines and pictures — no slide and no code asks for them;
+     their registry entries leave the dist's card too), 41 named nowhere (earlier designs, the reference engine's retired GIFs and art,
+     sounds later changes took off the page), 12 freed by the dead code / dead references below. optimize.py stops the build if one is named again.
+     Not preloaded (optimize_assets/preload_exclude.txt, they load when needed): the header bird's onerror stand-in and the three
+     still faces used only with prefers-reduced-motion.
+  3. Dead code (js_prune.py, css_prune.py, by static proof): the 66 slide modules no slide of the card uses and the 34 functions
+     nothing calls any more (app.js 780 -> 490 K chars); the style rules whose selectors need a class / id that appears nowhere in
+     the markup, the card or the code — classes the code builds count as present (any literal that runs into + or ${...}: a
+     prefix ending in - / _ covers any continuation, a bare word a numeric one: 'sfig-img b' + k -> b1) — 861 rules, 53 unused @keyframes,
+     14 unread custom properties (style.css 757 -> 583 K chars, after the inline PNGs); checked against Chrome's CSS rule coverage of
+     the old build under the whole check suite (below). Dead references: the gate's <img> no longer starts with peeking.webp (2.8 MB fetched on every load and never shown:
+     the gate sets its own bird first), nor the end screen's with sw_lg_celebrating_anim.webp (hidden by the sprite runner in the same
+     task); the engine's hint card (#hintOverlay: its only user, showBox, went with the dead modules) and the reference landing's hidden
+     title / subtitle / concept strip (.sg-content; boot()'s one unguarded write to #sgTitle made null-safe) leave index.html
+     (DEAD_BLOCKS); the two hint pictures of an element that does not exist; the engine's
+     phaseBlurTransition and CELEBRATION.mount, replaced at load, are one-line stubs, and fingerCount (a counting game's landing:
+     its hand_1..5.png never shipped) returns its numeral. The stamp page's unused slot <img> has no src=""
+     (it fired an image error). <link rel="icon" href="data:,">: the browser's /favicon.ico request 404'd on every load.
+  4. Preload (preload_head.js at the top of app.js, the manifest of every asset with its bytes on disk and audio length): on the
+     cover the play button's place shows a loading bar in the button's own colours (preload.css, the markup next to #sgBtn); the cover's
+     own big files first (the bird's wave animation, the welcome), then smallest first (the cover's pictures in the first second), five
+     at a time, streamed so the bar moves by real bytes (refined by Content-Length, never backwards); a failed, stalled (15 s without a byte) or over-long transfer counts as done and keeps the file's
+     own URL. The play button appears only when the bar is full AND the welcome has been heard (as before); a tap / key / click before
+     that waits and then starts. A fetched file lives on as a blob: URL — img.src / audio.src / new Audio() / fetch() of that file get
+     the blob (a cache-buster query gets a fresh blob URL, which restarts an animation as before); while a file is still on its way, a
+     restart URL of a picture and a sound that wants no data yet (the music bed, preload="none") wait for it (no second download), and
+     a sound wanted now plays from its own URL as before (Chrome refuses play() on an element without a source); .src / .currentSrc
+     still read the file's own URL; a blob that fails reverts to the file's URL once and plays on. Every picture is also loaded once by its URL, so CSS / inline styles / HTML strings find it in the
+     image cache. Under file:// nothing is fetched or patched: the bar never shows, the page runs exactly as before.
+  5. Watchdogs (preload_tail.js): every clip play() starts has its "ended", its error (the engine's silent beat) and a watchdog (not
+     started 9 s + its length after it was asked for, or 3.5 s past its length: "ended" is dispatched, so the page moves on); the cover
+     treats a welcome that failed or hung as heard, so its button can never be held back; the symbols' flight wait has a 9 s cap.
+  6. Deploy: ../../.vercelignore (the repo root) uploads only vercel.json and the dist (no review deck, VO manifest, raw recordings,
+     _reskin_tools, _before_* backups): today's deployment carries every file of the commit (2,947 files, 537 MB); after, 206 files,
+     24.15 MB.
+- Sizes (the dist as deployed, old -> new): audio 15.18 -> 6.15 MB (MP3 8.24 -> 0, Ogg 6.94 -> 6.15), images 37.08 -> 16.78 MB (WebP
+  26.92 -> 16.75, PNG 6.43 -> 0, GIF 3.69 -> 0, SVG 0.04 -> 0.03), code 1.76 -> 1.14 MB (gzip 683 -> 501 KB), total 54.09 -> 24.15 MB
+  (355 -> 205 files); what a player downloads before the button: 198 files, 22.87 MB + the code.
+- GPU: measured on every page (CDP LayerTree): at most 35 MB of layer textures (the cover's sky stars, all on screen), 12-27 MB
+  elsewhere; the overlays not in use are display:none (the engine already did that); the only 3-D faces (the confetti pieces) carry
+  their own backface-visibility and have no filtered / animated children — nothing to fix there.
+- New checks: optimize_check.py (A: throttled 8 Mbit/s — the bar's progress, the button hidden till 100 %, monotonic, smallest-first,
+  the cover in the first second, the start, zero errors; B: every page over HTTP — pictures decoded, no media error, blob-served,
+  screenshots; C: blocked / stalled / revoked files, a welcome that never loads, file://; D: layers per page); http_serve.py (Range,
+  Content-Length, Vercel's caching) and http_run.py (any check unchanged, over HTTP; --after-preload makes it wait for the full bar
+  first, as a child must); optimize_sizes.py (this report). title_check.py reads the bird's src property (the file's own URL also
+  when it is played from a blob); scene_check.py's rig checks accept the masks as PNG or WebP data URIs.
+  scene_check.py / story_check.py: the converted sounds' names (.ogg).
+- Checked: optimize_check.py 23/23 — A (throttled to 8 Mbit/s / 80 ms): the bar from 1 % to 99 % with the button hidden, 100 % with all
+  198 files (23.98 MB) in, never backwards, the button only after it, the cover's two own files first then smallest first, the cover's
+  pictures in 1.1 s, the play button starts the lesson, no error / 4xx / 5xx / failed request; B: all 17 pages over HTTP, every shown
+  picture decoded, 114 sounds / pictures served from blobs, none reverted, no error; C: three blocked files, a stalled one (aborted at
+  15 s), a revoked blob (the sound and the picture go back to their URLs and play / show), a welcome that never loads (the watchdog
+  ends it, the button comes at ~18 s), file:// (no bar, no fetch); D: at most 35 MB of layer textures on any page. The whole check
+  suite on file://, new against old: the same passes — smoke 53/53, title 44/44, story 75/75 (the old build's one FAIL, the music bed's
+  aborted request, is gone), relisten 42/42, recap T1 / T1B / T1C 44 / 44 / 43, scene T2 37, T3 47, T4 52, G1 45, G2 46, G3 55, G4 / P1 /
+  P2 30 each, letter 51/51, nudge 15/15, stamp 116/116, gate 13/13 — stamp_close_check 30/31 (its frame-smoothness check, which the old
+  build missed too); word_sync_check's five L2 lines are "not OK" in both (stale since L2's later rounds). Over HTTP (http_run.py,
+  each check after the full bar, as a child): the same passes, stamp_close_check 31/31, title_check 44/44 measured from the first frame
+  with the preloader running; letter_check misses its entrance sync by 30-140 ms in 2 of 2 runs (the girl-writing picture's first
+  frame 228-440 ms after the shimmer starts, the check allows 300; the old build over the same local server 173-223 ms): its large
+  lossless pictures now decode at the mount from memory instead of while they download (frame gaps the same in both builds, the
+  largest 67-83 ms, no long task) — on file:// 51/51. CSS: Chrome's rule coverage of the old build under 20 checks (699 selectors
+  matched): of the 861 rules removed, only .hint-overlay ever matched anything (its markup removed on purpose). The cover, frozen,
+  against the old build: PSNR 44.7 dB inside the card. Two rebuilds: a byte-identical dist.
+- `../_before_optimize/` holds the dist's three files and build.py, scene_check.py, story_check.py (tools/); NOTE.txt says where the
+  converted / quarantined assets are kept.
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
 2. Clone the reference next to this file (or pass its path):
    `git clone https://github.com/siddharthsharma-ctrl/Ek-aur-Anek ref/Ek-aur-Anek`
-3. `python -I build.py [ref/Ek-aur-Anek] [../HI02H12_L01_S01_dist]`
+3. `python -I build.py [ref/Ek-aur-Anek] [../HI02H12_L01_S01_dist]` — its last step is optimize.py ([optimize]): it needs ffmpeg on the
+   PATH (Opus) and Pillow + numpy (WebP, the PSNR guard); conversions come from optimize_assets/cache/ when nothing changed (~30 s).
    T3's girl rig: after a NEW girl bitmap (demo2_assets/img_demo2_girl_ask.webp) run `python -I girl_rig.py [--debug <dir>]` first — it
    re-cuts demo2_assets/girl_rig/ (the mask sheets, the irises, rig.json) that build.py inlines ([t3-look]); its printout gives the
    elbow's pivot / keep circle, each eye's iris and interior, and the rest composite's distance from the painting (should be ~0).
@@ -3524,6 +3646,11 @@ Checking it (needs Python 3.12, `pip install playwright`, and Chrome installed)
 - `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out` — the stamp page beat by beat; `python -I -X utf8
   stamp_close_check.py ../HI02H12_L01_S01_dist/index.html out [--quick]` — its finale against the letter page's own opening, read
   backwards ([stamp-close]).
+
+- `python -I -X utf8 optimize_check.py ../HI02H12_L01_S01_dist/index.html out` — [optimize]: the loading bar on a throttled network,
+  every page over HTTP, the failure paths (blocked / stalled / revoked files, a welcome that never loads, file://), layers per page;
+  `python -I -X utf8 http_run.py <check.py> ../HI02H12_L01_S01_dist/index.html [args]` runs any check above over HTTP (the online path:
+  the preloader and its blob URLs); `python -I -X utf8 optimize_sizes.py <old dist> ../HI02H12_L01_S01_dist [<repo>]` — sizes.
 
 In the browser: open `index.html?dev=1` for the slide-jump bar (bottom-right) and the signal banner;
 `index.html?slide=N` mounts slide N directly.

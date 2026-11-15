@@ -1,0 +1,22 @@
+{
+ "keep": false,
+ "kbps": 64,
+ "src": {
+  "codec": "opus",
+  "channels": 1,
+  "rate": 48000,
+  "duration": 2.5665,
+  "bit_rate": 100354,
+  "size": 32195
+ },
+ "out": {
+  "codec": "opus",
+  "channels": 1,
+  "rate": 48000,
+  "duration": 2.5665,
+  "bit_rate": 65767,
+  "size": 21099
+ },
+ "src_bytes": 32195,
+ "out_bytes": 21099
+}

@@ -66,7 +66,7 @@ SAMPLE = r"""() => { window._tl = []; let last = ''; const step = () => {
   const r = { slide: CARD.slides[state.idx].id, clip: clipOf, t: a ? +a.currentTime.toFixed(3) : null, playing: isPlaying,
     cls: cells.map(c => c.className.replace('sent-opt opt-cell', '').trim()), say: cells.map(c => !!c.querySelector('.so-pill.p6-say')),
     lit: cells.map(c => [...c.querySelectorAll('.p2-word')].findIndex(w => w.classList.contains('on'))),
-    pop: th ? (th.classList.contains('p2-pop') ? 'p2' : th.classList.contains('p6-pop') ? 'p6' : '') : '', mood: mi ? mi.getAttribute('src').split('/').pop().split('.')[0] : '',
+    pop: th ? (th.classList.contains('p2-pop') ? 'p2' : th.classList.contains('p6-pop') ? 'p6' : '') : '', mood: mi ? (mi.src || '').split('/').pop().split('.')[0] : '',
     hand: (() => { const h = document.querySelector('.reveal-hand'); if (!h) return null; const r = h.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.width)]; })(),
     gate: document.getElementById('phaseGate').classList.contains('show'), conf: document.querySelectorAll('.conf-shot, .fx-confetti').length > 0,
     attempts: state.attempts, locked: state.locked, hint: state.hintActive };
@@ -172,7 +172,7 @@ with sync_playwright() as p:
               and len({round(q[3], 2) for q in look["pills"]}) == 1 and 78 < look["pills"][0][3] <= 100 and all(abs(q[1] + q[3] / 2 - 570.5) <= 0.5 for q in look["pills"])
               and all(len(l) == 2 and not l[1].startswith(("।", ",", "?")) for l in look["lines"]) and len(set(n1)) == 1, (look["pills"], look["lines"]))
     check(f"the three sentences are the asked ones, the right one '{CFG['right']}'", sorted(labels) == sorted(CFG["labels"]) and labels[right] == CFG["right"], labels)
-    pic = pg.evaluate("[document.querySelector('.story-q-thumb').getAttribute('src'), document.querySelector('.story-q-thumb').naturalWidth]")
+    pic = pg.evaluate("[(s => s.slice(s.indexOf('assets/')))(document.querySelector('.story-q-thumb').src), document.querySelector('.story-q-thumb').naturalWidth]")
     check(f"{PAGE}'s own picture ({d['data']['recall_image_id']}) is the one shown", pic == [f"assets/Images/{d['data']['recall_image_id']}.webp", CFG.get("pic_w", 1411)], pic)   # [p2-side] P2's bare picture is 1448 wide
     pg.screenshot(path=str(out / "a_rest.png"))
     pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(300); pg.screenshot(path=str(out / "b_right_300.png"))

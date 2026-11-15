@@ -1,0 +1,5 @@
+# [optimize] (2026-11-15) assets kept in the dist but NOT preloaded: fallbacks a normal run never shows; they load when needed.
+assets/UI/mascot.webp            # the header bird's onerror stand-in
+assets/UI/sw_head_celebrate.webp # the still faces: only with prefers-reduced-motion (or ?still); everyone else gets the _anim ones
+assets/UI/sw_head_hint.webp
+assets/UI/sw_head_tryagain.webp

@@ -1,0 +1,22 @@
+{
+ "assets/Audio/sfx_demo1_pop.mp3": "assets/Audio/sfx_demo1_pop.ogg",
+ "assets/Audio/sfx_demo2_sharp_pop.mp3": "assets/Audio/sfx_demo2_sharp_pop.ogg",
+ "assets/Audio/sfx_g3_rope.mp3": "assets/Audio/sfx_g3_rope.ogg",
+ "assets/Audio/sfx_g4_giggle.mp3": "assets/Audio/sfx_g4_giggle.ogg",
+ "assets/Audio/sfx_p1_book.mp3": "assets/Audio/sfx_p1_book.ogg",
+ "assets/Audio/sfx_p2_pencils.mp3": "assets/Audio/sfx_p2_pencils.ogg",
+ "assets/Audio/sfx_story_cat.mp3": "assets/Audio/sfx_story_cat.ogg",
+ "assets/Audio/standard_background_music_2.mp3": "assets/Audio/standard_background_music_2.ogg",
+ "assets/Images/img_g3_girl_efill.png": "assets/Images/img_g3_girl_efill.webp",
+ "assets/Images/img_g3_girl_eiris.png": "assets/Images/img_g3_girl_eiris.webp",
+ "assets/UI/loader.gif": "assets/UI/loader.webp",
+ "assets/UI/title_bg.png": "assets/UI/title_bg.webp",
+ "assets/UI/title_char_comma.png": "assets/UI/title_char_comma.webp",
+ "assets/UI/title_char_comma_rig.png": "assets/UI/title_char_comma_rig.webp",
+ "assets/UI/title_char_purn.png": "assets/UI/title_char_purn.webp",
+ "assets/UI/title_char_purn_rig.png": "assets/UI/title_char_purn_rig.webp",
+ "assets/UI/title_char_question.png": "assets/UI/title_char_question.webp",
+ "assets/UI/title_char_question_rig.png": "assets/UI/title_char_question_rig.webp",
+ "assets/UI/title_scene.png": "assets/UI/title_scene.webp",
+ "assets/UI/title_swiftie_hello.png": "assets/UI/title_swiftie_hello.webp"
+}

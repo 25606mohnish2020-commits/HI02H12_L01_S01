@@ -1,0 +1,22 @@
+{
+ "keep": false,
+ "kbps": 64,
+ "src": {
+  "codec": "vorbis",
+  "channels": 1,
+  "rate": 24000,
+  "duration": 1.156,
+  "bit_rate": 75349,
+  "size": 10888
+ },
+ "out": {
+  "codec": "opus",
+  "channels": 1,
+  "rate": 48000,
+  "duration": 1.1625,
+  "bit_rate": 65596,
+  "size": 9532
+ },
+ "src_bytes": 10888,
+ "out_bytes": 9532
+}

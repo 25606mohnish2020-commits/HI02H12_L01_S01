@@ -6,7 +6,7 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    after गुलाब: data.sentence.gaps as T4's): the garden picture -15,-120 1117x630 of the card, the girl pointing 234,241 218x328 on
    her ellipse 243,539 172x38, the tiles 474.09 / 701 / 931.82 at 467 over #97CF28 ellipses, the sentence clip vo_g3_sent (the
    recording, ten words with the danda), the instruction G1's; the same taps and checks as G1.
-   [g3-rope] / [g3-screen] (2026-11-03) G3's opening: the plants grow to the user's rope stretch (sfx_g3_rope.mp3, its first 1.875 s,
+   [g3-rope] / [g3-screen] (2026-11-03) G3's opening: the plants grow to the user's rope stretch (sfx_g3_rope.ogg, its first 1.875 s,
    at .25) started in the growth's first frame, done before the instruction line; the girl's eyes: .look + .held 150 ms into the
    growth, the rig in over 0.15 s with the irises as painted, at the flowers (0.854, 1.281) px by 0.6 s, held to 1.8 s, at the screen
    (-2.562, 0) by 2.25 s and there to the cycle's end; every 7 s screen -> flowers -> screen on the same clock; both irises together,
@@ -38,7 +38,7 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    reference's sfxPopSoft: _tone 720 sine 0.10 / 0.07) in that frame.
    T3: no intro line — the picture, the frame's girl ([t3-girl]), the Swiftie and the chip alone for data.open_ms (1 s), nothing else; then the speech
    bubble (.dsc-bubble, dscBubbleIn from half its size) pops in with the slot and the rising sentence in the same frame, to the user's
-   sharp pop (sfx_demo2_sharp_pop.mp3 at .8) in that frame; the sentence's clip (the recording) is the first clip.
+   sharp pop (sfx_demo2_sharp_pop.ogg at .8) in that frame; the sentence's clip (the recording) is the first clip.
    Then, on both: the sentence's clip 0.45 s after the rise, each word lit as it is read ([word-sync]); T2: 0.3 s after the clip the
    school sound (sfx_demo1_school.mp3 at .5) for data.pic_sfx_ms, full until its last 0.4 s, faded then and paused at its end, the girl
    giving her small pop (dscPop: up to ~1.045 about her feet, back within 0.7 s) in its first frame and standing still before and
@@ -52,7 +52,7 @@ usage: python -I -X utf8 scene_check.py <index.html> <render_1280x720.png> <outd
    between them and at the end; 0.45 s after the blink the box is plain — grey ring, its own fill, no glow — and its pop-in
    (sfigBoxIn) has NOT run again: opacity 1 and transform none through the 0.7 s after) and as the blink starts the three tiles pop in
    ONE BY ONE (data.tiles_gap_ms = 350 ms apart, each dscTileIn: from under .6 of its size past 1.04, at its size within 0.7 s) with
-   the pop (sfx_demo1_pop.mp3 at .8) in EACH tile's frame; 0.3 s after the blink the explanation (vo_demo1_explain / the recorded
+   the pop (sfx_demo1_pop.ogg at .8) in EACH tile's frame; 0.3 s after the blink the explanation (vo_demo1_explain / the recorded
    vo_demo2_explain) — the right tile (T2 the danda's, the first; T3 the "?", the MIDDLE one) lights (.lit) as the clip reaches its cue
    word (पूर्णविराम / प्रश्नवाचक), not before; 0.3 s after the clip the other two tiles are dim and dead (.off, at .6); 0.3 s later the
    lit tile pulses (dscPulse, infinite; its face a 3px orange border with a glow breathing .6 -> .7, [t2-scene3]) and is live. Taps:
@@ -103,7 +103,7 @@ C = {
              BY_DESIGN=[(1008, 182, 1071, 282), (570, 186, 1015, 268), (600, 420, 645, 480), (830, 440, 870, 470), (1055, 418, 1105, 478)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=dict(rgb=(255, 255, 255), row_y=232, xs=(1000, 1080), col_x=1040, ys=(175, 290), want=(1015, 1064, 189, 275)), first_word="पिंकी", look=None),
-  "T3": dict(prefix="demo2", intro=False, open_ms=1000, bg="img_demo2_room", girl="img_demo2_girl_ask", beat=False, GIRL=(213, 212, 470, 597), bubble="img_demo2_bubble", box_sfx="sfx_demo2_sharp_pop.mp3", slot=(59, 100),
+  "T3": dict(prefix="demo2", intro=False, open_ms=1000, bg="img_demo2_room", girl="img_demo2_girl_ask", beat=False, GIRL=(213, 212, 470, 597), bubble="img_demo2_bubble", box_sfx="sfx_demo2_sharp_pop.ogg", slot=(59, 100),
              sent="तुम्हारा नाम क्या है", sent_clip="vo_demo2_sent", nwords=4, explain_clip="vo_demo2_explain", cue="प्रश्नवाचक", opts=["।", "?", ","], mark="?", pick=1,
              next="T4", next_ok="CARD.slides[state.idx].id === 'T4' && CARD.slides[state.idx].type === 'PUNCT_SCENE' && !!document.querySelector('.tut-card.sfig-round.dsc-v-list .dsc-bg')", next_what="T4, the third scene ([t4-scene])",
              FRAME={".dsc-bg > img": (CX + 0, CY - 4, 1088, 519), ".dsc-bubble": (397.306, 160.61, 651.745, 135.269), ".dsc-slot": (907, 174, 59, 100), ".dsc-girl": (213, 212, 257, 385), ".dsc-shade": (277, 558, 118, 37),
@@ -165,7 +165,7 @@ C = {
              BY_DESIGN=[(479, 184, 522, 232), (200, 146, 1080, 230), (510, 490, 555, 550), (740, 510, 780, 540), (965, 488, 1015, 548)],   # the slot, the ink bands
              girl_in_render=True, slot_fill="rgb(255, 255, 255)", blink_fill="rgb(250, 225, 204)",
              slot_in=dict(rgb=(255, 255, 255), row_y=208, xs=(474, 530), col_x=500, ys=(180, 240), want=(486, 515, 191, 225)), first_word="बाग", look=None,
-             grow=dict(sfx="sfx_g3_rope.mp3", vol=0.25, dur=(1.8, 1.95)),   # [g3-rope] the user's rope stretch, its first 1.875 s, at .25
+             grow=dict(sfx="sfx_g3_rope.ogg", vol=0.25, dur=(1.8, 1.95)),   # [g3-rope] the user's rope stretch, its first 1.875 s, at .25
              eyes=dict(every_ms=7000, active_ms=2250, fade_ms=150, look_ms=150, gaze=(0.854, 1.281), screen=(-2.562, 0.0))),   # [g3-screen] the flowers, then the screen
 }[PAGE]
 NEXT, PICK, FIRST = C["next"], C["pick"], ("intro" if C["intro"] else "sent")
@@ -287,7 +287,7 @@ with sync_playwright() as p:
               pg.evaluate("CARD.slides[state.idx].type") == "PUNCT_PICK" and d.get("scene") is True and d.get("variant") == C.get("variant", "pick") and d.get("intro_audio") == C["intro_clip"] and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"]
               and d.get("girl_pop") is False and not d.get("pic_sfx") and not d.get("bubble_id") and not d.get("box_sfx") and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"] and not d.get("explain")
               and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
-              and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350
+              and d["blink_ms"] == 7000 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.ogg" and d["tiles_gap_ms"] == 350
               and [d.get("hint1_audio"), d.get("hint2_audio")] == C["hints"] and d.get("ok_audio") == C["ok_clip"] and d.get("hint3_audio") == C.get("hint3") and d.get("no_idle_vo") is True,   # [g1-quiet]; G2 / G3 keep [vo-rec]'s hint 3 line registered, never spoken ([hand-quiet])
               {k: d.get(k) for k in ("scene", "variant", "intro_audio", "bg_id", "image_id", "girl_pop", "slot_w", "mark", "blink_ms", "hint1_audio", "hint2_audio", "ok_audio", "hint3_audio", "no_idle_vo")})
     else:
@@ -296,7 +296,7 @@ with sync_playwright() as p:
               and d["bg_id"] == C["bg"] and d["image_id"] == C["girl"] and d.get("bubble_id") == C["bubble"] and d.get("box_sfx") == C["box_sfx"] and (d.get("slot_w", 53), d.get("slot_h", 90)) == C["slot"]
               and d["sentence"]["text_hi"] == C["sent"] and d["sentence"]["audio"] == C["sent_clip"] and len(ST) == C["nwords"] and d["explain"]["audio"] == C["explain_clip"]
               and d["explain"]["text_hi"].split()[d["explain"]["cue_word"]] == C["cue"] and [o["mark"] for o in d["options"]] == C["opts"] and d["mark"] == C["mark"] and d["options"][PICK]["mark"] == C["mark"]
-              and ((d.get("pic_sfx_ms"), d.get("pic_sfx"), d.get("girl_pop", True)) == ((2000, "sfx_demo1_school.mp3", True) if C["beat"] else (None, None, False))) and d["blink_ms"] == 3500 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.mp3" and d["tiles_gap_ms"] == 350,   # [blink-2] (2026-11-10) T2-T4 blink 3.5 s = two fades (was 7000 = four); the picks keep 7 s
+              and ((d.get("pic_sfx_ms"), d.get("pic_sfx"), d.get("girl_pop", True)) == ((2000, "sfx_demo1_school.mp3", True) if C["beat"] else (None, None, False))) and d["blink_ms"] == 3500 and d["blink_cycle_ms"] == 1750 and d["tiles_sfx"] == "sfx_demo1_pop.ogg" and d["tiles_gap_ms"] == 350,   # [blink-2] (2026-11-10) T2-T4 blink 3.5 s = two fades (was 7000 = four); the picks keep 7 s
               {k: d.get(k) for k in ("intro_audio", "open_ms", "bg_id", "image_id", "bubble_id", "box_sfx", "slot_w", "slot_h", "mark", "pic_sfx_ms", "blink_ms", "blink_cycle_ms", "tiles_gap_ms")})
     if C.get("nslots"):   # [t4-scene]
         check(f"[t4-scene] the page's data: {C['nslots']} slots ({C['slot'][0]}x{C['slot'][1]}), the marks {C['stagger']} ms apart, the gaps after \"आम\" and \"केला\" (words 2, 3)",
@@ -316,10 +316,10 @@ with sync_playwright() as p:
         check(f"[t3-look] the page's data: girl_rig and girl_look (every {C['look']['every_ms'] / 1000:g} s, the gesture 2.3 s, the eyes 2.26 / 1.13 px, the arm 11 degrees, the lean 2 degrees)",
               d.get("girl_rig") is True and all(abs(gl.get(k, -1) - v) < 0.01 for k, v in LK.items()), gl)
         rig = pg.evaluate("""() => { const q = (s) => document.querySelector(s), L = [...document.querySelectorAll('.dsc-grig > *')];
-          return { n: L.length, cls: L.map(e => e.className.split(' ')[0]), masked: L.map(e => { const c = getComputedStyle(e); return (c.maskImage || c.webkitMaskImage || '').startsWith('url("data:image/png') && (c.maskSize || c.webkitMaskSize) === '100% 100%'; }),
+          return { n: L.length, cls: L.map(e => e.className.split(' ')[0]), masked: L.map(e => { const c = getComputedStyle(e); return (c.maskImage || c.webkitMaskImage || '').search(/^url."data:image.(png|webp)/) === 0 && (c.maskSize || c.webkitMaskSize) === '100% 100%'; }),
             wins: document.querySelectorAll('.dsc-grig img').length, same: [...document.querySelectorAll('.dsc-grig img')].every(i => i.getAttribute('src') === q('.dsc-gbody').getAttribute('src')),
             box: [...document.querySelectorAll('.dsc-grig, .dsc-grig > *')].every(e => Math.abs(e.getBoundingClientRect().width - q('.dsc-girl').getBoundingClientRect().width) < 0.5 && Math.abs(e.getBoundingClientRect().height - q('.dsc-girl').getBoundingClientRect().height) < 0.5),
-            fills: [...document.querySelectorAll('.dsc-gfill')].map(e => getComputedStyle(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-giris')].map(e => getComputedStyle(e).backgroundImage.startsWith('url("data:image/png')),
+            fills: [...document.querySelectorAll('.dsc-gfill')].map(e => getComputedStyle(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-giris')].map(e => getComputedStyle(e).backgroundImage.search(/^url."data:image.(png|webp)/) === 0),
             origin: getComputedStyle(q('.dsc-garm')).transformOrigin, leanOrigin: getComputedStyle(q('.dsc-grig')).transformOrigin, plainImg: !!q('.dsc-girl > img'),
             still: ['.dsc-garm', '.dsc-giris', '.dsc-grig'].every(s => getComputedStyle(q(s)).transform === 'none' || getComputedStyle(q(s)).transform === 'matrix(1, 0, 0, 1, 0, 0)'), look: !!q('.dsc-girl.look'),
             promoted: ['.dsc-garm', '.dsc-giris', '.dsc-grig'].every(s => getComputedStyle(q(s)).willChange === 'transform') }; }""")
@@ -334,13 +334,13 @@ with sync_playwright() as p:
               and all(abs(gl.get(k, -1) - BK[v]) < 0.002 for k, v in (("lift_px", "lift"), ("dip_px", "dip"), ("shear_deg", "shear"), ("elbow_x", "elbow_x")))
               and gl.get("gaze") == BK["gaze"] and not d.get("pic_sfx") and d.get("girl_pop") is False, gl)
         rig = pg.evaluate("""() => { const q = (s) => document.querySelector(s), cs = (e) => getComputedStyle(e), g = q('.dsc-girl').getBoundingClientRect();
-          const masked = (e) => { const c = cs(e); return (c.maskImage || c.webkitMaskImage || '').startsWith('url("data:image/png') && (c.maskSize || c.webkitMaskSize) === '100% 100%'; };
+          const masked = (e) => { const c = cs(e); return (c.maskImage || c.webkitMaskImage || '').search(/^url."data:image.(png|webp)/) === 0 && (c.maskSize || c.webkitMaskSize) === '100% 100%'; };
           const L = [...document.querySelectorAll('.dsc-brig > *')], Hd = [...document.querySelectorAll('.dsc-bhead > *')], imgs = [...document.querySelectorAll('.dsc-brig img')];
           return { cls: L.map(e => e.className.split(' ')[0]), head: Hd.map(e => e.className.split(' ')[0]),
             masked: ['.dsc-bbody', '.dsc-bfore', '.dsc-belbow', '.dsc-bheadw', '.dsc-beye.e1', '.dsc-beye.e2', '.dsc-bbasket'].map(s => !!q(s) && masked(q(s))),
-            under: cs(q('.dsc-bunder')).backgroundImage.startsWith('url("data:image/png'), wins: imgs.length, same: imgs.every(i => i.getAttribute('src') === q('.dsc-bbody').getAttribute('src')),
+            under: cs(q('.dsc-bunder')).backgroundImage.search(/^url."data:image.(png|webp)/) === 0, wins: imgs.length, same: imgs.every(i => i.getAttribute('src') === q('.dsc-bbody').getAttribute('src')),
             box: [...document.querySelectorAll('.dsc-brig, .dsc-brig > *, .dsc-bhead > *')].every(e => { const r = e.getBoundingClientRect(); return Math.abs(r.width - g.width) < 0.5 && Math.abs(r.height - g.height) < 0.5 && Math.abs(r.left - g.left) < 0.5 && Math.abs(r.top - g.top) < 0.5; }),
-            fills: [...document.querySelectorAll('.dsc-bfill')].map(e => cs(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-biris')].map(e => cs(e).backgroundImage.startsWith('url("data:image/png')),
+            fills: [...document.querySelectorAll('.dsc-bfill')].map(e => cs(e).backgroundColor), irises: [...document.querySelectorAll('.dsc-biris')].map(e => cs(e).backgroundImage.search(/^url."data:image.(png|webp)/) === 0),
             origin: cs(q('.dsc-bfore')).transformOrigin, plainImg: !!q('.dsc-girl > img'), t3rig: !!q('.dsc-grig'),
             still: ['.dsc-bfore', '.dsc-bbasket', '.dsc-bhead', '.dsc-biris'].every(s => ['none', 'matrix(1, 0, 0, 1, 0, 0)'].includes(cs(q(s)).transform)), look: !!q('.dsc-girl.look'),
             promoted: ['.dsc-bfore', '.dsc-bbasket', '.dsc-bhead', '.dsc-biris'].every(s => cs(q(s)).willChange === 'transform') }; }""")
@@ -452,10 +452,10 @@ with sync_playwright() as p:
     check("[t2-scene5] the slot's pop-in (sfigBoxIn) does not run again when the blink ends: opacity 1 and the identity transform through the 0.7 s after (before: opacity 0 and scale .9 -> 1 over 0.5 s)",
           all(s_["slotOp"] >= 0.99 and s_["slotTf"] in IDENT for s_ in tail), [(round(s_["ms"] - ms(i_ble)), s_["slotOp"], s_["slotTf"]) for s_ in tail if not (s_["slotOp"] >= 0.99 and s_["slotTf"] in IDENT)][:5])
     i_tk = [first(lambda s, k=k: s["tilesIn"] >= k) for k in (1, 2, 3)]; i_t1 = i_tk[0]; gap = d["tiles_gap_ms"]
-    pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.mp3" and e.get("slide") in (None, PAGE)]   # [vo-rec2] this page's pops only (a slow poll read the log after the next page's first tile)
+    pop = [e for e in snd if e["kind"] == "media" and e["src"] == "sfx_demo1_pop.ogg" and e.get("slide") in (None, PAGE)]   # [vo-rec2] this page's pops only (a slow poll read the log after the next page's first tile)
     gaps = [round(ms(i_tk[k]) - ms(i_tk[k - 1])) for k in (1, 2)]
     pop_dt = [round(min(abs(e["ms"] - ms(i)) for e in pop), 1) if pop else 999 for i in i_tk]   # each tile's first frame to its nearest pop
-    check(f"[t2-scene3] the three tiles come in ONE BY ONE as the blink starts ({gap} ms apart), the pop (sfx_demo1_pop.mp3 at .8) in EACH tile's first frame — three pops",
+    check(f"[t2-scene3] the three tiles come in ONE BY ONE as the blink starts ({gap} ms apart), the pop (sfx_demo1_pop.ogg at .8) in EACH tile's first frame — three pops",
           abs(ms(i_t1) - ms(i_bl)) <= 50 and all(gap - 60 <= g <= gap + 60 for g in gaps) and len(pop) == 3 and all(dt <= 50 for dt in pop_dt) and all(e["vol"] == 0.8 for e in pop),
           (round(ms(i_t1) - ms(i_bl)), gaps, [(round(e["ms"] - ms(i_t1)), e["vol"]) for e in pop]))
     # each tile's pop: dscTileIn from under .6 of its size past 1.04, at its size (transform none) from 0.7 s on
@@ -805,9 +805,13 @@ with sync_playwright() as p:
           abs(float(st[0][:-2]) - (64 - 12 / FS)) < 0.05 and st[1] == "hidden" and st[2] == "8px" and st[3] == C["slot_fill"] and st[4] == "rgba(86, 86, 86, 0.85)" and st[5] == "2px"
           and abs(float(st[6][:-2]) - 2.386) < 0.5 and st[7] == "rgb(213, 216, 223)" and st[8] == "18px" and st[9] == "rgb(217, 217, 217)" and st[10] == "rgba(0, 0, 0, 0.25) 0px 4px 4px 0px", st)
     fonts = pg.evaluate("""(w) => { const f = (s) => { const c = getComputedStyle(document.querySelector(s)); return [c.fontFamily.split(',')[0], c.fontWeight, c.fontSize, c.color]; };
-      return [f('.dsc-sent'), f('.t1 .dsc-sym'), f('.dsc-mark'), document.fonts.check("600 64px 'Story Noto Marks'", '।,?') && document.fonts.check("800 55px 'Story Baloo 2'", w)]; }""", C["first_word"])
-    check("type: the sentence Baloo 2 800 at the frame's 55px #012F76; the tiles' marks in the frame's Noto Sans Devanagari SemiBold 64px #002F76 ('Story Noto Marks'); the landing mark the sentence's face; both faces loaded",
-          fonts[0] == ['"Story Baloo 2"', "800", "55px", "rgb(1, 47, 118)"] and fonts[1] == ['"Story Noto Marks"', "600", "64px", "rgb(0, 47, 118)"] and fonts[2] == ['"Story Baloo 2"', "800", "55px", "rgb(1, 47, 118)"] and fonts[3], fonts)
+      return [f('.dsc-sent'), f('.t1 .dsc-sym'), f('.dsc-mark'), document.fonts.check("600 64px 'Story Noto Marks'", '।,?') && document.fonts.check("800 55px 'Story Baloo 2'", w),
+              document.fonts.check("800 55px 'Story Noto Q'", '?')]; }""", C["first_word"])
+    QN = PAGE in ("T3", "G2")   # [q-noto] (2026-11-15) T3's and G2's landing "?" in Noto Sans Devanagari ExtraBold: 'Story Noto Q' first, the sentence's face after it
+    check("type: the sentence Baloo 2 800 at the frame's 55px #012F76; the tiles' marks in the frame's Noto Sans Devanagari SemiBold 64px #002F76 ('Story Noto Marks'); the landing mark the sentence's face"
+          + (" — its \"?\" from Noto Sans Devanagari ExtraBold ('Story Noto Q' first, [q-noto])" if QN else "") + "; the faces loaded",
+          fonts[0] == ['"Story Baloo 2"', "800", "55px", "rgb(1, 47, 118)"] and fonts[1] == ['"Story Noto Marks"', "600", "64px", "rgb(0, 47, 118)"]
+          and fonts[2] == ['"Story Noto Q"' if QN else '"Story Baloo 2"', "800", "55px", "rgb(1, 47, 118)"] and fonts[3] and (fonts[4] or not QN), fonts)
     mine = Image.open(shot).convert("RGB")
     print("== text ink vs the Figma render (page px): centre and size ==")
     for name, region in C["INK"].items():
