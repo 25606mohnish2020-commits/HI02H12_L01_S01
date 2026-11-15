@@ -141,8 +141,8 @@ with sync_playwright() as p:
     quiet(pg); pg.click(".dsc-tile.t2", force=True); pg.wait_for_timeout(600)
     check("G3: the right tile presses and puts its \",\" in the slot, with the confetti", pg.evaluate("document.querySelector('.dsc-tile.t2').classList.contains('on') && !!document.querySelector('.dsc-slot .dsc-mark.in') && document.querySelector('.dsc-mark').textContent===',' && !!document.querySelector('.fx-confetti')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='G4'", timeout=15000)
-    check("G3 then moves on to G4 by itself: the reference game's P4 page (picture + three sentence pills)",
-          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.getElementById('stage').classList.contains('sent-page') && document.querySelectorAll('#slideHost .sent-opt').length === 3"))
+    check("G3 then moves on to G4 by itself: the sentence pick in P2's side row ([g4p1-side]: the picture's card left, three sentences stacked right)",
+          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.getElementById('stage').classList.contains('sent-page') && document.querySelectorAll('#slideHost .q-row.sent-side .sent-col .sent-opt').length === 3 && !!document.querySelector('#slideHost .q-row.sent-side > .sq-card')"))
     # G4 (SENT_PICK, see g4_check.py): a wrong pill (wiggle, no line), then the right one -> green, its line, straight on to P1
     #    (the round gate now follows P2, not the guided -> practice boundary here)
     pg.wait_for_timeout(4000)
@@ -152,8 +152,8 @@ with sync_playwright() as p:
     quiet(pg); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
     check("G4: the right pill (लड़की पतंग उड़ा रही है ।) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='P1'", timeout=60000)
-    check("G4 then moves straight on to P1 (no gate here): the same P4 page with its own picture and sentences",
-          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.getElementById('stage').classList.contains('sent-page') && document.querySelectorAll('#slideHost .sent-opt').length === 3 && !window._gate.some(r => r.slide === 'G4' && r.show)"))
+    check("G4 then moves straight on to P1 (no gate here): the same side row with its own picture and sentences ([g4p1-side])",
+          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.getElementById('stage').classList.contains('sent-page') && document.querySelectorAll('#slideHost .q-row.sent-side .sent-col .sent-opt').length === 3 && !!document.querySelector('#slideHost .q-row.sent-side > .sq-card') && !window._gate.some(r => r.slide === 'G4' && r.show)"))
     # P1 (SENT_PICK, see g4_check.py --page P1): a wrong pill, then the right one -> green, its line, straight on to P2
     pg.wait_for_timeout(4000)
     right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'क्या यह आपकी किताब है?')")

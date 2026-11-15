@@ -14,6 +14,8 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
        [p2-tap] (2026-11-15) P2's reveal hand TAPS (the reference G2's tap) instead of bobbing: it stands still, its finger presses on
        a 1.3 s beat with G2's ripple + sparks art round the tip — traced frame by frame; with --g2 also frozen at 11 points of the
        cycle against the live G2's #nudgeHand. G4 / P1: the hand still bobs.
+       [g4p1-side] (2026-11-15) G4 and P1 in the same side row as P2 (same places, their bare 1448-wide pictures; --g2 works for them);
+       --ref (the P4 pixel match) no longer applies to any page and is skipped.
 1. The right pill first: the instruction on entry; the tap marks it green at once and pops the picture, nothing sounds for
    1 s (taps wait), then the kit's correct-select, the confetti and the happy Swiftie, and its own line with each word lit
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
@@ -39,9 +41,9 @@ html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).reso
 REF_PIC = sys.argv[sys.argv.index("--ref") + 1] if "--ref" in sys.argv else None
 G2 = "--g2" in sys.argv   # [p2-side] compare P2 with the live https://hind-dear-story.vercel.app/ page 15 (G2)
 PAGE = sys.argv[sys.argv.index("--page") + 1] if "--page" in sys.argv else "G4"
-CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।",
+CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।", "layout": "side", "pic_w": 1448,   # [g4p1-side] P2's row
               "labels": ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]},
-       "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?",
+       "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?", "layout": "side", "pic_w": 1448,   # [g4p1-side] P2's row
               "labels": ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"]},
        "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [p2-side] was "lines": 2; [p2-tap] its reveal hand taps
               "labels": ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"]}}[PAGE]
@@ -343,8 +345,10 @@ with sync_playwright() as p:
     check("a tap during a repeat cuts it and counts (the instruction is no feedback, [tap-lock])", cut == [False, 1], cut)
     pg.close()
 
-    # ---- 4. against the live P4 (its picture, title and sentences, in its order)
-    if REF_PIC:
+    # ---- 4. against the live P4 (its picture, title and sentences, in its order) — only for a page still in P4's layout ([g4p1-side]: none now)
+    if REF_PIC and CFG.get("layout") == "side":
+        print(f"(--ref skipped: {PAGE} is in the G2 side row now, not P4's layout — use --g2)")
+    elif REF_PIC:
         bird = pathlib.Path(REF_PIC).resolve().as_uri()
         RAND = "Math.random = (() => { let s = 7; return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; })();"
         shots = {}; order = None

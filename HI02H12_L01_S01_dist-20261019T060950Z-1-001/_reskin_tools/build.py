@@ -707,16 +707,21 @@ def pill_times(w):
     return [round(x, 3) for x in starts] + [round(wt[-1][1] + (0.35 if _punct(toks[-1]) else 0), 3)]
 card["slides"][i_g4] = {"id": "G4", "phase": "guided", "eis": "symbolic", "type": "SENT_PICK",
     "prompt_hi": gl4["prompt"]["shown"], "audio": {"prompt": "vo_g4_prompt", "try_again": "vo_g4_try"},
-    "data": {"recall_image_id": "img_g4_kite_gry", "signal_name": "evidence_qa_first_try",
+    "data": {"recall_image_id": "img_g4_kite", "signal_name": "evidence_qa_first_try",
              "options": [dict({"label_hi": gl4[k]["shown"], "audio": f"vo_g4_{k}", "word_times": pill_times(gl4[k])}, **({"correct": True} if k == "o1" else {}))
                          for k in ("o1", "o2", "o3")]},
     "signals": {"on_complete": ["evidence_qa_first_try"]}}
 assert [o["label_hi"] for o in card["slides"][i_g4]["data"]["options"]] == ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]
+# [g4p1-side] (asked 2026-11-15: "Apply the exact same layout as of page 14 P2 at pages 12 G4 and 13 P1"): G4 in P2's [p2-side] row too —
+# the picture alone in the white card on the left, the three sentences stacked on the right, one line each, the same places and sizes;
+# its picture bare (g4_assets/img_g4_kite.webp = sent_bare_picture.py over g4_kite_source.png: its centred 4:3 band at 1448x1086);
+# img_g4_kite_gry.webp (P4's baked ring) stays in g4_assets/ and the dist, unused. The tapping hand ([p2-tap]) stays P2's: G4's bobs.
+card["slides"][i_g4]["data"]["layout"] = "side"
 for k in G4_KEYS:
     card["assets"]["audio"][f"vo_g4_{k}"] = f"assets/Audio/vo_g4_{k}.ogg"
     card["assets"]["audio_text"][f"vo_g4_{k}"] = gl4[k]["text"]
-card["assets"]["image"]["img_g4_kite_gry"] = "assets/Images/img_g4_kite_gry.webp"
-card["_emoji_fallback"]["img_g4_kite_gry"] = "✏️"
+card["assets"]["image"]["img_g4_kite"] = "assets/Images/img_g4_kite.webp"
+card["_emoji_fallback"]["img_g4_kite"] = "✏️"
 # [sent-fig] P1, P2 = the same reference P4 page again (SENT_PICK), each with its own picture (framed like P4's by g4_picture.py)
 # and three sentences, under G4's title + instruction ("सही विराम चिह्न वाला वाक्य चुनिए ।": vo_g4_prompt, and G4's try-again
 # line). Each stays the practice page it replaces (phase, eis) and still counts in the mastery score (data.mastery, as the
@@ -746,8 +751,10 @@ def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap
 # redrawn again, the braided girl, the 10-28 pair kept as *_v2_2026-10-28); the sentences differ
 # only in where the question mark sits — in place of the ported
 # BUILD_PUNCT builder ("क्या तुमने खाना खाया"). Still the first practice page (G4's round gate before it).
-practice_pick("P1", "p1", "img_p1_book_gry", "BUILD_PUNCT",
-              ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1")
+# [g4p1-side] (2026-11-15) P1 in P2's [p2-side] row too (as G4 above): its picture bare (p1_assets/img_p1_book.webp = sent_bare_picture.py
+# over p1_book_source.png); img_p1_book_gry.webp stays in p1_assets/ and the dist, unused; its hand keeps the bob.
+practice_pick("P1", "p1", "img_p1_book", "BUILD_PUNCT",
+              ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1", layout="side")
 # P2: a girl with coloured pencils ([pics-pinki] 2026-11-02: the user's redrawn picture, the old pair kept as *_v1_2026-10-25); a
 # danda after each colour, no mark, or a comma after each (the right one, listed last) —
 # in place of the ported EVIDENCE_QA pick ("राम खाना खाकर सोया"). Too long for P4's pill on one line: SENT_PICK sets them on two.
@@ -2093,7 +2100,8 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
        words lit, and 0.7 s later the page moves on. After the reveal (the guided tap): the same 1 s, then the ding + the
        confetti alone, Swiftie back to rest, and the page moves on 0.7 s later (recorded as a revealed answer).
      - data.mastery (P1, P2, as the practice pages they replace): one mastery attempt per page, a hit on a first try.
-     - [p2-side] data.layout "side" (P2, 2026-11-15): the row of https://hind-dear-story.vercel.app/ page 15 (G2) instead — the
+     - [p2-side] data.layout "side" (P2, 2026-11-15; [g4p1-side] the same day G4 and P1 too, so P4's layout above is used by no page
+       now): the row of https://hind-dear-story.vercel.app/ page 15 (G2) instead — the
        picture alone in a white card on the left, the three sentences stacked on the right, each on ONE line (no break); the
        picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
        (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
@@ -4064,7 +4072,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 @keyframes p6PromptPop{0%{transform:scale(1);animation-timing-function:cubic-bezier(.2,.8,.3,1);}6.25%{transform:scale(1.045);animation-timing-function:ease-in-out;}
   10%{transform:scale(1.03);animation-timing-function:linear;}86%{transform:scale(1.03);animation-timing-function:ease-in-out;}100%{transform:scale(1);}}
 @keyframes guidedHandBob{0%,100%{transform:translateY(2px);}50%{transform:translateY(-14px);}}
-/* ===== [p2-side] P2 (data.layout "side", asked 2026-11-15) = the row of https://hind-dear-story.vercel.app/ page 15 (G2, EVIDENCE_QA),
+/* ===== [p2-side] P2 (data.layout "side", asked 2026-11-15; [g4p1-side] G4 and P1 the same, same day) = the row of https://hind-dear-story.vercel.app/ page 15 (G2, EVIDENCE_QA),
    its computed styles read from the live page: the picture alone in G2's white passage card on the left (no passage text under it),
    G2's 44px gap, and the three sentences stacked in G2's option column on the right (20px inset each side, 88px boxes 36px apart),
    the row's middle on G2's line (stage y 402: our header row is 2px taller and our slide host 12px shorter than G2's, hence top:4px).
@@ -4933,14 +4941,15 @@ for name, sub in (("vo_g3_sent.ogg", "Audio"), ("img_g3_flowers.webp", "Images")
 # ---------- 7j. [sent-fig] G4's clips and picture (g4_assets/: recap_vo.py g4; img_g4_kite_gry.webp = g4_picture.py over the
 #               user's picture, g4_kite_source.png) ----------
 G4_SRC = SCR / "g4_assets"
-for name, sub in [(f"vo_g4_{k}.ogg", "Audio") for k in G4_KEYS] + [("img_g4_kite_gry.webp", "Images"), ("sfx_g4_giggle.mp3", "Audio")]:   # [g4-giggle]
+for name, sub in [(f"vo_g4_{k}.ogg", "Audio") for k in G4_KEYS] + [("img_g4_kite.webp", "Images"), ("sfx_g4_giggle.mp3", "Audio")]:   # [g4-giggle]; [g4p1-side] the bare picture
     f, dst = G4_SRC / name, DIST / "assets" / sub / name
     assert f.exists(), f"missing G4 asset {f}"
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
 
 # ---------- 7k. [sent-fig] P1's and P2's clips and pictures (<page>_assets/: recap_vo.py <page>; the picture = g4_picture.py over
 #               the user's picture, <page>_*_source.png; their title + try-again clips are G4's) ----------
-for page, image_id, extra in (("p1", "img_p1_book_gry", [("sfx_p1_book.mp3", "Audio")]), ("p2", "img_p2_pencils", [("sfx_p2_pencils.mp3", "Audio")])):   # [p1-book] / [p2-pencils] each page's tap sound rides along; [p2-side] P2's picture bare
+for page, image_id, extra in (("p1", "img_p1_book", [("sfx_p1_book.mp3", "Audio")]),   # [g4p1-side] P1's picture bare too
+ ("p2", "img_p2_pencils", [("sfx_p2_pencils.mp3", "Audio")])):   # [p1-book] / [p2-pencils] each page's tap sound rides along; [p2-side] P2's picture bare
     for name, sub in [(f"vo_{page}_{k}.ogg", "Audio") for k in SENT_OPT_KEYS] + [(f"{image_id}.webp", "Images")] + extra:
         f, dst = SCR / f"{page}_assets" / name, DIST / "assets" / sub / name
         assert f.exists(), f"missing {page.upper()} asset {f}"

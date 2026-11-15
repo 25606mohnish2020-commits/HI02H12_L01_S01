@@ -3427,7 +3427,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 @keyframes p6PromptPop{0%{transform:scale(1);animation-timing-function:cubic-bezier(.2,.8,.3,1);}6.25%{transform:scale(1.045);animation-timing-function:ease-in-out;}
   10%{transform:scale(1.03);animation-timing-function:linear;}86%{transform:scale(1.03);animation-timing-function:ease-in-out;}100%{transform:scale(1);}}
 @keyframes guidedHandBob{0%,100%{transform:translateY(2px);}50%{transform:translateY(-14px);}}
-/* ===== [p2-side] P2 (data.layout "side", asked 2026-11-15) = the row of https://hind-dear-story.vercel.app/ page 15 (G2, EVIDENCE_QA),
+/* ===== [p2-side] P2 (data.layout "side", asked 2026-11-15; [g4p1-side] G4 and P1 the same, same day) = the row of https://hind-dear-story.vercel.app/ page 15 (G2, EVIDENCE_QA),
    its computed styles read from the live page: the picture alone in G2's white passage card on the left (no passage text under it),
    G2's 44px gap, and the three sentences stacked in G2's option column on the right (20px inset each side, 88px boxes 36px apart),
    the row's middle on G2's line (stage y 402: our header row is 2px taller and our slide host 12px shorter than G2's, hence top:4px).

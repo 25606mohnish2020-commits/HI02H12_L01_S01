@@ -7003,7 +7003,8 @@ const SlideModules = {
        words lit, and 0.7 s later the page moves on. After the reveal (the guided tap): the same 1 s, then the ding + the
        confetti alone, Swiftie back to rest, and the page moves on 0.7 s later (recorded as a revealed answer).
      - data.mastery (P1, P2, as the practice pages they replace): one mastery attempt per page, a hit on a first try.
-     - [p2-side] data.layout "side" (P2, 2026-11-15): the row of https://hind-dear-story.vercel.app/ page 15 (G2) instead — the
+     - [p2-side] data.layout "side" (P2, 2026-11-15; [g4p1-side] the same day G4 and P1 too, so P4's layout above is used by no page
+       now): the row of https://hind-dear-story.vercel.app/ page 15 (G2) instead — the
        picture alone in a white card on the left, the three sentences stacked on the right, each on ONE line (no break); the
        picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
        (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.

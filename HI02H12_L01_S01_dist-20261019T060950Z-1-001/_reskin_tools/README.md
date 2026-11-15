@@ -3193,8 +3193,30 @@ P2's reveal hand taps instead of bobbing ([p2-tap], 2026-11-15)
   painted under the finger, invisible before 38 %; the layer's box); with --g2 the live G2's hand and P2's frozen at 11 points of the
   cycle: the press (scale, drop in hand-widths), each layer's opacity and growth, the layer's place on the drawn hand (-0.1521 /
   -0.3673 / 1.0999 hand-widths on both) and the art; G4 / P1: the hand still bobs. It now exits 1 on any FAIL (it exited 0 before).
-- Checked (on the built dist, one at a time): RESULTS_PENDING
+- Checked (on the built dist, one at a time): g4_check P2 --g2 33/33 ALL PASS (the four tap checks + the frozen-cycle match with the
+  live G2), G4 27/27 and P1 27/27 ALL PASS (their hands still bob), gate_check ALL PASS (13), smoke 53/53.
 - `../_before_p2_tap/` holds the dist's three files and build.py (reconstructed), g4_check.py, smoke.py, gate_check.py, README.md (tools/).
+
+G4 and P1 in P2's layout ([g4p1-side], 2026-11-15)
+- Asked: "Apply the exact same layout as of page 14 P2 at pages 12 G4 and 13 P1 of this file the exact same layout. Rest keep
+  everything exactly the same in this file."
+- Built: G4 and P1 take data.layout "side" ([p2-side]) — the same places and sizes as P2: the picture alone in the 492x365 white card
+  at x 114.5 (picture 444x333), the three sentences in 528x88 boxes stacked at x 670.5, y 234 / 358 / 482, each on one line at 28px,
+  the row's middle on y 402; the picture's pops on the card, the reveal hand at the side row's place (top 56px above the right box's
+  bottom). Their sentences are shorter than P2's, so their boxes keep more air; the boxes are the same width on all three pages.
+  Pictures bare like P2's: new sent_bare_picture.py (the source's centred 4:3 band at 1448x1086, WebP q90; it reproduces P2's
+  img_p2_pencils.webp byte for byte) -> g4_assets/img_g4_kite.webp (from the 1447x1087 g4_kite_source.png) and p1_assets/img_p1_book.webp;
+  the *_gry.webp (P4's baked ring) stay in the asset folders and the dist, unused. P4's own layout (picture on top, three pills in a
+  row) is now used by no page; its code and CSS stay.
+- Not carried over (not layout): P2's tapping hand ([p2-tap]) — G4's and P1's reveal hands still bob. Everything else on both pages
+  as before (header, sounds, lines, timings, tap rules, green ring, orange words, wiggle, grey decoys).
+- Built: index.html (G4's and P1's data.layout + recall_image_id, the asset table's two pictures), app.js / style.css (comments only:
+  the side row now names G4 and P1), the two new pictures. Diffed against ../_before_g4p1_side/.
+- g4_check.py: G4 and P1 are checked in the side row (the same places check as P2, their 1448-wide pictures, the hand at the side
+  row's place and still bobbing); --g2 works for them too; --ref (the P4 pixel match) is skipped for every page now. smoke.py's G4 / P1
+  steps expect the side row.
+- Checked (on the built dist, one at a time): RESULTS_PENDING
+- `../_before_g4p1_side/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
