@@ -715,8 +715,11 @@ assert [o["label_hi"] for o in card["slides"][i_g4]["data"]["options"]] == ["ल
 # [g4p1-side] (asked 2026-11-15: "Apply the exact same layout as of page 14 P2 at pages 12 G4 and 13 P1"): G4 in P2's [p2-side] row too —
 # the picture alone in the white card on the left, the three sentences stacked on the right, one line each, the same places and sizes;
 # its picture bare (g4_assets/img_g4_kite.webp = sent_bare_picture.py over g4_kite_source.png: its centred 4:3 band at 1448x1086);
-# img_g4_kite_gry.webp (P4's baked ring) stays in g4_assets/ and the dist, unused. The tapping hand ([p2-tap]) stays P2's: G4's bobs.
+# img_g4_kite_gry.webp (P4's baked ring) stays in g4_assets/ and the dist, unused. The tapping hand ([p2-tap]) stayed P2's: G4's bobbed —
+# [g4p1-tap] (asked 2026-11-15: "Apply the exact same animation of the hand nudge also as of page 14 P2 at pages 12 G4 and 13 P1"): now
+# G4's reveal hand taps too (data.hand_tap, the same G2 tap as P2's).
 card["slides"][i_g4]["data"]["layout"] = "side"
+card["slides"][i_g4]["data"]["hand_tap"] = True
 for k in G4_KEYS:
     card["assets"]["audio"][f"vo_g4_{k}"] = f"assets/Audio/vo_g4_{k}.ogg"
     card["assets"]["audio_text"][f"vo_g4_{k}"] = gl4[k]["text"]
@@ -752,9 +755,10 @@ def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap
 # only in where the question mark sits — in place of the ported
 # BUILD_PUNCT builder ("क्या तुमने खाना खाया"). Still the first practice page (G4's round gate before it).
 # [g4p1-side] (2026-11-15) P1 in P2's [p2-side] row too (as G4 above): its picture bare (p1_assets/img_p1_book.webp = sent_bare_picture.py
-# over p1_book_source.png); img_p1_book_gry.webp stays in p1_assets/ and the dist, unused; its hand keeps the bob.
+# over p1_book_source.png); img_p1_book_gry.webp stays in p1_assets/ and the dist, unused; its hand kept the bob until [g4p1-tap]
+# (2026-11-15): now it taps like P2's (hand_tap).
 practice_pick("P1", "p1", "img_p1_book", "BUILD_PUNCT",
-              ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1", layout="side")
+              ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1", layout="side", hand_tap=True)
 # P2: a girl with coloured pencils ([pics-pinki] 2026-11-02: the user's redrawn picture, the old pair kept as *_v1_2026-10-25); a
 # danda after each colour, no mark, or a comma after each (the right one, listed last) —
 # in place of the ported EVIDENCE_QA pick ("राम खाना खाकर सोया"). Too long for P4's pill on one line: SENT_PICK sets them on two.
@@ -2106,7 +2110,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
        picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
        (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
        Everything else as above.
-     - [p2-tap] data.hand_tap (P2, 2026-11-15): that reveal hand TAPS, as G2's does — it stays where it stands (no bob), its
+     - [p2-tap] data.hand_tap (P2, 2026-11-15; [g4p1-tap] G4 and P1 too, same day): that reveal hand TAPS, as G2's does — it stays where it stands (no bob), its
        finger presses on a 1.3 s beat with G2's ripple and sparks opening round the tip (style.css [p2-tap]). ===== */
   SENT_PICK: {
     mount(host, slide){
@@ -2265,7 +2269,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
           if(!alive() || !right.cell.classList.contains("opt-guided")) return;
           if(isPlaying){ after(100, place); return; }
           const st = document.querySelector(".slide-stage"); if(!st) return;
-          if(d.hand_tap){   // [p2-tap] P2: the reference G2's tapping hand — its finger presses on a 1.3 s beat with G2's ripple + sparks behind the tip (style.css [p2-tap]); no bob
+          if(d.hand_tap){   // [p2-tap] P2 ([g4p1-tap] G4, P1 too): the reference G2's tapping hand — its finger presses on a 1.3 s beat with G2's ripple + sparks behind the tip (style.css [p2-tap]); no bob
             hand = document.createElement("div"); hand.className = "reveal-hand rh-tap";
             hand.innerHTML = '<span class="rh-fx" aria-hidden="true"><i class="rh-ro"></i><i class="rh-ri"></i><i class="rh-sp"></i></span>' +
                              '<img class="rh-img" src="assets/UI/nudge_hand_new.svg" alt="" draggable="false">';
@@ -4100,14 +4104,14 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 # ripples and the sparks, G2's :root --nh-ro / --nh-ri / --nh-sp SVGs) is kept in p2_assets/g2_tap_fx.json.
 _g2fx = json.loads((SCR / "p2_assets" / "g2_tap_fx.json").read_text(encoding="utf-8"))
 assert all(_g2fx[k].startswith("data:image/svg+xml,") and '"' not in _g2fx[k] for k in ("ro", "ri", "sp")), "g2_tap_fx.json: not the three SVG data URIs"
-sent_css += """/* ===== [p2-tap] P2 (data.hand_tap): the reveal hand after the 3rd wrong tap TAPS on the right sentence — the tap of
+sent_css += """/* ===== [p2-tap] P2, and since [g4p1-tap] G4 and P1 (data.hand_tap): the reveal hand after the 3rd wrong tap TAPS on the right sentence — the tap of
    https://hind-dear-story.vercel.app/ page 15 (G2), its #nudgeHand read live, in place of the bob (guidedHandBob). The hand stays where it
    stands ([p2-side]'s place); its finger presses down and in (G2's nhTapNew: 45-62 % of a 1.3 s ease-in-out cycle, scale .93) while G2's
    outer ripple, inner ripple and sparks (its own SVG art) open round the fingertip on the same clock (the engine's nhRippleOuter /
    nhRippleInner / nhSparkPop, the same keyframes as G2's), behind the finger as in G2 (the layer comes first; the pressing picture is
    painted over it). P2's hand keeps its 96px box: G2's 86x108 hand draws the 75x94 art 0.8906 as large here (96/94 vs 86/75), so G2's
    tap layer (94.6px at -13.08,-31.48 of its box) and press (6px) are scaled with it: 84.255px at -1.948,-28.133 (the art's left edge is
-   9.702px into our box), 5.344px. G4 and P1 keep the bob. */
+   9.702px into our box), 5.344px. (G4 and P1 kept the bob until [g4p1-tap].) */
 .stage.sent-page .reveal-hand.rh-tap{animation:none;overflow:visible;--rh-ro:url("@RO@");--rh-ri:url("@RI@");--rh-sp:url("@SP@");}
 .stage.sent-page .reveal-hand.rh-tap .rh-img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;animation:rhTapP2 1.3s ease-in-out infinite;}
 .stage.sent-page .reveal-hand.rh-tap .rh-fx{position:absolute;left:-1.948px;top:-28.133px;width:84.255px;height:84.255px;pointer-events:none;}

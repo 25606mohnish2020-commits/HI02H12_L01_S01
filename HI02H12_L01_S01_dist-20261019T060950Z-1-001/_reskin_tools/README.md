@@ -3218,6 +3218,19 @@ G4 and P1 in P2's layout ([g4p1-side], 2026-11-15)
 - Checked (on the built dist, one at a time): RESULTS_PENDING
 - `../_before_g4p1_side/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
+G4's and P1's reveal hands tap like P2's ([g4p1-tap], 2026-11-15)
+- Asked: "Apply the exact same animation of the hand nudge also as of page 14 P2 at pages 12 G4 and 13 P1 of this file. Rest keep
+  everything exactly the same in this file."
+- Built: G4 and P1 take data.hand_tap ([p2-tap]): after the 3rd wrong tap their hand stands at the side row's place (top 56px above
+  the right box's bottom) and taps — the finger's press on the 1.3 s beat with G2's ripple + sparks round the tip — instead of
+  bobbing; the same 96px hand, the same scaled layer as P2's. Nothing else changes: index.html (the two data.hand_tap), app.js /
+  style.css (comments naming G4 and P1). Every page's hand that bobs now: none of the SENT_PICK pages; G1-G3 / T2-T4 (their own
+  .dmf-hand) unchanged.
+- g4_check.py: G4 and P1 now get P2's four tap checks (and the frozen-cycle match with the live G2 under --g2); the "hand still bobs"
+  check is gone with no page left to use it.
+- Checked (on the built dist, one at a time): RESULTS_PENDING
+- `../_before_g4p1_tap/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
