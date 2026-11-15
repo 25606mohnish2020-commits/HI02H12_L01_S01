@@ -3231,7 +3231,9 @@ G4's and P1's reveal hands tap like P2's ([g4p1-tap], 2026-11-15)
   .dmf-hand) unchanged.
 - g4_check.py: G4 and P1 now get P2's four tap checks (and the frozen-cycle match with the live G2 under --g2); the "hand still bobs"
   check is gone with no page left to use it.
-- Checked (on the built dist, one at a time): RESULTS_PENDING
+- Checked (on the built dist, one at a time): on the [g4p1-tap] build itself g4_check G4 / P1 / P2 --g2 33/33 each ALL PASS (the tap
+  checks + the frozen-cycle match with the live G2 on all three) and gate_check ALL PASS (13); its smoke run was stopped when the font
+  change replaced the build — the final build's run below covers both changes.
 - `../_before_g4p1_tap/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
 G4's and P1's sentences a little larger ([g4p1-font], 2026-11-15)
@@ -3247,7 +3249,9 @@ G4's and P1's sentences a little larger ([g4p1-font], 2026-11-15)
   row's sentence rule reads font-size: var(--so-fs, 28px).
 - Built: index.html (G4's and P1's data.opt_px), app.js (one line), style.css (one rule). Diffed against ../_before_g4p1_font/.
 - g4_check.py: the side-row places check expects each page's own size (G4 / P1 30px, P2 28px).
-- Checked (on the built dist, one at a time): RESULTS_PENDING
+- Checked (on the final built dist, 30px, one at a time): g4_check G4 --g2 33/33, P1 --g2 33/33, P2 --g2 33/33 ALL PASS (places with
+  each page's size, the tap, the live G2 row + hand), gate_check ALL PASS (13), smoke 53/53. The check runs for the 44 / 40 / 36 / 32px
+  builds were stopped as each was replaced.
 - `../_before_g4p1_font/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
 Rebuilding after a card/content change
