@@ -722,7 +722,7 @@ card["_emoji_fallback"]["img_g4_kite_gry"] = "✏️"
 # line). Each stays the practice page it replaces (phase, eis) and still counts in the mastery score (data.mastery, as the
 # ported page did). Clips + timings from <page>_assets/ (recap_vo.py <page>).
 SENT_OPT_KEYS = ["o1", "o2", "o3"]
-def practice_pick(sid, page, image_id, was, labels, right, layout=None):
+def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap=False):
     lines = {k: json.loads((SCR / f"{page}_assets" / f"vo_{page}_{k}.words.json").read_text(encoding="utf-8")) for k in SENT_OPT_KEYS}
     i = next(i for i, s in enumerate(card["slides"]) if s["id"] == sid)
     old = card["slides"][i]
@@ -735,6 +735,7 @@ def practice_pick(sid, page, image_id, was, labels, right, layout=None):
         "signals": {"on_complete": ["evidence_qa_first_try"]}}
     assert [o["label_hi"] for o in card["slides"][i]["data"]["options"]] == labels, f"{sid}'s sentences are not the asked ones"
     if layout: card["slides"][i]["data"]["layout"] = layout   # [p2-side] "side": the picture in a card on the left, the sentences stacked on the right
+    if hand_tap: card["slides"][i]["data"]["hand_tap"] = True   # [p2-tap] the reveal hand taps (the reference G2's tap) instead of bobbing
     for k in SENT_OPT_KEYS:
         card["assets"]["audio"][f"vo_{page}_{k}"] = f"assets/Audio/vo_{page}_{k}.ogg"
         card["assets"]["audio_text"][f"vo_{page}_{k}"] = lines[k]["text"]
@@ -758,7 +759,7 @@ practice_pick("P1", "p1", "img_p1_book_gry", "BUILD_PUNCT",
 # 1448x1086); img_p2_pencils_gry.webp (P4's baked grey ring) stays in p2_assets/ and in the dist, unused. G4 and P1 unchanged.
 practice_pick("P2", "p2", "img_p2_pencils", "EVIDENCE_QA",
               ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"], right="o3",
-              layout="side")
+              layout="side", hand_tap=True)   # [p2-tap] (asked 2026-11-15, after [p2-side]): the hand after the 3rd wrong tap taps on the right sentence
 # [gate-p2] the round-3 gate ("अब आपकी बारी!": the peeking Swiftie, the title revealed as vo_pt_practice sounds) follows P2, not
 # the guided -> practice boundary (G4 -> P1) where the engine would open it: G4, P1 and P2 play as one run of the same page and
 # the gate opens before the first builder page, P3. The engine patch below reads this key. Since [rm-p3p6] below dropped
@@ -2096,7 +2097,9 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
        picture alone in a white card on the left, the three sentences stacked on the right, each on ONE line (no break); the
        picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
        (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
-       Everything else as above. ===== */
+       Everything else as above.
+     - [p2-tap] data.hand_tap (P2, 2026-11-15): that reveal hand TAPS, as G2's does — it stays where it stands (no bob), its
+       finger presses on a 1.3 s beat with G2's ripple and sparks opening round the tip (style.css [p2-tap]). ===== */
   SENT_PICK: {
     mount(host, slide){
       const d = slide.data || {}, A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
@@ -2254,7 +2257,11 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
           if(!alive() || !right.cell.classList.contains("opt-guided")) return;
           if(isPlaying){ after(100, place); return; }
           const st = document.querySelector(".slide-stage"); if(!st) return;
-          hand = document.createElement("img"); hand.className = "reveal-hand"; hand.src = "assets/UI/nudge_hand_new.svg"; hand.alt = "";
+          if(d.hand_tap){   // [p2-tap] P2: the reference G2's tapping hand — its finger presses on a 1.3 s beat with G2's ripple + sparks behind the tip (style.css [p2-tap]); no bob
+            hand = document.createElement("div"); hand.className = "reveal-hand rh-tap";
+            hand.innerHTML = '<span class="rh-fx" aria-hidden="true"><i class="rh-ro"></i><i class="rh-ri"></i><i class="rh-sp"></i></span>' +
+                             '<img class="rh-img" src="assets/UI/nudge_hand_new.svg" alt="" draggable="false">';
+          } else { hand = document.createElement("img"); hand.className = "reveal-hand"; hand.src = "assets/UI/nudge_hand_new.svg"; hand.alt = ""; }
           hand.style.setProperty("pointer-events", "auto", "important"); hand.style.cursor = "pointer";
           hand.onclick = (e)=>{ e.stopPropagation(); tap(right); };
           st.appendChild(hand); placeHand(); requestAnimationFrame(placeHand);
@@ -2273,7 +2280,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
       const padTap = (e)=>{
         if(!alive()){ document.removeEventListener("click", padTap, true); return; }
         if(!right.cell.classList.contains("opt-guided") || isPlaying || hold) return;
-        const t = e.target; if(!t || right.cell.contains(t) || (hand && t === hand)) return;
+        const t = e.target; if(!t || right.cell.contains(t) || (hand && hand.contains(t))) return;   // [p2-tap] the tapping hand is a box (its finger, its ripple): a tap on any of it is the hand's own
         if(typeof e.clientX !== "number" || (e.clientX === 0 && e.clientY === 0)) return;
         const st = document.querySelector(".slide-stage"), scale = st ? (st.getBoundingClientRect().width / st.offsetWidth || 1) : 1;
         const r = right.cell.getBoundingClientRect(), pad = HIT_PAD * scale;
@@ -4080,6 +4087,29 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 """
+# [p2-tap] P2's reveal hand taps (asked 2026-11-15: "when the hand nudge appears after the third wrong attempt ... on the correct option
+# ... the hand nudge should show tapping animation instead of the current animation"): the reference G2's own tap. Its art (the two
+# ripples and the sparks, G2's :root --nh-ro / --nh-ri / --nh-sp SVGs) is kept in p2_assets/g2_tap_fx.json.
+_g2fx = json.loads((SCR / "p2_assets" / "g2_tap_fx.json").read_text(encoding="utf-8"))
+assert all(_g2fx[k].startswith("data:image/svg+xml,") and '"' not in _g2fx[k] for k in ("ro", "ri", "sp")), "g2_tap_fx.json: not the three SVG data URIs"
+sent_css += """/* ===== [p2-tap] P2 (data.hand_tap): the reveal hand after the 3rd wrong tap TAPS on the right sentence — the tap of
+   https://hind-dear-story.vercel.app/ page 15 (G2), its #nudgeHand read live, in place of the bob (guidedHandBob). The hand stays where it
+   stands ([p2-side]'s place); its finger presses down and in (G2's nhTapNew: 45-62 % of a 1.3 s ease-in-out cycle, scale .93) while G2's
+   outer ripple, inner ripple and sparks (its own SVG art) open round the fingertip on the same clock (the engine's nhRippleOuter /
+   nhRippleInner / nhSparkPop, the same keyframes as G2's), behind the finger as in G2 (the layer comes first; the pressing picture is
+   painted over it). P2's hand keeps its 96px box: G2's 86x108 hand draws the 75x94 art 0.8906 as large here (96/94 vs 86/75), so G2's
+   tap layer (94.6px at -13.08,-31.48 of its box) and press (6px) are scaled with it: 84.255px at -1.948,-28.133 (the art's left edge is
+   9.702px into our box), 5.344px. G4 and P1 keep the bob. */
+.stage.sent-page .reveal-hand.rh-tap{animation:none;overflow:visible;--rh-ro:url("@RO@");--rh-ri:url("@RI@");--rh-sp:url("@SP@");}
+.stage.sent-page .reveal-hand.rh-tap .rh-img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 50%;animation:rhTapP2 1.3s ease-in-out infinite;}
+.stage.sent-page .reveal-hand.rh-tap .rh-fx{position:absolute;left:-1.948px;top:-28.133px;width:84.255px;height:84.255px;pointer-events:none;}
+.stage.sent-page .reveal-hand.rh-tap .rh-fx i{position:absolute;inset:0;display:block;background-repeat:no-repeat;background-position:center;background-size:contain;
+  transform-origin:50% 50%;opacity:0;}
+.stage.sent-page .reveal-hand.rh-tap .rh-fx .rh-ro{background-image:var(--rh-ro);animation:nhRippleOuter 1.3s ease-out infinite;}
+.stage.sent-page .reveal-hand.rh-tap .rh-fx .rh-ri{background-image:var(--rh-ri);animation:nhRippleInner 1.3s ease-out infinite;}
+.stage.sent-page .reveal-hand.rh-tap .rh-fx .rh-sp{background-image:var(--rh-sp);animation:nhSparkPop 1.3s ease-out infinite;}
+@keyframes rhTapP2{0%,100%{transform:translateY(0) scale(1);}45%,62%{transform:translateY(5.344px) scale(.93);}}
+""".replace("@RO@", _g2fx["ro"]).replace("@RI@", _g2fx["ri"]).replace("@SP@", _g2fx["sp"])
 css = (ref_css
        + "\n\n/* ===== [reskin] PORTED FROM THE HI02H12_L01_S01 ENGINE: evidence / sort / punctuation modules ===== */\n"
        + mod_css

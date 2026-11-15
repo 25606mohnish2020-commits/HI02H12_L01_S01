@@ -3164,8 +3164,37 @@ P2 in the reference G2's layout: the picture left, the sentences stacked right, 
   y's / heights / right edge, and the card's / picture's / boxes' corners, rims, shadows, colours, the text's colour / weight / face).
   smoke.py's P2 step expects the side row (no break).
 - `python -I -X utf8 g4_check.py ../HI02H12_L01_S01_dist/index.html out --page P2 --g2`
-- Checked (on the built dist): RESULTS_PENDING
+- Checked (on the built dist, one at a time): g4_check P2 --g2 28/28 ALL PASS (the live G2 comparison included), G4 26/26 and P1
+  26/26 ALL PASS (unchanged), gate_check ALL PASS (13 checks: P2 -> gate -> L1 twice, L1 -> L2 -> end screen), smoke 53/53.
 - `../_before_p2_side/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
+- The user committed and pushed this build as 0c9a7b2 (12:29) before the results line above was filled in (the committed README
+  says RESULTS_PENDING); the dist in that commit is exactly the checked build.
+
+P2's reveal hand taps instead of bobbing ([p2-tap], 2026-11-15)
+- Asked: "At page 14 P2 of this file when the hand nudge appears after the third wrong attempt from the user then the hand nudge
+  appears on the correct option at that time the hand nudge should show tapping animation insted of the current animation on the
+  correct option. ... Rest keep everything exactly the same in this file."
+- The tap = the reference G2's own (https://hind-dear-story.vercel.app/ page 15, its #nudgeHand read live after three wrong taps):
+  the hand stands still; its finger presses down and in (nhTapNew: translateY 6px + scale .93 from 45 % to 62 % of a 1.3 s
+  ease-in-out cycle) while three layers behind the fingertip — an outer ripple, an inner ripple and yellow sparks, G2's own SVG art
+  (its :root --nh-ro / --nh-ri / --nh-sp) — open and fade on the same clock (nhRippleOuter / nhRippleInner / nhSparkPop, 1.3 s
+  ease-out; this engine already carries those three keyframes with G2's exact values, but draws its own layers as CSS rings).
+- Built (P2 only: data.hand_tap): the reveal hand is a box (.reveal-hand.rh-tap) holding the layer (.rh-fx, three <i> with G2's art,
+  kept in p2_assets/g2_tap_fx.json) and the hand picture (.rh-img); the bob (guidedHandBob) is off. P2's hand keeps its 96px box and
+  its [p2-side] place (top 56px above the right box's bottom, centred): G2's 86x108 hand draws the 75x94 art 0.8906 as large here
+  (96/94 vs 86/75), so G2's layer (94.6px at -13.08,-31.48 of its box) and press (6px) are scaled with it: 84.255px at
+  -1.948,-28.133 and 5.344px (rhTapP2 = nhTapNew at that size). Taps on any part of the hand count as the hand's (padTap now asks
+  hand.contains). G4 and P1 keep the bob; the hand appears when it did, where it did, and is swept as before.
+- Built: index.html (P2's data.hand_tap), app.js (SENT_PICK's reveal builds the tapping hand when data.hand_tap; padTap), style.css
+  (the [p2-tap] block). Nothing else differs (diffed against ../_before_p2_tap/). The pre-change build.py in the backup was
+  reconstructed by reversing the edits (scratchpad unpatch_build_p2tap.py) and rebuilds that dist byte for byte.
+- g4_check.py: P2's hand traced every frame for 2.7 s (stands still at -56; the press 5.344px / .93 inside 45-62 % of each cycle, at
+  rest at 0 / 100 %, two presses 1.3 s apart; the three layers' names, timing, G2's art, one start time with the press, the layer
+  painted under the finger, invisible before 38 %; the layer's box); with --g2 the live G2's hand and P2's frozen at 11 points of the
+  cycle: the press (scale, drop in hand-widths), each layer's opacity and growth, the layer's place on the drawn hand (-0.1521 /
+  -0.3673 / 1.0999 hand-widths on both) and the art; G4 / P1: the hand still bobs. It now exits 1 on any FAIL (it exited 0 before).
+- Checked (on the built dist, one at a time): RESULTS_PENDING
+- `../_before_p2_tap/` holds the dist's three files and build.py (reconstructed), g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

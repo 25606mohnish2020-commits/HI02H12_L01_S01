@@ -7007,7 +7007,9 @@ const SlideModules = {
        picture alone in a white card on the left, the three sentences stacked on the right, each on ONE line (no break); the
        picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
        (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
-       Everything else as above. ===== */
+       Everything else as above.
+     - [p2-tap] data.hand_tap (P2, 2026-11-15): that reveal hand TAPS, as G2's does — it stays where it stands (no bob), its
+       finger presses on a 1.3 s beat with G2's ripple and sparks opening round the tip (style.css [p2-tap]). ===== */
   SENT_PICK: {
     mount(host, slide){
       const d = slide.data || {}, A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
@@ -7168,7 +7170,11 @@ const SlideModules = {
           if(!alive() || !right.cell.classList.contains("opt-guided")) return;
           if(isPlaying){ after(100, place); return; }
           const st = document.querySelector(".slide-stage"); if(!st) return;
-          hand = document.createElement("img"); hand.className = "reveal-hand"; hand.src = "assets/UI/nudge_hand_new.svg"; hand.alt = "";
+          if(d.hand_tap){   // [p2-tap] P2: the reference G2's tapping hand — its finger presses on a 1.3 s beat with G2's ripple + sparks behind the tip (style.css [p2-tap]); no bob
+            hand = document.createElement("div"); hand.className = "reveal-hand rh-tap";
+            hand.innerHTML = '<span class="rh-fx" aria-hidden="true"><i class="rh-ro"></i><i class="rh-ri"></i><i class="rh-sp"></i></span>' +
+                             '<img class="rh-img" src="assets/UI/nudge_hand_new.svg" alt="" draggable="false">';
+          } else { hand = document.createElement("img"); hand.className = "reveal-hand"; hand.src = "assets/UI/nudge_hand_new.svg"; hand.alt = ""; }
           hand.style.setProperty("pointer-events", "auto", "important"); hand.style.cursor = "pointer";
           hand.onclick = (e)=>{ e.stopPropagation(); tap(right); };
           st.appendChild(hand); placeHand(); requestAnimationFrame(placeHand);
@@ -7187,7 +7193,7 @@ const SlideModules = {
       const padTap = (e)=>{
         if(!alive()){ document.removeEventListener("click", padTap, true); return; }
         if(!right.cell.classList.contains("opt-guided") || isPlaying || hold) return;
-        const t = e.target; if(!t || right.cell.contains(t) || (hand && t === hand)) return;
+        const t = e.target; if(!t || right.cell.contains(t) || (hand && hand.contains(t))) return;   // [p2-tap] the tapping hand is a box (its finger, its ripple): a tap on any of it is the hand's own
         if(typeof e.clientX !== "number" || (e.clientX === 0 && e.clientY === 0)) return;
         const st = document.querySelector(".slide-stage"), scale = st ? (st.getBoundingClientRect().width / st.offsetWidth || 1) : 1;
         const r = right.cell.getBoundingClientRect(), pad = HIT_PAD * scale;

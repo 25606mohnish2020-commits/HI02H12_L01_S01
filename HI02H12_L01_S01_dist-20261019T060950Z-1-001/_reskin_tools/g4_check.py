@@ -11,6 +11,9 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
        pops play on the card and the reveal hand's top sits 56px above the right box's bottom (G2's pointNudgeAt).
        --g2: also read the live G2 and compare the places and looks it shares with P2 (card left edge and middle, card/box gap,
        box y's, heights and right edge, corners, rims, shadows, colours).
+       [p2-tap] (2026-11-15) P2's reveal hand TAPS (the reference G2's tap) instead of bobbing: it stands still, its finger presses on
+       a 1.3 s beat with G2's ripple + sparks art round the tip — traced frame by frame; with --g2 also frozen at 11 points of the
+       cycle against the live G2's #nudgeHand. G4 / P1: the hand still bobs.
 1. The right pill first: the instruction on entry; the tap marks it green at once and pops the picture, nothing sounds for
    1 s (taps wait), then the kit's correct-select, the confetti and the happy Swiftie, and its own line with each word lit
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
@@ -40,7 +43,7 @@ CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़
               "labels": ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]},
        "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?",
               "labels": ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"]},
-       "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "layout": "side", "pic_w": 1448,   # [p2-side] was "lines": 2
+       "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [p2-side] was "lines": 2; [p2-tap] its reveal hand taps
               "labels": ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"]}}[PAGE]
 NEXT = CFG["next"]; ON = "through the round gate to " + NEXT if CFG["gate"] else "straight on to " + NEXT
 fails = []
@@ -72,6 +75,31 @@ WIG = r"""() => { window._wig = []; const step = () => { const cells = [...docum
     an: cells.map(c => c.getAnimations().map(a => a.animationName).filter(Boolean)) });
   if (CARD.slides[state.idx].id !== window._stopAt) requestAnimationFrame(step); }; requestAnimationFrame(step); }"""
 
+# [p2-tap] the tapping reveal hand: its structure and animations, a 2.7 s per-frame trace (press, place, ripple opacities), and the same
+# hand frozen at points of its cycle measured against its own drawn art (for the comparison with the live G2's #nudgeHand)
+G2FX = json.loads((pathlib.Path(__file__).resolve().parent / "p2_assets" / "g2_tap_fx.json").read_text(encoding="utf-8"))
+TAPINFO = """() => { const h = document.querySelector('.reveal-hand'), img = h.querySelector('.rh-img'), fx = h.querySelector('.rh-fx');
+  const A = e => { const cs = getComputedStyle(e); return [cs.animationName, cs.animationDuration, cs.animationTimingFunction, cs.animationIterationCount]; };
+  const fcs = fx ? getComputedStyle(fx) : null;
+  return { tag: h.tagName, handAnim: getComputedStyle(h).animationName, img: img ? A(img) : null, fx: fx ? [...fx.children].map(A) : [],
+    art: fx ? [...fx.children].map(i => getComputedStyle(i).backgroundImage) : [], fxBox: fcs ? [fcs.left, fcs.top, fcs.width, fcs.height] : null,
+    fxFirst: !!(fx && img && h.firstElementChild === fx && (fx.compareDocumentPosition(img) & Node.DOCUMENT_POSITION_FOLLOWING)),
+    anims: h.getAnimations({ subtree: true }).map(a => [a.animationName, String(a.effect.target.className), a.effect.getTiming().duration, a.startTime]) }; }"""
+TAPTRACE = """() => new Promise(res => { const h = document.querySelector('.reveal-hand'), img = h.querySelector('.rh-img'), fx = [...h.querySelectorAll('.rh-fx i')],
+  c = document.querySelector('#slideHost .opt-cell.opt-guided'), an = img.getAnimations()[0], out = [], t0 = performance.now();
+  const step = () => { const m = new DOMMatrix(getComputedStyle(img).transform), hr = h.getBoundingClientRect(), cr = c.getBoundingClientRect();
+    out.push({ ms: performance.now() - t0, ph: an.currentTime % 1300, ty: m.f, sc: m.a, top: hr.top - cr.bottom, left: hr.left, op: fx.map(i => +getComputedStyle(i).opacity) });
+    if (performance.now() - t0 < 2700) requestAnimationFrame(step); else res(out); };
+  requestAnimationFrame(step); })"""
+FROZEN = """([sel, imgSel, fxSel, ts]) => { const h = document.querySelector(sel), img = h.querySelector(imgSel), fx = h.querySelector(fxSel);
+  const anims = h.getAnimations({ subtree: true }); anims.forEach(a => a.pause());
+  const bw = img.offsetWidth, bh = img.offsetHeight, nw = img.naturalWidth, nh = img.naturalHeight, k = Math.min(bw / nw, bh / nh), aw = nw * k, ah = nh * k,
+        ax = img.offsetLeft + (bw - aw) / 2, ay = img.offsetTop + (bh - ah) / 2, fcs = getComputedStyle(fx);
+  const geo = [(parseFloat(fcs.left) - ax) / aw, (parseFloat(fcs.top) - ay) / aw, parseFloat(fcs.width) / aw].map(v => +v.toFixed(4));
+  const rows = ts.map(t => { anims.forEach(a => a.currentTime = t); const m = new DOMMatrix(getComputedStyle(img).transform);
+    return [t, +m.a.toFixed(4), +(m.f / aw).toFixed(4), [...fx.children].map(i => [+(+getComputedStyle(i).opacity).toFixed(3), +new DOMMatrix(getComputedStyle(i).transform).a.toFixed(3)])]; });
+  anims.forEach(a => a.play());
+  return { geo, rows, art: [...fx.children].map(i => getComputedStyle(i).backgroundImage), aw: +aw.toFixed(3) }; }"""
 MEDIA_TRACE = """(() => { window.__media = []; const P = HTMLMediaElement.prototype, op = P.play, oq = P.pause;   // [g4-giggle] every play / pause, with its clock and volume
   P.play = function(){ window.__media.push({ ev: 'play', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume, ct: this.currentTime }); return op.apply(this, arguments); };
   P.pause = function(){ window.__media.push({ ev: 'pause', src: (this.currentSrc || this.src || '').split('/').pop(), at: performance.now(), vol: this.volume }); return oq.apply(this, arguments); }; })()"""
@@ -219,6 +247,34 @@ with sync_playwright() as p:
       return { hand: [h.width, h.height, Math.round(h.left + h.width / 2), Math.round(c.left + c.width / 2), Math.round(h.top - c.bottom)],
                dim: [...document.querySelectorAll('#slideHost .opt-cell')].map(x => [x.className.replace('sent-opt opt-cell', '').trim(), getComputedStyle(x).pointerEvents, getComputedStyle(x).opacity, getComputedStyle(x).filter]),
                ring: getComputedStyle(document.querySelector('#slideHost .opt-cell.opt-guided .so-pill')).outline }; }""")
+    if CFG.get("hand_tap"):   # [p2-tap] the hand taps (the reference G2's tap) instead of bobbing — read every frame for 2.7 s (two cycles)
+        ti = pg.evaluate(TAPINFO); tr = pg.evaluate(TAPTRACE)
+        pg.screenshot(path=str(out / "f_reveal_tap.png"))
+        check("[p2-tap] the reveal hand taps instead of bobbing: it stands still on every frame (its top 56px above the right box's bottom, its left fixed), "
+              "no animation on the hand itself (no guidedHandBob anywhere on it)",
+              ti["tag"] == "DIV" and ti["handAnim"] == "none" and "guidedHandBob" not in [a[0] for a in ti["anims"]] and len(tr) > 100
+              and all(abs(f["top"] + 56) < 0.01 for f in tr) and max(f["left"] for f in tr) - min(f["left"] for f in tr) < 0.01,
+              (ti["tag"], ti["handAnim"], sorted({round(f["top"], 2) for f in tr})[:4], len(tr)))
+        press = [f for f in tr if 0.45 * 1300 + 12 <= f["ph"] <= 0.62 * 1300 - 12]; rest = [f for f in tr if f["ph"] <= 12 or f["ph"] >= 1300 - 12]
+        starts = [round(tr[k]["ms"]) for k in range(1, len(tr)) if tr[k]["ty"] > 5.3 and tr[k - 1]["ty"] <= 5.3]
+        check("[p2-tap] ...its finger presses on G2's beat: rhTapP2 1.3 s ease-in-out infinite — down 5.344px and to .93 from 45 % to 62 % of each cycle, "
+              "back at rest at 0 / 100 % (G2's nhTapNew, its 6px scaled with the hand); two presses 1.3 s apart in the trace",
+              ti["img"] == ["rhTapP2", "1.3s", "ease-in-out", "infinite"] and press and rest
+              and all(abs(f["ty"] - 5.344) < 0.01 and abs(f["sc"] - 0.93) < 0.001 for f in press) and all(f["ty"] < 0.2 and f["sc"] > 0.997 for f in rest)
+              and abs(max(f["ty"] for f in tr) - 5.344) < 0.01 and len(starts) >= 2 and all(abs(b - a - 1300) <= 40 for a, b in zip(starts, starts[1:])),
+              (ti["img"], len(press), len(rest), round(max(f["ty"] for f in tr), 3), round(min(f["sc"] for f in tr), 4), starts))
+        check("[p2-tap] ...with G2's ripple + sparks round the fingertip on the same clock: three layers (nhRippleOuter / nhRippleInner / nhSparkPop, "
+              "1.3 s ease-out infinite) wearing G2's own art (p2_assets/g2_tap_fx.json), one start time with the press, the layer before the finger (painted under it)",
+              [a[:2] for a in ti["fx"]] == [["nhRippleOuter", "1.3s"], ["nhRippleInner", "1.3s"], ["nhSparkPop", "1.3s"]] and all(a[2] == "ease-out" and a[3] == "infinite" for a in ti["fx"])
+              and ti["art"] == [f'url("{G2FX[k]}")' for k in ("ro", "ri", "sp")] and len({a[3] for a in ti["anims"]}) == 1 and len(ti["anims"]) == 4 and ti["fxFirst"]
+              and all(max(f["op"]) < 0.001 for f in tr if 12 <= f["ph"] <= 0.38 * 1300 - 12) and max(max(f["op"]) for f in tr) > 0.9,
+              (ti["fx"], [a[:2] for a in ti["anims"]], ti["art"][0][:40] if ti["art"] else None, ti["fxFirst"]))
+        check("[p2-tap] ...the layer placed on the finger as G2's, scaled with the hand: 84.255px at -1.948,-28.133 of the 96px box "
+              "(G2's 94.6px at -13.08,-31.48 of its 86x108 box x 0.8906 — 1.1 hand-widths, -0.1521 / -0.3673 of the drawn hand)",
+              ti["fxBox"] and all(abs(float(v[:-2]) - w) <= 1 / 64 for v, w in zip(ti["fxBox"], (-1.948, -28.133, 84.255, 84.255))), ti["fxBox"])   # computed sizes snap to 1/64 px
+    else:   # G4 / P1 keep the bob
+        hb = pg.evaluate("(() => { const h = document.querySelector('.reveal-hand'); return [h.tagName, h.getAnimations().map(a => a.animationName)]; })()")
+        check("the reveal hand still bobs here (guidedHandBob; only P2's taps, [p2-tap])", hb == ["IMG", ["guidedHandBob"]], hb)
     pg.click(".reveal-hand", force=True); pg.wait_for_timeout(200)   # force: the hand bobs forever, so it is never "stable"; pg.screenshot(path=str(out / "g_guided_tap.png"))
     pg.wait_for_function(f"CARD.slides[state.idx].id === '{NEXT}'", timeout=30000, polling=50); pg.wait_for_timeout(150)
     tl = timeline(pg); sig = pg.evaluate(f"GameBus.signals.filter(s => s.slide_id === '{PAGE}')")
@@ -333,6 +389,30 @@ with sync_playwright() as p:
               "2px white rim, shadow, white and 16px padding; the sentences' colour, weight and face",
               g["cardLook"] == o["cardLook"] and g["picRadius"] == o["picRadius"] and g["boxLook"] == o["boxLook"] and g["text"] == o["text"],
               {k: (g[k], o[k]) for k in ("cardLook", "picRadius", "boxLook", "text") if g[k] != o[k]})
+        if CFG.get("hand_tap"):   # [p2-tap] the tap: G2's #nudgeHand after its 3rd wrong tap vs P2's reveal hand, both frozen at the same points of the 1.3 s cycle
+            TS = [0, 200, 450, 585, 650, 720, 806, 900, 1000, 1120, 1250]
+            q = b.new_page(viewport={"width": 1333, "height": 750})
+            q.goto("https://hind-dear-story.vercel.app/", wait_until="load", timeout=60000); q.wait_for_timeout(3000); q.evaluate(LEAVE)
+            q.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'G2'))"); q.wait_for_timeout(12000)
+            for i in [0, 2, 0, 2, 0]:   # its wrong boxes are the 1st and 3rd (no shuffle)
+                q.wait_for_function("!isPlaying && !state.hintActive", timeout=30000); q.wait_for_timeout(400)
+                if q.evaluate("document.getElementById('nudgeHand').classList.contains('show')"): break
+                q.query_selector_all("#slideHost .ev-opt")[i].click(force=True); q.wait_for_timeout(1200)
+            q.wait_for_function("document.getElementById('nudgeHand').classList.contains('show')", timeout=30000); q.wait_for_timeout(300)
+            gt = q.evaluate(FROZEN, ["#nudgeHand", "img", ".nh-tapfx", TS]); q.close()
+            q = b.new_page(viewport={"width": 1333, "height": 750}); d2, labels2, opt2, right2 = run(q)
+            for i in [k for k in (0, 1, 2) if k != right2] + [next(k for k in (0, 1, 2) if k != right2)]:
+                q.wait_for_function("!state.hintActive && !document.querySelector('#slideHost .opt-cell.crossed') && !isPlaying && !sfxBusy()", timeout=30000, polling=20); q.wait_for_timeout(300)
+                q.click(f"#slideHost .opt-cell >> nth={i}", force=True)
+            q.wait_for_function("!!document.querySelector('.reveal-hand')", timeout=15000, polling=20); q.wait_for_timeout(300)
+            ot = q.evaluate(FROZEN, [".reveal-hand", ".rh-img", ".rh-fx", TS]); q.close()
+            dif = [(r[0], s[1:], r[1:]) for r, s in zip(gt["rows"], ot["rows"])
+                   if abs(r[1] - s[1]) > 0.002 or abs(r[2] - s[2]) > 0.002 or any(abs(a[0] - c[0]) > 0.02 or abs(a[1] - c[1]) > 0.005 for a, c in zip(r[3], s[3]))]
+            check("[p2-tap] the live G2's reveal hand: frozen at 11 points of the 1.3 s cycle, P2's finger has G2's press (scale, and drop in hand-widths) and its three "
+                  "layers G2's opacity and growth at every point; the layer sits on the drawn hand where G2's does (in hand-widths) and wears G2's art",
+                  not dif and all(abs(a - c) <= 0.002 for a, c in zip(gt["geo"], ot["geo"])) and gt["art"] == ot["art"] and len(gt["rows"]) == len(ot["rows"]) == len(TS),
+                  {"geo": (gt["geo"], ot["geo"]), "hand widths": (gt["aw"], ot["aw"]), "differ at": dif[:3], "art same": gt["art"] == ot["art"]})
     b.close()
 check("no page errors", not errs, errs[:3])
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
+sys.exit(1 if fails else 0)   # [p2-tap] a FAIL now fails the run (it printed and exited 0 before)
