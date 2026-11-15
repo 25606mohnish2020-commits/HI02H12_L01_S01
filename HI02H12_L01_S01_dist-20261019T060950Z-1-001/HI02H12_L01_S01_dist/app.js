@@ -7024,6 +7024,7 @@ const SlideModules = {
       stim.appendChild(thumb);
       const popEl = side ? stim : thumb;   // [p2-side] what the picture's pops move: the card with its picture there, the bare picture here
       const grid = document.createElement("div"); grid.className = side ? "opt-grid cols-1 sent-opts sent-col" : "opt-grid cols-3 sent-opts";
+      if(side && d.opt_px) grid.style.setProperty("--so-fs", d.opt_px + "px");   // [g4p1-font] G4, P1: their sentences' size in the side row (P2: none, 28px)
       // each pill's sentence split into word spans (one inline box, so the spaces stay); a lone danda is a word of its own
       const items = opts.map((o, k)=>{
         const cell = document.createElement("div"); cell.className = "sent-opt opt-cell"; cell.dataset.key = String(k);

@@ -3237,14 +3237,15 @@ G4's and P1's reveal hands tap like P2's ([g4p1-tap], 2026-11-15)
 G4's and P1's sentences a little larger ([g4p1-font], 2026-11-15)
 - Asked: "Increase the size of the font in the options at pages 12 G4 and 13 P1 of this file by a little more accordingly such that
   the whole layout of these pages looks perfectly fine. But rest keep everything exactly the same in this file." — then, before that
-  was built in, twice more with "a little more than this".
-- Built: G4's and P1's sentences 40px (were 28px; the steps 32px — the reference G2's own option size — and 36px were prepared in a
-  temp copy but never built into the dist), in the same 88px boxes (a 48px line with 20px above and below). Measured: the longest is
-  356px on G4 and 404px on P1 of the boxes' 492px, so every sentence stays on one line with clear margins; nothing else moves (box,
-  card and picture places unchanged). P2 stays 28px (its 491px sentence fills the box at 28). data.opt_px (40 on G4 and P1) -> the
+  was built in, three times more with "a little more than this".
+- Built: G4's and P1's sentences 44px (were 28px; the steps 32px — the reference G2's own option size — 36px and 40px were prepared in a
+  temp copy but never built into the dist), in the same 88px boxes (a 52.8px line with ~18px above and below). Measured: the longest is
+  392px on G4 and 444px on P1 of the boxes' 492px, so every sentence stays on one line with clear margins; nothing else moves (box,
+  card and picture places unchanged). 44px is about the largest these boxes hold comfortably: at 48px P1's sentence would be 484px
+  (the boxes would have to grow). P2 stays 28px (its 491px sentence fills the box at 28). data.opt_px (44 on G4 and P1) -> the
   module sets --so-fs on the sentence column; the side row's sentence rule reads font-size: var(--so-fs, 28px).
 - Built: index.html (G4's and P1's data.opt_px), app.js (one line), style.css (one rule). Diffed against ../_before_g4p1_font/.
-- g4_check.py: the side-row places check expects each page's own size (G4 / P1 40px, P2 28px).
+- g4_check.py: the side-row places check expects each page's own size (G4 / P1 44px, P2 28px).
 - Checked (on the built dist, one at a time): RESULTS_PENDING
 - `../_before_g4p1_font/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
