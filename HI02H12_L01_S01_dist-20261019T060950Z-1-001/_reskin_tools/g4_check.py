@@ -16,6 +16,7 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
        cycle against the live G2's #nudgeHand. G4 / P1: the hand still bobs.
        [g4p1-side] (2026-11-15) G4 and P1 in the same side row as P2 (same places, their bare 1448-wide pictures; --g2 works for them);
        --ref (the P4 pixel match) no longer applies to any page and is skipped.
+       [g4p1-tap] (2026-11-15) G4's and P1's reveal hands tap like P2's: all three pages get the tap checks (the bob check is unused).
 1. The right pill first: the instruction on entry; the tap marks it green at once and pops the picture, nothing sounds for
    1 s (taps wait), then the kit's correct-select, the confetti and the happy Swiftie, and its own line with each word lit
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
@@ -41,9 +42,9 @@ html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).reso
 REF_PIC = sys.argv[sys.argv.index("--ref") + 1] if "--ref" in sys.argv else None
 G2 = "--g2" in sys.argv   # [p2-side] compare P2 with the live https://hind-dear-story.vercel.app/ page 15 (G2)
 PAGE = sys.argv[sys.argv.index("--page") + 1] if "--page" in sys.argv else "G4"
-CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।", "layout": "side", "pic_w": 1448,   # [g4p1-side] P2's row
+CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [g4p1-side] P2's row; [g4p1-tap] its hand taps
               "labels": ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]},
-       "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?", "layout": "side", "pic_w": 1448,   # [g4p1-side] P2's row
+       "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [g4p1-side] P2's row; [g4p1-tap] its hand taps
               "labels": ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"]},
        "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [p2-side] was "lines": 2; [p2-tap] its reveal hand taps
               "labels": ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"]}}[PAGE]
@@ -315,7 +316,7 @@ with sync_playwright() as p:
     check("wrong tap 3: 1 s later the reveal — two pills greyed and dead, the right one ringed green, the 96px hand centred " + ("on its lower part (G2's place)" if side else "under it"),
           [x[0] for k, x in enumerate(rev["dim"]) if k != right] == ["opt-dim", "opt-dim"] and all(x[1] == "none" and x[2] == "0.5" and "grayscale(1)" in x[3] for k, x in enumerate(rev["dim"]) if k != right)
           and rev["dim"][right][0] == "opt-guided" and "rgb(0, 177, 50)" in rev["ring"] and "6px" in rev["ring"]
-          and rev["hand"][:2] == [96, 96] and abs(rev["hand"][2] - rev["hand"][3]) <= 1 and ((-72 <= rev["hand"][4] <= -52) if side else (-16 <= rev["hand"][4] <= 8)), rev)
+          and all(abs(v - 96) <= 0.01 for v in rev["hand"][:2]) and abs(rev["hand"][2] - rev["hand"][3]) <= 1 and ((-72 <= rev["hand"][4] <= -52) if side else (-16 <= rev["hand"][4] <= 8)), rev)
     i_g = first(lambda s: s["cls"][right].startswith("correct"), i_w3)
     i_gate = first(gone, i_g)
     check("the guided tap (on the hand): the green mark at once, the hand gone, 1 s, then the ding + confetti and no line",

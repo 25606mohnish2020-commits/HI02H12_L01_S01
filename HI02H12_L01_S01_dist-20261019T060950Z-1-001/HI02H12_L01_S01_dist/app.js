@@ -7009,7 +7009,7 @@ const SlideModules = {
        picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
        (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
        Everything else as above.
-     - [p2-tap] data.hand_tap (P2, 2026-11-15): that reveal hand TAPS, as G2's does — it stays where it stands (no bob), its
+     - [p2-tap] data.hand_tap (P2, 2026-11-15; [g4p1-tap] G4 and P1 too, same day): that reveal hand TAPS, as G2's does — it stays where it stands (no bob), its
        finger presses on a 1.3 s beat with G2's ripple and sparks opening round the tip (style.css [p2-tap]). ===== */
   SENT_PICK: {
     mount(host, slide){
@@ -7171,7 +7171,7 @@ const SlideModules = {
           if(!alive() || !right.cell.classList.contains("opt-guided")) return;
           if(isPlaying){ after(100, place); return; }
           const st = document.querySelector(".slide-stage"); if(!st) return;
-          if(d.hand_tap){   // [p2-tap] P2: the reference G2's tapping hand — its finger presses on a 1.3 s beat with G2's ripple + sparks behind the tip (style.css [p2-tap]); no bob
+          if(d.hand_tap){   // [p2-tap] P2 ([g4p1-tap] G4, P1 too): the reference G2's tapping hand — its finger presses on a 1.3 s beat with G2's ripple + sparks behind the tip (style.css [p2-tap]); no bob
             hand = document.createElement("div"); hand.className = "reveal-hand rh-tap";
             hand.innerHTML = '<span class="rh-fx" aria-hidden="true"><i class="rh-ro"></i><i class="rh-ri"></i><i class="rh-sp"></i></span>' +
                              '<img class="rh-img" src="assets/UI/nudge_hand_new.svg" alt="" draggable="false">';

@@ -720,6 +720,11 @@ assert [o["label_hi"] for o in card["slides"][i_g4]["data"]["options"]] == ["ल
 # G4's reveal hand taps too (data.hand_tap, the same G2 tap as P2's).
 card["slides"][i_g4]["data"]["layout"] = "side"
 card["slides"][i_g4]["data"]["hand_tap"] = True
+# [g4p1-font] (asked 2026-11-15: "Increase the size of the font in the options at pages 12 G4 and 13 P1 ... by a little more accordingly
+# such that the whole layout of these pages looks perfectly fine"; then again: "a little more than this"): G4's sentences 36px (were 28px;
+# 32px = the reference G2's own option size was the first step, never built into the dist) in the same 88px boxes; the longest is 321px
+# of the boxes' 492px, a 43.2px line with ~22px above and below. P2 stays 28px (its 491px sentence fills the box at 28).
+card["slides"][i_g4]["data"]["opt_px"] = 36
 for k in G4_KEYS:
     card["assets"]["audio"][f"vo_g4_{k}"] = f"assets/Audio/vo_g4_{k}.ogg"
     card["assets"]["audio_text"][f"vo_g4_{k}"] = gl4[k]["text"]
@@ -730,7 +735,7 @@ card["_emoji_fallback"]["img_g4_kite"] = "✏️"
 # line). Each stays the practice page it replaces (phase, eis) and still counts in the mastery score (data.mastery, as the
 # ported page did). Clips + timings from <page>_assets/ (recap_vo.py <page>).
 SENT_OPT_KEYS = ["o1", "o2", "o3"]
-def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap=False):
+def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap=False, opt_px=None):
     lines = {k: json.loads((SCR / f"{page}_assets" / f"vo_{page}_{k}.words.json").read_text(encoding="utf-8")) for k in SENT_OPT_KEYS}
     i = next(i for i, s in enumerate(card["slides"]) if s["id"] == sid)
     old = card["slides"][i]
@@ -744,6 +749,7 @@ def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap
     assert [o["label_hi"] for o in card["slides"][i]["data"]["options"]] == labels, f"{sid}'s sentences are not the asked ones"
     if layout: card["slides"][i]["data"]["layout"] = layout   # [p2-side] "side": the picture in a card on the left, the sentences stacked on the right
     if hand_tap: card["slides"][i]["data"]["hand_tap"] = True   # [p2-tap] the reveal hand taps (the reference G2's tap) instead of bobbing
+    if opt_px: card["slides"][i]["data"]["opt_px"] = opt_px   # [g4p1-font] the side row's sentence size (28px when absent)
     for k in SENT_OPT_KEYS:
         card["assets"]["audio"][f"vo_{page}_{k}"] = f"assets/Audio/vo_{page}_{k}.ogg"
         card["assets"]["audio_text"][f"vo_{page}_{k}"] = lines[k]["text"]
@@ -758,7 +764,8 @@ def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap
 # over p1_book_source.png); img_p1_book_gry.webp stays in p1_assets/ and the dist, unused; its hand kept the bob until [g4p1-tap]
 # (2026-11-15): now it taps like P2's (hand_tap).
 practice_pick("P1", "p1", "img_p1_book", "BUILD_PUNCT",
-              ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1", layout="side", hand_tap=True)
+              ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1", layout="side", hand_tap=True,
+              opt_px=36)   # [g4p1-font] (2026-11-15) P1's sentences 36px like G4's (the longest 363px of the boxes' 492px)
 # P2: a girl with coloured pencils ([pics-pinki] 2026-11-02: the user's redrawn picture, the old pair kept as *_v1_2026-10-25); a
 # danda after each colour, no mark, or a comma after each (the right one, listed last) —
 # in place of the ported EVIDENCE_QA pick ("राम खाना खाकर सोया"). Too long for P4's pill on one line: SENT_PICK sets them on two.
@@ -2125,6 +2132,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
       stim.appendChild(thumb);
       const popEl = side ? stim : thumb;   // [p2-side] what the picture's pops move: the card with its picture there, the bare picture here
       const grid = document.createElement("div"); grid.className = side ? "opt-grid cols-1 sent-opts sent-col" : "opt-grid cols-3 sent-opts";
+      if(side && d.opt_px) grid.style.setProperty("--so-fs", d.opt_px + "px");   // [g4p1-font] G4, P1: their sentences' size in the side row (P2: none, 28px)
       // each pill's sentence split into word spans (one inline box, so the spaces stay); a lone danda is a word of its own
       const items = opts.map((o, k)=>{
         const cell = document.createElement("div"); cell.className = "sent-opt opt-cell"; cell.dataset.key = String(k);
@@ -4095,6 +4103,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
   gap:36px !important;place-content:center;}
 .stage.sent-page .q-row.sent-side .sent-opt .so-pill{width:528px;height:88px;min-height:0;padding:16px;border:2px solid #FFFFFF;border-radius:28px;
   box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12);}
+.stage.sent-page .q-row.sent-side .sent-opt .so-pill{font-size:var(--so-fs, 28px);}   /* [g4p1-font] G4, P1: 36px (data.opt_px); P2: 28px */
 .stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .ck-fx,.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .wg-fx{border-radius:28px;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}

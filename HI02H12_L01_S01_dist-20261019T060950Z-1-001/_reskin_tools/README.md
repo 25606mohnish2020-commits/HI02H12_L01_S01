@@ -3215,7 +3215,10 @@ G4 and P1 in P2's layout ([g4p1-side], 2026-11-15)
 - g4_check.py: G4 and P1 are checked in the side row (the same places check as P2, their 1448-wide pictures, the hand at the side
   row's place and still bobbing); --g2 works for them too; --ref (the P4 pixel match) is skipped for every page now. smoke.py's G4 / P1
   steps expect the side row.
-- Checked (on the built dist, one at a time): RESULTS_PENDING
+- Checked (on the built dist, one at a time): g4_check G4 --g2 29/29 ALL PASS, P2 --g2 33/33 ALL PASS, gate_check ALL PASS (13),
+  smoke 53/53; P1 --g2 28/29 — the one FAIL was the check's own precision: the bobbing hand, caught mid-bob, measured 96.00003 px
+  tall against an exact == 96 (its place, -64 px, was inside the allowed -72..-52; everything else passed). The size test now allows
+  0.01 px. (Superseded the same day by [g4p1-tap]: the hands no longer bob.)
 - `../_before_g4p1_side/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
 G4's and P1's reveal hands tap like P2's ([g4p1-tap], 2026-11-15)
@@ -3230,6 +3233,20 @@ G4's and P1's reveal hands tap like P2's ([g4p1-tap], 2026-11-15)
   check is gone with no page left to use it.
 - Checked (on the built dist, one at a time): RESULTS_PENDING
 - `../_before_g4p1_tap/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
+
+G4's and P1's sentences a little larger ([g4p1-font], 2026-11-15)
+- Asked: "Increase the size of the font in the options at pages 12 G4 and 13 P1 of this file by a little more accordingly such that
+  the whole layout of these pages looks perfectly fine. But rest keep everything exactly the same in this file." — then, before that
+  was built in, the same again with "a little more than this".
+- Built: G4's and P1's sentences 36px (were 28px; the first step, 32px = the reference G2's own option size, was prepared but never
+  built into the dist), in the same 88px boxes (a 43.2px line with ~22px above and below). Measured: the longest is 321px on G4 and
+  363px on P1 of the boxes' 492px, so every sentence stays on one line with wide margins; nothing else moves (box, card and picture
+  places unchanged). P2 stays 28px (its 491px sentence fills the box at 28). data.opt_px (36 on G4 and P1) -> the module sets --so-fs
+  on the sentence column; the side row's sentence rule reads font-size: var(--so-fs, 28px).
+- Built: index.html (G4's and P1's data.opt_px), app.js (one line), style.css (one rule). Diffed against ../_before_g4p1_font/.
+- g4_check.py: the side-row places check expects each page's own size (G4 / P1 36px, P2 28px).
+- Checked (on the built dist, one at a time): RESULTS_PENDING
+- `../_before_g4p1_font/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
