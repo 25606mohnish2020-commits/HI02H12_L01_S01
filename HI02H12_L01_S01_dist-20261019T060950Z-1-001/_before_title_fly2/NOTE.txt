@@ -1,0 +1,5 @@
+_before_title_fly2 = the state just before [title-fly2] (= after [title-dark2]).
+dist/: the dist's three files then. tools/build.py + tools/title_assets/cover_fly_js.js rebuild dist/ byte for byte (verified 2026-11-15;
+cover_fly_js.js was cut back out of dist/app.js, the other title_assets are unchanged by [title-fly2]).
+tools/title_check.py, smoke.py, README.md are the copies from before [title-dark2] (_before_title_dark2/tools); the current title_check.py
+supersedes them (its [title-dark2] version had a broken line that crashed the painted check).

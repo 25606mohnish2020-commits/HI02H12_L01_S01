@@ -3385,6 +3385,59 @@ A darker, readable title heading ([title-dark], 2026-11-15)
   the yellow build the colour, painted and readability checks FAIL (1.27 .. 2.36 : 1), as they should; smoke 53/53.
 - `../_before_title_dark/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
 
+The symbols fly into the title ([title-fly], 2026-11-15)
+- Asked, with Figma FLN-by-MJ 956:2: "At the title page of this file use this configuration and the placement of the animated symbols
+  as shown in this figma reference and add an animation ... At the completion of the background VO at the title page the blue
+  colored symbol will slowly fly at the end of the title text and will get merged into the art style and the color of the title font
+  text, and the green colored symbol will also slowly fly to the title text ... and will get merged and integrated at the places of ,
+  symbol in the title page text where as the purple colored symbol standing at the center will be observing both these symbols
+  flying and getting merged in the title heading text."
+- The frame: the same pictures (byte-identical to title_char_*.png), scene, background and Swiftee; the three characters in new
+  places - the green comma left (177,201 82x123), the purple question mark centre (488,147 120x180), the blue danda right (818,133
+  208.527, its picture 208.071 turned .13deg) - with the frame's new ground shadows (ellipses 3761 / 3762 / 3763 -> title_shadow_1..3.svg
+  replaced) in the frame's layer order. The comma's picture now sits in a wrapper (.sgf-commaw) so its live-eyes canvas flies with it.
+- The animation (title_assets/cover_fly_js.js, once per load, ~8.5 s): it starts when the welcome line has been heard and has ended -
+  the moment the play button pops in (the cover block's reveal() dispatches "sgwelcomedone"; a button forced in by a check does not).
+  0.5 s later the blue danda crouches, lifts off (its shadow fades) and flies slowly (3.6 s) in an arc out to the right and in to the
+  end of the heading, shrinking; over its last fifth it fades into the heading's own । - a copy of the heading clipped to that glyph,
+  growing in at 1.7x round it and settling to exactly 1x on it (the title's font, gold fill, white rim, blue edge), with a soft glow
+  and a few sparkles; the copy then fades away over the identical glyph beneath. Then the green comma (4.2 s) rises, splits in two
+  halfway (a twin hidden exactly under it, with a copy of its live eyes, and a small puff) and each half settles into one of the
+  heading's commas the same way. The purple question mark stays where it stands and watches: its eyes follow the flying symbol
+  (glancing from one half of the comma to the other), curious at each lift-off, surprised at the first landing, happy at the end;
+  the flying symbols look at the title. Afterwards the two are gone from the ground and the question mark stands alone.
+- Not changed: the heading itself (text, colours, size, place; no animation of its own - its , , । are there all along and the symbols
+  merge into them), the play button (it appears at the same moment as before), Swiftee, the chip, the sky, the flare and the dust.
+- The eye rig (cover_eyes_js.js): SGEyes.faceLook(name, target, ms) / faceRelease(name) give one face its own target for a while;
+  debug() names each face; build.py names the faces.
+- title_check.py: title_assets_figma_render_1280x720.png is 956:2's render now (386:17's kept as ..._v1_386-17.png); the new places;
+  the heading is found as .sgf-heading:not(.sgf-hclone); new [title-fly] checks in the autoplay run (the samples run on to the end of
+  the flight): nothing moves while the welcome plays; the flight starts within 1.2 s of its end and runs to the end; three flights
+  (danda -> ।, comma -> 2nd comma, twin -> 1st comma); each glyph clone's last frame exactly on its glyph, clipped, hidden from readers;
+  the glyph boxes on the painted letters (within 2 px); the question mark looks right at the danda and left at the comma's halves,
+  the danda up at the title; at the end the two are hidden, the question mark in place, no clone or sparkle left; the heading's
+  box and pixels the same before and after the flight.
+- Checked (on the built dist): title_check 42 PASS (ALL PASS; every element within 0.28 px of 956:2's places; the Figma card 0.28 %
+  off; the glyph boxes 1.26 px from the painted letters; the heading 0 pixels changed by the flight); on the old build the place and
+  Figma checks FAIL (worst 720.89 px, 8.78 % of the card off) and its autoplay part stopped (no comma wrapper; the sampler now
+  tolerates that); smoke 53/53. Close-ups of both merges looked right (the danda turning gold on the ।; the comma splitting and its
+  halves turning into the two commas).
+- `../_before_title_fly/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md, the old Figma render
+  (tools/) and the old cover_eyes_js.js + title_shadow_1..3.svg (tools/title_assets/).
+
+The title heading one step darker again ([title-dark2], 2026-11-15)
+- Asked (the [title-dark] ask again, after [title-fly]): "Make the text at the title page a little darker in color so that it is
+  clearly readable to the user right now it is not that much readable."
+- Built: [title-dark]'s v3, the step offered then - the fill one family darker on the same rows: #FF9500 (to the top bar), #FA8200,
+  #F27000 (the body's middle), #E86000, #DE5200 (the baseline), #D04500 (the hooks); the text's own colour under it #F27000. Against
+  the white rim the letters sit on: 2.2 .. 4.6 : 1 (was 1.9 .. 3.8; the feet now past the 4.5 : 1 of ordinary text). Rim, blue edge,
+  drop, font, size, text and place unchanged; the [title-fly] glyph clones copy the heading, so the symbols land in these colours.
+  style.css: those two values and a comment; index.html and app.js unchanged. Diffed against ../_before_title_dark2/.
+- title_check.py: the six new stops and the text colour; readability now wants every stop >= 2.2 : 1 and the darkest >= 4.5 : 1; the
+  painted counts and the glyph-ink test take the deeper orange.
+- Checked: (pending)
+- `../_before_title_dark2/` holds the dist's three files ([title-fly]'s build) and build.py, title_check.py, smoke.py, README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

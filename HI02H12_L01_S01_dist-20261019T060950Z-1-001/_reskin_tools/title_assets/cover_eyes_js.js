@@ -16,6 +16,9 @@
    each on its own clock, so the three never move in lockstep. SGEyes.react(name) adds an expression for a moment: surprise (eyes
    grow, pupils narrow, brows up), wince (a squeeze blink, brows down), happy (lower lids up "^^", pupils wide), curious (one brow
    up, pupils wide). The pointer (mouse) draws every gaze for a moment; a tap, curious; the play button's arrival, a curious look.
+   [title-fly] (2026-11-15): SGEyes.faceLook(name, target, ms) gives one face ("purn" | "comma" | "question") its own target for a
+   while, ahead of the shared one (the flying symbols look at the title; the question mark keeps the shared brain, which the
+   flights point at them); debug() names each face.
    SAFE: canvas draws only; the loop stops off the cover; reduced motion = eyes that look at the child and blink; any error removes
    the overlays, which leaves the painted eyes. */
 (function(){
@@ -54,9 +57,12 @@
     look(id, t, pri, ms){ if(!t) return; const old = src.get(id);
       src.set(id, { t, pri: pri || 1, until: now() + (ms || 250), at: old && old.t === t ? old.at : now() }); },
     release(id){ src.delete(id); },
+    // [title-fly] one face's own target for a while (the flying symbols look where they are going), over the shared brain's
+    faceLook(name, t, ms){ const F = faces.find(f => f.cfg.name === name); if(F && t) F.ov = { t, until: now() + (ms || 250) }; },
+    faceRelease(name){ const F = faces.find(f => f.cfg.name === name); if(F) F.ov = null; },
     react(name){ if(reduce || !EXPR[name]) return; expr = EXPR[name]; exprName = name; exprUntil = now() + expr.ms;
       if(name === "wince") faces.forEach(F => blink(F, now(), 170, true)); },
-    debug(){ return faces.map(F => ({ g: { x: +F.g.x.toFixed(3), y: +F.g.y.toFixed(3) }, blinks: F.blinks, lid: +blinkU(F, now()).toFixed(2), on: !!(F.cv && F.cv.style.display === "block"), expr: expr && now() < exprUntil ? exprName : null })); }
+    debug(){ return faces.map(F => ({ name: F.cfg.name, g: { x: +F.g.x.toFixed(3), y: +F.g.y.toFixed(3) }, blinks: F.blinks, lid: +blinkU(F, now()).toFixed(2), on: !!(F.cv && F.cv.style.display === "block"), expr: expr && now() < exprUntil ? exprName : null })); }
   };
   window.SGEyes = api;
 
@@ -260,7 +266,7 @@
       if(tn - placedAt >= 250) { faces.forEach(F => place(F, tn)); placedAt = tn; } else faces.forEach(F => place(F, tn));
       for(const F of faces){
         F.cv.style.display = "block";
-        if(!reduce) gaze(F, dt, tn, T); else { F.g.x = 0; F.g.y = 0; }
+        if(!reduce) gaze(F, dt, tn, F.ov && F.ov.until > tn ? F.ov.t : T); else { F.g.x = 0; F.g.y = 0; }   // [title-fly] a face's own target first
         if(tn > F.nextBlink){ if(lidsBusy(tn)) F.nextBlink = tn + 400; else blink(F, tn); }
         if(F.dbl && tn > F.dbl){ F.dbl = 0; if(F.blinkAt < 0 && !lidsBusy(tn)) blink(F, tn); }
         draw(F, blinkU(F, tn));

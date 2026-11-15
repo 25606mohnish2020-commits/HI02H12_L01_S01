@@ -34,6 +34,19 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    own colour the fill's middle gold #FDCC02; painted check: no maroon pixels left.
 [title-dark] (2026-11-15, later) the fill one family darker (#FFA800 > #FF9C00 > #FB8500 > #F57500 > #EE6500 > #E25400; text #FB8500);
    new check: every fill colour >= 1.9 : 1 against the white rim, the darkest >= 3 : 1 (the yellow one was 1.27 .. 2.36).
+[title-dark2] (2026-11-15, after [title-fly]) the same ask again -> one more family darker (#FF9500 > #FA8200 > #F27000 > #E86000 >
+   #DE5200 > #D04500; text #F27000): every fill colour >= 2.2 : 1, the darkest >= 4.5 : 1; the painted counts take the deeper orange.
+[title-fly] (2026-11-15, later) the card follows Figma FLN-by-MJ 956:2 (title_assets_figma_render_1280x720.png is that frame's render
+   now; 386:17's is kept as ..._v1_386-17.png): the comma left, the question mark centre, the danda right, the new shadows. At the end
+   of the welcome the danda flies into the heading's । and the comma (splitting in two) into its two commas while the question mark
+   watches: checked in the autoplay run — nothing moves while the welcome plays; the flight starts within 1.2 s of its end; three
+   flights (danda -> ।, comma -> 2nd comma, its twin -> 1st comma), each glyph box on the heading's painted letter (within 2 px), each
+   glyph clone ending exactly on it (translate 0, scale 1, opacity 1) and clipped round it; the question mark looks right at the
+   danda and left at the comma, the danda up at the title; at the end the two are gone from the ground, the question mark is where
+   it stood, no clone or sparkle is left, and the heading (box, no animation, pixels) is as before the flight.
+[title-fly2] (2026-11-15, later) the flight now runs INSIDE the welcome: nothing moves before the line sounds; it starts within 1.2 s of
+   the line's first sample and is over (the last glyph copy faded) while the line still plays; the play button comes only after that,
+   at the line's end as before. The before shot of the heading is the still page (autoplay blocked) at the autoplay run's viewport.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -50,13 +63,15 @@ FIG_S = 1333 / 1280                                   # the stage is 1333 px wid
 EXPECT = {   # frame px (1280x720 frame coordinates) from Figma metadata / design context
   ".sg-fig .sg-card":   (76, 125, 1114, 456),
   ".sgf-scene":         (76, -33, 1114, 627),      # card padding origin (85,134) + (-9,-167)
-  ".sgf-question":      (85+841, 134+147, 138, 207),
+  # [title-fly] Figma 956:2's places (386:17's were question 841,147 138x207; danda 97,139 219.473; comma 502,170 95x143; shadows
+  # 141,303 132x69 / 473,270 142x64 / 857,306 115x69)
+  ".sgf-question":      (85+488, 134+147, 120, 180),
   # [title-off] (2026-11-15) the frame's title art (.sgf-title, 85+251.58, 134+12.02, 593.83 x 109.99) is removed — see TITLE_BOX
-  ".sgf-purn":          (85+97, 134+139, 219.473, 219.473),
-  ".sgf-comma":         (85+502, 134+170, 95, 143),
-  ".sgf-shadow.s1":     (85+141, 134+303, 132, 69),
-  ".sgf-shadow.s2":     (85+473, 134+270, 142, 64),
-  ".sgf-shadow.s3":     (85+857, 134+306, 115, 69),
+  ".sgf-purn":          (85+818, 134+133, 208.527, 208.527),
+  ".sgf-comma":         (85+177, 134+201, 82, 123),
+  ".sgf-shadow.s1":     (85+858.53, 134+287.53, 127, 68),
+  ".sgf-shadow.s2":     (85+149, 134+283, 129, 62),
+  ".sgf-shadow.s3":     (85+499, 134+283, 106, 66),
   # [dun-chrome] the reference's cover controls, in frame px: the bird 208 stage px wide, 24 px left of and 12 px under the card's
   # bottom-left corner (its 560x550 file: 196.17 tall); the play button 140 stage px, centred, its bottom edge 2 stage px above the
   # card's bottom; the chip 70 stage px at 83 px from the card's left and 12 px under its bottom
@@ -89,7 +104,7 @@ REF_REGEN_OK = [_norm(x) for x in REF_SHADOW.split(",\n")] == [_norm(x) for x in
 # [title-stroke-off] no outline any more (it went 3.5 -> 2.5 -> 2.0 px in [title-color]/[title-stroke], then was removed): the reference
 # rule's own 98 parts with the picture's blue
 HEAD_SHADOW = ", ".join(x.replace("#2F82DE", "#0345A1") for x in _reference())
-HEAD_INFO = """(refShadow) => { const all = document.querySelectorAll('.sgf-heading'); if (all.length !== 1) return null;
+HEAD_INFO = """(refShadow) => { const all = document.querySelectorAll('.sgf-heading:not(.sgf-hclone)'); if (all.length !== 1) return null;
   const e = all[0], cs = getComputedStyle(e), card = document.querySelector('.sg-fig .sg-card'), cr = card.getBoundingClientRect();
   const st = document.getElementById('stage'), ss = st.getBoundingClientRect().width / st.offsetWidth;
   const rg = document.createRange(); rg.selectNodeContents(e); const q = rg.getBoundingClientRect();
@@ -106,6 +121,7 @@ HEAD_INFO = """(refShadow) => { const all = document.querySelectorAll('.sgf-head
     font: document.fonts.check('800 64px "Baloo 2"'), stagePx: e.getBoundingClientRect().height / ss, oneLine: q.height / ss < 110,
     centreOff: ((q.left + q.width / 2) - (cr.left + cr.width / 2)) / ss, clear: (Math.min(...tops) - (q.top + q.height)) / ss,
     anim: cs.animationName, trans: cs.transitionDuration, anims }; }"""
+HEAD_CLIP = """() => { const e = document.querySelector('.sg-card > .sgf-heading:not(.sgf-hclone)'), r = e.getBoundingClientRect(); return [r.left - 30, r.top - 30, r.right + 30, r.bottom + 30]; }"""   # [title-fly]
 BOXES ="""(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
   if (!e) { o[s] = null; continue; } const r = e.getBoundingClientRect(); o[s] = [r.left, r.top, r.width, r.height]; } return o; }"""
 
@@ -163,10 +179,10 @@ with sync_playwright() as p:
           and hd["ls"] == "0.5px" and hd["ws"] == "14px" and hd["font"] and abs(hd["stagePx"] - 73.6) < 0.1,
           hd and {k: hd[k] for k in ("ff", "fw", "fsz", "lh", "ls", "ws", "font", "stagePx")})
     af = hd["after"] if hd else {}
-    stops = ("rgb(255, 168, 0)", "rgb(255, 156, 0)", "rgb(251, 133, 0)", "rgb(245, 117, 0)", "rgb(238, 101, 0)", "rgb(226, 84, 0)")   # [title-dark]
-    check("[title-color] ...in the picture's colours: the text (the fill's middle colour, #FB8500 since [title-dark]) under its fill layer — the same line (same font, size, spacing, centring; "
-          "24 px of room round the 73.6 px line) in the gold-to-orange gradient, [title-dark]'s darker one #FFA800 > #FF9C00 > #FB8500 > #F57500 > #EE6500 > #E25400, clipped to the letters, no shadow",
-          hd is not None and hd["col"] == "rgb(251, 133, 0)" and af["clip"] == "text" and af["fill"] == "rgba(0, 0, 0, 0)" and af["bg"].startswith("linear-gradient(")
+    stops = ("rgb(255, 149, 0)", "rgb(250, 130, 0)", "rgb(242, 112, 0)", "rgb(232, 96, 0)", "rgb(222, 82, 0)", "rgb(208, 69, 0)")   # [title-dark2]
+    check("[title-color] ...in the picture's colours: the text (the fill's middle colour, #F27000 since [title-dark2]) under its fill layer — the same line (same font, size, spacing, centring; "
+          "24 px of room round the 73.6 px line) in the orange gradient, [title-dark2]'s darker one #FF9500 > #FA8200 > #F27000 > #E86000 > #DE5200 > #D04500, clipped to the letters, no shadow",
+          hd is not None and hd["col"] == "rgb(242, 112, 0)" and af["clip"] == "text" and af["fill"] == "rgba(0, 0, 0, 0)" and af["bg"].startswith("linear-gradient(")
           and all(s in af["bg"] for s in stops) and af["pos"] == "absolute" and af["top"] == "-24px" and af["w"] == "1096px" and abs(float(af["h"][:-2]) - 121.6) <= 1 / 64 and af["pt"] == "24px"
           and af["lh"] == "73.6px" and af["ff"] == hd["ff"] and af["fw"] == "800" and af["fsz"] == "64px" and af["ls"] == "0.5px" and af["ws"] == "14px" and af["ta"] == "center"
           and af["sh"] == "none", hd and (hd["col"], af))
@@ -178,7 +194,7 @@ with sync_playwright() as p:
     reg = img.crop(tuple(round(v) for v in (hd["text"][0] - 10, hd["text"][1], hd["text"][0] + hd["text"][2] + 10, hd["text"][1] + hd["text"][3]))) if hd else Image.new("RGB", (1, 1))
     px = list(reg.getdata())
     # [title-dark] the letters are gold-to-orange now (#FFA800 .. #E25400): counted as warm letter pixels
-    yellow = sum(1 for (r, g, b_) in px if r > 215 and 60 < g < 180 and b_ < 60); maroon = sum(1 for (r, g, b_) in px if 35 < r < 115 and g < 35 and b_ < 35)
+    yellow = sum(1 for (r, g, b_) in px if r > 195 and 55 < g < 170 and b_ < 60); maroon = sum(1 for (r, g, b_) in px if 35 < r < 115 and g < 35 and b_ < 35)   # [title-dark2] warm letters down to #D04500
     white = sum(1 for (r, g, b_) in px if min(r, g, b_) > 240); blue = sum(1 for (r, g, b_) in px if r < 40 and g < 110 and b_ > 120)
     check("[title-stroke-off] ...painted: its gold-to-orange letters, white rim and deep-blue edge show in the screenshot, and no maroon outline is left",
           yellow > 3000 and maroon < 100 and white > 1000 and blue > 300, (yellow, maroon, white, blue, reg.size))
@@ -188,8 +204,9 @@ with sync_playwright() as p:
         return 1.05 / (.2126 * c[0] + .7152 * c[1] + .0722 * c[2] + .05)
     grad = [tuple(int(v) for v in m) for m in re.findall(r"rgb\((\d+), (\d+), (\d+)\)", af.get("bg", ""))]
     crs = [round(_cr(c), 2) for c in grad]
-    check("[title-dark] ...and readable on its white rim: every colour of the fill at least 1.9 : 1 against white, the darkest at least 3 : 1",
-          bool(crs) and min(crs) >= 1.9 and max(crs) >= 3.0, crs)
+    check("[title-dark2] ...and readable on its white rim: every colour of the fill at least 2.2 : 1 against white, the darkest at least 4.5 : 1 "
+          "([title-dark] asked 1.9 and 3)",
+          bool(crs) and min(crs) >= 2.2 and max(crs) >= 4.5, crs)
     check("[title-text] ...with no animation or transition of its own (nor on its fill layer), nor on the card around it", hd is not None and hd["anim"] == "none" and hd["trans"] == "0s" and not hd["anims"],
           hd and (hd["anim"], hd["trans"], hd["anims"]))
     reg.save(out / "title_heading_region.png")
@@ -202,6 +219,11 @@ with sync_playwright() as p:
     heat = diff.point(lambda v: 255 if v > 40 else v * 3); heat.save(out / "title_diff_heat.png")
     side = Image.new("RGB", (1280, 1440)); side.paste(target, (0, 0)); side.paste(img, (0, 720)); side.save(out / "figma_vs_build.png")
     check("no page errors, no failed requests", not errs and not bad, (errs[:3], bad[:5]))
+    # [title-fly2] the heading before any flight (the flight now runs inside the welcome): the still page at the autoplay run's viewport
+    p2 = b.new_page(viewport={"width": 1333, "height": 750}); p2.goto(html.as_uri()); p2.wait_for_timeout(4000)
+    p2.evaluate("document.querySelectorAll('.sg-fx').forEach(e => e.style.visibility = 'hidden')"); p2.wait_for_timeout(100)
+    p2.screenshot(path=str(out / "fly_before.png"))
+    fly_before = {"clip": p2.evaluate(HEAD_CLIP), "fly": p2.evaluate("window.__sgFly ? window.__sgFly.phase : null")}; p2.close()
     b.close()
 
     # ---- the welcome, the play button, the chip, the bird, the sky ----
@@ -216,10 +238,23 @@ with sync_playwright() as p:
       return { t: performance.now(), vo: !!(a && !a.paused && !a.ended && isPlaying), src: a ? a.src.split('/').pop().split('?')[0] : null,
                btn: getComputedStyle(btn).display !== 'none', ready: btn.classList.contains('ready'), breathe: btn.classList.contains('sg-breathe'), btnAnim: getComputedStyle(btn).animationName,
                chipOff: vo.classList.contains('sg-vo-off'), bird: (bird.getAttribute('src') || '').split('/').pop().split('?')[0], loaded: document.body.classList.contains('loaded'),
-               hd: (() => { const e = document.querySelector('.sgf-heading'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height, e.getAnimations().length]; })() }; }"""
-    samples = []
-    for _ in range(150):
-        samples.append(pg.evaluate(STATE)); pg.wait_for_timeout(100)
+               hd: (() => { const e = document.querySelector('.sg-card > .sgf-heading:not(.sgf-hclone)'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height, e.getAnimations().length]; })(),
+               fly: window.__sgFly ? window.__sgFly.phase : null,   // [title-fly] the flight's phase and the two flyers' boxes, the question mark's box and gaze
+               sym: ['.sgf-purn', '.sgf-commaw:not(.sgf-twin)', '.sgf-question'].map(s => { const e = document.querySelector(s); if (!e) return null; const r = e.getBoundingClientRect(); return [Math.round(r.left * 10) / 10, Math.round(r.top * 10) / 10, Math.round(r.width * 10) / 10]; }),
+               gz: window.SGEyes ? SGEyes.debug().map(f => [f.name, f.g.x, f.g.y]) : null }; }"""
+    # [title-fly] the samples run on until the flight is over (at most 45 s); the heading region is shot (the card's light layer hidden)
+    # after the flight (the before shot: the still page in the first browser); the three glyph clones' last keyframes are read as the flight starts
+    CLONES = """() => [...document.querySelectorAll('.sgf-mergew')].map(w => { const a = w.getAnimations()[0], k = a ? a.effect.getKeyframes() : [], c = w.firstElementChild;
+      return { last: k.length ? [k[k.length - 1].transform, k[k.length - 1].opacity] : null, clip: c ? c.style.clipPath : null, text: c ? c.dataset.text : null, hidden: w.getAttribute('aria-hidden') }; })"""
+    def head_shot(path):
+        pg.evaluate("document.querySelectorAll('.sg-fx').forEach(e => e.style.visibility = 'hidden')"); pg.wait_for_timeout(60)
+        pg.screenshot(path=str(path)); pg.evaluate("document.querySelectorAll('.sg-fx').forEach(e => e.style.visibility = '')")
+    samples = []; clones = None; fly_st = None
+    while len(samples) < 150 or (samples[-1]["fly"] not in ("done", "error", None) and len(samples) < 450):   # None: a build without the flight
+        s = pg.evaluate(STATE); samples.append(s)
+        if clones is None and s["fly"] not in (None, "wait"): clones = pg.evaluate(CLONES); fly_st = pg.evaluate("JSON.parse(JSON.stringify(window.__sgFly))")
+        pg.wait_for_timeout(100)
+    fly_end = pg.evaluate("window.__sgFly ? [window.__sgFly.doneAt || null, window.__sgFly.fit || null] : [null, null]")
     first_vo = next((s for s in samples if s["vo"] and s["src"] == "vo_landing.ogg"), None)
     during = [s for s in samples if s["vo"] and s["src"] == "vo_landing.ogg"]
     after = next((s for s in samples if first_vo and s["t"] > first_vo["t"] and not s["vo"] and s["ready"]), None)
@@ -231,6 +266,60 @@ with sync_playwright() as p:
     shown = [s for s in samples if s["loaded"]]; hboxes = {tuple(round(v, 3) for v in s["hd"][:4]) for s in shown if s["hd"]}
     check("[title-text] the heading never moves: one box through the welcome and the play button's entrance, no animation on it, in every sample",
           shown and all(s["hd"] and s["hd"][4] == 0 for s in shown) and len(hboxes) == 1, (len(shown), len(hboxes), shown[0]["hd"] if shown else None))
+    # ---- [title-fly] the symbols fly into the heading at the end of the welcome ----
+    sym0 = next((s["sym"] for s in samples if s["loaded"]), None)
+    fly_first = next((s for s in samples if s["fly"] not in (None, "wait")), None)
+    fly_done = next((s for s in samples if s["fly"] == "done"), None)
+    # [title-fly2] the flight runs inside the welcome: it waits until the line is sounding, starts at once, is over while the line still
+    # plays, and the play button comes only after both (at the line's end, as before)
+    check("[title-fly2] nothing flies before the welcome sounds: the danda and the comma stand still until the line starts",
+          first_vo is not None and sym0 and all(s["fly"] == "wait" and s["sym"][:2] == sym0[:2] for s in samples if s["loaded"] and s["t"] < first_vo["t"]), (first_vo and round(first_vo["t"]), sym0))
+    check("[title-fly2] ...the flight starts as the welcome sounds (within 1.2 s of its first sample: the line's clock past 0.25 s) and is over (the last glyph copy faded) while the welcome is still playing",
+          fly_first is not None and first_vo is not None and -100 <= fly_first["t"] - first_vo["t"] <= 1200 and fly_done is not None and fly_done["vo"] and fly_done["src"] == "vo_landing.ogg"
+          and after is not None and fly_end[0] is not None and fly_end[0] < after["t"],
+          (fly_first and first_vo and round(fly_first["t"] - first_vo["t"]), fly_done and (fly_done["vo"], fly_done["src"]), after and fly_end[0] and round(after["t"] - fly_end[0]), fly_end[1], fly_st and fly_st.get("err")))
+    check("[title-fly2] ...and only after that the play button appears, at the welcome's end as before (never during the flight)",
+          after is not None and all(s["fly"] == "done" for s in samples if s["ready"]) and not any(s["ready"] for s in during), (after and round(after["t"] - first_vo["t"]),))
+    fl = fly_st["flights"] if fly_st else []
+    names = [(f["name"], f["ch"]) for f in fl]
+    check("[title-fly] three flights: the blue danda into the heading's ।, the green comma into its second comma and the comma's twin into its first",
+          names == [("purn", "।"), ("comma", ","), ("comma-twin", ",")] and fl[0]["glyph"]["cx"] > fl[1]["glyph"]["cx"] > fl[2]["glyph"]["cx"], names)
+    check("[title-fly] ...each ends as the title's own glyph: a clone of the heading (its text, hidden from readers) clipped round that glyph, its last frame exactly "
+          "on it (no offset, scale 1, opaque)",
+          clones is not None and len(clones) == 3 and all(c["last"] and c["last"][0] == "translate(0px, 0px) scale(1)" and float(c["last"][1]) == 1 and (c["clip"] or "").startswith("polygon(")
+          and c["text"] == HEADING and c["hidden"] == "true" for c in clones), clones)
+    pg.wait_for_timeout(300); head_shot(out / "fly_after.png"); shot_after = pg.evaluate(HEAD_CLIP)
+    cr = pg.evaluate("(() => { const c = document.querySelector('.sg-fig .sg-card'), r = c.getBoundingClientRect(); return [r.left, r.top, r.width / c.offsetWidth]; })()")
+    ia = Image.open(out / "fly_after.png").convert("RGB"); offs = []
+    for g in (fly_st or {}).get("glyphs") or []:
+        L, T_, R_, B_ = (cr[0] + (g["l"] + 9) * cr[2], cr[1] + (g["t"] + 9) * cr[2], cr[0] + (g["r"] + 9) * cr[2], cr[1] + (g["b"] + 9) * cr[2])
+        xs, ys = [], []
+        for y in range(int(T_ - 10), int(B_ + 10)):
+            for x in range(int(L - 10), int(R_ + 10)):
+                r_, g_, b_ = ia.getpixel((x, y))
+                if r_ > 190 and 55 < g_ < 190 and b_ < 70: xs.append(x); ys.append(y)   # the fill's letter pixels ([title-dark2]: to #D04500)
+        offs.append(round(max(abs(min(xs) - L), abs(max(xs) + 1 - R_), abs(min(ys) - T_), abs(max(ys) + 1 - B_)), 2) if xs else 99)
+    check("[title-fly] ...the glyph boxes it flew to sit on the heading's painted ,  ,  । (within 2 px)", len(offs) == 3 and max(offs) <= 2, offs)
+    tS = 0.1 + 0.7 * math.acos(1 - 2 * 0.42) / math.pi
+    gz = lambda s, n: next(v for v in s["gz"] if v[0] == n)
+    if len(fl) == 3:
+        sb = [s for s in samples if s["gz"] and fl[0]["start"] + 600 <= s["t"] <= fl[0]["start"] + 2400]
+        sg = [s for s in samples if s["gz"] and fl[1]["start"] + fl[1]["ms"] * tS + 300 <= s["t"] <= fl[1]["start"] + fl[1]["ms"] * 0.8]
+    else: sb = sg = []
+    qb = sum(1 for s in sb if gz(s, "question")[1] > 0.3); pb = sum(1 for s in sb if gz(s, "purn")[2] < -0.15); qg = sum(1 for s in sg if gz(s, "question")[1] < -0.2)
+    check("[title-fly] the question mark watches: it looks right while the danda flies (and the danda looks up at the title), left while the comma's halves fly",
+          sb and sg and qb >= 0.8 * len(sb) and pb >= 0.6 * len(sb) and qg >= 0.8 * len(sg), (qb, pb, len(sb), qg, len(sg)))
+    end = pg.evaluate("[[...document.querySelectorAll('.sgf-purn, .sgf-commaw')].map(e => getComputedStyle(e).visibility), document.querySelectorAll('.sgf-mergew, .sgf-burst').length]")
+    check("[title-fly] at the end the danda and the comma (and its twin) are gone from the ground, the question mark stands where it stood, no clone or sparkle is left",
+          end[0] == ["hidden", "hidden", "hidden"] and end[1] == 0 and sym0 and samples[-1]["sym"][2] == sym0[2], (end, sym0 and sym0[2], samples[-1]["sym"][2]))
+    moved, dv = 0, [0]
+    shot_before = fly_before["clip"] if fly_before else None   # [title-fly2] the still page (autoplay blocked, same viewport): the heading before any flight
+    if shot_before:
+        box = tuple(round(v) for v in shot_before)
+        hb = Image.open(out / "fly_before.png").convert("RGB").crop(box); hn = ia.crop(box)
+        dv = list(ImageChops.difference(hb, hn).convert("L").getdata()); moved = sum(1 for v in dv if v > 40)
+    check("[title-fly] the heading is untouched by the flight: the same box in every sample (above) and the same pixels before and after it (under 0.3 % off by > 40)",
+          shot_before is not None and shot_after == shot_before and moved / len(dv) < 0.003, shot_before and (moved, len(dv), shot_after == shot_before))
     check("the bird is the reference's wave file, in place from the loader's fade", all(s["bird"] == "new_landing_swiftee_anim.webp" for s in samples if s["loaded"]), {s["bird"] for s in samples})
     check("the sky is on: the kit's 87 drifting stars and the breathing glow", pg.evaluate("document.querySelectorAll('.sg-sky i').length === 87 && getComputedStyle(document.querySelector('.sg-glow')).animationName === 'sgBreathe' && getComputedStyle(document.querySelector('.sg-sky')).display === 'block'"),
           pg.evaluate("[document.querySelectorAll('.sg-sky i').length, getComputedStyle(document.querySelector('.sg-glow')).animationName]"))

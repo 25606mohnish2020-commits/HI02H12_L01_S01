@@ -3136,7 +3136,14 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
 .sg-fig .sg-card::before{display:none;}
 .sg-fig .sg-content{display:none;}          /* the title is the frame's title art now; boot() still fills #sgTitle */
 .sgf-scene{position:absolute;left:-9px;top:-167px;width:1114px;height:627px;object-fit:cover;}
-.sgf-question{position:absolute;left:841px;top:147px;width:138px;height:207px;object-fit:cover;}
+/* [title-fly] (asked 2026-11-15 with Figma FLN-by-MJ 956:2: "use this configuration and the placement of the animated symbols as shown
+   in this figma reference"): the same three pictures (byte-identical to title_char_*.png) and the same scene, background and Swiftee
+   in new places - the green comma on the left (177,201 82x123), the purple question mark in the centre (488,147 120x180), the blue
+   danda on the right (818,133 208.527, its picture 208.071 turned .13deg) - each with the frame's new ground shadow (title_shadow_1..3.svg
+   = the frame's ellipses 3761 / 3762 / 3763, offsets incl. their 25 px blur bleed), in the frame's layer order. Was (node 386:17):
+   question 841,147 138x207; danda 97,139 219.473 (218.993); comma 502,170 95x143; shadows 141,303 / 473,270 / 857,306. The comma's
+   picture sits in a wrapper (.sgf-commaw) so its live-eyes canvas moves with it when it flies (the danda's wrapper already holds its). */
+.sgf-question{position:absolute;left:488px;top:147px;width:120px;height:180px;object-fit:cover;}
 /* [title-off] (asked 2026-11-15: "At the title page ... remove the current title text of रुको सोचो चिन्ह लगाओ । from the image"): the
    frame's title art (.sgf-title, title_art.png 1339x248 at 251.58,12.02 593.83x109.99 in the card) is gone from the page; the scene
    under it is plain sky. title_art.png stays in title_assets/ and assets/UI, unused; #sgTitle stays hidden (.sg-content above). */
@@ -3178,9 +3185,15 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
    #FFAC02 > #FF8A02 (1.3 to 2.4 : 1 against the white rim the letters sit on) -> #FFA800 > #FF9C00 > #FB8500 > #F57500 > #EE6500 >
    #E25400 (1.9 to 3.8 : 1): amber tops, orange feet, still the picture's gold-to-orange. The text's own colour under it = the new
    middle #FB8500. Rim, edge, drop, font, size, text and place unchanged. */
+/* [title-dark2] (asked 2026-11-15, again: "Make the text at the title page a little darker in color so that it is clearly readable to
+   the user right now it is not that much readable"): one more family darker, same stops on the same rows: #FFA800 > #FF9C00 >
+   #FB8500 > #F57500 > #EE6500 > #E25400 (1.9 to 3.8 : 1 against the white rim) -> #FF9500 > #FA8200 > #F27000 > #E86000 > #DE5200 >
+   #D04500 (2.2 to 4.6 : 1; the feet past the 4.5 : 1 of ordinary text): orange tops, deep orange feet. The text's own colour under
+   it = the new middle #F27000. Rim, edge, drop, font, size, text and place unchanged; the [title-fly] glyph clones copy the heading,
+   so the symbols land in the same colours. */
 .sgf-heading{position:absolute;left:0;top:34px;width:1096px;z-index:2;text-align:center;pointer-events:none;
   transform:scale(calc(1 / var(--fig-s)));transform-origin:50% 0;animation:none;transition:none;
-  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#FB8500;
+  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#F27000;
   white-space:nowrap;letter-spacing:.5px;word-spacing:14px;
   text-shadow:
     4.5px 0px 0 #fff, 4.41px 0.76px 0 #fff, 4.16px 1.49px 0 #fff, 3.74px 2.17px 0 #fff, 3.18px 2.76px 0 #fff, 2.5px 3.24px 0 #fff, 1.72px 3.6px 0 #fff, 0.88px 3.83px 0 #fff,
@@ -3198,16 +3211,28 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
     0 4.8px 0 #0345A1, 0 8px 12px rgba(0,40,120,.26);}
 /* the fill layer: the same line laid over the text (24 px of room above and below the 73.6 px line box for the vowel signs and hooks) */
 .sgf-heading::after{content:attr(data-text);position:absolute;left:0;top:-24px;width:100%;height:121.6px;box-sizing:border-box;
-  padding-top:24px;background:linear-gradient(180deg, #FFA800 0px, #FFA800 38px, #FF9C00 46px, #FB8500 58.5px, #F57500 70px, #EE6500 78.5px, #E25400 90px, #E25400 121.6px);
+  padding-top:24px;background:linear-gradient(180deg, #FF9500 0px, #FF9500 38px, #FA8200 46px, #F27000 58.5px, #E86000 70px, #DE5200 78.5px, #D04500 90px, #D04500 121.6px);
   -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;
   pointer-events:none;animation:none;transition:none;}
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
-.sgf-shadow.s1{left:141px;top:303px;}          /* ellipse 166,328 82x19 */
-.sgf-shadow.s2{left:473px;top:270px;}          /* ellipse 498,295 92x14 */
-.sgf-shadow.s3{left:857px;top:306px;}          /* ellipse 882,331 65x19 */
-.sgf-purn{position:absolute;left:97px;top:139px;width:219.473px;height:219.473px;display:flex;align-items:center;justify-content:center;}
-.sgf-purn img{flex:none;width:218.993px;height:218.993px;object-fit:cover;transform:rotate(.13deg);}
-.sgf-comma{position:absolute;left:502px;top:170px;width:95px;height:143px;object-fit:cover;}
+.sgf-shadow.s1{left:858.53px;top:287.53px;}    /* [title-fly] ellipse 3761 883.53,312.53 77x18 (the danda's) */
+.sgf-shadow.s2{left:149px;top:283px;}          /* [title-fly] ellipse 3762 174,308 79x12 (the comma's) */
+.sgf-shadow.s3{left:499px;top:283px;}          /* [title-fly] ellipse 3763 524,308 56x16 (the question mark's) */
+.sgf-purn{position:absolute;left:818px;top:133px;width:208.527px;height:208.527px;display:flex;align-items:center;justify-content:center;}
+.sgf-purn img{flex:none;width:208.071px;height:208.071px;object-fit:cover;transform:rotate(.13deg);}
+.sgf-commaw{position:absolute;left:177px;top:201px;width:82px;height:123px;}
+.sgf-commaw > img{position:absolute;left:0;top:0;width:82px;height:123px;object-fit:cover;}
+/* [title-fly] the flight (cover_fly_js.js): a flying symbol over the heading; a symbol that has merged is gone from the ground; the
+   heading's glyph clone (a copy of the heading clipped to one glyph, in a card-sized wrapper); the glow + sparkles where one settles */
+.sgf-flying{z-index:3;will-change:transform,opacity;}
+.sgf-gone{visibility:hidden !important;}
+.sgf-mergew{position:absolute;left:0;top:0;width:1096px;height:438px;z-index:3;pointer-events:none;will-change:transform,opacity;}
+.sg-fig .sgf-twin-eyes{position:absolute;pointer-events:none;z-index:1;}
+.sgf-burst{position:absolute;width:0;height:0;z-index:3;pointer-events:none;}
+.sgf-burst b{position:absolute;left:-46px;top:-46px;width:92px;height:92px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,232,150,.75) 30%, rgba(255,196,70,.32) 55%, rgba(255,196,70,0) 72%);}
+.sgf-burst i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;opacity:0;
+  clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);}
 .sgf-swiftie{position:absolute;left:5px;top:371px;width:245px;height:245px;object-fit:cover;z-index:2;}
 /* the wave animation's frame 0 sits exactly on the still (alpha-box matched: scale .4166 of 560x550) */
 .sgf-swiftie-anim{position:absolute;left:19.09px;top:376.5px;width:233.3px;height:229.14px;z-index:3;opacity:0;}
@@ -4219,12 +4244,12 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
       <div class="sg-card">
         <img class="sgf-scene" src="assets/UI/title_scene.png" alt="" draggable="false">
         <div class="sg-fx" aria-hidden="true"><div class="sg-sun"></div><div class="sg-flare2"><i class="fl-big"></i><i class="fl-violet"></i><i class="fl-haze"></i><i class="fl-glint"></i></div><canvas class="sg-dust" id="sgDust"></canvas></div>   <!-- [cover-fx] the mtcg cover's lens flare and sunlit dust: over the scene, under all else -->
-        <img class="sgf-question" src="assets/UI/title_char_question.png" alt="" draggable="false">
-        <img class="sgf-shadow s1" src="assets/UI/title_shadow_1.svg" width="132" height="69" alt="" draggable="false">
-        <img class="sgf-shadow s2" src="assets/UI/title_shadow_2.svg" width="142" height="64" alt="" draggable="false">
-        <img class="sgf-shadow s3" src="assets/UI/title_shadow_3.svg" width="115" height="69" alt="" draggable="false">
+        <img class="sgf-shadow s1" src="assets/UI/title_shadow_1.svg" width="127" height="68" alt="" draggable="false">   <!-- [title-fly] Figma 956:2's places and layer order -->
         <div class="sgf-purn"><img src="assets/UI/title_char_purn.png" alt="" draggable="false"></div>
-        <img class="sgf-comma" src="assets/UI/title_char_comma.png" alt="" draggable="false">
+        <img class="sgf-shadow s3" src="assets/UI/title_shadow_3.svg" width="106" height="66" alt="" draggable="false">
+        <img class="sgf-question" src="assets/UI/title_char_question.png" alt="" draggable="false">
+        <img class="sgf-shadow s2" src="assets/UI/title_shadow_2.svg" width="129" height="62" alt="" draggable="false">
+        <div class="sgf-commaw"><img class="sgf-comma" src="assets/UI/title_char_comma.png" alt="" draggable="false"></div>
         <div class="sgf-heading" role="heading" aria-level="1" aria-label="रुको , सोचो , चिह्न लगाओ ।" data-text="रुको , सोचो , चिह्न लगाओ ।">रुको , सोचो , चिह्न लगाओ ।</div>   <!-- [title-text] the cover's heading, static (CSS: title_css) -->
         {sg_content}
         {sg_btn}
@@ -4376,14 +4401,19 @@ _FACE_SEL = {"purn": ".sgf-purn img", "comma": ".sgf-comma", "question": ".sgf-q
 _faces = []
 for _n in ("purn", "comma", "question"):
     _d = _eyes_data[_n]
-    _faces.append({"sel": _FACE_SEL[_n], "art": _d["art"], "face": _d["face"], "rig": f"assets/UI/title_char_{_n}_rig.png",
+    _faces.append({"name": _n, "sel": _FACE_SEL[_n], "art": _d["art"], "face": _d["face"], "rig": f"assets/UI/title_char_{_n}_rig.png",   # [title-fly] "name": for SGEyes.faceLook
                    "eyes": [{"cx": e["cx"], "cy": e["cy"], "a": e["a"], "b": e["b"], "ring": round(0.06 * e["a"], 1),   # the outline's width: 6 % of the eye (the pencil's 4.8 on 48)
                              "iris": e["iris_r"], "pupil": e["pupil_r"], "shines": e["shines"], "lid": e["lid"]} for e in _d["eyes"]],
                    "brows": [{"clean": b["clean"], "brow": b["brow"], "box": b["box"], "c": b["c"], "tilt": 1 if i == 0 else -1} for i, b in enumerate(_d["brows"]) if b]})
 _eyes_js = (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8").replace("__FACES__", json.dumps(_faces, ensure_ascii=False))
 _dust_js = (SCR / "title_assets" / "cover_dust_js.js").read_text(encoding="utf-8")
+# [title-fly] (2026-11-15) at the end of the welcome the blue danda and the green comma fly into the heading's । and commas while the
+# question mark watches (title_assets/cover_fly_js.js); [title-fly2] it starts once the welcome is sounding (the cover block's
+# "heard" -> "sgwelcomestart") and is over before the welcome ends; the play button still comes at the welcome's end (after "sgflydone")
+_fly_js = (SCR / "title_assets" / "cover_fly_js.js").read_text(encoding="utf-8")
+assert 'addEventListener("sgwelcomestart"' in _fly_js and '"sgflydone"' in _fly_js and "faceLook(name, t, ms)" in (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8"), "title-fly: scripts"
 cover_fx_css = (SCR / "title_assets" / "cover_fx.css").read_text(encoding="utf-8")
-assert "__FACES__" not in _eyes_js and len(_faces) == 3 and all(len(f["eyes"]) == 2 and len(f["brows"]) == 2 for f in _faces), "cover-eyes: faces"
+assert "__FACES__" not in _eyes_js and len(_faces) == 3 and all(f["name"] and f["art"] and f["face"] and f["rig"] for f in _faces) and all(len(f["eyes"]) == 2 and len(f["brows"]) == 2 for f in _faces), "cover-eyes: faces"
 assert "SlideModules.CELEBRATION" in _cel_js and "runCelSprite" in _cel_js, "dun: cel block"
 dun_js = r"""
 
@@ -4405,7 +4435,11 @@ function stdSfx(name){
 (function(){ "use strict";
   const b = $("sgBtn"), vo = $("sgVo"), bird = $("sgMascot"); if(!b) return;
   b.disabled = false;
-  const reveal = ()=>{ if(b.classList.contains("ready")) return; b.disabled = false; b.classList.add("ready");
+  const reveal = ()=>{ if(b.classList.contains("ready")) return;
+    // [title-fly2] the symbols' flight is over before the welcome ends; should it ever still be running, the button waits for it
+    const fly = window.__sgFly; if(fly && (fly.phase === "blue" || fly.phase === "green")){
+      if(!reveal.waiting){ reveal.waiting = true; window.addEventListener("sgflydone", ()=>{ reveal.waiting = false; sync(); }, { once:true }); } return; }
+    b.disabled = false; b.classList.add("ready");
     let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
     b.addEventListener("animationend", breathe, { once:true }); setTimeout(breathe, 700); };   // 700 ms fallback: the pop-in is .52 s
   // "heard": the welcome's own element really sounded (its clock moved) — a blocked autoplay plays a silent beat in this engine,
@@ -4413,7 +4447,9 @@ function stdSfx(name){
   // engine's too)
   let heard = false;
   const listen = setInterval(()=>{ if(!document.body.classList.contains("is-start")){ clearInterval(listen); return; }
-    const a = currentAudio; if(isPlaying && a && !a.paused && a.currentTime > 0.25 && /vo_landing/.test(a.src)){ heard = true; sync(); } }, 100);
+    const a = currentAudio; if(isPlaying && a && !a.paused && a.currentTime > 0.25 && /vo_landing/.test(a.src)){
+      if(!heard) try { window.dispatchEvent(new CustomEvent("sgwelcomestart", { detail: { left: (a.duration - a.currentTime) * 1000 } })); } catch(e){}   // [title-fly2] the welcome is sounding: the symbols fly (fitted into what is left of it)
+      heard = true; sync(); } }, 100);
   const sync = ()=>{ if(heard && document.body.classList.contains("landing-play-ready")) reveal();
     if(vo){ const off = !b.classList.contains("ready"); vo.classList.toggle("sg-vo-off", off); vo.setAttribute("aria-disabled", String(off)); } };
   new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });
@@ -4460,7 +4496,7 @@ SlideModules.CELEBRATION.mount = function(host, slide){
   const eb = $("endBtn"); eb.dataset.completed = "0"; eb.disabled = false; eb.classList.add("show");
   state.endBtnPending = false;
 """ + _cel_dev + _cel_click + r"""};
-""" + _cel_js + _gate_js + _bgm_js + _dust_js + _eyes_js + r"""
+""" + _cel_js + _gate_js + _bgm_js + _dust_js + _eyes_js + _fly_js + r"""
 /* ===== [dun-chrome] end ===== */
 """
 js = js + dun_js
