@@ -3446,7 +3446,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
   gap:36px !important;place-content:center;}
 .stage.sent-page .q-row.sent-side .sent-opt .so-pill{width:528px;height:88px;min-height:0;padding:16px;border:2px solid #FFFFFF;border-radius:28px;
   box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12);}
-.stage.sent-page .q-row.sent-side .sent-opt .so-pill{font-size:var(--so-fs, 28px);}   /* [g4p1-font] G4, P1: 44px (data.opt_px); P2: 28px */
+.stage.sent-page .q-row.sent-side .sent-opt .so-pill{font-size:var(--so-fs, 28px);}   /* [g4p1-font] G4, P1: 30px (data.opt_px); P2: 28px */
 .stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .ck-fx,.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .wg-fx{border-radius:28px;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
