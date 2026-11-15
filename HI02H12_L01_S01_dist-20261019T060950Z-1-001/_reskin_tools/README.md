@@ -3438,6 +3438,40 @@ The title heading one step darker again ([title-dark2], 2026-11-15)
 - Checked: (pending)
 - `../_before_title_dark2/` holds the dist's three files ([title-fly]'s build) and build.py, title_check.py, smoke.py, README.md (tools/).
 
+The symbols' flight inside the welcome ([title-fly2], 2026-11-15)
+- Asked: "At the title page of this file the animation of the blue and green symbols should happen completely before the VO of the
+  title page is completed and only after that the play button should appear in the same way as of now."
+- Was ([title-fly]): the flight began at the welcome's end, when the play button popped in (~8.5 s after it).
+- Now: it begins as soon as the welcome is really sounding - the cover block's existing "heard" test (the line's clock past 0.25 s)
+  dispatches "sgwelcomestart" with the ms left in the clip - and the whole flight, the last glyph copy faded, is fitted into what is
+  left less 0.7 s. vo_landing.ogg is 7.09 s and its speech ends at ~6.65 s (loudness profile; whisper's last word 6.68 s), so on this
+  line it starts ~0.3 s in and is all over by ~6.4 s. The natural timeline (lead 0.2 s, the danda 3.6 s, the comma 4.2 s, starting
+  when the danda is 62 % of its way - the two now overlap during the danda's approach) is scaled by f = left / natural, kept within
+  .6 .. 1 (here f ~ .84: the danda ~3 s, the comma ~3.5 s). The question mark watches the danda until it settles, then the comma.
+- The play button: unchanged - it still pops in at the welcome's end with the same reveal/breathing; reveal() now also waits for
+  "sgflydone" should a flight ever still be running then (never on this line). The [title-fly] "sgwelcomedone" event is gone.
+- Unchanged: the paths, the merges into the heading's glyph copies, the sparkles, the split, the eyes, the heading, everything else.
+- title_check.py: the [title-fly] "nothing flies while the welcome plays / starts at its end" checks are replaced by [title-fly2]'s:
+  nothing moves before the line sounds; the flight starts within 1.2 s of the line's first sample and is over while the line still
+  plays (before the button); the button appears only after, never during the flight or the line. The heading's before shot is the
+  still page (autoplay blocked) at the same viewport.
+- Checked: (pending)
+- `../_before_title_fly2/` holds the dist's three files ([title-dark2]'s build) + the build.py and cover_fly_js.js that rebuild them
+  byte for byte (tools/; see its NOTE.txt).
+
+The title heading darker again ([title-dark3], 2026-11-15)
+- Asked: the [title-dark2] words again ("Make the text at the title page a little darker in color so that it is clearly readable to
+  the user right now it is not that much readable.").
+- Built: one more family darker on the same rows: #F08400 (to the top bar), #EA7300, #E06200 (the body's middle), #D45500, #C84900
+  (the baseline), #B83C00 (the hooks); the text's own colour under it #E06200. 2.6 .. 5.7 : 1 against the white rim (was 2.2 .. 4.6).
+  Still orange (burnt-orange feet); rim, blue edge, drop, font, size, text and place unchanged; the glyph clones follow. style.css:
+  those two values and a comment; index.html and app.js unchanged.
+- title_check.py: the six stops and the text colour; readability every stop >= 2.6 : 1 and the darkest >= 5.5 : 1; the painted and
+  glyph-ink pixel tests take the deeper orange.
+- Checked: (pending)
+- `../_before_title_dark3/` holds the dist's three files ([title-fly2]'s build) and build.py, title_check.py, smoke.py, README.md,
+  title_assets/cover_fly_js.js (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

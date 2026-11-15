@@ -36,6 +36,8 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    new check: every fill colour >= 1.9 : 1 against the white rim, the darkest >= 3 : 1 (the yellow one was 1.27 .. 2.36).
 [title-dark2] (2026-11-15, after [title-fly]) the same ask again -> one more family darker (#FF9500 > #FA8200 > #F27000 > #E86000 >
    #DE5200 > #D04500; text #F27000): every fill colour >= 2.2 : 1, the darkest >= 4.5 : 1; the painted counts take the deeper orange.
+[title-dark3] (2026-11-15, after [title-fly2]) the same words a third time -> #F08400 > #EA7300 > #E06200 > #D45500 > #C84900 > #B83C00
+   (text #E06200): every fill colour >= 2.6 : 1, the darkest >= 5.5 : 1.
 [title-fly] (2026-11-15, later) the card follows Figma FLN-by-MJ 956:2 (title_assets_figma_render_1280x720.png is that frame's render
    now; 386:17's is kept as ..._v1_386-17.png): the comma left, the question mark centre, the danda right, the new shadows. At the end
    of the welcome the danda flies into the heading's । and the comma (splitting in two) into its two commas while the question mark
@@ -179,10 +181,10 @@ with sync_playwright() as p:
           and hd["ls"] == "0.5px" and hd["ws"] == "14px" and hd["font"] and abs(hd["stagePx"] - 73.6) < 0.1,
           hd and {k: hd[k] for k in ("ff", "fw", "fsz", "lh", "ls", "ws", "font", "stagePx")})
     af = hd["after"] if hd else {}
-    stops = ("rgb(255, 149, 0)", "rgb(250, 130, 0)", "rgb(242, 112, 0)", "rgb(232, 96, 0)", "rgb(222, 82, 0)", "rgb(208, 69, 0)")   # [title-dark2]
-    check("[title-color] ...in the picture's colours: the text (the fill's middle colour, #F27000 since [title-dark2]) under its fill layer — the same line (same font, size, spacing, centring; "
-          "24 px of room round the 73.6 px line) in the orange gradient, [title-dark2]'s darker one #FF9500 > #FA8200 > #F27000 > #E86000 > #DE5200 > #D04500, clipped to the letters, no shadow",
-          hd is not None and hd["col"] == "rgb(242, 112, 0)" and af["clip"] == "text" and af["fill"] == "rgba(0, 0, 0, 0)" and af["bg"].startswith("linear-gradient(")
+    stops = ("rgb(240, 132, 0)", "rgb(234, 115, 0)", "rgb(224, 98, 0)", "rgb(212, 85, 0)", "rgb(200, 73, 0)", "rgb(184, 60, 0)")   # [title-dark3]
+    check("[title-color] ...in the picture's colours: the text (the fill's middle colour, #E06200 since [title-dark3]) under its fill layer — the same line (same font, size, spacing, centring; "
+          "24 px of room round the 73.6 px line) in the orange gradient, [title-dark3]'s darker one #F08400 > #EA7300 > #E06200 > #D45500 > #C84900 > #B83C00, clipped to the letters, no shadow",
+          hd is not None and hd["col"] == "rgb(224, 98, 0)" and af["clip"] == "text" and af["fill"] == "rgba(0, 0, 0, 0)" and af["bg"].startswith("linear-gradient(")
           and all(s in af["bg"] for s in stops) and af["pos"] == "absolute" and af["top"] == "-24px" and af["w"] == "1096px" and abs(float(af["h"][:-2]) - 121.6) <= 1 / 64 and af["pt"] == "24px"
           and af["lh"] == "73.6px" and af["ff"] == hd["ff"] and af["fw"] == "800" and af["fsz"] == "64px" and af["ls"] == "0.5px" and af["ws"] == "14px" and af["ta"] == "center"
           and af["sh"] == "none", hd and (hd["col"], af))
@@ -194,7 +196,7 @@ with sync_playwright() as p:
     reg = img.crop(tuple(round(v) for v in (hd["text"][0] - 10, hd["text"][1], hd["text"][0] + hd["text"][2] + 10, hd["text"][1] + hd["text"][3]))) if hd else Image.new("RGB", (1, 1))
     px = list(reg.getdata())
     # [title-dark] the letters are gold-to-orange now (#FFA800 .. #E25400): counted as warm letter pixels
-    yellow = sum(1 for (r, g, b_) in px if r > 195 and 55 < g < 170 and b_ < 60); maroon = sum(1 for (r, g, b_) in px if 35 < r < 115 and g < 35 and b_ < 35)   # [title-dark2] warm letters down to #D04500
+    yellow = sum(1 for (r, g, b_) in px if r > 175 and 50 < g < 170 and b_ < 60); maroon = sum(1 for (r, g, b_) in px if 35 < r < 115 and g < 35 and b_ < 35)   # [title-dark3] warm letters down to #B83C00
     white = sum(1 for (r, g, b_) in px if min(r, g, b_) > 240); blue = sum(1 for (r, g, b_) in px if r < 40 and g < 110 and b_ > 120)
     check("[title-stroke-off] ...painted: its gold-to-orange letters, white rim and deep-blue edge show in the screenshot, and no maroon outline is left",
           yellow > 3000 and maroon < 100 and white > 1000 and blue > 300, (yellow, maroon, white, blue, reg.size))
@@ -204,9 +206,9 @@ with sync_playwright() as p:
         return 1.05 / (.2126 * c[0] + .7152 * c[1] + .0722 * c[2] + .05)
     grad = [tuple(int(v) for v in m) for m in re.findall(r"rgb\((\d+), (\d+), (\d+)\)", af.get("bg", ""))]
     crs = [round(_cr(c), 2) for c in grad]
-    check("[title-dark2] ...and readable on its white rim: every colour of the fill at least 2.2 : 1 against white, the darkest at least 4.5 : 1 "
-          "([title-dark] asked 1.9 and 3)",
-          bool(crs) and min(crs) >= 2.2 and max(crs) >= 4.5, crs)
+    check("[title-dark3] ...and readable on its white rim: every colour of the fill at least 2.6 : 1 against white, the darkest at least 5.5 : 1 "
+          "([title-dark] asked 1.9 and 3, [title-dark2] 2.2 and 4.5)",
+          bool(crs) and min(crs) >= 2.6 and max(crs) >= 5.5, crs)
     check("[title-text] ...with no animation or transition of its own (nor on its fill layer), nor on the card around it", hd is not None and hd["anim"] == "none" and hd["trans"] == "0s" and not hd["anims"],
           hd and (hd["anim"], hd["trans"], hd["anims"]))
     reg.save(out / "title_heading_region.png")
@@ -297,7 +299,7 @@ with sync_playwright() as p:
         for y in range(int(T_ - 10), int(B_ + 10)):
             for x in range(int(L - 10), int(R_ + 10)):
                 r_, g_, b_ = ia.getpixel((x, y))
-                if r_ > 190 and 55 < g_ < 190 and b_ < 70: xs.append(x); ys.append(y)   # the fill's letter pixels ([title-dark2]: to #D04500)
+                if r_ > 170 and 50 < g_ < 190 and b_ < 70: xs.append(x); ys.append(y)   # the fill's letter pixels ([title-dark3]: to #B83C00)
         offs.append(round(max(abs(min(xs) - L), abs(max(xs) + 1 - R_), abs(min(ys) - T_), abs(max(ys) + 1 - B_)), 2) if xs else 99)
     check("[title-fly] ...the glyph boxes it flew to sit on the heading's painted ,  ,  । (within 2 px)", len(offs) == 3 and max(offs) <= 2, offs)
     tS = 0.1 + 0.7 * math.acos(1 - 2 * 0.42) / math.pi

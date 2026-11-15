@@ -3191,9 +3191,13 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
    #D04500 (2.2 to 4.6 : 1; the feet past the 4.5 : 1 of ordinary text): orange tops, deep orange feet. The text's own colour under
    it = the new middle #F27000. Rim, edge, drop, font, size, text and place unchanged; the [title-fly] glyph clones copy the heading,
    so the symbols land in the same colours. */
+/* [title-dark3] (asked 2026-11-15, the same words again): one more family darker, same stops on the same rows: #FF9500 > #FA8200 >
+   #F27000 > #E86000 > #DE5200 > #D04500 (2.2 to 4.6 : 1 against the white rim) -> #F08400 > #EA7300 > #E06200 > #D45500 > #C84900 >
+   #B83C00 (2.6 to 5.7 : 1): deep orange tops, burnt-orange feet, still orange. The text's own colour under it = the new middle
+   #E06200. Rim, edge, drop, font, size, text and place unchanged; the glyph clones follow. */
 .sgf-heading{position:absolute;left:0;top:34px;width:1096px;z-index:2;text-align:center;pointer-events:none;
   transform:scale(calc(1 / var(--fig-s)));transform-origin:50% 0;animation:none;transition:none;
-  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#F27000;
+  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#E06200;
   white-space:nowrap;letter-spacing:.5px;word-spacing:14px;
   text-shadow:
     4.5px 0px 0 #fff, 4.41px 0.76px 0 #fff, 4.16px 1.49px 0 #fff, 3.74px 2.17px 0 #fff, 3.18px 2.76px 0 #fff, 2.5px 3.24px 0 #fff, 1.72px 3.6px 0 #fff, 0.88px 3.83px 0 #fff,
@@ -3211,7 +3215,7 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
     0 4.8px 0 #0345A1, 0 8px 12px rgba(0,40,120,.26);}
 /* the fill layer: the same line laid over the text (24 px of room above and below the 73.6 px line box for the vowel signs and hooks) */
 .sgf-heading::after{content:attr(data-text);position:absolute;left:0;top:-24px;width:100%;height:121.6px;box-sizing:border-box;
-  padding-top:24px;background:linear-gradient(180deg, #FF9500 0px, #FF9500 38px, #FA8200 46px, #F27000 58.5px, #E86000 70px, #DE5200 78.5px, #D04500 90px, #D04500 121.6px);
+  padding-top:24px;background:linear-gradient(180deg, #F08400 0px, #F08400 38px, #EA7300 46px, #E06200 58.5px, #D45500 70px, #C84900 78.5px, #B83C00 90px, #B83C00 121.6px);
   -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;
   pointer-events:none;animation:none;transition:none;}
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
