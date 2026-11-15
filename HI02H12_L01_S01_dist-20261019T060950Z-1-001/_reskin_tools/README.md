@@ -3269,6 +3269,37 @@ The title page without its title text ([title-off], 2026-11-15)
 - Checked (on the built dist): title_check 25 PASS (ALL PASS, incl. the new [title-off] check), smoke 53/53.
 - `../_before_title_text/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
 
+A designed heading on the title page ([title-text], 2026-11-15)
+- Asked: "https://mtcg2a04l02.vercel.app/ Take the reference of the title page of this file and add a this kind of heading title text
+  to this file as रुको , सोचो , चिह्न लगाओ । in a suitable designer font and designer font colors suitable on this image but use the
+  exact same text in the title that I have typed here, also dont use any animation on the font and the text on the title page and
+  adjust the size of the title accoredingly such that the whole layout of this page looks perfectly fine. Apply this change to this
+  file Rest keep everything exactly the same in this file."
+- The reference's title is the engine's #sgTitle (.sg-title) styled by one rule (kept as served in title_assets/ref_mtcg_sg_title.css)
+  plus a "tfx" letter-by-letter effect. Taken: the rule's look, static — Baloo 2 800 (the reference's baloo2-800.woff2 is
+  byte-identical to the 'Baloo 2' 800 face already embedded in style.css), 64 stage px, line-height 1.15, #F85A00, letter-spacing
+  .5px, the 14px word-spacing its page sets inline, and its 98-part text-shadow verbatim (a 48-step white ring, a 49-step #2F82DE 3-D
+  edge, a soft rgba(0,40,120,.26) drop). Orange with a white rim reads strongly on this card's blue sky, the same pairing the
+  reference uses on its scene. Left out: the tfx effect (no animation asked), so the heading has no animation or transition and the
+  card around it has none either.
+- Built: a new <div class="sgf-heading" role="heading" aria-level="1"> in the card right after the three characters (so it paints
+  over the light and dust layer), with the ask's text exactly (U+0930 0941 0915 094B, space, comma, space, ... U+0932 0917 093E 0913,
+  space, U+0964: the spaces before the commas and the । kept). Not #sgTitle: the engine fills that with the card title (रुको, सोचो,
+  चिह्न लगाओ, without those spaces or the ।), and it stays hidden. The rule .sgf-heading counter-scales out of .sg-fig
+  (scale(1 / --fig-s)), so every value is the reference's own stage px. Size: the reference's 64px suits the card: the line is
+  753 px of the card's 1160 (it spans from above the purn viram to above the question mark), about 85 px tall painted; centred
+  on the card; top 34 frame px puts its painted centre on the removed title art's centre (the original design's title place):
+  27 px of sky above it, about 47 px clear of the characters. With no word-spacing the words and the commas ran together
+  (चिह्न लगाओ touching), so the reference's 14px is kept. index.html +1 line, style.css +1 rule (and its comment), app.js unchanged.
+  Diffed against ../_before_title_heading/.
+- title_check.py: the [title-off] check keeps "no title art, #sgTitle takes no space" and drops "only sky in the title box"; new
+  [title-text] checks: one heading in the card after the characters with the exact text; the reference look (font loaded, 64 stage
+  px, colour, spacings, text-shadow equal to the reference rule's); one line, centred within 1 px, clear above the characters;
+  painted (orange and white pixels in the screenshot); no animation or transition on it or the card; its box never moves through
+  the welcome (150 samples). Its text box (+14 px) is masked in the Figma comparison.
+- Checked: RESULTS_PENDING
+- `../_before_title_heading/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

@@ -3140,6 +3140,32 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
 /* [title-off] (asked 2026-11-15: "At the title page ... remove the current title text of रुको सोचो चिन्ह लगाओ । from the image"): the
    frame's title art (.sgf-title, title_art.png 1339x248 at 251.58,12.02 593.83x109.99 in the card) is gone from the page; the scene
    under it is plain sky. title_art.png stays in title_assets/ and assets/UI, unused; #sgTitle stays hidden (.sg-content above). */
+/* [title-text] (asked 2026-11-15: "Take the reference of the title page of https://mtcg2a04l02.vercel.app/ and add this kind of heading
+   title text ... as रुको , सोचो , चिह्न लगाओ । in a suitable designer font and designer font colors ... dont use any animation"): the mtcg cover's
+   title look, STATIC (its .sg-title rule as served; its tfx letter-by-letter effect left out): Baloo 2 800 (the same woff2, byte-identical,
+   already embedded here), 64 stage px, #F85A00 with its 48-shadow white ring, its #2F82DE 3-D edge and its soft navy drop (verbatim),
+   letter-spacing .5px and the 14px word-spacing its page sets. The text is the ask's own (spaces before the commas and the । kept), not
+   the card title boot() writes into the hidden #sgTitle. Counter-scaled out of .sg-fig so every value is the reference's own stage px;
+   centred in the card; its ink centred on the removed title art's centre (card y 67) = 27 px of sky above, ~47 px clear of the
+   characters below. No animation or transition of its own (and the card has none). */
+.sgf-heading{position:absolute;left:0;top:34px;width:1096px;z-index:2;text-align:center;pointer-events:none;
+  transform:scale(calc(1 / var(--fig-s)));transform-origin:50% 0;animation:none;transition:none;
+  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#F85A00;
+  white-space:nowrap;letter-spacing:.5px;word-spacing:14px;
+  text-shadow:
+    4.5px 0px 0 #fff, 4.41px 0.76px 0 #fff, 4.16px 1.49px 0 #fff, 3.74px 2.17px 0 #fff, 3.18px 2.76px 0 #fff, 2.5px 3.24px 0 #fff, 1.72px 3.6px 0 #fff, 0.88px 3.83px 0 #fff,
+    0px 3.9px 0 #fff, -0.88px 3.83px 0 #fff, -1.72px 3.6px 0 #fff, -2.5px 3.24px 0 #fff, -3.18px 2.76px 0 #fff, -3.74px 2.17px 0 #fff, -4.16px 1.49px 0 #fff, -4.41px 0.76px 0 #fff,
+    -4.5px 0px 0 #fff, -4.41px -0.76px 0 #fff, -4.16px -1.49px 0 #fff, -3.74px -2.17px 0 #fff, -3.18px -2.76px 0 #fff, -2.5px -3.24px 0 #fff, -1.72px -3.6px 0 #fff, -0.88px -3.83px 0 #fff,
+    0px -3.9px 0 #fff, 0.88px -3.83px 0 #fff, 1.72px -3.6px 0 #fff, 2.5px -3.24px 0 #fff, 3.18px -2.76px 0 #fff, 3.74px -2.17px 0 #fff, 4.16px -1.49px 0 #fff, 4.41px -0.76px 0 #fff,
+    2.43px 0.42px 0 #fff, 2.06px 1.19px 0 #fff, 1.38px 1.78px 0 #fff, 0.48px 2.1px 0 #fff, -0.48px 2.1px 0 #fff, -1.38px 1.78px 0 #fff, -2.06px 1.19px 0 #fff, -2.43px 0.42px 0 #fff,
+    -2.43px -0.42px 0 #fff, -2.06px -1.19px 0 #fff, -1.38px -1.78px 0 #fff, -0.48px -2.1px 0 #fff, 0.48px -2.1px 0 #fff, 1.38px -1.78px 0 #fff, 2.06px -1.19px 0 #fff, 2.43px -0.42px 0 #fff,
+    4.5px 4.8px 0.8px #2F82DE, 4.41px 5.56px 0.8px #2F82DE, 4.16px 6.29px 0.8px #2F82DE, 3.74px 6.97px 0.8px #2F82DE, 3.18px 7.56px 0.8px #2F82DE, 2.5px 8.04px 0.8px #2F82DE, 1.72px 8.4px 0.8px #2F82DE, 0.88px 8.63px 0.8px #2F82DE,
+    0px 8.7px 0.8px #2F82DE, -0.88px 8.63px 0.8px #2F82DE, -1.72px 8.4px 0.8px #2F82DE, -2.5px 8.04px 0.8px #2F82DE, -3.18px 7.56px 0.8px #2F82DE, -3.74px 6.97px 0.8px #2F82DE, -4.16px 6.29px 0.8px #2F82DE, -4.41px 5.56px 0.8px #2F82DE,
+    -4.5px 4.8px 0.8px #2F82DE, -4.41px 4.04px 0.8px #2F82DE, -4.16px 3.31px 0.8px #2F82DE, -3.74px 2.63px 0.8px #2F82DE, -3.18px 2.04px 0.8px #2F82DE, -2.5px 1.56px 0.8px #2F82DE, -1.72px 1.2px 0.8px #2F82DE, -0.88px 0.97px 0.8px #2F82DE,
+    0px 0.9px 0.8px #2F82DE, 0.88px 0.97px 0.8px #2F82DE, 1.72px 1.2px 0.8px #2F82DE, 2.5px 1.56px 0.8px #2F82DE, 3.18px 2.04px 0.8px #2F82DE, 3.74px 2.63px 0.8px #2F82DE, 4.16px 3.31px 0.8px #2F82DE, 4.41px 4.04px 0.8px #2F82DE,
+    2.43px 5.22px 0 #2F82DE, 2.06px 5.99px 0 #2F82DE, 1.38px 6.58px 0 #2F82DE, 0.48px 6.9px 0 #2F82DE, -0.48px 6.9px 0 #2F82DE, -1.38px 6.58px 0 #2F82DE, -2.06px 5.99px 0 #2F82DE, -2.43px 5.22px 0 #2F82DE,
+    -2.43px 4.38px 0 #2F82DE, -2.06px 3.61px 0 #2F82DE, -1.38px 3.02px 0 #2F82DE, -0.48px 2.7px 0 #2F82DE, 0.48px 2.7px 0 #2F82DE, 1.38px 3.02px 0 #2F82DE, 2.06px 3.61px 0 #2F82DE, 2.43px 4.38px 0 #2F82DE,
+    0 4.8px 0 #2F82DE, 0 8px 12px rgba(0,40,120,.26);}
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
 .sgf-shadow.s1{left:141px;top:303px;}          /* ellipse 166,328 82x19 */
 .sgf-shadow.s2{left:473px;top:270px;}          /* ellipse 498,295 92x14 */
@@ -4164,6 +4190,7 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
         <img class="sgf-shadow s3" src="assets/UI/title_shadow_3.svg" width="115" height="69" alt="" draggable="false">
         <div class="sgf-purn"><img src="assets/UI/title_char_purn.png" alt="" draggable="false"></div>
         <img class="sgf-comma" src="assets/UI/title_char_comma.png" alt="" draggable="false">
+        <div class="sgf-heading" role="heading" aria-level="1">रुको , सोचो , चिह्न लगाओ ।</div>   <!-- [title-text] the cover's heading, static (CSS: title_css) -->
         {sg_content}
         {sg_btn}
       </div>

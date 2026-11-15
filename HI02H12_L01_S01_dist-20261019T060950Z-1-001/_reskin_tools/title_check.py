@@ -17,7 +17,12 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    canvases hide and the dust stops.
    breathing) and a tapped star pops.
 [title-off] (2026-11-15) the frame's title art (रुको सोचो चिन्ह लगाओ) is removed: its box is masked in the Figma comparison (the
-   render still has it) and checked to show only the scene's sky; no title element on the page.
+   render still has it); no title art element on the page.
+[title-text] (2026-11-15, later) a heading in the mtcg2a04l02 cover's title look stands in the sky instead: one .sgf-heading in the
+   card reading exactly "रुको , सोचो , चिह्न लगाओ ।"; Baloo 2 800 at 64 stage px, #F85A00, letter/word spacing .5/14 px and the
+   reference rule's text-shadow (title_assets/ref_mtcg_sg_title.css, the rule as served) exactly; centred on the card, clear above the
+   characters, painted; no animation or transition on it or the card, and its box never moves through the welcome. Its text box (+14 px)
+   is masked in the Figma comparison too (the render has no heading). The old "only sky in the title box" check went with it.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -48,8 +53,24 @@ EXPECT = {   # frame px (1280x720 frame coordinates) from Figma metadata / desig
   "#sgBtn":             (76 + 1114 / 2 - 70 / FIG_S, 581 - 2 / FIG_S - 140 / FIG_S, 140 / FIG_S, 140 / FIG_S),   # centred on the CARD (76..1190), as the reference's is on its
   "#sgVo":              (76 + 83 / FIG_S, 581 + 12 / FIG_S - 70 / FIG_S, 70 / FIG_S, 70 / FIG_S),
 }
-TITLE_BOX = (85 + 251.58, 134 + 12.02, 593.83, 109.99)   # [title-off] where the title art stood (frame px): plain sky now
-BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
+TITLE_BOX = (85 + 251.58, 134 + 12.02, 593.83, 109.99)   # [title-off] where the title art stood (frame px); [title-text] the heading is there now
+HEADING = "रुको , सोचो , चिह्न लगाओ ।"   # [title-text] the ask's own text: रुको , सोचो , चिह्न लगाओ ।
+REF_RULE = (pathlib.Path(__file__).resolve().parent / "title_assets" / "ref_mtcg_sg_title.css").read_text(encoding="utf-8")
+REF_SHADOW = REF_RULE[REF_RULE.index("text-shadow:") + len("text-shadow:"): REF_RULE.rindex(";")]
+HEAD_INFO = """(refShadow) => { const all = document.querySelectorAll('.sgf-heading'); if (all.length !== 1) return null;
+  const e = all[0], cs = getComputedStyle(e), card = document.querySelector('.sg-fig .sg-card'), cr = card.getBoundingClientRect();
+  const st = document.getElementById('stage'), ss = st.getBoundingClientRect().width / st.offsetWidth;
+  const rg = document.createRange(); rg.selectNodeContents(e); const q = rg.getBoundingClientRect();
+  const probe = document.createElement('div'); probe.style.textShadow = refShadow; document.body.append(probe); const refSh = getComputedStyle(probe).textShadow; probe.remove();
+  const tops = ['.sgf-purn img', '.sgf-comma', '.sgf-question'].map(s => document.querySelector(s).getBoundingClientRect().top);
+  const anims = []; for (let x = e; x && x.id !== 'startGate'; x = x.parentElement) anims.push(...x.getAnimations().map(a => a.animationName || a.transitionProperty || 'anim'));
+  return { inCard: e.parentElement === card, afterChars: !!(e.compareDocumentPosition(document.querySelector('.sgf-comma')) & Node.DOCUMENT_POSITION_PRECEDING),
+    txt: e.textContent, text: [q.left, q.top, q.width, q.height], ff: cs.fontFamily, fw: cs.fontWeight, fsz: cs.fontSize, lh: cs.lineHeight, col: cs.color,
+    ls: cs.letterSpacing, ws: cs.wordSpacing, nowrap: cs.whiteSpace === 'nowrap', shadowOk: cs.textShadow === refSh && refSh !== 'none',
+    font: document.fonts.check('800 64px "Baloo 2"'), stagePx: e.getBoundingClientRect().height / ss, oneLine: q.height / ss < 110,
+    centreOff: ((q.left + q.width / 2) - (cr.left + cr.width / 2)) / ss, clear: (Math.min(...tops) - (q.top + q.height)) / ss,
+    anim: cs.animationName, trans: cs.transitionDuration, anims }; }"""
+BOXES ="""(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
   if (!e) { o[s] = null; continue; } const r = e.getBoundingClientRect(); o[s] = [r.left, r.top, r.width, r.height]; } return o; }"""
 
 with sync_playwright() as p:
@@ -90,14 +111,29 @@ with sync_playwright() as p:
     for s in ("#sgBtn", "#sgVo", "#sgMascot"):
         l, t, w, h = boxes[s]; dr.rectangle([l - 2, t - 2, l + w + 2, t + h + 2], fill=0)
     l, t, w, h = TITLE_BOX; dr.rectangle([l - 2, t - 2, l + w + 2, t + h + 2], fill=0)   # [title-off] the render still has the title there
-    # [title-off] the title is gone: no title art element, and its box shows only the scene's sky (blue: no pixel redder than it is blue —
-    # the art's yellow letters, orange outline and brown shadow are all red-heavy)
+    hd = pg.evaluate(HEAD_INFO, REF_SHADOW)
+    if hd:   # [title-text] the render has no heading: its text box, widened by 14 px for the outline, the blue edge and the drop
+        l, t, w, h = hd["text"]; dr.rectangle([l - 14, t - 14, l + w + 14, t + h + 14], fill=0)
+    # [title-off] the frame's title art stays gone: no title art element, and the hidden #sgTitle still takes no space
     gone = pg.evaluate("[document.querySelectorAll('.sgf-title, img[src*=\"title_art\"]').length, (document.getElementById('sgTitle') || {}).offsetWidth || 0]")
-    l, t, w, h = TITLE_BOX; reg = img.crop((round(l), round(t), round(l + w), round(t + h)))
-    warm = sum(1 for (r, g, b_) in reg.getdata() if r > b_ - 10)
-    check("[title-off] the title (रुको सोचो चिन्ह लगाओ) is gone from the title page: no title art on the page, the hidden #sgTitle still takes no space, "
-          "and where the title stood only the sky shows (no warm pixel)", gone == [0, 0] and warm == 0, (gone, warm, reg.size))
-    reg.save(out / "title_box_region.png")
+    check("[title-off] the frame's title art (रुको सोचो चिन्ह लगाओ) is not on the page, and the hidden #sgTitle still takes no space", gone == [0, 0], gone)
+    # [title-text] the heading in the reference cover's title look
+    check("[title-text] one heading in the card, above the characters' layers, reading exactly the ask's text (रुको , सोचो , चिह्न लगाओ ।: the spaces before the commas and the । kept)",
+          hd is not None and hd["inCard"] and hd["afterChars"] and hd["txt"] == HEADING, hd and (hd["txt"], hd["inCard"], hd["afterChars"]))
+    check("[title-text] ...in the reference cover's title look: Baloo 2 800 (loaded) at 64 stage px, line-height 1.15, #F85A00, letter-spacing .5px, "
+          "word-spacing 14px, and the reference rule's text-shadow (white ring, blue edge, soft drop) exactly",
+          hd is not None and hd["ff"].startswith('"Baloo 2"') and hd["fw"] == "800" and hd["fsz"] == "64px" and hd["lh"] == "73.6px" and hd["col"] == "rgb(248, 90, 0)"
+          and hd["ls"] == "0.5px" and hd["ws"] == "14px" and hd["shadowOk"] and hd["font"] and abs(hd["stagePx"] - 73.6) < 0.1,
+          hd and {k: hd[k] for k in ("ff", "fw", "fsz", "lh", "col", "ls", "ws", "shadowOk", "font", "stagePx")})
+    check("[title-text] ...on one line, centred on the card (within 1 stage px), in the sky clear above the three characters' pictures",
+          hd is not None and hd["nowrap"] and hd["oneLine"] and abs(hd["centreOff"]) <= 1 and hd["clear"] > 10, hd and {k: hd[k] for k in ("nowrap", "oneLine", "centreOff", "clear")})
+    reg = img.crop(tuple(round(v) for v in (hd["text"][0], hd["text"][1], hd["text"][0] + hd["text"][2], hd["text"][1] + hd["text"][3]))) if hd else Image.new("RGB", (1, 1))
+    px = list(reg.getdata())
+    orange = sum(1 for (r, g, b_) in px if r > 215 and 60 < g < 125 and b_ < 60); white = sum(1 for (r, g, b_) in px if min(r, g, b_) > 240)
+    check("[title-text] ...painted: its orange letters and white outline show in the screenshot", orange > 3000 and white > 1000, (orange, white, reg.size))
+    check("[title-text] ...with no animation or transition of its own, nor on the card around it", hd is not None and hd["anim"] == "none" and hd["trans"] == "0s" and not hd["anims"],
+          hd and (hd["anim"], hd["trans"], hd["anims"]))
+    reg.save(out / "title_heading_region.png")
     diff = ImageChops.difference(img, target).convert("L")
     vals = [d for d, m in zip(diff.getdata(), mask.getdata()) if m]
     big = sum(1 for v in vals if v > 40)
@@ -120,7 +156,8 @@ with sync_playwright() as p:
     STATE = """() => { const a = (typeof currentAudio !== 'undefined') ? currentAudio : null; const btn = document.getElementById('sgBtn'), vo = document.getElementById('sgVo'), bird = document.getElementById('sgMascot');
       return { t: performance.now(), vo: !!(a && !a.paused && !a.ended && isPlaying), src: a ? a.src.split('/').pop().split('?')[0] : null,
                btn: getComputedStyle(btn).display !== 'none', ready: btn.classList.contains('ready'), breathe: btn.classList.contains('sg-breathe'), btnAnim: getComputedStyle(btn).animationName,
-               chipOff: vo.classList.contains('sg-vo-off'), bird: (bird.getAttribute('src') || '').split('/').pop().split('?')[0], loaded: document.body.classList.contains('loaded') }; }"""
+               chipOff: vo.classList.contains('sg-vo-off'), bird: (bird.getAttribute('src') || '').split('/').pop().split('?')[0], loaded: document.body.classList.contains('loaded'),
+               hd: (() => { const e = document.querySelector('.sgf-heading'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height, e.getAnimations().length]; })() }; }"""
     samples = []
     for _ in range(150):
         samples.append(pg.evaluate(STATE)); pg.wait_for_timeout(100)
@@ -132,6 +169,9 @@ with sync_playwright() as p:
     check("once the welcome has ended the play button is in (.ready) and the chip is live", after is not None and not after["chipOff"], round(after["t"] - first_vo["t"]) if (after and first_vo) else None)
     late = [s for s in samples if after and s["t"] > after["t"] + 900]
     check("the play button then breathes (.sg-breathe, sgBtnPulse)", late and all(s["breathe"] and s["btnAnim"] == "sgBtnPulse" for s in late), len(late))
+    shown = [s for s in samples if s["loaded"]]; hboxes = {tuple(round(v, 3) for v in s["hd"][:4]) for s in shown if s["hd"]}
+    check("[title-text] the heading never moves: one box through the welcome and the play button's entrance, no animation on it, in every sample",
+          shown and all(s["hd"] and s["hd"][4] == 0 for s in shown) and len(hboxes) == 1, (len(shown), len(hboxes), shown[0]["hd"] if shown else None))
     check("the bird is the reference's wave file, in place from the loader's fade", all(s["bird"] == "new_landing_swiftee_anim.webp" for s in samples if s["loaded"]), {s["bird"] for s in samples})
     check("the sky is on: the kit's 87 drifting stars and the breathing glow", pg.evaluate("document.querySelectorAll('.sg-sky i').length === 87 && getComputedStyle(document.querySelector('.sg-glow')).animationName === 'sgBreathe' && getComputedStyle(document.querySelector('.sg-sky')).display === 'block'"),
           pg.evaluate("[document.querySelectorAll('.sg-sky i').length, getComputedStyle(document.querySelector('.sg-glow')).animationName]"))
