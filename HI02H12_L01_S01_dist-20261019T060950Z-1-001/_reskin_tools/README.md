@@ -3254,6 +3254,21 @@ G4's and P1's sentences a little larger ([g4p1-font], 2026-11-15)
   builds were stopped as each was replaced.
 - `../_before_g4p1_font/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
 
+The title page without its title text ([title-off], 2026-11-15)
+- Asked: "At the title page of this file remove the current title text of रुको सोचो चिन्ह लगाओ । from the image rest keep everything
+  exactly the same in this file."
+- The title was its own layer over the card's scene: <img class="sgf-title" src="assets/UI/title_art.png"> (the Figma frame 386:17's
+  title art, 1339x248, at 251.58,12.02 593.83x109.99 in the card). The scene under it (title_scene.png) is plain sky there — checked
+  before removing — so the layer is simply taken off the page: index.html loses that one <img>, style.css its .sgf-title rule (a
+  comment in its place); app.js unchanged. title_art.png stays in title_assets/ and assets/UI, unused (put the <img> line back in
+  build.py's new_gate to restore it). The engine's own text title #sgTitle stays hidden (.sg-content, as before). The scene, the
+  three characters, their eyes and shadows, the light and dust, the sky, the bird, the chip and the play button are untouched.
+- title_check.py: .sgf-title left the geometry list; the Figma comparison masks the title's box (the render still shows it); new
+  check: no title element on the page and the title's box shows only sky (no pixel redder than blue). It FAILED on the build before
+  the change (1 element, 35548 warm pixels), as it should. It now exits 1 on any FAIL.
+- Checked (on the built dist): title_check 25 PASS (ALL PASS, incl. the new [title-off] check), smoke 53/53.
+- `../_before_title_text/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

@@ -3137,8 +3137,9 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
 .sg-fig .sg-content{display:none;}          /* the title is the frame's title art now; boot() still fills #sgTitle */
 .sgf-scene{position:absolute;left:-9px;top:-167px;width:1114px;height:627px;object-fit:cover;}
 .sgf-question{position:absolute;left:841px;top:147px;width:138px;height:207px;object-fit:cover;}
-/* frame: left calc(50%+.5px) centred, top calc(4.61% - 8.17px), bottom calc(71.27% + 3.83px), ratio 1339/248 */
-.sgf-title{position:absolute;left:251.58px;top:12.02px;width:593.83px;height:109.99px;}
+/* [title-off] (asked 2026-11-15: "At the title page ... remove the current title text of रुको सोचो चिन्ह लगाओ । from the image"): the
+   frame's title art (.sgf-title, title_art.png 1339x248 at 251.58,12.02 593.83x109.99 in the card) is gone from the page; the scene
+   under it is plain sky. title_art.png stays in title_assets/ and assets/UI, unused; #sgTitle stays hidden (.sg-content above). */
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
 .sgf-shadow.s1{left:141px;top:303px;}          /* ellipse 166,328 82x19 */
 .sgf-shadow.s2{left:473px;top:270px;}          /* ellipse 498,295 92x14 */
@@ -4158,7 +4159,6 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
         <img class="sgf-scene" src="assets/UI/title_scene.png" alt="" draggable="false">
         <div class="sg-fx" aria-hidden="true"><div class="sg-sun"></div><div class="sg-flare2"><i class="fl-big"></i><i class="fl-violet"></i><i class="fl-haze"></i><i class="fl-glint"></i></div><canvas class="sg-dust" id="sgDust"></canvas></div>   <!-- [cover-fx] the mtcg cover's lens flare and sunlit dust: over the scene, under all else -->
         <img class="sgf-question" src="assets/UI/title_char_question.png" alt="" draggable="false">
-        <img class="sgf-title" src="assets/UI/title_art.png" alt="{title_hi}" draggable="false">
         <img class="sgf-shadow s1" src="assets/UI/title_shadow_1.svg" width="132" height="69" alt="" draggable="false">
         <img class="sgf-shadow s2" src="assets/UI/title_shadow_2.svg" width="142" height="64" alt="" draggable="false">
         <img class="sgf-shadow s3" src="assets/UI/title_shadow_3.svg" width="115" height="69" alt="" draggable="false">

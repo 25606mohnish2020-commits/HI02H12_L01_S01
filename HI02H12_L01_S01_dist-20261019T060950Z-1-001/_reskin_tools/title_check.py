@@ -16,6 +16,8 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    pictures, drawing, blinking on its own clock, every gaze following the mouse and turning curious at a tap; off the cover the
    canvases hide and the dust stops.
    breathing) and a tapped star pops.
+[title-off] (2026-11-15) the frame's title art (रुको सोचो चिन्ह लगाओ) is removed: its box is masked in the Figma comparison (the
+   render still has it) and checked to show only the scene's sky; no title element on the page.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -33,7 +35,7 @@ EXPECT = {   # frame px (1280x720 frame coordinates) from Figma metadata / desig
   ".sg-fig .sg-card":   (76, 125, 1114, 456),
   ".sgf-scene":         (76, -33, 1114, 627),      # card padding origin (85,134) + (-9,-167)
   ".sgf-question":      (85+841, 134+147, 138, 207),
-  ".sgf-title":         (85+251.58, 134+12.02, 593.83, 109.99),
+  # [title-off] (2026-11-15) the frame's title art (.sgf-title, 85+251.58, 134+12.02, 593.83 x 109.99) is removed — see TITLE_BOX
   ".sgf-purn":          (85+97, 134+139, 219.473, 219.473),
   ".sgf-comma":         (85+502, 134+170, 95, 143),
   ".sgf-shadow.s1":     (85+141, 134+303, 132, 69),
@@ -46,6 +48,7 @@ EXPECT = {   # frame px (1280x720 frame coordinates) from Figma metadata / desig
   "#sgBtn":             (76 + 1114 / 2 - 70 / FIG_S, 581 - 2 / FIG_S - 140 / FIG_S, 140 / FIG_S, 140 / FIG_S),   # centred on the CARD (76..1190), as the reference's is on its
   "#sgVo":              (76 + 83 / FIG_S, 581 + 12 / FIG_S - 70 / FIG_S, 70 / FIG_S, 70 / FIG_S),
 }
+TITLE_BOX = (85 + 251.58, 134 + 12.02, 593.83, 109.99)   # [title-off] where the title art stood (frame px): plain sky now
 BOXES = """(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
   if (!e) { o[s] = null; continue; } const r = e.getBoundingClientRect(); o[s] = [r.left, r.top, r.width, r.height]; } return o; }"""
 
@@ -86,6 +89,15 @@ with sync_playwright() as p:
     l, t, w, h = EXPECT[".sg-fig .sg-card"]; dr.rectangle([l, t, l + w, t + h], fill=255)
     for s in ("#sgBtn", "#sgVo", "#sgMascot"):
         l, t, w, h = boxes[s]; dr.rectangle([l - 2, t - 2, l + w + 2, t + h + 2], fill=0)
+    l, t, w, h = TITLE_BOX; dr.rectangle([l - 2, t - 2, l + w + 2, t + h + 2], fill=0)   # [title-off] the render still has the title there
+    # [title-off] the title is gone: no title art element, and its box shows only the scene's sky (blue: no pixel redder than it is blue —
+    # the art's yellow letters, orange outline and brown shadow are all red-heavy)
+    gone = pg.evaluate("[document.querySelectorAll('.sgf-title, img[src*=\"title_art\"]').length, (document.getElementById('sgTitle') || {}).offsetWidth || 0]")
+    l, t, w, h = TITLE_BOX; reg = img.crop((round(l), round(t), round(l + w), round(t + h)))
+    warm = sum(1 for (r, g, b_) in reg.getdata() if r > b_ - 10)
+    check("[title-off] the title (रुको सोचो चिन्ह लगाओ) is gone from the title page: no title art on the page, the hidden #sgTitle still takes no space, "
+          "and where the title stood only the sky shows (no warm pixel)", gone == [0, 0] and warm == 0, (gone, warm, reg.size))
+    reg.save(out / "title_box_region.png")
     diff = ImageChops.difference(img, target).convert("L")
     vals = [d for d, m in zip(diff.getdata(), mask.getdata()) if m]
     big = sum(1 for v in vals if v > 40)
@@ -171,3 +183,4 @@ with sync_playwright() as p:
     check("no page errors", not errs, errs[:3])
     b.close()
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
+sys.exit(1 if fails else 0)   # [title-off] a FAIL now fails the run (it printed and exited 0 before)
