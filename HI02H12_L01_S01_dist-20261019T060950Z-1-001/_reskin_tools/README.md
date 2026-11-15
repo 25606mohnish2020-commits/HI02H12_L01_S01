@@ -3297,8 +3297,92 @@ A designed heading on the title page ([title-text], 2026-11-15)
   px, colour, spacings, text-shadow equal to the reference rule's); one line, centred within 1 px, clear above the characters;
   painted (orange and white pixels in the screenshot); no animation or transition on it or the card; its box never moves through
   the welcome (150 samples). Its text box (+14 px) is masked in the Figma comparison.
-- Checked: RESULTS_PENDING
+- Checked (on the built dist): title_check 31 PASS (ALL PASS, incl. the six [title-text] checks); on the build before it those six
+  FAIL, as they should. Its smoke run was stopped when [title-color] replaced the build minutes later (that build's run covers both).
 - `../_before_title_heading/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
+
+The title heading in the picture's colours ([title-color], 2026-11-15)
+- Asked (with a picture of the title: yellow letters, a thick dark-maroon outline, a white rim, a blue edge under it, a soft shadow):
+  "Change the text font color at the heading title according to the background in this kind of colors for your reference but keep
+  the art style , font , theme and text exactly the same as of now. Rest keep everything exactly the same in this file."
+- Sampled from the picture (mean of each band): maroon #420202, blue #0345A1, white #FCFCFC; the fill down its danda: #FFE400 for
+  the top fifth, #FDCC02 at half, #FDBD01 at 70 %, #FFAC02 at 95 %, then a thin orange-red bevel (#FD4402 > #D21B00) and a thin gloss
+  line near the top of every stroke. The gloss and bevel are the picture's art style, so they were not taken; its colours were.
+- Built (same font, size, text, place, rim and edge bands): the text maroon #420202 under a fill layer, .sgf-heading::after (the same
+  line from data-text, background-clip:text), in a gradient laid on the letters' own rows: #FFE600 down to the top bar (14..21 px of
+  the line box), #FFE200, #FDCC02 at the body's middle, #FDBD01, #FFAC02 at the baseline (54.5 px), #FF8A02 in the hooks below. A
+  fill layer because on the text itself the shadows would paint over a clipped background. The outline: 3.5 px of maroon round
+  every letter (the picture's 16 px on a 178 px danda = 9 % of the letter height, 3.6 px on ours), a 32 + 16 copy ring on the rim's
+  own ellipse, first in the shadow list. (A -webkit-text-stroke was tried first: Chrome shadows only the letter shape, so the stroke
+  covered all but 1 px of the white rim.) The white rim and the blue edge (now the picture's #0345A1, was #2F82DE) keep their bands
+  outside it: 8 x 6.93 px rings plus a 24-copy fill ring at 5.98 x 5.18, the blue copies 4.8 px lower; the drop 3.03 px lower. 162
+  shadows, generated (the generator reproduces the reference's 98 exactly). A 4.5 px outline was also tried: closer to the
+  picture's weight, but it closed the letters' holes and the rims of चिह्न and लगाओ touched. aria-label carries the text once.
+  index.html: the heading's two attributes; style.css: the heading rule and the fill-layer rule; app.js unchanged. Diffed against
+  ../_before_title_color/.
+- title_check.py: the style check is split. The type stays as in [title-text]. The colours: text #420202, the fill layer (data-text = aria-label = the text,
+  same type and centring, the six gradient stops, clipped, transparent fill, no shadow), the 162-part shadow list (regenerated in the
+  check, which first proves it reproduces the reference rule); painted yellow, maroon, white and deep-blue pixels; no animation on
+  the fill layer either. The Figma mask widens to the text box + 18 px.
+- Checked (on the built dist): title_check 32 PASS, 1 FAIL that was the check's own: it wanted the fill layer's height as the string
+  "121.6px" and Chrome reports 121.594px (heights snap to 1/64 px), now compared within 1/64 px. Everything else passed: the colours,
+  the 162-part list, the painted pixels, the Figma card (0.23 % off). On the orange [title-text] build the new colour checks FAIL,
+  as they should. The smoke run was stopped when [title-stroke] replaced the build (that build's run covers both).
+- `../_before_title_color/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
+
+A lighter outline on the title heading ([title-stroke], 2026-11-15)
+- Asked: "Reduce the weight of the stroke on the text at the heading title text of this page rest keep everything exactly the same
+  in this image"
+- "The stroke on the text" = the dark maroon outline drawn on the letters (the white rim and the blue edge lie outside it and were
+  kept). Tried side by side: 3.5 (as was), 2.5 and 2.0 px. Built 2.5 px: clearly lighter, with the picture's bold sticker look kept
+  (2.0 px is the next step lighter). The white rim (4.5 x 3.9 px band) and the blue edge (4.8 px drop) keep their bands, so they
+  sit 1 px nearer the letters: rings 7 x 6.07 px plus the fill ring at 4.98 x 4.31; the drop 0 10.17px 12px. Colours, fill, font,
+  size, text and place unchanged. Only the heading's shadow list (and a comment) changed in style.css; index.html and app.js are
+  unchanged. Diffed against ../_before_title_stroke/.
+- title_check.py: the expected list is _colored(2.5, ...).
+- Checked (the 2.5 px build): title_check 33 PASS (ALL PASS); on the 3.5 px build only the outline check FAILs, as it should. Its
+  smoke run was stopped when the second ask replaced the build (below).
+- The same ask again, word for word, with 2.5 px already in the dist (viewed locally: the colours and the 2.5 px outline were not yet
+  committed; 4cca83b holds the orange [title-text] heading) -> one step lighter: 2.0 px (the step offered). Rim and edge keep their
+  bands, 0.5 px nearer again (rings 6.5 x 5.63 px plus the fill ring at 4.48 x 3.88; the drop 0 9.73px 12px).
+  title_check: _colored(2.0, ...).
+- Checked (the 2.0 px build, on the built dist): title_check 33 PASS (ALL PASS; the Figma card 0.23 % off, as before); on the 2.5 px
+  build only the outline check FAILs, as it should; smoke 53/53.
+- `../_before_title_stroke/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/);
+  `../_before_title_stroke2/` the same for the 2.5 px build (before the 2.0 px step).
+
+The title heading without its outline ([title-stroke-off], 2026-11-15)
+- Asked: "Remove the strokes on the text at the heading title text of this page rest keep everything exactly the same in this image."
+- "The strokes" = the maroon outline the last two asks thinned (3.5 -> 2.5 -> 2.0 px); the white rim and the blue edge were kept.
+  Without the outline the rim and edge sit on the letters again, in their own bands: the heading's text-shadow is the reference
+  rule's own 98 parts (as in [title-text]) with the picture's blue #0345A1 (white ring 4.5 x 3.9 px, blue copies 4.8 px lower, drop
+  0 8px 12px). The text's own colour under the fill layer is now the fill's middle gold #FDCC02 (it was the outline's maroon, which
+  would leave a dark hairline at the letters' edges); gold and transparent were tried side by side and look the same. The fill
+  (#FFE600 > #FDCC02 > #FFAC02 > #FF8A02), font, size, text and place are unchanged. The letters read on the white rim through the
+  gradient's gold-to-orange lower half; their bright-yellow tops are softer than with the outline. style.css: the heading's colour,
+  its shadow list and a comment; index.html and app.js unchanged. Diffed against ../_before_title_stroke_off/.
+- title_check.py: the expected list is the reference's 98 with blue #0345A1, the text colour #FDCC02; the painted check wants no
+  maroon pixels left (and yellow, white and deep blue present).
+- Checked (on the built dist): title_check 33 PASS (ALL PASS; 0 maroon pixels); on the 2.0 px build the three changed checks FAIL, as
+  they should. Its smoke run was stopped when [title-dark] replaced the build (that build's run covers both).
+- `../_before_title_stroke_off/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
+
+A darker, readable title heading ([title-dark], 2026-11-15)
+- Asked: "Make the text at the title page a little darker in color so that it is clearly readable to the user right now it is not
+  readable."
+- Why it was hard to read: with no outline the letters sit straight on the white rim, and the yellow fill had only 1.27 : 1 (tops)
+  to 2.36 : 1 (hooks) against white. Three darker versions of the same gradient were tried side by side (contrast against white):
+  v1 #FFC400 .. #F56A00 (1.6 .. 3.0, tops still faint), v2 #FFA800 .. #E25400 (1.9 .. 3.8), v3 #FF9500 .. #D04500 (2.2 .. 4.6, back
+  toward the earlier orange). Built v2: clearly readable, still the picture's gold-to-orange (amber tops, orange feet); v3 is the
+  next step darker.
+- Built: the fill layer's gradient, same stops on the same rows: #FFA800 (to the top bar), #FF9C00, #FB8500 (the body's middle),
+  #F57500, #EE6500 (the baseline), #E25400 (the hooks); the text's own colour under it the new middle #FB8500. Rim, blue edge, drop,
+  font, size, text and place unchanged. style.css: those two values and a comment; index.html and app.js unchanged. Diffed
+  against ../_before_title_dark/.
+- title_check.py: the six new stops and the text colour; the painted check counts gold-to-orange letter pixels; new check: every
+  fill colour at least 1.9 : 1 against white and the darkest at least 3 : 1.
+- Checked: RESULTS_PENDING
+- `../_before_title_dark/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
 
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),

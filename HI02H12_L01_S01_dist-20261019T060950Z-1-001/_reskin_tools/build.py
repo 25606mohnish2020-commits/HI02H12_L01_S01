@@ -3148,9 +3148,39 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
    the card title boot() writes into the hidden #sgTitle. Counter-scaled out of .sg-fig so every value is the reference's own stage px;
    centred in the card; its ink centred on the removed title art's centre (card y 67) = 27 px of sky above, ~47 px clear of the
    characters below. No animation or transition of its own (and the card has none). */
+/* [title-color] (asked 2026-11-15, with a picture of the title in yellow letters, a dark maroon outline, a white rim and a blue edge:
+   "Change the text font color at the heading title according to the background in this kind of colors ... but keep the art style,
+   font, theme and text exactly the same as of now"): the picture's COLOURS on the same build. Font, size, text, place, the white rim's
+   4.5/3.9 px band and the blue edge's 4.8 px drop are unchanged; the picture's per-stroke gloss and bevel (art style) are not taken.
+   - fill #F85A00 -> the picture's yellow-to-gold fill (sampled: #FFE400 at the top, #FDCC02 at half height, #FDBD01, #FFAC02 near the
+     foot, orange #FF8A02 below the baseline for the hooks), laid on the letters' own rows (vowel signs above -4..13 px, top bar 14..21,
+     baseline 54.5, hooks to 66 px of the line box) by a fill layer (::after, the same text from data-text, background-clip:text) —
+     on the text itself the shadows would paint over a clipped background;
+   - a maroon outline (#420202, sampled) 3.5 px round each letter (the picture's 16 px on its 178 px danda = 9 % of the letter height),
+     made like the rim is: a 32 + 16 copy ring (the rim's own ellipse, 3.5 x 3.03 px), first in the list so it lies on top of the rim;
+     Chrome shadows the letter shape, not a -webkit-text-stroke, so a stroke would have hidden the rim;
+   - the white rim (#fff) and the blue edge (#2F82DE -> the picture's deeper #0345A1, sampled) keep their bands, set out by the outline
+     (8 x 6.93 px rings + a 24-copy fill ring at 5.98 x 5.18), the soft drop moved down by the same 3.03 px. 162 shadows (were 98).
+   The text's own colour is the outline's, so the fill layer's anti-aliased edges blend into maroon. Still no animation or transition. */
+/* [title-stroke] (asked 2026-11-15: "Reduce the weight of the stroke on the text at the heading title text of this page rest keep
+   everything exactly the same"): the maroon outline 3.5 -> 2.5 px (its ring 2.5 x 2.17 px). The white rim and the blue edge keep
+   their bands, so they sit 1 px nearer the letters (rings 7 x 6.07 px + the fill ring at 4.98 x 4.31), the drop 0 10.17px 12px.
+   Colours, fill, font, size, text and place unchanged. 162 shadows, generated as before (rings.py colored(2.5, ...)).
+   Then the same ask again, word for word -> one step lighter: 2.0 px (ring 2 x 1.73 px; rim rings 6.5 x 5.63 + fill ring 4.48 x 3.88;
+   the drop 0 9.73px 12px) = colored(2.0, ...). */
+/* [title-stroke-off] (asked 2026-11-15: "Remove the strokes on the text at the heading title text of this page rest keep everything
+   exactly the same"): the maroon outline is gone. The white rim and the blue edge keep their bands, now on the letters again = the
+   reference rule's own 98 parts with the picture's blue #0345A1 (white ring 4.5 x 3.9 px, blue copies 4.8 px lower, drop 0 8px 12px).
+   The text's own colour, under the fill layer, is the fill's middle gold #FDCC02 (it was the outline's maroon), so no dark hairline
+   is left at the letters' edges. Fill, colours, font, size, text and place unchanged. */
+/* [title-dark] (asked 2026-11-15: "Make the text at the title page a little darker in color so that it is clearly readable to the user
+   right now it is not readable"): the fill, one family darker, same stops on the same rows: #FFE600 > #FFE200 > #FDCC02 > #FDBD01 >
+   #FFAC02 > #FF8A02 (1.3 to 2.4 : 1 against the white rim the letters sit on) -> #FFA800 > #FF9C00 > #FB8500 > #F57500 > #EE6500 >
+   #E25400 (1.9 to 3.8 : 1): amber tops, orange feet, still the picture's gold-to-orange. The text's own colour under it = the new
+   middle #FB8500. Rim, edge, drop, font, size, text and place unchanged. */
 .sgf-heading{position:absolute;left:0;top:34px;width:1096px;z-index:2;text-align:center;pointer-events:none;
   transform:scale(calc(1 / var(--fig-s)));transform-origin:50% 0;animation:none;transition:none;
-  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#F85A00;
+  font-family:"Baloo 2","Noto Sans Devanagari",sans-serif;font-weight:800;font-size:64px;line-height:1.15;color:#FB8500;
   white-space:nowrap;letter-spacing:.5px;word-spacing:14px;
   text-shadow:
     4.5px 0px 0 #fff, 4.41px 0.76px 0 #fff, 4.16px 1.49px 0 #fff, 3.74px 2.17px 0 #fff, 3.18px 2.76px 0 #fff, 2.5px 3.24px 0 #fff, 1.72px 3.6px 0 #fff, 0.88px 3.83px 0 #fff,
@@ -3159,13 +3189,18 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
     0px -3.9px 0 #fff, 0.88px -3.83px 0 #fff, 1.72px -3.6px 0 #fff, 2.5px -3.24px 0 #fff, 3.18px -2.76px 0 #fff, 3.74px -2.17px 0 #fff, 4.16px -1.49px 0 #fff, 4.41px -0.76px 0 #fff,
     2.43px 0.42px 0 #fff, 2.06px 1.19px 0 #fff, 1.38px 1.78px 0 #fff, 0.48px 2.1px 0 #fff, -0.48px 2.1px 0 #fff, -1.38px 1.78px 0 #fff, -2.06px 1.19px 0 #fff, -2.43px 0.42px 0 #fff,
     -2.43px -0.42px 0 #fff, -2.06px -1.19px 0 #fff, -1.38px -1.78px 0 #fff, -0.48px -2.1px 0 #fff, 0.48px -2.1px 0 #fff, 1.38px -1.78px 0 #fff, 2.06px -1.19px 0 #fff, 2.43px -0.42px 0 #fff,
-    4.5px 4.8px 0.8px #2F82DE, 4.41px 5.56px 0.8px #2F82DE, 4.16px 6.29px 0.8px #2F82DE, 3.74px 6.97px 0.8px #2F82DE, 3.18px 7.56px 0.8px #2F82DE, 2.5px 8.04px 0.8px #2F82DE, 1.72px 8.4px 0.8px #2F82DE, 0.88px 8.63px 0.8px #2F82DE,
-    0px 8.7px 0.8px #2F82DE, -0.88px 8.63px 0.8px #2F82DE, -1.72px 8.4px 0.8px #2F82DE, -2.5px 8.04px 0.8px #2F82DE, -3.18px 7.56px 0.8px #2F82DE, -3.74px 6.97px 0.8px #2F82DE, -4.16px 6.29px 0.8px #2F82DE, -4.41px 5.56px 0.8px #2F82DE,
-    -4.5px 4.8px 0.8px #2F82DE, -4.41px 4.04px 0.8px #2F82DE, -4.16px 3.31px 0.8px #2F82DE, -3.74px 2.63px 0.8px #2F82DE, -3.18px 2.04px 0.8px #2F82DE, -2.5px 1.56px 0.8px #2F82DE, -1.72px 1.2px 0.8px #2F82DE, -0.88px 0.97px 0.8px #2F82DE,
-    0px 0.9px 0.8px #2F82DE, 0.88px 0.97px 0.8px #2F82DE, 1.72px 1.2px 0.8px #2F82DE, 2.5px 1.56px 0.8px #2F82DE, 3.18px 2.04px 0.8px #2F82DE, 3.74px 2.63px 0.8px #2F82DE, 4.16px 3.31px 0.8px #2F82DE, 4.41px 4.04px 0.8px #2F82DE,
-    2.43px 5.22px 0 #2F82DE, 2.06px 5.99px 0 #2F82DE, 1.38px 6.58px 0 #2F82DE, 0.48px 6.9px 0 #2F82DE, -0.48px 6.9px 0 #2F82DE, -1.38px 6.58px 0 #2F82DE, -2.06px 5.99px 0 #2F82DE, -2.43px 5.22px 0 #2F82DE,
-    -2.43px 4.38px 0 #2F82DE, -2.06px 3.61px 0 #2F82DE, -1.38px 3.02px 0 #2F82DE, -0.48px 2.7px 0 #2F82DE, 0.48px 2.7px 0 #2F82DE, 1.38px 3.02px 0 #2F82DE, 2.06px 3.61px 0 #2F82DE, 2.43px 4.38px 0 #2F82DE,
-    0 4.8px 0 #2F82DE, 0 8px 12px rgba(0,40,120,.26);}
+    4.5px 4.8px 0.8px #0345A1, 4.41px 5.56px 0.8px #0345A1, 4.16px 6.29px 0.8px #0345A1, 3.74px 6.97px 0.8px #0345A1, 3.18px 7.56px 0.8px #0345A1, 2.5px 8.04px 0.8px #0345A1, 1.72px 8.4px 0.8px #0345A1, 0.88px 8.63px 0.8px #0345A1,
+    0px 8.7px 0.8px #0345A1, -0.88px 8.63px 0.8px #0345A1, -1.72px 8.4px 0.8px #0345A1, -2.5px 8.04px 0.8px #0345A1, -3.18px 7.56px 0.8px #0345A1, -3.74px 6.97px 0.8px #0345A1, -4.16px 6.29px 0.8px #0345A1, -4.41px 5.56px 0.8px #0345A1,
+    -4.5px 4.8px 0.8px #0345A1, -4.41px 4.04px 0.8px #0345A1, -4.16px 3.31px 0.8px #0345A1, -3.74px 2.63px 0.8px #0345A1, -3.18px 2.04px 0.8px #0345A1, -2.5px 1.56px 0.8px #0345A1, -1.72px 1.2px 0.8px #0345A1, -0.88px 0.97px 0.8px #0345A1,
+    0px 0.9px 0.8px #0345A1, 0.88px 0.97px 0.8px #0345A1, 1.72px 1.2px 0.8px #0345A1, 2.5px 1.56px 0.8px #0345A1, 3.18px 2.04px 0.8px #0345A1, 3.74px 2.63px 0.8px #0345A1, 4.16px 3.31px 0.8px #0345A1, 4.41px 4.04px 0.8px #0345A1,
+    2.43px 5.22px 0 #0345A1, 2.06px 5.99px 0 #0345A1, 1.38px 6.58px 0 #0345A1, 0.48px 6.9px 0 #0345A1, -0.48px 6.9px 0 #0345A1, -1.38px 6.58px 0 #0345A1, -2.06px 5.99px 0 #0345A1, -2.43px 5.22px 0 #0345A1,
+    -2.43px 4.38px 0 #0345A1, -2.06px 3.61px 0 #0345A1, -1.38px 3.02px 0 #0345A1, -0.48px 2.7px 0 #0345A1, 0.48px 2.7px 0 #0345A1, 1.38px 3.02px 0 #0345A1, 2.06px 3.61px 0 #0345A1, 2.43px 4.38px 0 #0345A1,
+    0 4.8px 0 #0345A1, 0 8px 12px rgba(0,40,120,.26);}
+/* the fill layer: the same line laid over the text (24 px of room above and below the 73.6 px line box for the vowel signs and hooks) */
+.sgf-heading::after{content:attr(data-text);position:absolute;left:0;top:-24px;width:100%;height:121.6px;box-sizing:border-box;
+  padding-top:24px;background:linear-gradient(180deg, #FFA800 0px, #FFA800 38px, #FF9C00 46px, #FB8500 58.5px, #F57500 70px, #EE6500 78.5px, #E25400 90px, #E25400 121.6px);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;
+  pointer-events:none;animation:none;transition:none;}
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
 .sgf-shadow.s1{left:141px;top:303px;}          /* ellipse 166,328 82x19 */
 .sgf-shadow.s2{left:473px;top:270px;}          /* ellipse 498,295 92x14 */
@@ -4190,7 +4225,7 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
         <img class="sgf-shadow s3" src="assets/UI/title_shadow_3.svg" width="115" height="69" alt="" draggable="false">
         <div class="sgf-purn"><img src="assets/UI/title_char_purn.png" alt="" draggable="false"></div>
         <img class="sgf-comma" src="assets/UI/title_char_comma.png" alt="" draggable="false">
-        <div class="sgf-heading" role="heading" aria-level="1">रुको , सोचो , चिह्न लगाओ ।</div>   <!-- [title-text] the cover's heading, static (CSS: title_css) -->
+        <div class="sgf-heading" role="heading" aria-level="1" aria-label="रुको , सोचो , चिह्न लगाओ ।" data-text="रुको , सोचो , चिह्न लगाओ ।">रुको , सोचो , चिह्न लगाओ ।</div>   <!-- [title-text] the cover's heading, static (CSS: title_css) -->
         {sg_content}
         {sg_btn}
       </div>

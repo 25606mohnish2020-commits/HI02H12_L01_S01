@@ -23,6 +23,17 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    reference rule's text-shadow (title_assets/ref_mtcg_sg_title.css, the rule as served) exactly; centred on the card, clear above the
    characters, painted; no animation or transition on it or the card, and its box never moves through the welcome. Its text box (+14 px)
    is masked in the Figma comparison too (the render has no heading). The old "only sky in the title box" check went with it.
+[title-color] (2026-11-15, later) the heading in the user's picture's colours, same font/size/text/place: the text maroon #420202
+   under a fill layer (::after, data-text, the same font and spacing) in the yellow-to-gold gradient, clipped to the letters; the
+   text-shadow = a 3.5 px maroon outline ring on top of the reference's white rim and blue edge bands set out by it (blue #0345A1),
+   the drop moved with it — 162 parts, regenerated here (the generator first proves it reproduces the reference rule's 98); data-text
+   and aria-label = the exact text; painted yellow, maroon, white and deep blue; no animation on it, its fill layer or the card. The
+   Figma mask widens to the text box + 18 px.
+[title-stroke] (2026-11-15, later) the maroon outline 2.5 px (was 3.5), then on the same ask again 2.0 px: _colored(2.0, ...).
+[title-stroke-off] (2026-11-15, later) the outline removed: the text-shadow is the reference rule's 98 parts with blue #0345A1, the text's
+   own colour the fill's middle gold #FDCC02; painted check: no maroon pixels left.
+[title-dark] (2026-11-15, later) the fill one family darker (#FFA800 > #FF9C00 > #FB8500 > #F57500 > #EE6500 > #E25400; text #FB8500);
+   new check: every fill colour >= 1.9 : 1 against the white rim, the darkest >= 3 : 1 (the yellow one was 1.27 .. 2.36).
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -57,14 +68,39 @@ TITLE_BOX = (85 + 251.58, 134 + 12.02, 593.83, 109.99)   # [title-off] where the
 HEADING = "रुको , सोचो , चिह्न लगाओ ।"   # [title-text] the ask's own text: रुको , सोचो , चिह्न लगाओ ।
 REF_RULE = (pathlib.Path(__file__).resolve().parent / "title_assets" / "ref_mtcg_sg_title.css").read_text(encoding="utf-8")
 REF_SHADOW = REF_RULE[REF_RULE.index("text-shadow:") + len("text-shadow:"): REF_RULE.rindex(";")]
+# [title-color] the shadow rings, generated: _reference() must give the reference rule's 98 parts; _colored() is the heading's list
+import math, re
+def _f(v):
+    s = ("%.2f" % v).rstrip("0").rstrip("."); return "0" if s in ("-0", "") else s
+def _ring(rx, ry, n, phase, dy, blur, col):
+    return [f"{_f(rx * math.cos(math.radians(phase + k * 360 / n)))}px {_f(ry * math.sin(math.radians(phase + k * 360 / n)) + dy)}px "
+            f"{(_f(blur) + 'px') if blur else '0'} {col}" for k in range(n)]
+_SQ = 3.9 / 4.5
+def _reference():
+    return (_ring(4.5, 3.9, 32, 0, 0, 0, "#fff") + _ring(2.475, 2.145, 16, 11.25, 0, 0, "#fff") + _ring(4.5, 3.9, 32, 0, 4.8, .8, "#2F82DE")
+            + _ring(2.475, 2.145, 16, 11.25, 4.8, 0, "#2F82DE") + ["0 4.8px 0 #2F82DE", "0 8px 12px rgba(0,40,120,.26)"])
+def _colored(m, maroon, blue):
+    return (_ring(m, _SQ * m, 32, 0, 0, 0, maroon) + _ring(.55 * m, .55 * _SQ * m, 16, 11.25, 0, 0, maroon)
+            + _ring(m + 4.5, _SQ * m + 3.9, 32, 0, 0, 0, "#fff") + _ring(m + 2.475, _SQ * m + 2.145, 24, 7.5, 0, 0, "#fff")
+            + _ring(m + 4.5, _SQ * m + 3.9, 32, 0, 4.8, .8, blue) + _ring(m + 2.475, _SQ * m + 2.145, 24, 7.5, 4.8, 0, blue)
+            + [f"0 4.8px 0 {blue}", f"0 {_f(8 + _SQ * m)}px 12px rgba(0,40,120,.26)"])
+_norm = lambda s: re.sub(r"\b0px\b", "0", re.sub(r"\s+", " ", s.strip()))
+REF_REGEN_OK = [_norm(x) for x in REF_SHADOW.split(",\n")] == [_norm(x) for x in _reference()]
+# [title-stroke-off] no outline any more (it went 3.5 -> 2.5 -> 2.0 px in [title-color]/[title-stroke], then was removed): the reference
+# rule's own 98 parts with the picture's blue
+HEAD_SHADOW = ", ".join(x.replace("#2F82DE", "#0345A1") for x in _reference())
 HEAD_INFO = """(refShadow) => { const all = document.querySelectorAll('.sgf-heading'); if (all.length !== 1) return null;
   const e = all[0], cs = getComputedStyle(e), card = document.querySelector('.sg-fig .sg-card'), cr = card.getBoundingClientRect();
   const st = document.getElementById('stage'), ss = st.getBoundingClientRect().width / st.offsetWidth;
   const rg = document.createRange(); rg.selectNodeContents(e); const q = rg.getBoundingClientRect();
   const probe = document.createElement('div'); probe.style.textShadow = refShadow; document.body.append(probe); const refSh = getComputedStyle(probe).textShadow; probe.remove();
   const tops = ['.sgf-purn img', '.sgf-comma', '.sgf-question'].map(s => document.querySelector(s).getBoundingClientRect().top);
-  const anims = []; for (let x = e; x && x.id !== 'startGate'; x = x.parentElement) anims.push(...x.getAnimations().map(a => a.animationName || a.transitionProperty || 'anim'));
-  return { inCard: e.parentElement === card, afterChars: !!(e.compareDocumentPosition(document.querySelector('.sgf-comma')) & Node.DOCUMENT_POSITION_PRECEDING),
+  const anims = e.getAnimations({ subtree: true }).map(a => a.animationName || a.transitionProperty || 'anim');   // incl. its ::after fill layer
+  for (let x = e.parentElement; x && x.id !== 'startGate'; x = x.parentElement) anims.push(...x.getAnimations().map(a => a.animationName || a.transitionProperty || 'anim'));
+  const a = getComputedStyle(e, '::after');
+  const after = { content: a.content, clip: a.webkitBackgroundClip || a.backgroundClip, fill: a.webkitTextFillColor, bg: a.backgroundImage, pos: a.position, top: a.top, w: a.width,
+    h: a.height, pt: a.paddingTop, lh: a.lineHeight, ff: a.fontFamily, fw: a.fontWeight, fsz: a.fontSize, ls: a.letterSpacing, ws: a.wordSpacing, sh: a.textShadow, ta: a.textAlign };
+  return { dataText: e.dataset.text, label: e.getAttribute('aria-label'), after, inCard: e.parentElement === card, afterChars: !!(e.compareDocumentPosition(document.querySelector('.sgf-comma')) & Node.DOCUMENT_POSITION_PRECEDING),
     txt: e.textContent, text: [q.left, q.top, q.width, q.height], ff: cs.fontFamily, fw: cs.fontWeight, fsz: cs.fontSize, lh: cs.lineHeight, col: cs.color,
     ls: cs.letterSpacing, ws: cs.wordSpacing, nowrap: cs.whiteSpace === 'nowrap', shadowOk: cs.textShadow === refSh && refSh !== 'none',
     font: document.fonts.check('800 64px "Baloo 2"'), stagePx: e.getBoundingClientRect().height / ss, oneLine: q.height / ss < 110,
@@ -111,27 +147,50 @@ with sync_playwright() as p:
     for s in ("#sgBtn", "#sgVo", "#sgMascot"):
         l, t, w, h = boxes[s]; dr.rectangle([l - 2, t - 2, l + w + 2, t + h + 2], fill=0)
     l, t, w, h = TITLE_BOX; dr.rectangle([l - 2, t - 2, l + w + 2, t + h + 2], fill=0)   # [title-off] the render still has the title there
-    hd = pg.evaluate(HEAD_INFO, REF_SHADOW)
-    if hd:   # [title-text] the render has no heading: its text box, widened by 14 px for the outline, the blue edge and the drop
-        l, t, w, h = hd["text"]; dr.rectangle([l - 14, t - 14, l + w + 14, t + h + 14], fill=0)
+    hd = pg.evaluate(HEAD_INFO, HEAD_SHADOW)
+    if hd:   # [title-text] the render has no heading: its text box, widened by 18 px for the outline, the rim, the blue edge and the drop
+        l, t, w, h = hd["text"]; dr.rectangle([l - 18, t - 18, l + w + 18, t + h + 18], fill=0)
     # [title-off] the frame's title art stays gone: no title art element, and the hidden #sgTitle still takes no space
     gone = pg.evaluate("[document.querySelectorAll('.sgf-title, img[src*=\"title_art\"]').length, (document.getElementById('sgTitle') || {}).offsetWidth || 0]")
     check("[title-off] the frame's title art (रुको सोचो चिन्ह लगाओ) is not on the page, and the hidden #sgTitle still takes no space", gone == [0, 0], gone)
     # [title-text] the heading in the reference cover's title look
-    check("[title-text] one heading in the card, above the characters' layers, reading exactly the ask's text (रुको , सोचो , चिह्न लगाओ ।: the spaces before the commas and the । kept)",
-          hd is not None and hd["inCard"] and hd["afterChars"] and hd["txt"] == HEADING, hd and (hd["txt"], hd["inCard"], hd["afterChars"]))
-    check("[title-text] ...in the reference cover's title look: Baloo 2 800 (loaded) at 64 stage px, line-height 1.15, #F85A00, letter-spacing .5px, "
-          "word-spacing 14px, and the reference rule's text-shadow (white ring, blue edge, soft drop) exactly",
-          hd is not None and hd["ff"].startswith('"Baloo 2"') and hd["fw"] == "800" and hd["fsz"] == "64px" and hd["lh"] == "73.6px" and hd["col"] == "rgb(248, 90, 0)"
-          and hd["ls"] == "0.5px" and hd["ws"] == "14px" and hd["shadowOk"] and hd["font"] and abs(hd["stagePx"] - 73.6) < 0.1,
-          hd and {k: hd[k] for k in ("ff", "fw", "fsz", "lh", "col", "ls", "ws", "shadowOk", "font", "stagePx")})
+    check("[title-text] one heading in the card, above the characters' layers, reading exactly the ask's text (रुको , सोचो , चिह्न लगाओ ।: the spaces before the commas and the । kept); "
+          "[title-color] its fill layer's text (data-text) and its aria-label are that text too",
+          hd is not None and hd["inCard"] and hd["afterChars"] and hd["txt"] == HEADING and hd["dataText"] == HEADING and hd["label"] == HEADING
+          and hd["after"]["content"] == '"' + HEADING + '"', hd and (hd["txt"], hd["inCard"], hd["afterChars"], hd["dataText"] == HEADING, hd["label"] == HEADING, hd["after"]["content"][:12]))
+    check("[title-text] ...in the reference cover's title type, kept: Baloo 2 800 (loaded) at 64 stage px, line-height 1.15, letter-spacing .5px, word-spacing 14px",
+          hd is not None and hd["ff"].startswith('"Baloo 2"') and hd["fw"] == "800" and hd["fsz"] == "64px" and hd["lh"] == "73.6px"
+          and hd["ls"] == "0.5px" and hd["ws"] == "14px" and hd["font"] and abs(hd["stagePx"] - 73.6) < 0.1,
+          hd and {k: hd[k] for k in ("ff", "fw", "fsz", "lh", "ls", "ws", "font", "stagePx")})
+    af = hd["after"] if hd else {}
+    stops = ("rgb(255, 168, 0)", "rgb(255, 156, 0)", "rgb(251, 133, 0)", "rgb(245, 117, 0)", "rgb(238, 101, 0)", "rgb(226, 84, 0)")   # [title-dark]
+    check("[title-color] ...in the picture's colours: the text (the fill's middle colour, #FB8500 since [title-dark]) under its fill layer — the same line (same font, size, spacing, centring; "
+          "24 px of room round the 73.6 px line) in the gold-to-orange gradient, [title-dark]'s darker one #FFA800 > #FF9C00 > #FB8500 > #F57500 > #EE6500 > #E25400, clipped to the letters, no shadow",
+          hd is not None and hd["col"] == "rgb(251, 133, 0)" and af["clip"] == "text" and af["fill"] == "rgba(0, 0, 0, 0)" and af["bg"].startswith("linear-gradient(")
+          and all(s in af["bg"] for s in stops) and af["pos"] == "absolute" and af["top"] == "-24px" and af["w"] == "1096px" and abs(float(af["h"][:-2]) - 121.6) <= 1 / 64 and af["pt"] == "24px"
+          and af["lh"] == "73.6px" and af["ff"] == hd["ff"] and af["fw"] == "800" and af["fsz"] == "64px" and af["ls"] == "0.5px" and af["ws"] == "14px" and af["ta"] == "center"
+          and af["sh"] == "none", hd and (hd["col"], af))
+    check("[title-stroke-off] ...its rim and edge with no outline: the text-shadow = the reference rule's own 98 parts (white ring, blue edge, soft drop) "
+          "with the picture's blue #0345A1, exactly (the generator reproduces the reference rule first)",
+          REF_REGEN_OK and hd is not None and hd["shadowOk"], (REF_REGEN_OK, hd and hd["shadowOk"]))
     check("[title-text] ...on one line, centred on the card (within 1 stage px), in the sky clear above the three characters' pictures",
           hd is not None and hd["nowrap"] and hd["oneLine"] and abs(hd["centreOff"]) <= 1 and hd["clear"] > 10, hd and {k: hd[k] for k in ("nowrap", "oneLine", "centreOff", "clear")})
-    reg = img.crop(tuple(round(v) for v in (hd["text"][0], hd["text"][1], hd["text"][0] + hd["text"][2], hd["text"][1] + hd["text"][3]))) if hd else Image.new("RGB", (1, 1))
+    reg = img.crop(tuple(round(v) for v in (hd["text"][0] - 10, hd["text"][1], hd["text"][0] + hd["text"][2] + 10, hd["text"][1] + hd["text"][3]))) if hd else Image.new("RGB", (1, 1))
     px = list(reg.getdata())
-    orange = sum(1 for (r, g, b_) in px if r > 215 and 60 < g < 125 and b_ < 60); white = sum(1 for (r, g, b_) in px if min(r, g, b_) > 240)
-    check("[title-text] ...painted: its orange letters and white outline show in the screenshot", orange > 3000 and white > 1000, (orange, white, reg.size))
-    check("[title-text] ...with no animation or transition of its own, nor on the card around it", hd is not None and hd["anim"] == "none" and hd["trans"] == "0s" and not hd["anims"],
+    # [title-dark] the letters are gold-to-orange now (#FFA800 .. #E25400): counted as warm letter pixels
+    yellow = sum(1 for (r, g, b_) in px if r > 215 and 60 < g < 180 and b_ < 60); maroon = sum(1 for (r, g, b_) in px if 35 < r < 115 and g < 35 and b_ < 35)
+    white = sum(1 for (r, g, b_) in px if min(r, g, b_) > 240); blue = sum(1 for (r, g, b_) in px if r < 40 and g < 110 and b_ > 120)
+    check("[title-stroke-off] ...painted: its gold-to-orange letters, white rim and deep-blue edge show in the screenshot, and no maroon outline is left",
+          yellow > 3000 and maroon < 100 and white > 1000 and blue > 300, (yellow, maroon, white, blue, reg.size))
+    # [title-dark] readable against the white rim the letters sit on: every colour of the fill at least 1.9 : 1, its darkest at least 3 : 1
+    def _cr(rgb):
+        c = [v / 255 for v in rgb]; c = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4 for v in c]
+        return 1.05 / (.2126 * c[0] + .7152 * c[1] + .0722 * c[2] + .05)
+    grad = [tuple(int(v) for v in m) for m in re.findall(r"rgb\((\d+), (\d+), (\d+)\)", af.get("bg", ""))]
+    crs = [round(_cr(c), 2) for c in grad]
+    check("[title-dark] ...and readable on its white rim: every colour of the fill at least 1.9 : 1 against white, the darkest at least 3 : 1",
+          bool(crs) and min(crs) >= 1.9 and max(crs) >= 3.0, crs)
+    check("[title-text] ...with no animation or transition of its own (nor on its fill layer), nor on the card around it", hd is not None and hd["anim"] == "none" and hd["trans"] == "0s" and not hd["anims"],
           hd and (hd["anim"], hd["trans"], hd["anims"]))
     reg.save(out / "title_heading_region.png")
     diff = ImageChops.difference(img, target).convert("L")
