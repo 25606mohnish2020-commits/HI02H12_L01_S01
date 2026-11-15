@@ -17,6 +17,7 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
        [g4p1-side] (2026-11-15) G4 and P1 in the same side row as P2 (same places, their bare 1448-wide pictures; --g2 works for them);
        --ref (the P4 pixel match) no longer applies to any page and is skipped.
        [g4p1-tap] (2026-11-15) G4's and P1's reveal hands tap like P2's: all three pages get the tap checks (the bob check is unused).
+       [g4p1-font] (2026-11-15) G4's and P1's sentences 40px (CFG fs), P2's 28px.
 1. The right pill first: the instruction on entry; the tap marks it green at once and pops the picture, nothing sounds for
    1 s (taps wait), then the kit's correct-select, the confetti and the happy Swiftie, and its own line with each word lit
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
@@ -42,9 +43,9 @@ html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).reso
 REF_PIC = sys.argv[sys.argv.index("--ref") + 1] if "--ref" in sys.argv else None
 G2 = "--g2" in sys.argv   # [p2-side] compare P2 with the live https://hind-dear-story.vercel.app/ page 15 (G2)
 PAGE = sys.argv[sys.argv.index("--page") + 1] if "--page" in sys.argv else "G4"
-CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [g4p1-side] P2's row; [g4p1-tap] its hand taps
+CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।", "layout": "side", "pic_w": 1448, "hand_tap": True, "fs": "40px",   # [g4p1-side] P2's row; [g4p1-tap] its hand taps; [g4p1-font] 40px
               "labels": ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]},
-       "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [g4p1-side] P2's row; [g4p1-tap] its hand taps
+       "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?", "layout": "side", "pic_w": 1448, "hand_tap": True, "fs": "40px",   # [g4p1-side] P2's row; [g4p1-tap] its hand taps; [g4p1-font] 40px
               "labels": ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"]},
        "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "layout": "side", "pic_w": 1448, "hand_tap": True,   # [p2-side] was "lines": 2; [p2-tap] its reveal hand taps
               "labels": ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"]}}[PAGE]
@@ -155,10 +156,10 @@ with sync_playwright() as p:
     head_ok = look["chip"] == [94.5, 80, 66] and look["thumb"][:2] == [146, 315] and abs(look["thumb"][2] - 666.5) <= 1
     if CFG.get("layout") == "side":   # [p2-side] G2's row (its card's left edge 114.5, the 64px card/box gap, its box y's 234 / 358 / 482 and height 88, the row's middle 402)
         check("G2's row: the chip at 94.5,80; the picture alone in a 492x365 card at x 114.5 centred on y 402 (picture 444x333 at 138.5,235.5); "
-              "three 528x88 boxes stacked at x 670.5 (64px right of the card), y 234 / 358 / 482, each sentence on ONE line at 28px, nothing spilling, no break",
+              "three 528x88 boxes stacked at x 670.5 (64px right of the card), y 234 / 358 / 482, each sentence on ONE line at " + CFG.get("fs", "28px") + ", nothing spilling, no break",
               look["chip"] == [94.5, 80, 66] and look["card"] == [114.5, 219.5, 492, 365] and look["tbox"] == [138.5, 235.5, 444, 333]
               and [q[:4] for q in look["pills"]] == [[670.5, 234, 528, 88], [670.5, 358, 528, 88], [670.5, 482, 528, 88]] and all(q[4] for q in look["pills"])
-              and all(len(l) == 1 for l in look["lines"]) and look["br"] == 0 and look["fs"] == "28px", look)
+              and all(len(l) == 1 for l in look["lines"]) and look["br"] == 0 and look["fs"] == CFG.get("fs", "28px"), look)   # [g4p1-font] G4 / P1 40px, P2 28px
     elif CFG.get("lines", 1) == 1:
         check("P4's places: the chip at 94.5,80; the picture 315 high from y 146, centred; three 344x78 pills at x 114.5 / 494.5 / 874.5, y 531.5, each on one line",
               head_ok and [q[:4] for q in look["pills"]] == [[114.5, 531.5, 344, 78], [494.5, 531.5, 344, 78], [874.5, 531.5, 344, 78]] and all(q[4] for q in look["pills"])

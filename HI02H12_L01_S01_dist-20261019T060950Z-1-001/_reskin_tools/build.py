@@ -721,10 +721,10 @@ assert [o["label_hi"] for o in card["slides"][i_g4]["data"]["options"]] == ["ल
 card["slides"][i_g4]["data"]["layout"] = "side"
 card["slides"][i_g4]["data"]["hand_tap"] = True
 # [g4p1-font] (asked 2026-11-15: "Increase the size of the font in the options at pages 12 G4 and 13 P1 ... by a little more accordingly
-# such that the whole layout of these pages looks perfectly fine"; then again: "a little more than this"): G4's sentences 36px (were 28px;
-# 32px = the reference G2's own option size was the first step, never built into the dist) in the same 88px boxes; the longest is 321px
-# of the boxes' 492px, a 43.2px line with ~22px above and below. P2 stays 28px (its 491px sentence fills the box at 28).
-card["slides"][i_g4]["data"]["opt_px"] = 36
+# such that the whole layout of these pages looks perfectly fine"; then twice more: "a little more than this"): G4's sentences 40px (were
+# 28px; the steps 32px = the reference G2's own option size, then 36px, were prepared but never built into the dist) in the same 88px boxes;
+# the longest is 356px of the boxes' 492px, a 48px line with 20px above and below. P2 stays 28px (its 491px sentence fills the box at 28).
+card["slides"][i_g4]["data"]["opt_px"] = 40
 for k in G4_KEYS:
     card["assets"]["audio"][f"vo_g4_{k}"] = f"assets/Audio/vo_g4_{k}.ogg"
     card["assets"]["audio_text"][f"vo_g4_{k}"] = gl4[k]["text"]
@@ -765,7 +765,7 @@ def practice_pick(sid, page, image_id, was, labels, right, layout=None, hand_tap
 # (2026-11-15): now it taps like P2's (hand_tap).
 practice_pick("P1", "p1", "img_p1_book", "BUILD_PUNCT",
               ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"], right="o1", layout="side", hand_tap=True,
-              opt_px=36)   # [g4p1-font] (2026-11-15) P1's sentences 36px like G4's (the longest 363px of the boxes' 492px)
+              opt_px=40)   # [g4p1-font] (2026-11-15) P1's sentences 40px like G4's (the longest 404px of the boxes' 492px)
 # P2: a girl with coloured pencils ([pics-pinki] 2026-11-02: the user's redrawn picture, the old pair kept as *_v1_2026-10-25); a
 # danda after each colour, no mark, or a comma after each (the right one, listed last) —
 # in place of the ported EVIDENCE_QA pick ("राम खाना खाकर सोया"). Too long for P4's pill on one line: SENT_PICK sets them on two.
@@ -4103,7 +4103,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
   gap:36px !important;place-content:center;}
 .stage.sent-page .q-row.sent-side .sent-opt .so-pill{width:528px;height:88px;min-height:0;padding:16px;border:2px solid #FFFFFF;border-radius:28px;
   box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12);}
-.stage.sent-page .q-row.sent-side .sent-opt .so-pill{font-size:var(--so-fs, 28px);}   /* [g4p1-font] G4, P1: 36px (data.opt_px); P2: 28px */
+.stage.sent-page .q-row.sent-side .sent-opt .so-pill{font-size:var(--so-fs, 28px);}   /* [g4p1-font] G4, P1: 40px (data.opt_px); P2: 28px */
 .stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .ck-fx,.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .wg-fx{border-radius:28px;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 .stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
