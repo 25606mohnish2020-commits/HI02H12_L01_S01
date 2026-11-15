@@ -3381,7 +3381,8 @@ A darker, readable title heading ([title-dark], 2026-11-15)
   against ../_before_title_dark/.
 - title_check.py: the six new stops and the text colour; the painted check counts gold-to-orange letter pixels; new check: every
   fill colour at least 1.9 : 1 against white and the darkest at least 3 : 1.
-- Checked: RESULTS_PENDING
+- Checked (on the built dist): title_check 34 PASS (ALL PASS; contrast 1.93 .. 3.82 : 1; the Figma card 0.23 % off, as before); on
+  the yellow build the colour, painted and readability checks FAIL (1.27 .. 2.36 : 1), as they should; smoke 53/53.
 - `../_before_title_dark/` holds the dist's three files and build.py, title_check.py, smoke.py, README.md (tools/).
 
 Rebuilding after a card/content change
