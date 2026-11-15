@@ -3435,7 +3435,9 @@ The title heading one step darker again ([title-dark2], 2026-11-15)
   style.css: those two values and a comment; index.html and app.js unchanged. Diffed against ../_before_title_dark2/.
 - title_check.py: the six new stops and the text colour; readability now wants every stop >= 2.2 : 1 and the darkest >= 4.5 : 1; the
   painted counts and the glyph-ink test take the deeper orange.
-- Checked: (pending)
+- Checked: smoke 53/53 on its dist. Its own title_check run stopped at the painted check (a broken line in title_check.py, from this
+  step's edit: a trailing comment had swallowed the maroon count - fixed); its colours were then measured in the later runs on builds
+  carrying them: 2.2 .. 4.63 : 1. Superseded the same day by [title-dark3].
 - `../_before_title_dark2/` holds the dist's three files ([title-fly]'s build) and build.py, title_check.py, smoke.py, README.md (tools/).
 
 The symbols' flight inside the welcome ([title-fly2], 2026-11-15)
@@ -3455,7 +3457,10 @@ The symbols' flight inside the welcome ([title-fly2], 2026-11-15)
   nothing moves before the line sounds; the flight starts within 1.2 s of the line's first sample and is over while the line still
   plays (before the button); the button appears only after, never during the flight or the line. The heading's before shot is the
   still page (autoplay blocked) at the same viewport.
-- Checked: (pending)
+- Checked: on [title-fly2]'s own build (v3 colours) title_check 41 PASS - every [title-fly]/[title-fly2] check passes, only the colour
+  and readability checks FAIL against [title-dark3]'s expectations; the flight began 0.32 s into the line (f .838), was over 0.73 s
+  before the button. On [title-dark2]'s build (the old timing) the [title-fly2] start/end and button checks FAIL (its flight began
+  7.3 s after the line's first sample, after the line), as they should. On the final dist: see [title-dark3].
 - `../_before_title_fly2/` holds the dist's three files ([title-dark2]'s build) + the build.py and cover_fly_js.js that rebuild them
   byte for byte (tools/; see its NOTE.txt).
 
@@ -3468,7 +3473,9 @@ The title heading darker again ([title-dark3], 2026-11-15)
   those two values and a comment; index.html and app.js unchanged.
 - title_check.py: the six stops and the text colour; readability every stop >= 2.6 : 1 and the darkest >= 5.5 : 1; the painted and
   glyph-ink pixel tests take the deeper orange.
-- Checked: (pending)
+- Checked (on the built dist, with [title-fly2]): title_check 43 PASS (ALL PASS; contrast 2.62 .. 5.7 : 1; the flight began 0.47 s
+  after the line's first sample and was over 0.71 s before the play button, which came at the line's end; glyph boxes 1.26 px; the
+  Figma card 0.28 % off); smoke 53/53. A side-by-side crop of v3 and v4 shows the deeper orange.
 - `../_before_title_dark3/` holds the dist's three files ([title-fly2]'s build) and build.py, title_check.py, smoke.py, README.md,
   title_assets/cover_fly_js.js (tools/).
 
