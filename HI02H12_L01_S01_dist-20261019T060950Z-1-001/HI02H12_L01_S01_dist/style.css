@@ -3329,27 +3329,3 @@ body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
 #slideHost[data-slide="P1"] .sent-opt .p2-word{font-family:'Story Noto Q',var(--font-hi);}   /* the options' "?", ExtraBold at the options' size */
 #slideHost[data-slide="L2"] .stp-mark{font-family:'Story Noto Q','Story Baloo 2',var(--font-hi);}   /* the stamped "?", ExtraBold at the sentence's size */
 /* ===== [q-noto] end ===== */
-
-/* ===== [preload] (2026-11-15) the cover's loading bar: in the play button's place (the same centre, inside the Figma card), drawn in
-   the play button's own colours (its gold #FFD24E -> #FCB717 -> #F2A80F, the #D98F06 lip, the white ring, the #0B3D8C outline);
-   it fills by real bytes, then fades, and the play button pops in as before. Sizes are screen px (/ --fig-s: .sg-fig is scaled). */
-.sg-fig .sg-load{position:absolute;left:50%;bottom:calc(27px / var(--fig-s) - 9px);transform:translateX(-50%);z-index:4;
-  width:calc(372px / var(--fig-s));height:calc(140px / var(--fig-s));display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:calc(9px / var(--fig-s));pointer-events:none;opacity:1;transition:opacity .38s ease, transform .38s ease;}
-.sg-fig .sg-load.on{display:flex;}
-.sg-fig .sg-load.done{opacity:0;transform:translateX(-50%) scale(.92);}
-.sg-fig .sg-load.gone{display:none !important;}
-.sg-load-track{position:relative;width:100%;height:calc(30px / var(--fig-s));box-sizing:border-box;border-radius:999px;overflow:hidden;
-  background:linear-gradient(180deg,#E9F1FF 0%,#FFFFFF 55%);border:calc(3px / var(--fig-s)) solid #0B3D8C;
-  box-shadow:0 0 0 calc(4px / var(--fig-s)) #FFFFFF, 0 calc(5px / var(--fig-s)) calc(10px / var(--fig-s)) rgba(11,61,140,.28), inset 0 calc(2px / var(--fig-s)) calc(4px / var(--fig-s)) rgba(11,61,140,.18);}
-.sg-load-fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;min-width:calc(24px / var(--fig-s));
-  background:linear-gradient(180deg,#FFD24E 0%,#FCB717 55%,#F2A80F 100%);box-shadow:inset 0 calc(-4px / var(--fig-s)) 0 #D98F06, inset 0 calc(3px / var(--fig-s)) 0 rgba(255,255,255,.55);
-  transition:width .22s linear;}
-.sg-load-shine{position:absolute;inset:0;border-radius:999px;pointer-events:none;
-  background:repeating-linear-gradient(115deg,rgba(255,255,255,0) 0 calc(18px / var(--fig-s)),rgba(255,255,255,.34) calc(18px / var(--fig-s)) calc(30px / var(--fig-s)),rgba(255,255,255,0) calc(30px / var(--fig-s)) calc(48px / var(--fig-s)));
-  background-size:calc(96px / var(--fig-s)) 100%;animation:sgLoadShine 1.1s linear infinite !important;animation-play-state:running !important;mix-blend-mode:soft-light;}
-.sg-load-pct{font-family:'Baloo 2',var(--font-hi);font-weight:800;font-size:calc(26px / var(--fig-s));line-height:1;color:#0B3D8C;letter-spacing:.5px;
-  text-shadow:0 0 calc(3px / var(--fig-s)) #FFFFFF,0 0 calc(3px / var(--fig-s)) #FFFFFF,0 calc(2px / var(--fig-s)) 0 #FFFFFF;font-variant-numeric:tabular-nums;}
-@keyframes sgLoadShine{from{background-position:0 0;}to{background-position:calc(96px / var(--fig-s)) 0;}}
-@media (prefers-reduced-motion: reduce){ .sg-load-shine{animation:none !important;} .sg-load-fill{transition:none;} }
-/* ===== [preload] end ===== */

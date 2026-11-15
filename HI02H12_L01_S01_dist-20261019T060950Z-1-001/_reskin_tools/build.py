@@ -4483,9 +4483,7 @@ function stdSfx(name){
     const fly = window.__sgFly; if(fly && (fly.phase === "blue" || fly.phase === "green") && !reveal.flyLate){
       if(!reveal.waiting){ reveal.waiting = true; window.addEventListener("sgflydone", ()=>{ reveal.waiting = false; sync(); }, { once:true });
         setTimeout(()=>{ if(reveal.waiting){ reveal.waiting = false; reveal.flyLate = true; sync(); } }, 9000); } return; }
-    // [optimize] and only once every asset is in (the loading bar in the button's place has filled)
-    const pl = window.__preload; if(pl && !pl.done){
-      if(!reveal.plWait){ reveal.plWait = true; pl.whenDone(()=>{ reveal.plWait = false; sync(); }); } return; }
+    // [load-bar-off] (2026-11-16) no loading bar on the cover: the button no longer waits for the downloads (they go on behind it)
     b.disabled = false; b.classList.add("ready");
     let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
     b.addEventListener("animationend", breathe, { once:true }); setTimeout(breathe, 700); };   // 700 ms fallback: the pop-in is .52 s
@@ -4501,11 +4499,6 @@ function stdSfx(name){
   // counts as heard, so the button can never be held back by it; a welcome refused by autoplay is neither, and still waits for a tap
   const lost = (ev)=>{ const s = ev && ev.detail && ev.detail.src; if(s && /vo_landing/.test(s) && document.body.classList.contains("is-start")){ heard = true; sync(); } };
   window.addEventListener("plmediafail", lost); window.addEventListener("plmediastuck", lost);
-  // [optimize] the start itself waits for every asset: a tap, key or programmatic click before the bar has filled is held, and runs then
-  const go = b.onclick;
-  if(typeof go === "function") b.onclick = function(ev){ const pl = window.__preload;
-    if(pl && !pl.done){ if(!b.__plHeld){ b.__plHeld = true; pl.whenDone(()=>{ b.__plHeld = false; go.call(b, ev); }); } return; }
-    return go.apply(this, arguments); };
   const sync = ()=>{ if(heard && document.body.classList.contains("landing-play-ready")) reveal();
     if(vo){ const off = !b.classList.contains("ready"); vo.classList.toggle("sg-vo-off", off); vo.setAttribute("aria-disabled", String(off)); } };
   new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });

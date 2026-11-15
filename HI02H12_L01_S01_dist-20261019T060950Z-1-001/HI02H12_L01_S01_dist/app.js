@@ -1,9 +1,13 @@
-/* ===== [preload-head] (2026-11-15) EVERY ASSET FETCHED BEHIND THE LOADING BAR, THEN PLAYED FROM MEMORY =====
+/* ===== [preload-head] (2026-11-15) EVERY ASSET FETCHED IN THE BACKGROUND, THEN PLAYED FROM MEMORY =====
+   [load-bar-off] (2026-11-16): no loading bar on the cover any more and the play button does not wait for this: the files go on
+   loading behind the lesson; a page that needs a file before its fetch is done loads it from its own URL, as without this, and
+   goes first: while the page waits for a file (a sound or a picture it loads itself, a fetch of it), no new fetch starts and no
+   picture is warmed (yieldTo / yieldFor).
    Written in by optimize.py (build.py's last step) at the very top of app.js, before any engine code makes a sound or a picture.
    MANIFEST = every file under assets/ the lesson can use: [path, bytes on disk, audio length in ms (0 for the rest), 1 = fetched first
-   (what the cover itself asks for before the bar can be full: the bird's wave animation, the welcome)].
+   (what the cover itself asks for first: the bird's wave animation, the welcome)].
    - The files are fetched smallest first (the cover's pictures and sounds land in the first seconds, never starved behind the big
-     animations), five at a time, each streamed so the bar moves by real bytes (weighted by the sizes on disk, refined by the
+     animations), five at a time, each streamed so the progress moves by real bytes (weighted by the sizes on disk, refined by the
      server's Content-Length when the body is not compressed). A transfer that fails, stalls (15 s without a byte) or runs past
      its cap counts as done and its elements keep the file's own URL — nothing can hold the lesson back. Under file:// (fetch is
      blocked there) nothing is fetched or patched at all: the lesson runs exactly as before.
@@ -14,7 +18,7 @@
      .src / .currentSrc gives back the file's own URL, so every check of "which clip is this" keeps working. A blob that fails to
      play reverts to the file's own URL, once (and a sound that was asked to play plays from there). Every picture is also loaded
      once by its own URL after its fetch, so the page's image cache holds it for the uses no src setter sees (style.css, inline
-     styles, HTML strings); the bar completes when those are in too.
+     styles, HTML strings); the preload completes when those are in too.
    window.__preload: done, fraction, whenDone(fn), onProgress(fn), stats(). ===== */
 (function(){ "use strict";
   var MANIFEST = [["assets/Audio/bgm_letter_nostalgia.ogg",195601,25800,0],["assets/Audio/sfx_celebrate.ogg",11465,1096,0],["assets/Audio/sfx_correct_new.ogg",10105,856,0],["assets/Audio/sfx_demo1_pop.ogg",10282,726,0],["assets/Audio/sfx_demo2_sharp_pop.ogg",12358,1025,0],["assets/Audio/sfx_fb_correct.ogg",21530,1326,0],["assets/Audio/sfx_g3_rope.ogg",22901,1882,0],["assets/Audio/sfx_g4_giggle.ogg",8539,1062,0],["assets/Audio/sfx_letter_magic.ogg",49281,4006,0],["assets/Audio/sfx_letter_paper.ogg",17395,1736,0],["assets/Audio/sfx_letter_pop.ogg",31309,2118,0],["assets/Audio/sfx_next_button.ogg",1529,106,0],["assets/Audio/sfx_p1_book.ogg",14561,1104,0],["assets/Audio/sfx_p2_pencils.ogg",129840,17300,0],["assets/Audio/sfx_play_button.ogg",3488,429,0],["assets/Audio/sfx_stamp_glitter.ogg",19970,1306,0],["assets/Audio/sfx_stamp_pop.ogg",5331,626,0],["assets/Audio/sfx_stamp_press.ogg",9532,1162,0],["assets/Audio/sfx_stamp_whoosh.ogg",3670,556,0],["assets/Audio/sfx_star_pop_new.ogg",3537,432,0],["assets/Audio/sfx_story_cat.ogg",8528,895,0],["assets/Audio/sfx_wrong_new.ogg",6659,749,0],["assets/Audio/standard_background_music_2.ogg",2377336,240030,0],["assets/Audio/vo_build_hint1.ogg",36824,4006,0],["assets/Audio/vo_build_hint2.ogg",87998,9646,0],["assets/Audio/vo_build_hint3.ogg",28194,3246,0],["assets/Audio/vo_demo1_explain.ogg",47317,5006,0],["assets/Audio/vo_demo1_intro.ogg",57233,6406,0],["assets/Audio/vo_demo1_sent.ogg",21099,2566,0],["assets/Audio/vo_demo2_explain.ogg",55219,5966,0],["assets/Audio/vo_demo2_sent.ogg",17767,2086,0],["assets/Audio/vo_demo3_explain.ogg",80264,8606,0],["assets/Audio/vo_demo3_sent.ogg",45784,4966,0],["assets/Audio/vo_g1_intro.ogg",40296,4326,0],["assets/Audio/vo_g1_sent.ogg",22378,2486,0],["assets/Audio/vo_g2_sent.ogg",22976,1886,0],["assets/Audio/vo_g3_sent.ogg",42145,4406,0],["assets/Audio/vo_g4_hint1.ogg",36639,4086,0],["assets/Audio/vo_g4_hint2.ogg",33270,3486,0],["assets/Audio/vo_g4_o1.ogg",30979,3406,0],["assets/Audio/vo_g4_o2.ogg",40888,4726,0],["assets/Audio/vo_g4_o3.ogg",65962,5406,0],["assets/Audio/vo_g4_prompt.ogg",44279,4846,0],["assets/Audio/vo_landing.ogg",65671,7086,1],["assets/Audio/vo_letter_intro.ogg",94628,9966,0],["assets/Audio/vo_ok.ogg",22163,1806,0],["assets/Audio/vo_ok_pick.ogg",25431,2966,0],["assets/Audio/vo_p1_hint1.ogg",44346,4766,0],["assets/Audio/vo_p1_hint2.ogg",38748,4246,0],["assets/Audio/vo_p1_o1.ogg",20563,2206,0],["assets/Audio/vo_p1_o2.ogg",24415,2806,0],["assets/Audio/vo_p1_o3.ogg",30890,3366,0],["assets/Audio/vo_p1_prompt.ogg",47142,5046,0],["assets/Audio/vo_p2_hint1.ogg",35724,4006,0],["assets/Audio/vo_p2_hint2.ogg",53198,5646,0],["assets/Audio/vo_p2_o1.ogg",50059,5766,0],["assets/Audio/vo_p2_o2.ogg",50381,5766,0],["assets/Audio/vo_p2_o3.ogg",47999,5326,0],["assets/Audio/vo_p2_prompt.ogg",46040,4966,0],["assets/Audio/vo_pick_hint3.ogg",28336,3166,0],["assets/Audio/vo_pt_guided.ogg",50231,5526,0],["assets/Audio/vo_pt_practice.ogg",29831,2446,0],["assets/Audio/vo_pt_tutorial.ogg",48215,5366,0],["assets/Audio/vo_recap_alp_eg.ogg",43015,4846,0],["assets/Audio/vo_recap_alp_name.ogg",13079,1526,0],["assets/Audio/vo_recap_alp_when.ogg",65308,6846,0],["assets/Audio/vo_recap_intro.ogg",42279,4566,0],["assets/Audio/vo_recap_prashn_eg.ogg",27146,3086,0],["assets/Audio/vo_recap_prashn_name.ogg",16480,1846,0],["assets/Audio/vo_recap_prashn_when.ogg",39505,4166,0],["assets/Audio/vo_recap_purn_eg.ogg",32992,3646,0],["assets/Audio/vo_recap_purn_name.ogg",11896,1446,0],["assets/Audio/vo_recap_purn_when.ogg",35762,3766,0],["assets/Audio/vo_stamp1_hint2.ogg",70835,7566,0],["assets/Audio/vo_stamp1_hint3.ogg",74404,8046,0],["assets/Audio/vo_stamp2_hint2.ogg",61050,6646,0],["assets/Audio/vo_stamp2_hint3.ogg",102592,10486,0],["assets/Audio/vo_stamp3_hint2.ogg",63160,6806,0],["assets/Audio/vo_stamp3_hint3.ogg",55764,6446,0],["assets/Audio/vo_stamp3_intro.ogg",47897,5246,0],["assets/Audio/vo_stamp4_hint2.ogg",34450,3846,0],["assets/Audio/vo_stamp4_hint3_alp.ogg",43488,4766,0],["assets/Audio/vo_stamp4_hint3_prashn.ogg",52346,5566,0],["assets/Audio/vo_stamp4_hint3_purn.ogg",38654,4126,0],["assets/Audio/vo_stamp4_intro.ogg",51897,5566,0],["assets/Audio/vo_stamp_intro.ogg",43790,4886,0],["assets/Audio/vo_stamp_sent.ogg",25962,2806,0],["assets/Audio/vo_stamp_sent2.ogg",60852,6206,0],["assets/Audio/vo_stamp_sent3.ogg",26760,2926,0],["assets/Audio/vo_stamp_sent4.ogg",37728,4326,0],["assets/Audio/vo_stamp_sent5.ogg",107526,11566,0],["assets/Audio/vo_story_b1.ogg",36019,4006,0],["assets/Audio/vo_story_b2.ogg",32179,3686,0],["assets/Audio/vo_story_b3.ogg",30446,3566,0],["assets/Audio/vo_story_b4.ogg",30507,3486,0],["assets/Audio/vo_story_c1.ogg",22504,2646,0],["assets/Audio/vo_story_c2.ogg",24517,2846,0],["assets/Audio/vo_story_moral.ogg",72503,7566,0],["assets/Audio/vo_story_r0.ogg",24099,2726,0],["assets/Audio/vo_story_r1.ogg",109454,11606,0],["assets/Audio/vo_story_s0.ogg",21669,2326,0],["assets/Audio/vo_well_done.ogg",35057,3846,0],["assets/Images/img_demo1_girl_walk.webp",129610,0,0],["assets/Images/img_demo1_hall.webp",28872,0,0],["assets/Images/img_demo2_bubble.svg",2370,0,0],["assets/Images/img_demo2_girl_ask.webp",173918,0,0],["assets/Images/img_demo2_room.webp",22320,0,0],["assets/Images/img_demo3_girl_basket.webp",172726,0,0],["assets/Images/img_demo3_park.webp",63096,0,0],["assets/Images/img_g1_girl_ball2.webp",199696,0,0],["assets/Images/img_g1_room.webp",20004,0,0],["assets/Images/img_g2_girl_bag2.webp",185124,0,0],["assets/Images/img_g2_street.webp",38296,0,0],["assets/Images/img_g3_garden.webp",57334,0,0],["assets/Images/img_g3_garden_bare.webp",249898,0,0],["assets/Images/img_g3_girl_efill.webp",460,0,0],["assets/Images/img_g3_girl_eiris.webp",6376,0,0],["assets/Images/img_g3_girl_point.webp",179748,0,0],["assets/Images/img_g3_plant_jasmine.webp",30830,0,0],["assets/Images/img_g3_plant_marigold.webp",27476,0,0],["assets/Images/img_g3_plant_rose.webp",29516,0,0],["assets/Images/img_g4_kite.webp",138020,0,0],["assets/Images/img_letter_blur_t.webp",30030,0,0],["assets/Images/img_letter_cloud_clean.webp",4158,0,0],["assets/Images/img_letter_cloud_grandpa.webp",101930,0,0],["assets/Images/img_letter_env_body.webp",307080,0,0],["assets/Images/img_letter_env_flap.webp",148396,0,0],["assets/Images/img_letter_env_heart.webp",48180,0,0],["assets/Images/img_letter_env_inner.webp",32710,0,0],["assets/Images/img_letter_scene_t.webp",1264210,0,0],["assets/Images/img_letter_scene_w.webp",1241662,0,0],["assets/Images/img_p1_book.webp",206912,0,0],["assets/Images/img_p2_pencils.webp",181186,0,0],["assets/Images/img_recap_house.webp",159050,0,0],["assets/Images/img_recap_mango.webp",164652,0,0],["assets/Images/img_recap_paint.webp",291630,0,0],["assets/Images/img_stamp8_a_bg.webp",98002,0,0],["assets/Images/img_stamp8_a_danda.webp",54046,0,0],["assets/Images/img_stamp8_a_glow_danda.webp",21890,0,0],["assets/Images/img_stamp8_a_glow_quest.webp",22358,0,0],["assets/Images/img_stamp8_a_post.webp",6856,0,0],["assets/Images/img_stamp8_a_quest.webp",59866,0,0],["assets/Images/img_stamp8_a_text.webp",51902,0,0],["assets/Images/img_stamp8_a_tray.webp",224838,0,0],["assets/Images/img_stamp8_bird.webp",1025912,0,0],["assets/Images/img_stamp8_card.webp",116422,0,0],["assets/Images/img_stamp8_comma.webp",37638,0,0],["assets/Images/img_stamp8_danda.webp",47540,0,0],["assets/Images/img_stamp8_post.webp",25986,0,0],["assets/Images/img_stamp8_question.webp",41986,0,0],["assets/Images/img_stamp8_tray.webp",226660,0,0],["assets/Images/img_stamp8_wood.webp",80106,0,0],["assets/Images/img_stamp_final_blur.webp",31736,0,0],["assets/Images/img_stamp_final_pinki.webp",1272972,0,0],["assets/Images/img_story_pinki_ask.webp",134246,0,0],["assets/Images/img_story_pinki_cat.webp",141934,0,0],["assets/Images/img_story_pinki_listen.webp",142796,0,0],["assets/Images/img_story_pinki_maa.webp",159114,0,0],["assets/UI/bgdeco_spark.svg",220,0,0],["assets/UI/bgdeco_star.svg",391,0,0],["assets/UI/bgdeco_star_o.svg",448,0,0],["assets/UI/btn-next-arrow.svg",408,0,0],["assets/UI/btn-next-disabled-arrow.svg",417,0,0],["assets/UI/btn-next-disabled-pill.svg",588,0,0],["assets/UI/btn-next-disabled.svg",673,0,0],["assets/UI/btn-next-pill.svg",1268,0,0],["assets/UI/btn-next.svg",1271,0,0],["assets/UI/btn-play.svg",2645,0,0],["assets/UI/cel_idle.webp",651146,0,0],["assets/UI/cel_shabaash.webp",684852,0,0],["assets/UI/cel_talk.webp",650742,0,0],["assets/UI/demo1_head.webp",47908,0,0],["assets/UI/end_screen.webp",11284,0,0],["assets/UI/loader.webp",223334,0,0],["assets/UI/new_landing_swiftee_anim.webp",1837700,0,1],["assets/UI/nudge_hand_new.svg",6873,0,0],["assets/UI/peeking_talk_up.webp",1561680,0,0],["assets/UI/start_card.webp",2070,0,0],["assets/UI/start_mascot.webp",56946,0,0],["assets/UI/startnew_bg_plain.webp",16514,0,0],["assets/UI/story_font_baloo2_800.woff2",74512,0,0],["assets/UI/story_grid.svg",12700,0,0],["assets/UI/sw_head_celebrate_anim.webp",390546,0,0],["assets/UI/sw_head_hint_anim.webp",435706,0,0],["assets/UI/sw_head_talking.webp",37384,0,0],["assets/UI/sw_head_tryagain_anim.webp",429222,0,0],["assets/UI/title_bg.webp",15464,0,0],["assets/UI/title_char_comma.webp",113316,0,0],["assets/UI/title_char_comma_rig.webp",48232,0,0],["assets/UI/title_char_purn.webp",43890,0,0],["assets/UI/title_char_purn_rig.webp",17994,0,0],["assets/UI/title_char_question.webp",87746,0,0],["assets/UI/title_char_question_rig.webp",26336,0,0],["assets/UI/title_scene.webp",35614,0,0],["assets/UI/title_shadow_1.svg",691,0,0],["assets/UI/title_shadow_2.svg",691,0,0],["assets/UI/title_shadow_3.svg",687,0,0],["assets/UI/title_swiftie_hello.webp",40374,0,0]];
@@ -44,8 +48,8 @@
     blobURL: function(u){ var e = entryOf(u); return e && e.url || null; },
     whenDone: function(fn){ if(P.done){ try { fn(); } catch(x){} } else doneFns.push(fn); },
     onProgress: function(fn){ progFns.push(fn); try { fn(P.fraction); } catch(x){} },
-    stats: function(){ var s = { files: entries.length, done: 0, failed: 0, loading: 0, queued: 0, bytes: 0, got: 0 };
-      entries.forEach(function(e){ s[e.state === "done" ? "done" : e.state === "failed" ? "failed" : e.state === "loading" ? "loading" : "queued"]++; s.bytes += e.want; s.got += Math.min(e.got, e.want); });
+    stats: function(){ var s = { files: entries.length, done: 0, failed: 0, loading: 0, queued: 0, streamed: 0, bytes: 0, got: 0 };
+      entries.forEach(function(e){ s[e.state === "done" ? "done" : e.state === "failed" ? "failed" : e.state === "loading" ? "loading" : e.state === "streamed" ? "streamed" : "queued"]++; s.bytes += e.want; s.got += Math.min(e.got, e.want); });
       s.fraction = P.fraction; s.done_flag = P.done; s.ms = Math.round((P.finishedAt || performance.now()) - P.startedAt);
       s.failedList = P.failed.slice(); s.reverts = P.reverts.slice(); s.deferred = P.deferred; s.served = P.served; return s; }
   };
@@ -69,14 +73,38 @@
   if(!active || !entries.length){ entries.forEach(function(e){ e.state = "skipped"; }); finish(); return; }
 
   // ---------- the queue: smallest first, five at a time, a page request jumps it ----------
-  var queue = entries.slice().sort(function(a, b){ return (b.first - a.first) || (a.bytes - b.bytes); }), qi = 0, running = 0, settled = 0, warming = 0;   // the cover's own first, then smallest first
-  function next(){ while(running < CONC && qi < queue.length){ var e = queue[qi++]; if(e.state === "queued"){ running++; load(e); } } }
+  var queue = entries.slice().sort(function(a, b){ return (b.first - a.first) || (a.bytes - b.bytes); }), qi = 0, running = 0, settled = 0, warming = 0, hold = 0;   // the cover's own first, then smallest first
+  function next(){ if(hold > 0) return; while(warmWait.length) startWarm(warmWait.shift());
+    while(running < CONC && qi < queue.length){ var e = queue[qi++]; if(e.state === "queued"){ running++; load(e); } } }
   function bump(e){ if(e && e.state === "queued"){ running++; load(e); } }   // the page needs it now: start it at once
+  // [load-bar-off] (2026-11-16) the page first: the lesson can start before the preload is done, and a file the page then waits for
+  // must not queue behind the preload's transfers (a browser opens only a few connections per server): while a sound it plays from
+  // the network has no data yet (yieldTo) or a file it needs is still on its way (yieldFor: a fetch() of it, a restarted picture, an
+  // <img>), no new fetch starts (those in flight finish), until it can play / arrives, fails, or 8 s pass
+  var YIELD_MS = 8000, YIELD_EV = ["canplay", "loadeddata", "error"], YIELD_EV_IMG = ["load", "error"];
+  function yieldTo(el){
+    if(el.__plYield) return; el.__plYield = true; hold++;
+    var t = 0, over = false, evs = (el instanceof HTMLImageElement) ? YIELD_EV_IMG : YIELD_EV;
+    var end = function(){ if(over) return; over = true; clearTimeout(t); el.__plYield = false; hold--;
+      evs.forEach(function(n){ el.removeEventListener(n, end); }); next(); };
+    evs.forEach(function(n){ el.addEventListener(n, end); }); t = setTimeout(end, YIELD_MS);
+  }
+  function yieldFor(e){
+    if(!e || e.__plYield || (e.state !== "queued" && e.state !== "loading")) return; e.__plYield = true; hold++;
+    var t = 0, over = false;
+    var end = function(){ if(over) return; over = true; clearTimeout(t); e.__plYield = false; hold--; next(); };
+    e.waiters.push(end); t = setTimeout(end, YIELD_MS);
+  }
+  // a file the page streams itself from its URL for good (the music bed, when it is asked to play before its fetch began) is not
+  // fetched as well: it counts as in
+  function streamed(e){ if(!e || e.state !== "queued") return; e.state = "streamed"; e.got = e.want; settled++; progress(); maybeFinish(); }
   function maybeFinish(){ if(settled >= entries.length && warming === 0) finish(); }
   // a picture is also loaded once by its own URL (the file is in the HTTP cache by now: a revalidation at most), so the page's image
   // cache holds it for every use the src patch cannot see: style.css, inline styles, HTML strings
-  function warmImage(e){
-    warming++; var im = new Image(), t = 0, over = false;
+  var warmWait = [];
+  function warmImage(e){ warming++; if(hold > 0) warmWait.push(e); else startWarm(e); }   // [load-bar-off] not while the page waits for a file
+  function startWarm(e){
+    var im = new Image(), t = 0, over = false;
     var end = function(){ if(over) return; over = true; clearTimeout(t); warming--; maybeFinish(); };
     im.onload = end; im.onerror = end; t = setTimeout(end, STALL_MS);
     try { imgSrc.set.call(im, e.path); warm.push(im); } catch(x){ end(); }
@@ -140,15 +168,18 @@
         el.__plTok = (el.__plTok || 0) + 1; el.__plPending = null;
         if(!e){ d.set.call(el, v); return; }
         if(e.state === "done" && e.url){ var b = blobFor(s); el.__plReverted = false; armEl(el); d.set.call(el, b); return; }
-        // a file still on its way: a sound that does not want its data yet (preload="none": the music bed, played only after the
-        // preload) or a restart URL of a picture waits for it rather than downloading it twice (the picture's fetch moves to the front);
-        // a sound wanted now loads from its own URL as before (Chrome refuses play() on an element with no source at once)
+        // a file still on its way: a sound that does not want its data yet (preload="none") or a restart URL of a picture waits
+        // for it rather than downloading it twice (the picture's fetch moves to the front); a sound wanted now loads from its own URL
+        // as before (Chrome refuses play() on an element with no source at once), and so does a waiting sound the moment the page
+        // wants its data (streamNow)
         if(((isMedia && el.preload === "none") || (!isMedia && hasQuery(s))) && (e.state === "queued" || e.state === "loading")){
           var tok = el.__plTok; el.__plPending = absOf(s); P.deferred++;
-          if(!isMedia) bump(e);
+          if(!isMedia){ bump(e); yieldFor(e); }
           e.waiters.push(function(){ if(el.__plTok !== tok) return; el.__plPending = null; var b2 = blobFor(s); if(b2){ el.__plReverted = false; armEl(el); d.set.call(el, b2); } else d.set.call(el, s); });
           return; }
-        if(!isMedia) bump(e);
+        // [load-bar-off] a picture or a sound the page loads itself goes first: the preload pauses until it is in (a picture is no longer
+        // turned into a fetch at the front: as before the preloader, it loads at the browser's own priority, a picture in view first)
+        if(e.state === "queued" || e.state === "loading") yieldTo(el);
         d.set.call(el, v);
       } });
     if(dc && dc.get) Object.defineProperty(proto, "currentSrc", { configurable: true, enumerable: dc.enumerable,
@@ -158,6 +189,17 @@
   var imgSrc = patchSrc(HTMLImageElement.prototype, false);
   var mediaSrc = patchSrc(HTMLMediaElement.prototype, true);
   function srcDesc(el){ return (el instanceof HTMLImageElement) ? imgSrc : mediaSrc; }
+
+  // [load-bar-off] (2026-11-16) a sound waiting for its fetch stops waiting when the page wants its data — it is asked to play, or its
+  // preload is turned on (the music bed reads ahead from the start, as it did before the preloader): it streams from its own URL at
+  // once and goes first (yieldTo); a fetch not begun yet is dropped (the element streams the file itself)
+  function streamNow(el){ var u = el.__plPending; if(!u || !mediaSrc) return;
+    el.__plTok = (el.__plTok || 0) + 1; el.__plPending = null; streamed(entryOf(u)); yieldTo(el); mediaSrc.set.call(el, u); }
+  var preloadDesc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "preload");
+  if(preloadDesc && preloadDesc.get && preloadDesc.set) Object.defineProperty(HTMLMediaElement.prototype, "preload", { configurable: true, enumerable: preloadDesc.enumerable,
+    get: function(){ return preloadDesc.get.call(this); },
+    set: function(v){ preloadDesc.set.call(this, v);
+      if(this.__plPending && String(v).toLowerCase() !== "none"){ var e = entryOf(this.__plPending); if(e && e.state === "queued") streamNow(this); } } });   // in flight: its blob comes soon
 
   // a blob that fails reverts to the file's own URL, once; the page's own error handlers never see that failure
   function onErr(ev){
@@ -180,6 +222,7 @@
   var HP = HTMLMediaElement.prototype, nativePlay = HP.play, nativePause = HP.pause;
   HP.play = function(){
     var el = this; el.__plWantPlay = true;
+    if(el.__plPending) streamNow(el);   // [load-bar-off] a sound still waiting for its fetch plays from its own URL at once
     var p = nativePlay.apply(el, arguments);
     if(!p || typeof p.then !== "function" || !mediaSrc || reverse.get(mediaSrc.get.call(el)) === undefined) return p;
     el.__plPlayPending = (el.__plPlayPending || 0) + 1;
@@ -196,10 +239,10 @@
       var m = (init && init.method) || (input && typeof input === "object" && input.method) || "GET";
       if(String(m).toUpperCase() === "GET"){
         var u = typeof input === "string" ? input : (input && input.url) || String(input), e = entryOf(u);
-        if(e && e.state !== "failed"){
+        if(e && (e.state === "done" || e.state === "queued" || e.state === "loading")){
           P.served++;
           if(e.state === "done" && e.blob) return Promise.resolve(blobResponse(e));
-          bump(e);
+          bump(e); yieldFor(e);
           return new Promise(function(res, rej){ e.waiters.push(function(){ if(e.blob) res(blobResponse(e)); else nativeFetch(input, init).then(res, rej); }); });
         }
       }
@@ -5048,9 +5091,7 @@ function stdSfx(name){
     const fly = window.__sgFly; if(fly && (fly.phase === "blue" || fly.phase === "green") && !reveal.flyLate){
       if(!reveal.waiting){ reveal.waiting = true; window.addEventListener("sgflydone", ()=>{ reveal.waiting = false; sync(); }, { once:true });
         setTimeout(()=>{ if(reveal.waiting){ reveal.waiting = false; reveal.flyLate = true; sync(); } }, 9000); } return; }
-    // [optimize] and only once every asset is in (the loading bar in the button's place has filled)
-    const pl = window.__preload; if(pl && !pl.done){
-      if(!reveal.plWait){ reveal.plWait = true; pl.whenDone(()=>{ reveal.plWait = false; sync(); }); } return; }
+    // [load-bar-off] (2026-11-16) no loading bar on the cover: the button no longer waits for the downloads (they go on behind it)
     b.disabled = false; b.classList.add("ready");
     let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
     b.addEventListener("animationend", breathe, { once:true }); setTimeout(breathe, 700); };   // 700 ms fallback: the pop-in is .52 s
@@ -5066,11 +5107,6 @@ function stdSfx(name){
   // counts as heard, so the button can never be held back by it; a welcome refused by autoplay is neither, and still waits for a tap
   const lost = (ev)=>{ const s = ev && ev.detail && ev.detail.src; if(s && /vo_landing/.test(s) && document.body.classList.contains("is-start")){ heard = true; sync(); } };
   window.addEventListener("plmediafail", lost); window.addEventListener("plmediastuck", lost);
-  // [optimize] the start itself waits for every asset: a tap, key or programmatic click before the bar has filled is held, and runs then
-  const go = b.onclick;
-  if(typeof go === "function") b.onclick = function(ev){ const pl = window.__preload;
-    if(pl && !pl.done){ if(!b.__plHeld){ b.__plHeld = true; pl.whenDone(()=>{ b.__plHeld = false; go.call(b, ev); }); } return; }
-    return go.apply(this, arguments); };
   const sync = ()=>{ if(heard && document.body.classList.contains("landing-play-ready")) reveal();
     if(vo){ const off = !b.classList.contains("ready"); vo.classList.toggle("sg-vo-off", off); vo.setAttribute("aria-disabled", String(off)); } };
   new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });
@@ -6152,11 +6188,10 @@ SlideModules.CELEBRATION.mount = function(host, slide){
   try { if(document.fonts && document.fonts.load){ document.fonts.load("800 50px 'Story Noto Q'", "?"); document.fonts.load("700 31px 'Story Noto Q 700'", "?"); } } catch(e){}
 })();
 
-/* ===== [preload-tail] (2026-11-15) the loading bar's view, and no wait on a sound that can hang =====
+/* ===== [preload-tail] (2026-11-15) no wait on a sound that can hang =====
    Written in by optimize.py at the very end of app.js (everything else is defined by then).
-   - The bar (#sgLoad, in the play button's place on the cover) follows window.__preload: it fills by real bytes and goes when
-     every file is in; the play button (the cover block in build.py) appears only after that AND the welcome, as before.
-     Under file:// (nothing to fetch) the bar never shows.
+   [load-bar-off] (2026-11-16): the cover's loading bar (its view was here) is gone; the play button comes at the welcome's end
+   as before, and the files go on loading behind it.
    - Every clip the engine plays (play(): the welcome, the instructions, the gates' lines, every page's VO that a button or the
      next step waits for) has three ways to its end: its own "ended", its error (the engine's silent authored beat), and a
      watchdog: if it has not started 9 s (+ its length) after it was asked for, or runs 3.5 s past its length, it is ended for the
@@ -6164,19 +6199,6 @@ SlideModules.CELEBRATION.mount = function(host, slide){
      go of (stopped, ended, refused by autoplay). It reports plmediastuck / plmediafail on window (the cover listens). ===== */
 (function(){ "use strict";
   var P = window.__preload; if(!P) return;
-  var root = document.documentElement;
-  root.classList.toggle("pl-loading", !P.done);
-  P.whenDone(function(){ root.classList.remove("pl-loading"); root.classList.add("pl-done"); });
-  var bar = document.getElementById("sgLoad");
-  if(bar){
-    var fill = bar.querySelector(".sg-load-fill"), pct = bar.querySelector(".sg-load-pct"), last = -1;
-    var paint = function(f){ var v = Math.max(0, Math.min(100, Math.floor(f * 100)));
-      if(fill) fill.style.width = (Math.max(0, Math.min(1, f)) * 100).toFixed(2) + "%";
-      if(v !== last){ last = v; if(pct) pct.textContent = v + "%"; bar.setAttribute("aria-valuenow", String(v)); } };
-    if(P.done) bar.classList.add("gone");
-    else { bar.classList.add("on"); P.onProgress(paint);
-      P.whenDone(function(){ paint(1); bar.classList.add("done"); setTimeout(function(){ bar.classList.add("gone"); }, 420); }); }
-  }
 
   // ---------- the clip watchdog ----------
   var op = window.play; if(typeof op !== "function") return;

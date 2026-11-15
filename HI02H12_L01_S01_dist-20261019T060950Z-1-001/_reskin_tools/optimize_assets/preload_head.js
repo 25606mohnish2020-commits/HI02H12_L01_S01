@@ -1,9 +1,13 @@
-/* ===== [preload-head] (2026-11-15) EVERY ASSET FETCHED BEHIND THE LOADING BAR, THEN PLAYED FROM MEMORY =====
+/* ===== [preload-head] (2026-11-15) EVERY ASSET FETCHED IN THE BACKGROUND, THEN PLAYED FROM MEMORY =====
+   [load-bar-off] (2026-11-16): no loading bar on the cover any more and the play button does not wait for this: the files go on
+   loading behind the lesson; a page that needs a file before its fetch is done loads it from its own URL, as without this, and
+   goes first: while the page waits for a file (a sound or a picture it loads itself, a fetch of it), no new fetch starts and no
+   picture is warmed (yieldTo / yieldFor).
    Written in by optimize.py (build.py's last step) at the very top of app.js, before any engine code makes a sound or a picture.
    MANIFEST = every file under assets/ the lesson can use: [path, bytes on disk, audio length in ms (0 for the rest), 1 = fetched first
-   (what the cover itself asks for before the bar can be full: the bird's wave animation, the welcome)].
+   (what the cover itself asks for first: the bird's wave animation, the welcome)].
    - The files are fetched smallest first (the cover's pictures and sounds land in the first seconds, never starved behind the big
-     animations), five at a time, each streamed so the bar moves by real bytes (weighted by the sizes on disk, refined by the
+     animations), five at a time, each streamed so the progress moves by real bytes (weighted by the sizes on disk, refined by the
      server's Content-Length when the body is not compressed). A transfer that fails, stalls (15 s without a byte) or runs past
      its cap counts as done and its elements keep the file's own URL — nothing can hold the lesson back. Under file:// (fetch is
      blocked there) nothing is fetched or patched at all: the lesson runs exactly as before.
@@ -14,7 +18,7 @@
      .src / .currentSrc gives back the file's own URL, so every check of "which clip is this" keeps working. A blob that fails to
      play reverts to the file's own URL, once (and a sound that was asked to play plays from there). Every picture is also loaded
      once by its own URL after its fetch, so the page's image cache holds it for the uses no src setter sees (style.css, inline
-     styles, HTML strings); the bar completes when those are in too.
+     styles, HTML strings); the preload completes when those are in too.
    window.__preload: done, fraction, whenDone(fn), onProgress(fn), stats(). ===== */
 (function(){ "use strict";
   var MANIFEST = __PRELOAD_MANIFEST__;
@@ -44,8 +48,8 @@
     blobURL: function(u){ var e = entryOf(u); return e && e.url || null; },
     whenDone: function(fn){ if(P.done){ try { fn(); } catch(x){} } else doneFns.push(fn); },
     onProgress: function(fn){ progFns.push(fn); try { fn(P.fraction); } catch(x){} },
-    stats: function(){ var s = { files: entries.length, done: 0, failed: 0, loading: 0, queued: 0, bytes: 0, got: 0 };
-      entries.forEach(function(e){ s[e.state === "done" ? "done" : e.state === "failed" ? "failed" : e.state === "loading" ? "loading" : "queued"]++; s.bytes += e.want; s.got += Math.min(e.got, e.want); });
+    stats: function(){ var s = { files: entries.length, done: 0, failed: 0, loading: 0, queued: 0, streamed: 0, bytes: 0, got: 0 };
+      entries.forEach(function(e){ s[e.state === "done" ? "done" : e.state === "failed" ? "failed" : e.state === "loading" ? "loading" : e.state === "streamed" ? "streamed" : "queued"]++; s.bytes += e.want; s.got += Math.min(e.got, e.want); });
       s.fraction = P.fraction; s.done_flag = P.done; s.ms = Math.round((P.finishedAt || performance.now()) - P.startedAt);
       s.failedList = P.failed.slice(); s.reverts = P.reverts.slice(); s.deferred = P.deferred; s.served = P.served; return s; }
   };
@@ -69,14 +73,38 @@
   if(!active || !entries.length){ entries.forEach(function(e){ e.state = "skipped"; }); finish(); return; }
 
   // ---------- the queue: smallest first, five at a time, a page request jumps it ----------
-  var queue = entries.slice().sort(function(a, b){ return (b.first - a.first) || (a.bytes - b.bytes); }), qi = 0, running = 0, settled = 0, warming = 0;   // the cover's own first, then smallest first
-  function next(){ while(running < CONC && qi < queue.length){ var e = queue[qi++]; if(e.state === "queued"){ running++; load(e); } } }
+  var queue = entries.slice().sort(function(a, b){ return (b.first - a.first) || (a.bytes - b.bytes); }), qi = 0, running = 0, settled = 0, warming = 0, hold = 0;   // the cover's own first, then smallest first
+  function next(){ if(hold > 0) return; while(warmWait.length) startWarm(warmWait.shift());
+    while(running < CONC && qi < queue.length){ var e = queue[qi++]; if(e.state === "queued"){ running++; load(e); } } }
   function bump(e){ if(e && e.state === "queued"){ running++; load(e); } }   // the page needs it now: start it at once
+  // [load-bar-off] (2026-11-16) the page first: the lesson can start before the preload is done, and a file the page then waits for
+  // must not queue behind the preload's transfers (a browser opens only a few connections per server): while a sound it plays from
+  // the network has no data yet (yieldTo) or a file it needs is still on its way (yieldFor: a fetch() of it, a restarted picture, an
+  // <img>), no new fetch starts (those in flight finish), until it can play / arrives, fails, or 8 s pass
+  var YIELD_MS = 8000, YIELD_EV = ["canplay", "loadeddata", "error"], YIELD_EV_IMG = ["load", "error"];
+  function yieldTo(el){
+    if(el.__plYield) return; el.__plYield = true; hold++;
+    var t = 0, over = false, evs = (el instanceof HTMLImageElement) ? YIELD_EV_IMG : YIELD_EV;
+    var end = function(){ if(over) return; over = true; clearTimeout(t); el.__plYield = false; hold--;
+      evs.forEach(function(n){ el.removeEventListener(n, end); }); next(); };
+    evs.forEach(function(n){ el.addEventListener(n, end); }); t = setTimeout(end, YIELD_MS);
+  }
+  function yieldFor(e){
+    if(!e || e.__plYield || (e.state !== "queued" && e.state !== "loading")) return; e.__plYield = true; hold++;
+    var t = 0, over = false;
+    var end = function(){ if(over) return; over = true; clearTimeout(t); e.__plYield = false; hold--; next(); };
+    e.waiters.push(end); t = setTimeout(end, YIELD_MS);
+  }
+  // a file the page streams itself from its URL for good (the music bed, when it is asked to play before its fetch began) is not
+  // fetched as well: it counts as in
+  function streamed(e){ if(!e || e.state !== "queued") return; e.state = "streamed"; e.got = e.want; settled++; progress(); maybeFinish(); }
   function maybeFinish(){ if(settled >= entries.length && warming === 0) finish(); }
   // a picture is also loaded once by its own URL (the file is in the HTTP cache by now: a revalidation at most), so the page's image
   // cache holds it for every use the src patch cannot see: style.css, inline styles, HTML strings
-  function warmImage(e){
-    warming++; var im = new Image(), t = 0, over = false;
+  var warmWait = [];
+  function warmImage(e){ warming++; if(hold > 0) warmWait.push(e); else startWarm(e); }   // [load-bar-off] not while the page waits for a file
+  function startWarm(e){
+    var im = new Image(), t = 0, over = false;
     var end = function(){ if(over) return; over = true; clearTimeout(t); warming--; maybeFinish(); };
     im.onload = end; im.onerror = end; t = setTimeout(end, STALL_MS);
     try { imgSrc.set.call(im, e.path); warm.push(im); } catch(x){ end(); }
@@ -140,15 +168,18 @@
         el.__plTok = (el.__plTok || 0) + 1; el.__plPending = null;
         if(!e){ d.set.call(el, v); return; }
         if(e.state === "done" && e.url){ var b = blobFor(s); el.__plReverted = false; armEl(el); d.set.call(el, b); return; }
-        // a file still on its way: a sound that does not want its data yet (preload="none": the music bed, played only after the
-        // preload) or a restart URL of a picture waits for it rather than downloading it twice (the picture's fetch moves to the front);
-        // a sound wanted now loads from its own URL as before (Chrome refuses play() on an element with no source at once)
+        // a file still on its way: a sound that does not want its data yet (preload="none") or a restart URL of a picture waits
+        // for it rather than downloading it twice (the picture's fetch moves to the front); a sound wanted now loads from its own URL
+        // as before (Chrome refuses play() on an element with no source at once), and so does a waiting sound the moment the page
+        // wants its data (streamNow)
         if(((isMedia && el.preload === "none") || (!isMedia && hasQuery(s))) && (e.state === "queued" || e.state === "loading")){
           var tok = el.__plTok; el.__plPending = absOf(s); P.deferred++;
-          if(!isMedia) bump(e);
+          if(!isMedia){ bump(e); yieldFor(e); }
           e.waiters.push(function(){ if(el.__plTok !== tok) return; el.__plPending = null; var b2 = blobFor(s); if(b2){ el.__plReverted = false; armEl(el); d.set.call(el, b2); } else d.set.call(el, s); });
           return; }
-        if(!isMedia) bump(e);
+        // [load-bar-off] a picture or a sound the page loads itself goes first: the preload pauses until it is in (a picture is no longer
+        // turned into a fetch at the front: as before the preloader, it loads at the browser's own priority, a picture in view first)
+        if(e.state === "queued" || e.state === "loading") yieldTo(el);
         d.set.call(el, v);
       } });
     if(dc && dc.get) Object.defineProperty(proto, "currentSrc", { configurable: true, enumerable: dc.enumerable,
@@ -158,6 +189,17 @@
   var imgSrc = patchSrc(HTMLImageElement.prototype, false);
   var mediaSrc = patchSrc(HTMLMediaElement.prototype, true);
   function srcDesc(el){ return (el instanceof HTMLImageElement) ? imgSrc : mediaSrc; }
+
+  // [load-bar-off] (2026-11-16) a sound waiting for its fetch stops waiting when the page wants its data — it is asked to play, or its
+  // preload is turned on (the music bed reads ahead from the start, as it did before the preloader): it streams from its own URL at
+  // once and goes first (yieldTo); a fetch not begun yet is dropped (the element streams the file itself)
+  function streamNow(el){ var u = el.__plPending; if(!u || !mediaSrc) return;
+    el.__plTok = (el.__plTok || 0) + 1; el.__plPending = null; streamed(entryOf(u)); yieldTo(el); mediaSrc.set.call(el, u); }
+  var preloadDesc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "preload");
+  if(preloadDesc && preloadDesc.get && preloadDesc.set) Object.defineProperty(HTMLMediaElement.prototype, "preload", { configurable: true, enumerable: preloadDesc.enumerable,
+    get: function(){ return preloadDesc.get.call(this); },
+    set: function(v){ preloadDesc.set.call(this, v);
+      if(this.__plPending && String(v).toLowerCase() !== "none"){ var e = entryOf(this.__plPending); if(e && e.state === "queued") streamNow(this); } } });   // in flight: its blob comes soon
 
   // a blob that fails reverts to the file's own URL, once; the page's own error handlers never see that failure
   function onErr(ev){
@@ -180,6 +222,7 @@
   var HP = HTMLMediaElement.prototype, nativePlay = HP.play, nativePause = HP.pause;
   HP.play = function(){
     var el = this; el.__plWantPlay = true;
+    if(el.__plPending) streamNow(el);   // [load-bar-off] a sound still waiting for its fetch plays from its own URL at once
     var p = nativePlay.apply(el, arguments);
     if(!p || typeof p.then !== "function" || !mediaSrc || reverse.get(mediaSrc.get.call(el)) === undefined) return p;
     el.__plPlayPending = (el.__plPlayPending || 0) + 1;
@@ -196,10 +239,10 @@
       var m = (init && init.method) || (input && typeof input === "object" && input.method) || "GET";
       if(String(m).toUpperCase() === "GET"){
         var u = typeof input === "string" ? input : (input && input.url) || String(input), e = entryOf(u);
-        if(e && e.state !== "failed"){
+        if(e && (e.state === "done" || e.state === "queued" || e.state === "loading")){
           P.served++;
           if(e.state === "done" && e.blob) return Promise.resolve(blobResponse(e));
-          bump(e);
+          bump(e); yieldFor(e);
           return new Promise(function(res, rej){ e.waiters.push(function(){ if(e.blob) res(blobResponse(e)); else nativeFetch(input, init).then(res, rej); }); });
         }
       }

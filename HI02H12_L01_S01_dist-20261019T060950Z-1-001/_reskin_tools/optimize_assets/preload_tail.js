@@ -1,8 +1,7 @@
-/* ===== [preload-tail] (2026-11-15) the loading bar's view, and no wait on a sound that can hang =====
+/* ===== [preload-tail] (2026-11-15) no wait on a sound that can hang =====
    Written in by optimize.py at the very end of app.js (everything else is defined by then).
-   - The bar (#sgLoad, in the play button's place on the cover) follows window.__preload: it fills by real bytes and goes when
-     every file is in; the play button (the cover block in build.py) appears only after that AND the welcome, as before.
-     Under file:// (nothing to fetch) the bar never shows.
+   [load-bar-off] (2026-11-16): the cover's loading bar (its view was here) is gone; the play button comes at the welcome's end
+   as before, and the files go on loading behind it.
    - Every clip the engine plays (play(): the welcome, the instructions, the gates' lines, every page's VO that a button or the
      next step waits for) has three ways to its end: its own "ended", its error (the engine's silent authored beat), and a
      watchdog: if it has not started 9 s (+ its length) after it was asked for, or runs 3.5 s past its length, it is ended for the
@@ -10,19 +9,6 @@
      go of (stopped, ended, refused by autoplay). It reports plmediastuck / plmediafail on window (the cover listens). ===== */
 (function(){ "use strict";
   var P = window.__preload; if(!P) return;
-  var root = document.documentElement;
-  root.classList.toggle("pl-loading", !P.done);
-  P.whenDone(function(){ root.classList.remove("pl-loading"); root.classList.add("pl-done"); });
-  var bar = document.getElementById("sgLoad");
-  if(bar){
-    var fill = bar.querySelector(".sg-load-fill"), pct = bar.querySelector(".sg-load-pct"), last = -1;
-    var paint = function(f){ var v = Math.max(0, Math.min(100, Math.floor(f * 100)));
-      if(fill) fill.style.width = (Math.max(0, Math.min(1, f)) * 100).toFixed(2) + "%";
-      if(v !== last){ last = v; if(pct) pct.textContent = v + "%"; bar.setAttribute("aria-valuenow", String(v)); } };
-    if(P.done) bar.classList.add("gone");
-    else { bar.classList.add("on"); P.onProgress(paint);
-      P.whenDone(function(){ paint(1); bar.classList.add("done"); setTimeout(function(){ bar.classList.add("gone"); }, 420); }); }
-  }
 
   // ---------- the clip watchdog ----------
   var op = window.play; if(typeof op !== "function") return;

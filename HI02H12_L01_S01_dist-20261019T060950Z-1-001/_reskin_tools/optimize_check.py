@@ -1,12 +1,15 @@
 """[optimize] (2026-11-15) checks the optimised dist like a user, over HTTP (http_serve.py: Range, Content-Length, Vercel's caching):
- A. throttled network (CDP, 8 Mbit/s, 80 ms): the loading bar shows real progress with the play button hidden, never goes back,
-    reaches 100 %, the button pops in only after it (and after the welcome), the lesson starts; the queue is smallest-first and
-    the cover's pictures land in the first seconds; no JS error, no 4xx / 5xx, no failed request.
+ A. throttled network (CDP, 8 Mbit/s, 80 ms), [load-bar-off] (2026-11-16): no loading bar on the cover; the play button comes at
+    the welcome's end while the files are still loading and starts the lesson at once (page 1 within 12 s: the gate plays ~6.5 s);
+    page 1's music bed plays at once (it streams from its URL from the start, as before the preloader) and its pictures show
+    before the preload is done; the preload still completes (never goes back, every file in or streamed), the queue is
+    smallest-first and the cover's pictures are in before the button; no JS error, no 4xx / 5xx, no failed request (Chrome's own
+    abort of a media request it re-issues as a range request is not a failure: reported).
  B. every page mounted in turn (after the preload): every shown picture decoded (complete, naturalWidth > 0), no media error, no
     console error, no failed request; the sounds play from blob: URLs; a screenshot per page (outdir/pages/).
- C. failure paths: blocked files (the bar still completes, the lesson still starts and runs past them), a stalled file (aborted
+ C. failure paths: blocked files (the preload still completes, the lesson still starts and runs past them), a stalled file (aborted
     by the stall timer, counted done), a revoked blob (reverts to the file's URL and still plays / shows), a welcome that never
-    loads (the watchdog ends it, the button still comes), file:// (no bar, the cover as before).
+    loads (the watchdog ends it, the button still comes), file:// (no fetch, the cover as before).
  D. compositing: layers and their area on every page (CDP LayerTree), hidden overlays hold none.
 usage: python -I -X utf8 optimize_check.py <index.html> <outdir> [A B C D]   (default: all)"""
 import json, math, pathlib, sys, time
@@ -25,12 +28,10 @@ def check(name, ok, detail=""):
 ARGS = ["--autoplay-policy=no-user-gesture-required", "--mute-audio"]
 SAMPLER = """(() => { window.__plS = []; const t0 = performance.now();
   const tick = () => { try {
-    const bar = document.getElementById('sgLoad'), btn = document.getElementById('sgBtn'), P = window.__preload;
-    const fill = bar && bar.querySelector('.sg-load-fill'), pct = bar && bar.querySelector('.sg-load-pct');
+    const bar = document.querySelector('#sgLoad, .sg-load, [role=progressbar]'), btn = document.getElementById('sgBtn'), P = window.__preload;
     const a = (typeof currentAudio !== 'undefined') ? currentAudio : null;
     const cover = [...document.querySelectorAll('.sg-card img')].filter(i => i.getAttribute('src'));
-    window.__plS.push({ t: Math.round(performance.now() - t0), barShown: !!bar && getComputedStyle(bar).display !== 'none' && getComputedStyle(bar).opacity !== '0',
-      fill: fill ? parseFloat(fill.style.width) || 0 : null, pct: pct ? pct.textContent : null, frac: P ? P.fraction : null, done: P ? P.done : null,
+    window.__plS.push({ t: Math.round(performance.now() - t0), barAny: !!bar, frac: P ? P.fraction : null, done: P ? P.done : null,
       btnReady: !!btn && btn.classList.contains('ready'), btnShown: !!btn && getComputedStyle(btn).display !== 'none',
       clip: a ? String(a.src).split('/').pop() : null, playing: !!(a && !a.paused), start: document.body.classList.contains('is-start'),
       coverDone: cover.filter(i => i.complete && i.naturalWidth > 0).length, coverAll: cover.length });
@@ -43,11 +44,12 @@ ERRLOG = """(() => { window.__mediaErr = []; document.addEventListener('error', 
 def new_page(b, throttle=None, cache=True):
     ctx = b.new_context(viewport={"width": 1333, "height": 750})
     pg = ctx.new_page()
-    log = {"console": [], "pageerror": [], "bad": [], "failed": [], "req": []}
+    log = {"console": [], "pageerror": [], "bad": [], "failed": [], "req": [], "media_aborts": []}
     pg.on("console", lambda m: log["console"].append(m.text[:300] + " @ " + str((m.location or {}).get("url"))) if m.type == "error" else None)
     pg.on("pageerror", lambda e: log["pageerror"].append(str(e)[:300]))
     pg.on("response", lambda r: log["bad"].append((r.status, r.url)) if r.status >= 400 else None)
-    pg.on("requestfailed", lambda r: log["failed"].append((r.url, r.failure)))
+    # Chrome aborting its own media read to re-issue it as a range request (an Ogg's length is read from its end) is no failure
+    pg.on("requestfailed", lambda r: (log["media_aborts"] if (r.resource_type == "media" and "ERR_ABORTED" in str(r.failure)) else log["failed"]).append((r.url, r.failure, r.resource_type)))
     pg.add_init_script(ERRLOG)
     cdp = ctx.new_cdp_session(pg)
     cdp.send("Network.enable")
@@ -73,34 +75,64 @@ with sync_playwright() as p:
 
     # ---------------------------------------------------------------- A
     if "A" in PARTS:
+        static_bar = [f for f in ("index.html", "style.css", "app.js") if any(k in (dist / f).read_text(encoding="utf-8") for k in ("sgLoad", "sg-load"))]
         ctx, pg, cdp, log = new_page(b, throttle=(1_000_000, 80), cache=False)
         pg.add_init_script(SAMPLER)
-        t_nav = time.time()
         pg.goto(url, wait_until="commit")
-        pg.wait_for_function("window.__preload && window.__preload.done", timeout=240000, polling=200)
         try:
-            pg.wait_for_function("document.getElementById('sgBtn').classList.contains('ready')", timeout=60000, polling=100)
+            pg.wait_for_function("!!document.getElementById('sgBtn') && document.getElementById('sgBtn').classList.contains('ready')", timeout=90000, polling=100); ready = True
         except Exception:
-            pass
+            ready = False
+        at = pg.evaluate("({ done: window.__preload.done, frac: window.__preload.fraction })")
+        S0 = pg.evaluate("window.__plS")
+        check("A. no loading bar on the cover: no bar element at any moment, none left in index.html / style.css / app.js",
+              ready and not any(s.get("barAny") for s in S0) and not static_bar, (ready, sum(1 for s in S0 if s.get("barAny")), static_bar))
+        ready_t = next((s["t"] for s in S0 if s.get("btnReady")), None)
+        w_end = max((s["t"] for s in S0 if s.get("playing") and str(s.get("clip") or "").startswith("vo_landing")), default=None)
+        check("A. the play button comes at the welcome's end (as before the bar), not held for the downloads: they are still loading then",
+              ready_t is not None and w_end is not None and 0 <= ready_t - w_end <= 2500 and not at["done"] and at["frac"] < 1,
+              {"welcome_end_ms": w_end, "button_ms": ready_t, "preload_at_button": at})
+        pg.wait_for_timeout(300)
+        t_click = time.time(); pg.click("#sgBtn", force=True)
+        try:
+            pg.wait_for_function("CARD.slides[state.idx].id === 'T0' && document.getElementById('startGate').classList.contains('hidden')", timeout=20000); started = True
+        except Exception:
+            started = False
+        s_to_t0 = round(time.time() - t_click, 1)
+        at_start = pg.evaluate("({ done: window.__preload.done, frac: window.__preload.fraction })")
+        check("A. the play button starts the lesson at once (the gate, then page 1 T0 within 12 s) while the files are still loading",
+              started and s_to_t0 <= 12 and not at_start["done"], {"s_to_T0": s_to_t0, "preload_at_T0": at_start})
+        BED = """() => { const e = window.__bgm && window.__bgm.el; if(!e) return null; const en = __preload.entry(e.src);
+            return { paused: e.paused, t: +e.currentTime.toFixed(2), err: e.error ? e.error.code : 0, file: String(e.src).split('/').pop(), fetch: en ? en.state : null,
+                     waiting: !!e.__plPending, wanted: window.__bgm.wanted, preload_done: __preload.done }; }"""
+        t_t0 = time.time(); bed_start = None
+        while time.time() - t_t0 < 10:
+            bb = pg.evaluate(BED)
+            if bb and bb["t"] > 0: bed_start = round(time.time() - t_t0, 2); break
+            pg.wait_for_timeout(100)
+        pg.wait_for_timeout(2000); bed2 = pg.evaluate(BED)
+        check("A. page 1's music bed plays at once while the files are still loading (moving within 3 s of page 1; streamed from its URL)",
+              bed_start is not None and bed_start <= 3 and bool(bed2) and bed2["wanted"] and not bed2["paused"] and bed2["t"] > 1.5 and not bed2["err"] and not bed2["waiting"],
+              {"bed_moving_s_after_T0": bed_start, "bed": bed2})
+        try:
+            pg.wait_for_function("""() => { const sh = [...document.querySelectorAll('#slideHost img')].filter(i => { const r = i.getBoundingClientRect();
+                return i.getAttribute('src') && r.width > 0 && r.height > 0; }); return sh.length > 0 && sh.every(i => i.complete && i.naturalWidth > 0); }""", timeout=30000, polling=200)
+            pics = True
+        except Exception:
+            pics = False
+        at_pics = pg.evaluate("({ done: window.__preload.done, frac: window.__preload.fraction })")
+        check("A. page 1's pictures all show", pics, at_pics)
+        pg.screenshot(path=str(out / "A_after_start.png"))
+        pg.wait_for_function("window.__preload && window.__preload.done", timeout=240000, polling=200)
         pg.wait_for_timeout(600)
         S = pg.evaluate("window.__plStop(), window.__plS")
         st = pg.evaluate("window.__preload.stats()")
         (out / "A_samples.json").write_text(json.dumps({"samples": S, "stats": st}, indent=0), encoding="utf-8")
-        loading = [s for s in S if s.get("done") is False]
-        shown_partial = [s for s in loading if s.get("barShown") and s.get("pct") and 0 < int(s["pct"].rstrip("%")) < 100]
-        check("A. while loading, the bar shows real progress in the play button's place (a part-filled bar seen, e.g. 1-99 %)",
-              len(shown_partial) >= 5, (len(loading), len(shown_partial), [s["pct"] for s in shown_partial[::max(1, len(shown_partial)//8)]]))
-        check("A. ...and the play button stays hidden the whole time (never shown or ready before every file is in)",
-              loading and not any(s.get("btnShown") or s.get("btnReady") for s in loading), sum(1 for s in loading if s.get("btnShown")))
-        fr = [s["frac"] for s in S if s.get("frac") is not None]; fills = [s["fill"] for s in S if s.get("fill") is not None]
-        check("A. ...it never goes back (the fraction and the bar's width only grow) and reaches 100 %",
-              all(b2 >= a2 - 1e-9 for a2, b2 in zip(fr, fr[1:])) and all(b2 >= a2 - 1e-6 for a2, b2 in zip(fills, fills[1:])) and fr and fr[-1] == 1,
-              (fr[:3], fr[-3:], max((a2 - b2 for a2, b2 in zip(fills, fills[1:])), default=0)))
-        done_t = next((s["t"] for s in S if s.get("done")), None); ready_t = next((s["t"] for s in S if s.get("btnReady")), None)
-        check("A. the play button pops in only after the preload is complete (and the welcome was heard), then the bar is gone",
-              done_t is not None and ready_t is not None and ready_t >= done_t and not S[-1]["barShown"], (done_t, ready_t, S[-1].get("barShown")))
-        check("A. every file in, none failed (the files' bytes on disk = what arrived)", st["failed"] == 0 and st["done"] == st["files"],
-              {k: st[k] for k in ("files", "done", "failed", "bytes", "ms")})
+        fr = [s["frac"] for s in S if s.get("frac") is not None]
+        check("A. the preload, behind the lesson, never goes back and completes", all(b2 >= a2 - 1e-9 for a2, b2 in zip(fr, fr[1:])) and fr and fr[-1] == 1,
+              (fr[:3], fr[-3:], st["ms"]))
+        check("A. every file in (fetched, or streamed by the page itself: the music bed), none failed", st["failed"] == 0 and st["done"] + st["streamed"] == st["files"],
+              {k: st[k] for k in ("files", "done", "streamed", "failed", "bytes", "ms")})
         # ordering: the preloader's fetches start smallest first (page-initiated bumps aside), and the cover's pictures land early
         fetches = sorted((r for r in log["req"].values() if r.get("type") == "Fetch" and "/assets/" in r["url"]), key=lambda r: r["t0"])
         sizes = []
@@ -112,18 +144,10 @@ with sync_playwright() as p:
         check("A. the queue: the cover's own big files first (the bird's wave animation, the welcome), then smallest first (sizes in start order nearly always ascending; the exceptions are files the page asked for early)",
               len(sizes) > 20 and inv <= max(6, len(sizes) // 15) and "new_landing_swiftee_anim.webp" in first_names, (len(sizes), inv, first_names, sizes[:8], sizes[-4:]))
         cover_t = next((s["t"] for s in S if s.get("coverAll") and s["coverDone"] == s["coverAll"]), None)
-        check("A. the cover's pictures are all in within the first seconds (before half of the preload)", cover_t is not None and done_t and cover_t < 0.5 * done_t, (cover_t, done_t))
-        pg.click("#sgBtn", force=True)
-        try:
-            pg.wait_for_function("CARD.slides[state.idx].id === 'T0' && document.getElementById('startGate').classList.contains('hidden')", timeout=20000)
-            started = True
-        except Exception:
-            started = False
-        check("A. the play button starts the lesson (the gate, then page 1 T0)", started)
-        pg.wait_for_timeout(1500)
-        pg.screenshot(path=str(out / "A_after_start.png"))
-        check("A. no JS error, no 4xx / 5xx, no failed request during load and start", not log["console"] and not log["pageerror"] and not log["bad"] and not log["failed"],
-              (log["console"][:3], log["pageerror"][:3], log["bad"][:3], log["failed"][:3]))
+        check("A. the cover's pictures are all in before the play button comes", cover_t is not None and ready_t is not None and cover_t < ready_t, (cover_t, ready_t))
+        own_aborts = log["media_aborts"]; failed = log["failed"]
+        check("A. no JS error, no 4xx / 5xx, no failed request during load, start and page 1", not log["console"] and not log["pageerror"] and not log["bad"] and not failed,
+              (log["console"][:3], log["pageerror"][:3], log["bad"][:3], failed[:3], {"chrome_media_range_aborts": [f[0].split("/")[-1] for f in own_aborts]}))
         ctx.close()
 
     # ---------------------------------------------------------------- B
@@ -165,7 +189,7 @@ with sync_playwright() as p:
 
     # ---------------------------------------------------------------- C
     if "C" in PARTS:
-        # C1 blocked files: the bar completes, the lesson starts and runs past them
+        # C1 blocked files: the preload completes, the lesson starts and runs past them
         ctx, pg, cdp, log = new_page(b)
         BLOCK = ["vo_pt_tutorial.ogg", "sfx_play_button.ogg", "title_shadow_1.svg"]
         pg.route("**/*", lambda r: r.abort() if any(r.request.url.split("?")[0].endswith("/" + x) for x in BLOCK) else r.continue_())
@@ -228,7 +252,7 @@ with sync_playwright() as p:
         check("C4. the welcome never loads: the clip watchdog ends it (9 s + its length), the play button still comes (< 35 s)",
               ok and any("vo_landing" in (d or {}).get("src", "") for d in stuck) and dt < 35, (ok, round(dt, 1), stuck))
         ctx.close()
-        # C5 file://: nothing fetched, no bar, the cover as before
+        # C5 file://: nothing fetched, the cover as before
         ctx = b.new_context(viewport={"width": 1333, "height": 750}); pg = ctx.new_page()
         errs = []; pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None); pg.on("pageerror", lambda e: errs.append(str(e)))
         pg.add_init_script(SAMPLER)
@@ -237,8 +261,8 @@ with sync_playwright() as p:
             pg.wait_for_function("document.getElementById('sgBtn').classList.contains('ready')", timeout=30000); ok = True
         except Exception: ok = False
         S = pg.evaluate("window.__plStop(), window.__plS")
-        check("C5. file://: no fetch at all, the bar never shows, the play button comes after the welcome as before, no error",
-              ok and not any(s.get("barShown") for s in S) and pg.evaluate("__preload.stats().files") >= 0 and not errs and pg.evaluate("__preload.active") is False, (ok, errs[:3]))
+        check("C5. file://: no fetch at all, no bar, the play button comes after the welcome as before, no error",
+              ok and not any(s.get("barAny") for s in S) and pg.evaluate("__preload.stats().files") >= 0 and not errs and pg.evaluate("__preload.active") is False, (ok, errs[:3]))
         ctx.close()
 
     # ---------------------------------------------------------------- D

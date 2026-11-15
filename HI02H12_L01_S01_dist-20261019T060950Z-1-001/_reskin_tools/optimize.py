@@ -17,8 +17,9 @@ What it does, in order (every step is idempotent, so a rebuild gives the same di
  4. references: every renamed file is renamed in index.html (the card data too), style.css and app.js; then every
     "assets/..." reference left is checked to exist (a missing one stops the build).
  5. preload: the size table of every remaining asset (bytes on disk, audio lengths) and the preloader / blob resolver /
-    media watchdogs (optimize_assets/preload_head.js at the top of app.js, preload_tail.js at the end), its loading bar
-    (preload.css + the markup next to the play button).
+    media watchdogs (optimize_assets/preload_head.js at the top of app.js, preload_tail.js at the end). [load-bar-off]
+    (2026-11-16): no loading bar on the cover any more; the play button comes at the welcome's end as before and the files
+    go on loading behind it.
 """
 import base64, hashlib, io, json, math, os, pathlib, re, shutil, subprocess, sys, urllib.parse
 
@@ -608,18 +609,11 @@ def build_manifest(dist: pathlib.Path, exclude: set):
 def inject(dist: pathlib.Path, texts: dict, manifest: list):
     head = (OPT / "preload_head.js").read_text(encoding="utf-8")
     tail = (OPT / "preload_tail.js").read_text(encoding="utf-8")
-    pcss = (OPT / "preload.css").read_text(encoding="utf-8")
     assert "__PRELOAD_MANIFEST__" in head
     head = head.replace("__PRELOAD_MANIFEST__", json.dumps(manifest, separators=(",", ":")))
     assert texts["app.js"].count("[preload-head]") == 0, "app.js already has the preloader"
     texts["app.js"] = head + "\n" + texts["app.js"] + "\n" + tail
-    texts["style.css"] = texts["style.css"] + "\n" + pcss
-    btn = '<button class="sg-btn" id="sgBtn"'
-    assert texts["index.html"].count(btn) == 1, "the play button anchor"
-    bar = ('<div class="sg-load" id="sgLoad" role="progressbar" aria-label="लोड हो रहा है" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">'
-           '<div class="sg-load-track"><div class="sg-load-fill"></div><div class="sg-load-shine"></div></div>'
-           '<div class="sg-load-pct" aria-hidden="true">0%</div></div>\n        ')   # [preload] the loading bar, in the play button's place
-    texts["index.html"] = texts["index.html"].replace(btn, bar + btn)
+    # [load-bar-off] (2026-11-16) the cover's loading bar (preload.css + a #sgLoad bar before the play button) is no longer added
     return texts
 
 
