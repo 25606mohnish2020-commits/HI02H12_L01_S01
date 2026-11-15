@@ -4939,6 +4939,42 @@ body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
 /* ===== [band-chip] end ===== */
 """
 css = css + dun_css + band_chip_css + vo_css + cover_fx_css   # [cover-fx] / [cover-eyes]
+# ---------- [q-noto] (asked 2026-11-15: "At Pages 1 T0, 7 T3, 10 G2, 13 P1 and 16 L2 use the question mark only of Noto Sans
+#            Devanagari font instead of Baloo 2 font (only for question mark) at its respective places on these pages with the font
+#            style and the size accordingly at these pages"). Every "?" Baloo drew on those pages (found in the live pages: Chrome's
+#            platform font per character) now comes from Noto Sans Devanagari, the rest of each text stays Baloo: page 1 T0 beat 3's
+#            caption ("... जाने दूँ ?”"), the "?" landing in the slot on 7 T3 and 10 G2, the "?" in P1's three option sentences, and
+#            L2's stamped "?" (rounds 1, 4 and 5). Done as T1C's ([recap-prashn]) is: the "?"-only Noto face first in each element's
+#            font list (unicode-range U+3F), at the element's own size, in the weight its Baloo shows - 800 -> Noto ExtraBold
+#            ('Story Noto Q', variable 100-900: the rule's 800), T0's caption (declared 600, rendered by the embedded Baloo 700 face)
+#            -> Noto Bold ('Story Noto Q 700': the same file, its weight pinned at 700, so Chrome sets the wght axis to 700). The
+#            tiles' "?" on T3 / G2 were Noto SemiBold already ('Story Noto Marks'); the stamps' "?" on L2 are drawn pictures (left).
+#            Scoped to those pages only by the page's id on #slideHost (data-slide, set before each page mounts); the two faces are
+#            loaded at once so a mark's ink is measured in its own face (the modules' centreInk reads the element's font list).
+_noto_q_uri = "data:font/woff2;base64," + base64.b64encode((SCR / "recap_assets" / "recap_font_noto_q.woff2").read_bytes()).decode()
+qnoto_css = ("\n/* ===== [q-noto] (2026-11-15) the \"?\" of pages 1 T0, 7 T3, 10 G2, 13 P1 and 16 L2 in Noto Sans Devanagari (see build.py) ===== */\n"
+             "@font-face{font-family:'Story Noto Q 700';font-style:normal;font-weight:700;font-display:block;unicode-range:U+3F;"
+             "src:url(" + _noto_q_uri + ") format(\"woff2\");}\n" + r"""#slideHost[data-slide="T0"] .sfig-text{font-family:'Story Noto Q 700',var(--font-hi);}          /* beat 3's "?" in Noto Bold, the caption's own size */
+#slideHost[data-slide="T3"] .dsc-slot .dsc-mark,
+#slideHost[data-slide="G2"] .dsc-slot .dsc-mark{font-family:'Story Noto Q','Story Baloo 2',var(--font-hi);}   /* the landed "?", ExtraBold 55px */
+#slideHost[data-slide="P1"] .sent-opt .p2-word{font-family:'Story Noto Q',var(--font-hi);}   /* the options' "?", ExtraBold at the options' size */
+#slideHost[data-slide="L2"] .stp-mark{font-family:'Story Noto Q','Story Baloo 2',var(--font-hi);}   /* the stamped "?", ExtraBold at the sentence's size */
+/* ===== [q-noto] end ===== */
+""")
+css = css + qnoto_css
+qnoto_js = r"""
+/* ---- [q-noto] (2026-11-15) the page's id on #slideHost (data-slide), set before each page mounts, so style.css can give one page's
+   "?" the Noto face; and both Noto "?" faces loaded at once, so a mark's ink is measured in its own face (the modules' centreInk) ---- */
+(function(){ "use strict";
+  const om = window.mountSlide; if(typeof om !== "function") return;
+  window.mountSlide = function(idx){
+    try { const h = document.getElementById("slideHost"), s = CARD.slides[idx]; if(h) h.dataset.slide = s ? s.id : ""; } catch(e){}
+    return om.apply(this, arguments); };
+  try { if(document.fonts && document.fonts.load){ document.fonts.load("800 50px 'Story Noto Q'", "?"); document.fonts.load("700 31px 'Story Noto Q 700'", "?"); } } catch(e){}
+})();
+"""
+js = js + qnoto_js
+assert "@font-face{font-family:'Story Noto Q';" in css and css.count("@font-face{font-family:'Story Noto Q 700';") == 1 and js.count("[q-noto]") == 1, "q-noto: blocks"
 html = f"""<!doctype html>
 <html lang="hi">
 <head>

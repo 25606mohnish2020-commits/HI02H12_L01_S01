@@ -3479,6 +3479,31 @@ The title heading darker again ([title-dark3], 2026-11-15)
 - `../_before_title_dark3/` holds the dist's three files ([title-fly2]'s build) and build.py, title_check.py, smoke.py, README.md,
   title_assets/cover_fly_js.js (tools/).
 
+The "?" in Noto Sans Devanagari on pages 1, 7, 10, 13 and 16 ([q-noto], 2026-11-15)
+- Asked: "At Pages 1 T0, 7 T3, 10 G2, 13 P1 and 16 L2 use the question mark only of Noto Sans Devanagari font instead of Baloo 2
+  font (only for question mark) at its respective places on these pages with the font style and the size accordingly at these pages."
+- Found in the live pages (Chrome's platform font for each "?" character, every page driven to where its "?" shows): T0 beat 3's
+  caption "पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”" (Baloo 2, declared 600 = the embedded 700 face, 31 frame px); the "?" landing in the
+  slot on T3 and G2 ('Story Baloo 2' 800, 55px); the "?" in P1's three option sentences (Baloo 2 800, 30px); L2's stamped "?" in
+  rounds 1, 4 (both boxes) and 5 (the second box) ('Story Baloo 2' 800, the sentence's size). Already Noto: the tiles' "?" on T3 / G2
+  ('Story Noto Marks' SemiBold 64px) and T1C's two (the frame's). Not text: the stamps' "?" on L2 are drawn pictures (left as they are).
+- Built: as T1C's ([recap-prashn]): the "?"-only Noto face first in each of those elements' font lists (unicode-range U+3F, so every
+  other character stays Baloo), at the element's own size, in the weight its Baloo shows: ExtraBold where the text is 800 ('Story
+  Noto Q', the variable 100-900 subset, at the rule's 800), Bold on T0 ('Story Noto Q 700': the same file with its weight pinned at
+  700 — the caption declares 600 but shows Baloo's 700 face; Noto SemiBold looked thinner than the letters beside it). Scoped to the
+  five pages by the page's id on #slideHost (data-slide, set by a mountSlide wrapper before each page mounts); both faces are loaded
+  at once, so the modules' centreInk (a canvas reading the element's own font list) measures the Noto "?" — the landed / stamped
+  marks stay centred on their boxes by their ink. style.css: the [q-noto] block (one @font-face + four rules); app.js: the wrapper +
+  the font loads; index.html unchanged.
+- Effects measured (old build vs new, every text piece's layout box on T0, T0B, T1C, T2, T3, T4, G1, G2, G3, G4, P1, P2, L2): only the
+  "?"-holding pieces changed width (T0's "?”" 26 -> 28 px, the landed "?" 27 -> 31, P1's "?" words +0 / +1 px with a 1 px shift of
+  the words after them; the stamped "?" 25 -> 28); no height or line changed anywhere; T1C, T2, T4, G1, G3, G4 and P2 identical (P2 /
+  G4 compared sentence by sentence: their options are shuffled). The landed "?" ink sits within 0.3 / 0.7 px (T3) and 0.5 / 1.2 px
+  (G2) of the slot's centre in Noto (the face loaded before the tap; the canvas measures Noto's own "?").
+- Checked: (pending)
+- `../_before_q_noto/` holds the dist's three files and build.py, smoke.py, README.md and the page checks story_check.py,
+  scene_check.py, g4_check.py, stamp_check.py, recap_check.py (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

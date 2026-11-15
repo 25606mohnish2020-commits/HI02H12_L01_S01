@@ -10552,3 +10552,13 @@ SlideModules.CELEBRATION.mount = function(host, slide){
 })();
 
 /* ===== [dun-chrome] end ===== */
+
+/* ---- [q-noto] (2026-11-15) the page's id on #slideHost (data-slide), set before each page mounts, so style.css can give one page's
+   "?" the Noto face; and both Noto "?" faces loaded at once, so a mark's ink is measured in its own face (the modules' centreInk) ---- */
+(function(){ "use strict";
+  const om = window.mountSlide; if(typeof om !== "function") return;
+  window.mountSlide = function(idx){
+    try { const h = document.getElementById("slideHost"), s = CARD.slides[idx]; if(h) h.dataset.slide = s ? s.id : ""; } catch(e){}
+    return om.apply(this, arguments); };
+  try { if(document.fonts && document.fonts.load){ document.fonts.load("800 50px 'Story Noto Q'", "?"); document.fonts.load("700 31px 'Story Noto Q 700'", "?"); } } catch(e){}
+})();
