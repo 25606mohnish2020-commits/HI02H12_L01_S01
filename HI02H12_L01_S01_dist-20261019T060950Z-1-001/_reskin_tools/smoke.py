@@ -162,8 +162,8 @@ with sync_playwright() as p:
     quiet(pg); pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(200)
     check("P1: the right pill (क्या यह आपकी किताब है?) is marked green", pg.evaluate("!!document.querySelector('#slideHost .opt-cell.correct')"))
     pg.wait_for_function("CARD.slides[state.idx].id==='P2'", timeout=60000)
-    check("P1 then moves on to P2: the same P4 page again, its long sentences on two lines",
-          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.querySelectorAll('#slideHost .sent-opt').length === 3 && document.querySelectorAll('#slideHost .so-br').length === 3"))
+    check("P1 then moves on to P2: the same pick in the reference G2's row ([p2-side]: the picture's card left, the sentences stacked right, each on one line)",
+          pg.evaluate("CARD.slides[state.idx].type === 'SENT_PICK' && document.querySelectorAll('#slideHost .q-row.sent-side .sent-col .sent-opt').length === 3 && !!document.querySelector('#slideHost .q-row.sent-side > .sq-card') && document.querySelectorAll('#slideHost .so-br').length === 0"))
     # P2 (SENT_PICK, see g4_check.py --page P2): a wrong pill, then the right one (the commas) -> green, its line, then the gate
     pg.wait_for_timeout(4000)
     right = pg.evaluate("[...document.querySelectorAll('#slideHost .so-pill')].findIndex(p => p.textContent.trim() === 'मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।')")

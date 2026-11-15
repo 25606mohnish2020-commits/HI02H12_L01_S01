@@ -7002,18 +7002,25 @@ const SlideModules = {
        this picture has none), then the kit's correct-select, the ding, the confetti and the happy Swiftie, its line with its
        words lit, and 0.7 s later the page moves on. After the reveal (the guided tap): the same 1 s, then the ding + the
        confetti alone, Swiftie back to rest, and the page moves on 0.7 s later (recorded as a revealed answer).
-     - data.mastery (P1, P2, as the practice pages they replace): one mastery attempt per page, a hit on a first try. ===== */
+     - data.mastery (P1, P2, as the practice pages they replace): one mastery attempt per page, a hit on a first try.
+     - [p2-side] data.layout "side" (P2, 2026-11-15): the row of https://hind-dear-story.vercel.app/ page 15 (G2) instead — the
+       picture alone in a white card on the left, the three sentences stacked on the right, each on ONE line (no break); the
+       picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
+       (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
+       Everything else as above. ===== */
   SENT_PICK: {
     mount(host, slide){
       const d = slide.data || {}, A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const IDLE_MS = 5000, BEAT_MS = 1000, HOLD_MS = 1000, REVIEW_GAP_MS = 500, POP_MS = 1000, PROMPT_POP_MS = 3200, HIT_PAD = 24;
       const opts = (d.options || []).slice();
       for(let i = opts.length - 1; i > 0; i--){ const j = (Math.random() * (i + 1)) | 0; [opts[i], opts[j]] = [opts[j], opts[i]]; }
-      const row = document.createElement("div"); row.className = "q-row";
-      const stim = document.createElement("div"); stim.className = "story-q-stim sq-bare";
+      const side = d.layout === "side";   // [p2-side] G2's row: the picture's card left, the sentences stacked right
+      const row = document.createElement("div"); row.className = "q-row" + (side ? " sent-side" : "");
+      const stim = document.createElement("div"); stim.className = "story-q-stim " + (side ? "sq-card" : "sq-bare");
       const thumb = document.createElement("img"); thumb.className = "story-q-thumb"; thumb.src = imgSrc(d.recall_image_id); thumb.alt = ""; thumb.draggable = false;
       stim.appendChild(thumb);
-      const grid = document.createElement("div"); grid.className = "opt-grid cols-3 sent-opts";
+      const popEl = side ? stim : thumb;   // [p2-side] what the picture's pops move: the card with its picture there, the bare picture here
+      const grid = document.createElement("div"); grid.className = side ? "opt-grid cols-1 sent-opts sent-col" : "opt-grid cols-3 sent-opts";
       // each pill's sentence split into word spans (one inline box, so the spaces stay); a lone danda is a word of its own
       const items = opts.map((o, k)=>{
         const cell = document.createElement("div"); cell.className = "sent-opt opt-cell"; cell.dataset.key = String(k);
@@ -7042,7 +7049,7 @@ const SlideModules = {
       // broken after the same word (the one that keeps the widest line narrowest; a lone mark stays with its word), so the
       // sentences still line up word for word and differ only in their marks. P4's pill width and font stay.
       const fitLines = ()=>{
-        if(!alive() || grid.querySelector(".so-br") || !items.some(it=> it.pill.scrollWidth > it.pill.clientWidth)) return;
+        if(side || !alive() || grid.querySelector(".so-br") || !items.some(it=> it.pill.scrollWidth > it.pill.clientWidth)) return;   // [p2-side] G2's row: one line each, never broken
         const groups = items.map(it=> it.words.reduce((g, w)=>{
           if(/^[।॥,.!?]+$/.test(w.textContent) && g.length) g[g.length - 1].push(w); else g.push([w]);
           return g; }, []));
@@ -7083,9 +7090,9 @@ const SlideModules = {
       // the instruction: on entry, from the header chip, and after every IDLE_MS of quiet (with the picture's pop-and-hold)
       const promptSrc = audioFor(slide, "prompt");
       const speakPrompt = (pop)=>{
-        if(pop && !thumb.classList.contains("p2-pop")){
-          thumb.classList.remove("p6-pop"); void thumb.offsetWidth; thumb.classList.add("p6-pop");
-          setTimeout(()=> thumb.classList.remove("p6-pop"), PROMPT_POP_MS + 250);
+        if(pop && !popEl.classList.contains("p2-pop")){
+          popEl.classList.remove("p6-pop"); void popEl.offsetWidth; popEl.classList.add("p6-pop");
+          setTimeout(()=> popEl.classList.remove("p6-pop"), PROMPT_POP_MS + 250);
         }
         play(promptSrc, ()=>{});
       };
@@ -7174,7 +7181,7 @@ const SlideModules = {
         const st = document.querySelector(".slide-stage"), r = right.cell.getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1, HAND_H = 96;
         hand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px";
-        hand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - HAND_H) + "px";
+        hand.style.top = (side ? (r.bottom - sw.top) / scale - 56 : Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - HAND_H)) + "px";   // [p2-side] G2's pointNudgeAt: the fingertip in the box's lower part
       }
       // the guided pill counts a tap just beside it too (HIT_PAD design px), once nothing speaks
       const padTap = (e)=>{
@@ -7194,7 +7201,7 @@ const SlideModules = {
         if(d.mastery){ state.masteryAttempts++; if(state.attempts === 0) state.masteryHits++; }
         it.cell.classList.add("correct");
         if(guided){ if(hand){ hand.remove(); hand = null; } it.cell.classList.remove("opt-guided"); }
-        thumb.classList.remove("p6-pop"); thumb.classList.add("p2-pop"); setTimeout(()=> thumb.classList.remove("p2-pop"), POP_MS + 250);
+        popEl.classList.remove("p6-pop"); popEl.classList.add("p2-pop"); setTimeout(()=> popEl.classList.remove("p2-pop"), POP_MS + 250);
         if(d.tap_sfx && !isMuted){ try{   // [g4-giggle] the reference's G2 correct-tap effect: the page's own sound with the picture's pop, at .63, ending with the 1 s hold (a 150 ms fade, then paused)
           const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; if(d.tap_sfx_from) sx.currentTime = d.tap_sfx_from;   // [p2-pencils] a file with a silent lead-in starts at its first sound
           sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});

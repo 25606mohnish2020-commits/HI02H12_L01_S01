@@ -3427,6 +3427,28 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 @keyframes p6PromptPop{0%{transform:scale(1);animation-timing-function:cubic-bezier(.2,.8,.3,1);}6.25%{transform:scale(1.045);animation-timing-function:ease-in-out;}
   10%{transform:scale(1.03);animation-timing-function:linear;}86%{transform:scale(1.03);animation-timing-function:ease-in-out;}100%{transform:scale(1);}}
 @keyframes guidedHandBob{0%,100%{transform:translateY(2px);}50%{transform:translateY(-14px);}}
+/* ===== [p2-side] P2 (data.layout "side", asked 2026-11-15) = the row of https://hind-dear-story.vercel.app/ page 15 (G2, EVIDENCE_QA),
+   its computed styles read from the live page: the picture alone in G2's white passage card on the left (no passage text under it),
+   G2's 44px gap, and the three sentences stacked in G2's option column on the right (20px inset each side, 88px boxes 36px apart),
+   the row's middle on G2's line (stage y 402: our header row is 2px taller and our slide host 12px shorter than G2's, hence top:4px).
+   G2's card is 600 wide around a 552x310 picture and its boxes 420 wide at 32px; P2's sentences keep their 28px Baloo 2 ExtraBold
+   and stand on ONE line each (the longest is 491px), so the boxes are 528 wide (G2's 16px padding + 2px rim around it) and the card
+   takes the rest of G2's 1104px row: 492 wide, the 4:3 picture 444x333 in it (G2's picture is 4px wider than the card's content and
+   centred over it, 18px corners, #EEF6FF behind it); G2's 12/22 padding, 4px white rim, 28px corners and shadow; the boxes G2's white,
+   2px white rim, 28px corners and the same shadow. P2's own green ring, orange words, pops, wiggle, grey decoys and header stay. */
+.stage.sent-page .q-row.sent-side{flex-direction:row;align-items:center;justify-content:center;gap:44px;position:relative;top:4px;}
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:0 0 auto;
+  box-sizing:border-box;width:492px;gap:0;padding:12px 22px !important;margin:0;background:#FFFFFF !important;border:4px solid #FFFFFF !important;border-radius:28px;
+  box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12) !important;cursor:default;}   /* !important: the engine's own .story-q-stim{background:none !important;border:none !important;...} */
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card .story-q-thumb{display:block;flex:0 0 auto;width:444px;height:333px;max-width:none;
+  aspect-ratio:auto;object-fit:contain;border-radius:18px;background:#EEF6FF;box-shadow:none;}
+.stage.sent-page .q-row.sent-side .opt-grid.sent-opts.sent-col{flex:0 0 auto;width:auto;padding:0 20px;grid-template-columns:528px !important;
+  gap:36px !important;place-content:center;}
+.stage.sent-page .q-row.sent-side .sent-opt .so-pill{width:528px;height:88px;min-height:0;padding:16px;border:2px solid #FFFFFF;border-radius:28px;
+  box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12);}
+.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .ck-fx,.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .wg-fx{border-radius:28px;}
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 
 /* ===== [letter-fig] LETTER_STORY: [l1-fig] frames 792:1257 / 792:1245 / 792:1249 (+ 610:6's envelope) as one animated scene ===== */
 .ltr{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:hidden;background:#fff;}

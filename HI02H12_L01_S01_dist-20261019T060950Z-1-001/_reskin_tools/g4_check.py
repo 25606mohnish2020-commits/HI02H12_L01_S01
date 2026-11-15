@@ -5,7 +5,12 @@ usage: python -I -X utf8 g4_check.py <index.html> <outdir> [--page G4|P1|P2] [--
        to L1, the letter page (since 2026-10-26; until then, with P3-P6 removed, it went straight to the end screen — this entry
        said "CEL" with no gate until [sent-font], 2026-10-27).
        P2's sentences are too long for P4's pill on one line: its pills keep P4's width and font on two lines, all broken
-       after the same word, centred on the row's line.
+       after the same word, centred on the row's line. [p2-side] (2026-11-15) no longer: P2 is laid out as the row of
+       https://hind-dear-story.vercel.app/ page 15 (G2) — the bare picture (1448 wide) in G2's white card on the left, the three
+       sentences stacked in G2's option boxes on the right, each on ONE line, the row's middle on G2's line (y 402); the picture's
+       pops play on the card and the reveal hand's top sits 56px above the right box's bottom (G2's pointNudgeAt).
+       --g2: also read the live G2 and compare the places and looks it shares with P2 (card left edge and middle, card/box gap,
+       box y's, heights and right edge, corners, rims, shadows, colours).
 1. The right pill first: the instruction on entry; the tap marks it green at once and pops the picture, nothing sounds for
    1 s (taps wait), then the kit's correct-select, the confetti and the happy Swiftie, and its own line with each word lit
    while the clip is inside that word's window; 0.7 s after the line the page moves on (P2: to the end screen).
@@ -29,12 +34,13 @@ from playwright.sync_api import sync_playwright
 
 html = pathlib.Path(sys.argv[1]).resolve(); out = pathlib.Path(sys.argv[2]).resolve(); out.mkdir(parents=True, exist_ok=True)
 REF_PIC = sys.argv[sys.argv.index("--ref") + 1] if "--ref" in sys.argv else None
+G2 = "--g2" in sys.argv   # [p2-side] compare P2 with the live https://hind-dear-story.vercel.app/ page 15 (G2)
 PAGE = sys.argv[sys.argv.index("--page") + 1] if "--page" in sys.argv else "G4"
 CFG = {"G4": {"next": "P1", "gate": False, "mastery": False, "right": "लड़की पतंग उड़ा रही है ।",
               "labels": ["लड़की पतंग उड़ा रही है ।", "लड़की । पतंग उड़ा रही है", "लड़की पतंग उड़ा । रही है"]},
        "P1": {"next": "P2", "gate": False, "mastery": True, "right": "क्या यह आपकी किताब है?",
               "labels": ["क्या यह आपकी किताब है?", "क्या? यह आपकी किताब है", "क्या यह आपकी? किताब है"]},
-       "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "lines": 2,
+       "P2": {"next": "L1", "gate": True, "mastery": True, "right": "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।", "layout": "side", "pic_w": 1448,   # [p2-side] was "lines": 2
               "labels": ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"]}}[PAGE]
 NEXT = CFG["next"]; ON = "through the round gate to " + NEXT if CFG["gate"] else "straight on to " + NEXT
 fails = []
@@ -49,7 +55,7 @@ SAMPLE = r"""() => { window._tl = []; let last = ''; const step = () => {
   const a = currentAudio, f = a ? decodeURIComponent(a.src.split('/').pop()) : '', m = f.match(/vo_(?:g4|p1|p2)_(\w+)\.ogg/);
   // [vo-rec] the shared clips: the praise vo_ok_pick -> 'ok', the try-again line (vo_g4_hint1 on G4, vo_pick_hint1 on P1/P2) -> 'try', hint 3 vo_pick_hint3 -> 'hint3'
   const clipOf = !a ? null : m ? (m[1] === 'hint1' ? 'try' : m[1]) : /vo_ok_pick/.test(f) ? 'ok' : /vo_pick_hint1/.test(f) ? 'try' : /vo_pick_hint3/.test(f) ? 'hint3' : 'other';
-  const cells = [...document.querySelectorAll('#slideHost .opt-cell')], th = document.querySelector('#slideHost .story-q-thumb'), mi = document.getElementById('swBuddyImg');
+  const cells = [...document.querySelectorAll('#slideHost .opt-cell')], th = document.querySelector('#slideHost .sq-card') || document.querySelector('#slideHost .story-q-thumb'), mi = document.getElementById('swBuddyImg');   // [p2-side] P2's pops play on the card
   const r = { slide: CARD.slides[state.idx].id, clip: clipOf, t: a ? +a.currentTime.toFixed(3) : null, playing: isPlaying,
     cls: cells.map(c => c.className.replace('sent-opt opt-cell', '').trim()), say: cells.map(c => !!c.querySelector('.so-pill.p6-say')),
     lit: cells.map(c => [...c.querySelectorAll('.p2-word')].findIndex(w => w.classList.contains('on'))),
@@ -108,12 +114,21 @@ with sync_playwright() as p:
     look = pg.evaluate("""() => ({ title: document.getElementById('promptText').textContent, nav: getComputedStyle(document.getElementById('navBtn')).display,
       hint: getComputedStyle(document.getElementById('hintBtn')).display, chip: (() => { const r = document.getElementById('audioChip').getBoundingClientRect(); return [r.left, r.top, r.width]; })(),
       thumb: (() => { const r = document.querySelector('.story-q-thumb').getBoundingClientRect(); return [r.top, r.height, Math.round(r.left + r.width / 2)]; })(),
+      tbox: (() => { const r = document.querySelector('.story-q-thumb').getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; })(),
+      card: (() => { const e = document.querySelector('#slideHost .sq-card'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; })(),
+      br: document.querySelectorAll('#slideHost .so-br').length, fs: getComputedStyle(document.querySelector('.so-pill')).fontSize,
       pills: [...document.querySelectorAll('.so-pill')].map(p => { const r = p.getBoundingClientRect(); return [r.left, r.top, r.width, r.height, p.scrollWidth <= p.clientWidth]; }),
       lines: [...document.querySelectorAll('.so-pill')].map(p => { const ws = [...p.querySelectorAll('.p2-word')], tops = [...new Set(ws.map(w => Math.round(w.getBoundingClientRect().top)))];
         return tops.map(t => ws.filter(w => Math.round(w.getBoundingClientRect().top) === t).map(w => w.textContent).join(' ')); }) })""")
     check("the title band reads the instruction; no आगे and no hint bulb", look["title"] == d["prompt_hi"] == "सही विराम चिह्न वाला वाक्य चुनिए ।" and look["nav"] == "none" and look["hint"] == "none", look)
     head_ok = look["chip"] == [94.5, 80, 66] and look["thumb"][:2] == [146, 315] and abs(look["thumb"][2] - 666.5) <= 1
-    if CFG.get("lines", 1) == 1:
+    if CFG.get("layout") == "side":   # [p2-side] G2's row (its card's left edge 114.5, the 64px card/box gap, its box y's 234 / 358 / 482 and height 88, the row's middle 402)
+        check("G2's row: the chip at 94.5,80; the picture alone in a 492x365 card at x 114.5 centred on y 402 (picture 444x333 at 138.5,235.5); "
+              "three 528x88 boxes stacked at x 670.5 (64px right of the card), y 234 / 358 / 482, each sentence on ONE line at 28px, nothing spilling, no break",
+              look["chip"] == [94.5, 80, 66] and look["card"] == [114.5, 219.5, 492, 365] and look["tbox"] == [138.5, 235.5, 444, 333]
+              and [q[:4] for q in look["pills"]] == [[670.5, 234, 528, 88], [670.5, 358, 528, 88], [670.5, 482, 528, 88]] and all(q[4] for q in look["pills"])
+              and all(len(l) == 1 for l in look["lines"]) and look["br"] == 0 and look["fs"] == "28px", look)
+    elif CFG.get("lines", 1) == 1:
         check("P4's places: the chip at 94.5,80; the picture 315 high from y 146, centred; three 344x78 pills at x 114.5 / 494.5 / 874.5, y 531.5, each on one line",
               head_ok and [q[:4] for q in look["pills"]] == [[114.5, 531.5, 344, 78], [494.5, 531.5, 344, 78], [874.5, 531.5, 344, 78]] and all(q[4] for q in look["pills"])
               and all(len(l) == 1 for l in look["lines"]), look)
@@ -126,7 +141,7 @@ with sync_playwright() as p:
               and all(len(l) == 2 and not l[1].startswith(("।", ",", "?")) for l in look["lines"]) and len(set(n1)) == 1, (look["pills"], look["lines"]))
     check(f"the three sentences are the asked ones, the right one '{CFG['right']}'", sorted(labels) == sorted(CFG["labels"]) and labels[right] == CFG["right"], labels)
     pic = pg.evaluate("[document.querySelector('.story-q-thumb').getAttribute('src'), document.querySelector('.story-q-thumb').naturalWidth]")
-    check(f"{PAGE}'s own picture ({d['data']['recall_image_id']}) is the one shown", pic == [f"assets/Images/{d['data']['recall_image_id']}.webp", 1411], pic)
+    check(f"{PAGE}'s own picture ({d['data']['recall_image_id']}) is the one shown", pic == [f"assets/Images/{d['data']['recall_image_id']}.webp", CFG.get("pic_w", 1411)], pic)   # [p2-side] P2's bare picture is 1448 wide
     pg.screenshot(path=str(out / "a_rest.png"))
     pg.click(f"#slideHost .opt-cell >> nth={right}"); pg.wait_for_timeout(300); pg.screenshot(path=str(out / "b_right_300.png"))
     pg.wait_for_timeout(1500); pg.screenshot(path=str(out / "c_right_1800.png"))
@@ -238,10 +253,11 @@ with sync_playwright() as p:
     i_h3 = next((i for i in range(i_w3, len(tl)) if tl[i]["clip"] == "hint3" and tl[i]["playing"]), None)
     check("...the reveal's line (vo_pick_hint3, “यह सही वाक्य है, इस पर टैप कीजिए”) is said as the right pill is ringed", i_h3 is not None and ms(i_h3) - ms(i_w3) < 2000,
           round(ms(i_h3) - ms(i_w3)) if i_h3 is not None else None)   # [vo-rec]
-    check("wrong tap 3: 1 s later the reveal — two pills greyed and dead, the right one ringed green, the 96px hand centred under it",
+    side = CFG.get("layout") == "side"   # [p2-side] G2's pointNudgeAt: the hand's top 56px above the box's bottom (bobbing +2..-14), not under it
+    check("wrong tap 3: 1 s later the reveal — two pills greyed and dead, the right one ringed green, the 96px hand centred " + ("on its lower part (G2's place)" if side else "under it"),
           [x[0] for k, x in enumerate(rev["dim"]) if k != right] == ["opt-dim", "opt-dim"] and all(x[1] == "none" and x[2] == "0.5" and "grayscale(1)" in x[3] for k, x in enumerate(rev["dim"]) if k != right)
           and rev["dim"][right][0] == "opt-guided" and "rgb(0, 177, 50)" in rev["ring"] and "6px" in rev["ring"]
-          and rev["hand"][:2] == [96, 96] and abs(rev["hand"][2] - rev["hand"][3]) <= 1 and -16 <= rev["hand"][4] <= 8, rev)
+          and rev["hand"][:2] == [96, 96] and abs(rev["hand"][2] - rev["hand"][3]) <= 1 and ((-72 <= rev["hand"][4] <= -52) if side else (-16 <= rev["hand"][4] <= 8)), rev)
     i_g = first(lambda s: s["cls"][right].startswith("correct"), i_w3)
     i_gate = first(gone, i_g)
     check("the guided tap (on the hand): the green mark at once, the hand gone, 1 s, then the ding + confetti and no line",
@@ -290,6 +306,33 @@ with sync_playwright() as p:
         A = np.asarray(Image.open(shots["ours"]).convert("RGB"), np.int16); B = np.asarray(Image.open(shots["ref"]).convert("RGB"), np.int16)
         dd = (np.abs(A - B).max(axis=2) > 32)
         check(f"with P4's own picture, title and sentences {PAGE} pixel-matches the live P4 at rest (>32-level diffs under 0.05%)", dd.sum() / dd.size < 0.0005, f"{int(dd.sum())} px")
+
+    # ---- 5. [p2-side] against the live G2 of https://hind-dear-story.vercel.app/ (page 15): the places and looks P2 takes from it
+    if G2:
+        GEO = """([card, pic, box, lbl]) => { const st = document.getElementById('stage'); const sr = st.getBoundingClientRect(), sc = sr.width / st.offsetWidth;
+          const R = e => { const r = e.getBoundingClientRect(); return [(r.left - sr.left) / sc, (r.top - sr.top) / sc, r.width / sc, r.height / sc].map(v => +v.toFixed(1)); };
+          const S = (e, ps) => { const cs = getComputedStyle(e); return ps.map(p => cs.getPropertyValue(p)); };
+          const c = document.querySelector(card), boxes = [...document.querySelectorAll(box)];
+          return { card: R(c), boxes: boxes.map(R), cardLook: S(c, ['border-radius', 'border-top', 'box-shadow', 'background-color']),
+                   picRadius: getComputedStyle(document.querySelector(pic)).borderTopLeftRadius,
+                   boxLook: S(boxes[0], ['border-radius', 'border-top', 'box-shadow', 'background-color', 'padding-left']),
+                   text: S(document.querySelector(lbl), ['color', 'font-weight', 'font-family']) }; }"""
+        q = b.new_page(viewport={"width": 1333, "height": 750})
+        q.goto("https://hind-dear-story.vercel.app/", wait_until="load", timeout=60000); q.wait_for_timeout(3000); q.evaluate(LEAVE)
+        q.evaluate("mountSlide(CARD.slides.findIndex(s => s.id === 'G2'))"); q.wait_for_timeout(12000)   # its boxes come in one by one with the question
+        g = q.evaluate(GEO, [".ev-passage", ".ev-pic", "#slideHost .ev-opt", "#slideHost .ev-opt-lbl"]); q.screenshot(path=str(out / "i_g2_live.png")); q.close()
+        q = b.new_page(viewport={"width": 1333, "height": 750}); run(q)
+        o = q.evaluate(GEO, ["#slideHost .sq-card", "#slideHost .story-q-thumb", "#slideHost .so-pill", "#slideHost .so-pill"]); q.screenshot(path=str(out / "i_p2_side.png")); q.close()
+        mid = lambda r: r[1] + r[3] / 2
+        check("[p2-side] the live G2's row: the card's left edge and middle, the card -> box gap, the box tops, heights and right edge are P2's",
+              g["card"][0] == o["card"][0] and abs(mid(g["card"]) - mid(o["card"])) <= 1.5
+              and abs((g["boxes"][0][0] - g["card"][0] - g["card"][2]) - (o["boxes"][0][0] - o["card"][0] - o["card"][2])) <= 0.5
+              and [r[1] for r in g["boxes"]] == [r[1] for r in o["boxes"]] and {r[3] for r in g["boxes"]} == {r[3] for r in o["boxes"]} == {88}
+              and {round(r[0] + r[2], 1) for r in g["boxes"]} == {round(r[0] + r[2], 1) for r in o["boxes"]}, (g["card"], g["boxes"], o["card"], o["boxes"]))
+        check("[p2-side] ...and its looks: the card's 28px corners, 4px white rim, shadow and white; the picture's 18px corners; the boxes' 28px corners, "
+              "2px white rim, shadow, white and 16px padding; the sentences' colour, weight and face",
+              g["cardLook"] == o["cardLook"] and g["picRadius"] == o["picRadius"] and g["boxLook"] == o["boxLook"] and g["text"] == o["text"],
+              {k: (g[k], o[k]) for k in ("cardLook", "picRadius", "boxLook", "text") if g[k] != o[k]})
     b.close()
 check("no page errors", not errs, errs[:3])
 print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")

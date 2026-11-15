@@ -722,7 +722,7 @@ card["_emoji_fallback"]["img_g4_kite_gry"] = "✏️"
 # line). Each stays the practice page it replaces (phase, eis) and still counts in the mastery score (data.mastery, as the
 # ported page did). Clips + timings from <page>_assets/ (recap_vo.py <page>).
 SENT_OPT_KEYS = ["o1", "o2", "o3"]
-def practice_pick(sid, page, image_id, was, labels, right):
+def practice_pick(sid, page, image_id, was, labels, right, layout=None):
     lines = {k: json.loads((SCR / f"{page}_assets" / f"vo_{page}_{k}.words.json").read_text(encoding="utf-8")) for k in SENT_OPT_KEYS}
     i = next(i for i, s in enumerate(card["slides"]) if s["id"] == sid)
     old = card["slides"][i]
@@ -734,6 +734,7 @@ def practice_pick(sid, page, image_id, was, labels, right):
                              for k in SENT_OPT_KEYS]},
         "signals": {"on_complete": ["evidence_qa_first_try"]}}
     assert [o["label_hi"] for o in card["slides"][i]["data"]["options"]] == labels, f"{sid}'s sentences are not the asked ones"
+    if layout: card["slides"][i]["data"]["layout"] = layout   # [p2-side] "side": the picture in a card on the left, the sentences stacked on the right
     for k in SENT_OPT_KEYS:
         card["assets"]["audio"][f"vo_{page}_{k}"] = f"assets/Audio/vo_{page}_{k}.ogg"
         card["assets"]["audio_text"][f"vo_{page}_{k}"] = lines[k]["text"]
@@ -749,8 +750,15 @@ practice_pick("P1", "p1", "img_p1_book_gry", "BUILD_PUNCT",
 # P2: a girl with coloured pencils ([pics-pinki] 2026-11-02: the user's redrawn picture, the old pair kept as *_v1_2026-10-25); a
 # danda after each colour, no mark, or a comma after each (the right one, listed last) —
 # in place of the ported EVIDENCE_QA pick ("राम खाना खाकर सोया"). Too long for P4's pill on one line: SENT_PICK sets them on two.
-practice_pick("P2", "p2", "img_p2_pencils_gry", "EVIDENCE_QA",
-              ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"], right="o3")
+# [p2-side] (asked 2026-11-15: "page 14 P2 ... the layout of the whole page as 15 G2 page of https://hind-dear-story.vercel.app/ ...
+# the image at the left side ... all of the options at the right hand side ... no text below the image ... all the options in one
+# line instead of the stacked format"): data.layout "side" = that page's EVIDENCE_QA row — the picture alone in G2's white passage
+# card on the left (no passage text), the three sentences stacked in G2's option boxes on the right, each on ONE line. The card
+# now frames the picture, so P2 shows the user's picture bare (p2_assets/img_p2_pencils.webp = p2_pencils_source.png as WebP q90,
+# 1448x1086); img_p2_pencils_gry.webp (P4's baked grey ring) stays in p2_assets/ and in the dist, unused. G4 and P1 unchanged.
+practice_pick("P2", "p2", "img_p2_pencils", "EVIDENCE_QA",
+              ["मेरे पास लाल । नीली । हरी और पीली पेंसिल हैं ।", "मेरे पास लाल नीली हरी और पीली पेंसिल हैं ।", "मेरे पास लाल, नीली, हरी और पीली पेंसिल हैं ।"], right="o3",
+              layout="side")
 # [gate-p2] the round-3 gate ("अब आपकी बारी!": the peeking Swiftie, the title revealed as vo_pt_practice sounds) follows P2, not
 # the guided -> practice boundary (G4 -> P1) where the engine would open it: G4, P1 and P2 play as one run of the same page and
 # the gate opens before the first builder page, P3. The engine patch below reads this key. Since [rm-p3p6] below dropped
@@ -2083,18 +2091,25 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
        this picture has none), then the kit's correct-select, the ding, the confetti and the happy Swiftie, its line with its
        words lit, and 0.7 s later the page moves on. After the reveal (the guided tap): the same 1 s, then the ding + the
        confetti alone, Swiftie back to rest, and the page moves on 0.7 s later (recorded as a revealed answer).
-     - data.mastery (P1, P2, as the practice pages they replace): one mastery attempt per page, a hit on a first try. ===== */
+     - data.mastery (P1, P2, as the practice pages they replace): one mastery attempt per page, a hit on a first try.
+     - [p2-side] data.layout "side" (P2, 2026-11-15): the row of https://hind-dear-story.vercel.app/ page 15 (G2) instead — the
+       picture alone in a white card on the left, the three sentences stacked on the right, each on ONE line (no break); the
+       picture's pops play on the whole card, and the reveal hand points into the right sentence's lower part as G2's does
+       (its top 56px above the box's bottom edge) instead of standing under it, where it would cover the sentence below.
+       Everything else as above. ===== */
   SENT_PICK: {
     mount(host, slide){
       const d = slide.data || {}, A = (id)=> id ? ("assets/Audio/" + id + "." + AUDIO_EXT) : null;
       const IDLE_MS = 5000, BEAT_MS = 1000, HOLD_MS = 1000, REVIEW_GAP_MS = 500, POP_MS = 1000, PROMPT_POP_MS = 3200, HIT_PAD = 24;
       const opts = (d.options || []).slice();
       for(let i = opts.length - 1; i > 0; i--){ const j = (Math.random() * (i + 1)) | 0; [opts[i], opts[j]] = [opts[j], opts[i]]; }
-      const row = document.createElement("div"); row.className = "q-row";
-      const stim = document.createElement("div"); stim.className = "story-q-stim sq-bare";
+      const side = d.layout === "side";   // [p2-side] G2's row: the picture's card left, the sentences stacked right
+      const row = document.createElement("div"); row.className = "q-row" + (side ? " sent-side" : "");
+      const stim = document.createElement("div"); stim.className = "story-q-stim " + (side ? "sq-card" : "sq-bare");
       const thumb = document.createElement("img"); thumb.className = "story-q-thumb"; thumb.src = imgSrc(d.recall_image_id); thumb.alt = ""; thumb.draggable = false;
       stim.appendChild(thumb);
-      const grid = document.createElement("div"); grid.className = "opt-grid cols-3 sent-opts";
+      const popEl = side ? stim : thumb;   // [p2-side] what the picture's pops move: the card with its picture there, the bare picture here
+      const grid = document.createElement("div"); grid.className = side ? "opt-grid cols-1 sent-opts sent-col" : "opt-grid cols-3 sent-opts";
       // each pill's sentence split into word spans (one inline box, so the spaces stay); a lone danda is a word of its own
       const items = opts.map((o, k)=>{
         const cell = document.createElement("div"); cell.className = "sent-opt opt-cell"; cell.dataset.key = String(k);
@@ -2123,7 +2138,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
       // broken after the same word (the one that keeps the widest line narrowest; a lone mark stays with its word), so the
       // sentences still line up word for word and differ only in their marks. P4's pill width and font stay.
       const fitLines = ()=>{
-        if(!alive() || grid.querySelector(".so-br") || !items.some(it=> it.pill.scrollWidth > it.pill.clientWidth)) return;
+        if(side || !alive() || grid.querySelector(".so-br") || !items.some(it=> it.pill.scrollWidth > it.pill.clientWidth)) return;   // [p2-side] G2's row: one line each, never broken
         const groups = items.map(it=> it.words.reduce((g, w)=>{
           if(/^[।॥,.!?]+$/.test(w.textContent) && g.length) g[g.length - 1].push(w); else g.push([w]);
           return g; }, []));
@@ -2164,9 +2179,9 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
       // the instruction: on entry, from the header chip, and after every IDLE_MS of quiet (with the picture's pop-and-hold)
       const promptSrc = audioFor(slide, "prompt");
       const speakPrompt = (pop)=>{
-        if(pop && !thumb.classList.contains("p2-pop")){
-          thumb.classList.remove("p6-pop"); void thumb.offsetWidth; thumb.classList.add("p6-pop");
-          setTimeout(()=> thumb.classList.remove("p6-pop"), PROMPT_POP_MS + 250);
+        if(pop && !popEl.classList.contains("p2-pop")){
+          popEl.classList.remove("p6-pop"); void popEl.offsetWidth; popEl.classList.add("p6-pop");
+          setTimeout(()=> popEl.classList.remove("p6-pop"), PROMPT_POP_MS + 250);
         }
         play(promptSrc, ()=>{});
       };
@@ -2252,7 +2267,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
         const st = document.querySelector(".slide-stage"), r = right.cell.getBoundingClientRect(), sw = st.getBoundingClientRect();
         const scale = sw.width / st.offsetWidth || 1, HAND_H = 96;
         hand.style.left = ((r.left - sw.left) / scale + r.width / scale / 2 - 48) + "px";
-        hand.style.top = Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - HAND_H) + "px";
+        hand.style.top = (side ? (r.bottom - sw.top) / scale - 56 : Math.min((r.bottom - sw.top) / scale + 4, st.offsetHeight - HAND_H)) + "px";   // [p2-side] G2's pointNudgeAt: the fingertip in the box's lower part
       }
       // the guided pill counts a tap just beside it too (HIT_PAD design px), once nothing speaks
       const padTap = (e)=>{
@@ -2272,7 +2287,7 @@ sent_mod = r"""  /* ===== [sent-fig] SENT_PICK — G4, P1 and P2 "सही व�
         if(d.mastery){ state.masteryAttempts++; if(state.attempts === 0) state.masteryHits++; }
         it.cell.classList.add("correct");
         if(guided){ if(hand){ hand.remove(); hand = null; } it.cell.classList.remove("opt-guided"); }
-        thumb.classList.remove("p6-pop"); thumb.classList.add("p2-pop"); setTimeout(()=> thumb.classList.remove("p2-pop"), POP_MS + 250);
+        popEl.classList.remove("p6-pop"); popEl.classList.add("p2-pop"); setTimeout(()=> popEl.classList.remove("p2-pop"), POP_MS + 250);
         if(d.tap_sfx && !isMuted){ try{   // [g4-giggle] the reference's G2 correct-tap effect: the page's own sound with the picture's pop, at .63, ending with the 1 s hold (a 150 ms fade, then paused)
           const sx = new Audio("assets/Audio/" + d.tap_sfx); sx.volume = .63; if(d.tap_sfx_from) sx.currentTime = d.tap_sfx_from;   // [p2-pencils] a file with a silent lead-in starts at its first sound
           sfxTrack(sx); const pp = sx.play(); if(pp && pp.catch) pp.catch(()=>{});
@@ -4042,6 +4057,28 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 @keyframes p6PromptPop{0%{transform:scale(1);animation-timing-function:cubic-bezier(.2,.8,.3,1);}6.25%{transform:scale(1.045);animation-timing-function:ease-in-out;}
   10%{transform:scale(1.03);animation-timing-function:linear;}86%{transform:scale(1.03);animation-timing-function:ease-in-out;}100%{transform:scale(1);}}
 @keyframes guidedHandBob{0%,100%{transform:translateY(2px);}50%{transform:translateY(-14px);}}
+/* ===== [p2-side] P2 (data.layout "side", asked 2026-11-15) = the row of https://hind-dear-story.vercel.app/ page 15 (G2, EVIDENCE_QA),
+   its computed styles read from the live page: the picture alone in G2's white passage card on the left (no passage text under it),
+   G2's 44px gap, and the three sentences stacked in G2's option column on the right (20px inset each side, 88px boxes 36px apart),
+   the row's middle on G2's line (stage y 402: our header row is 2px taller and our slide host 12px shorter than G2's, hence top:4px).
+   G2's card is 600 wide around a 552x310 picture and its boxes 420 wide at 32px; P2's sentences keep their 28px Baloo 2 ExtraBold
+   and stand on ONE line each (the longest is 491px), so the boxes are 528 wide (G2's 16px padding + 2px rim around it) and the card
+   takes the rest of G2's 1104px row: 492 wide, the 4:3 picture 444x333 in it (G2's picture is 4px wider than the card's content and
+   centred over it, 18px corners, #EEF6FF behind it); G2's 12/22 padding, 4px white rim, 28px corners and shadow; the boxes G2's white,
+   2px white rim, 28px corners and the same shadow. P2's own green ring, orange words, pops, wiggle, grey decoys and header stay. */
+.stage.sent-page .q-row.sent-side{flex-direction:row;align-items:center;justify-content:center;gap:44px;position:relative;top:4px;}
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:0 0 auto;
+  box-sizing:border-box;width:492px;gap:0;padding:12px 22px !important;margin:0;background:#FFFFFF !important;border:4px solid #FFFFFF !important;border-radius:28px;
+  box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12) !important;cursor:default;}   /* !important: the engine's own .story-q-stim{background:none !important;border:none !important;...} */
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card .story-q-thumb{display:block;flex:0 0 auto;width:444px;height:333px;max-width:none;
+  aspect-ratio:auto;object-fit:contain;border-radius:18px;background:#EEF6FF;box-shadow:none;}
+.stage.sent-page .q-row.sent-side .opt-grid.sent-opts.sent-col{flex:0 0 auto;width:auto;padding:0 20px;grid-template-columns:528px !important;
+  gap:36px !important;place-content:center;}
+.stage.sent-page .q-row.sent-side .sent-opt .so-pill{width:528px;height:88px;min-height:0;padding:16px;border:2px solid #FFFFFF;border-radius:28px;
+  box-shadow:0 5px 0 rgba(11,42,90,.10),0 10px 26px rgba(11,42,90,.12);}
+.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .ck-fx,.stage.sent-page .q-row.sent-side .opt-grid.sent-opts .opt-cell .wg-fx{border-radius:28px;}
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p2-pop{animation:p2BirdPop1s 1s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
+.stage.sent-page .q-row.sent-side .story-q-stim.sq-card.p6-pop:not(.p2-pop){animation:p6PromptPop 3.2s ease-in-out 1 both;transform-origin:50% 50%;will-change:transform;}
 """
 css = (ref_css
        + "\n\n/* ===== [reskin] PORTED FROM THE HI02H12_L01_S01 ENGINE: evidence / sort / punctuation modules ===== */\n"
@@ -4873,7 +4910,7 @@ for name, sub in [(f"vo_g4_{k}.ogg", "Audio") for k in G4_KEYS] + [("img_g4_kite
 
 # ---------- 7k. [sent-fig] P1's and P2's clips and pictures (<page>_assets/: recap_vo.py <page>; the picture = g4_picture.py over
 #               the user's picture, <page>_*_source.png; their title + try-again clips are G4's) ----------
-for page, image_id, extra in (("p1", "img_p1_book_gry", [("sfx_p1_book.mp3", "Audio")]), ("p2", "img_p2_pencils_gry", [("sfx_p2_pencils.mp3", "Audio")])):   # [p1-book] / [p2-pencils] each page's tap sound rides along
+for page, image_id, extra in (("p1", "img_p1_book_gry", [("sfx_p1_book.mp3", "Audio")]), ("p2", "img_p2_pencils", [("sfx_p2_pencils.mp3", "Audio")])):   # [p1-book] / [p2-pencils] each page's tap sound rides along; [p2-side] P2's picture bare
     for name, sub in [(f"vo_{page}_{k}.ogg", "Audio") for k in SENT_OPT_KEYS] + [(f"{image_id}.webp", "Images")] + extra:
         f, dst = SCR / f"{page}_assets" / name, DIST / "assets" / sub / name
         assert f.exists(), f"missing {page.upper()} asset {f}"

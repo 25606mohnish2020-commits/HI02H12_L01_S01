@@ -3132,6 +3132,41 @@ L2's stamp sized to the box near it, tray drops not counted, the boxes on their 
 - `../_before_stamp_fit/` holds the dist's three files and build.py, stamp_check.py, stamp_close_check.py, smoke.py, gate_check.py,
   README.md (tools/).
 
+P2 in the reference G2's layout: the picture left, the sentences stacked right, one line each ([p2-side], 2026-11-15)
+- Asked: "At page 14 P2 of this file make the layout of the whole page as 15 G2 page of this reference file
+  https://hind-dear-story.vercel.app/ such that the image at the page 14 P2 should appear at the left side of this page layout and
+  all of the options should appear at the right hand side of this page layout but there should not be any text below the image and
+  all the options in the text should appear only in one line instead of the stacked format as of now. ... Rest keep everything
+  exactly the same in this file."
+- The reference's page 15 = G2, an EVIDENCE_QA row (read live: computed styles + boxes at 1333x750): a white passage card on the left
+  (114.5,177.9 600x448: 4px white rim, 28px corners, 12/22 padding, shadow 0 5px 0 rgba(11,42,90,.10) + 0 10px 26px rgba(11,42,90,.12);
+  inside, a 552x310 picture with 18px corners on #EEF6FF and the passage text under it), a 44px gap, and an option column 460 wide
+  (20px inset) with three 420x88 boxes at y 234 / 358 / 482 (white, 2px white rim, 28px corners, 16px padding, the same shadow,
+  Baloo 2 800 32px #0B3D8C); card and boxes centred on y 402. Its reveal points the hand into the right box's lower part
+  (pointNudgeAt: top = box bottom - 56).
+- Built (P2 only; data.layout "side" switches SENT_PICK to it, G4 and P1 keep P4's layout): the picture alone in G2's card (no text
+  under it), the three sentences in G2's boxes stacked on the right, each on ONE line (no break: fitLines skips the side layout).
+  The sentences keep their 28px (P4's size, as before): at G2's 32px the longest (491px at 28) would need a 598px box. So the boxes
+  are 528 wide (the longest + G2's padding and rim) and the card takes the rest of G2's 1104px row: 492 wide, the picture 444x333
+  (the user's 4:3 picture, G2's 4px overhang of the card's content). Kept from G2 exactly: the card's left edge (114.5) and middle
+  (402), the 64px card -> box gap, the boxes' y's, height (88) and right edge (1198.5), every corner, rim, shadow and colour. The
+  card frames the picture now, so P2 shows it bare: p2_assets/img_p2_pencils.webp = p2_pencils_source.png (1448x1086, WebP q90);
+  img_p2_pencils_gry.webp (P4's baked grey ring) stays in p2_assets/ and the dist, unused.
+- Adapted to the new layout (flagged): the picture's pops (the right tap's 1 s pop, the idle repeat's pop-and-hold) play on the whole
+  card; the reveal hand sits as G2's does (its top 56px above the right box's bottom) instead of under the box, where it would cover
+  the box below. Unchanged: the header (P4's band, chip, Swiftie — the same arrangement as G2's), every sound, line, timing, tap rule,
+  the green ring, orange words, wiggle, grey decoys, the round gate after P2.
+- Built: index.html (P2's data: layout, recall_image_id; the asset table's picture), app.js (SENT_PICK: side / popEl / fitLines /
+  placeHand), style.css (the [p2-side] block after [sent-fig]), the new picture. The unchanged build reproduced the dist byte for
+  byte first; the build in a temp copy and the dist are identical.
+- g4_check.py updated: P2's places in G2's row (card, picture, boxes, one line each at 28px, no break), its 1448-wide picture, the
+  pops read on the card, the hand's G2 place; new `--g2` compares P2 with the live G2 (card left edge + middle, card -> box gap, box
+  y's / heights / right edge, and the card's / picture's / boxes' corners, rims, shadows, colours, the text's colour / weight / face).
+  smoke.py's P2 step expects the side row (no break).
+- `python -I -X utf8 g4_check.py ../HI02H12_L01_S01_dist/index.html out --page P2 --g2`
+- Checked (on the built dist): RESULTS_PENDING
+- `../_before_p2_side/` holds the dist's three files and build.py, g4_check.py, smoke.py, gate_check.py, README.md (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.
