@@ -236,8 +236,8 @@
   [
    "assets/Audio/vo_g1_intro.ogg",
    "assets/Audio/vo_g1_intro.ogg",
-   59578,
-   40296,
+   58115,
+   39894,
    "converted "
   ],
   [
@@ -278,8 +278,8 @@
   [
    "assets/Audio/vo_g4_o1.ogg",
    "assets/Audio/vo_g4_o1.ogg",
-   46914,
-   30979,
+   32561,
+   21392,
    "converted "
   ],
   [
@@ -2284,8 +2284,8 @@
   "assets/UI/sw_head_tryagain.webp",
   "assets/UI/sw_head_tryagain_anim.webp"
  ],
- "bytes_before": 83398364,
- "bytes_after": 48752769,
+ "bytes_before": 83389446,
+ "bytes_after": 48749678,
  "manifest_files": 198,
- "manifest_bytes": 23984605
+ "manifest_bytes": 23974616
 }

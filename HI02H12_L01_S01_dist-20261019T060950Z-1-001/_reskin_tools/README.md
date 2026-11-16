@@ -3625,6 +3625,67 @@ The whole lesson optimised: lighter media, every asset preloaded behind a loadin
 - `../_before_optimize/` holds the dist's three files and build.py, scene_check.py, story_check.py (tools/); NOTE.txt says where the
   converted / quarantined assets are kept.
 
+The title's , , । appear only when their symbols land ([title-punct], 2026-11-16)
+- Asked: "In this file at the title page before the green and the blue symbols fly and gets integrated at the title heading text
+  before that the symbols in the title heading text should not be visible at their places and when the green and the blue symbols
+  fly at their respective places in the title heading text and when they get integrated then only the original title font and text
+  colored symbols should be visible in the title heading text. Apply this change at the title page of this file. Rest keep
+  everything exactly the same in this file."
+- Was ([title-fly]): the heading's , , । were visible all along; each flying symbol's glyph clone landed on, and faded over, them.
+- Now: the heading reads "रुको  सोचो  चिह्न लगाओ" until the flight - its three glyphs are cut out by an even-odd clip-path, one hole
+  per glyph = exactly its landing clone's region (ink box + 14 px each side, 12 above, 24 below: the glyph's own white rim, blue edge
+  and soft drop reach 9 / 8 / 17 px; the next letters' paint starts 1-3 px outside the hole). From the first paint the holes come
+  from the CSS (.sgf-heading.sgf-punct-off, numbers measured in Chrome, the same at every viewport); when the flight starts
+  cover_fly_js re-measures them (= the CSS's) and sets them inline. When a symbol's clone has settled at exactly 1x on its glyph
+  (its animation read, >= 95 %; waited for on a slow device), its hole closes - the title's own glyph is there, pixel for pixel the
+  clone - and the clone fades away over it as before. The । at ~6.0 s, the two commas together at ~8.4 s; then no clip at all.
+  If no flight runs (a welcome that failed or hung: the play button comes without one) or it fails, the heading is whole at once.
+- Unchanged: the flight, its timing, paths, merges, sparkles, split, eyes, the play button, the heading's text / font / colours /
+  place, its aria-label (screen readers still get the whole text), everything else. index.html: one class on the heading;
+  style.css: one rule + comment; app.js: cover_fly_js.
+- title_check.py [title-punct]: the holes on the glyphs' measured ink boxes (0.01 px); with every moving layer stopped, inside the holes
+  not a pixel of the heading, outside them the whole heading pixel for pixel, no heading paint across a hole's edge; through the
+  welcome (a recorder on the heading's class / style) three holes until the flight, each closed only once its clone has settled,
+  the । first, then the commas, no clip at the end; a play button with no flight shows the heading whole; the [title-fly]
+  before/after comparison leaves the holes out and checks the glyphs inside them after the flight.
+- Checked: title_check 48/48 (ALL PASS); the [title-punct] checks pass in every run (0 px off outside the holes, 0 inside, edge ring <= 2 levels;
+  closes at 6.06 / 8.45 / 8.46 s, clones at progress 1); also at 1280x720 and 1024x768. The one older check "[title-fly] the question
+  mark watches" FAILs in some runs on BOTH builds (the danda's "looking up" share of 0.6 s..2.4 s: old build 0.54-0.70, new 0.59-0.74
+  per frame against its 0.6 bar) - pre-existing flakiness, not this change. Unchanged tools rebuilt the old dist byte for byte first.
+- `../_before_title_punct/` holds the dist's three files (commit ecb387a) and build.py, title_check.py, README.md, cover_fly_js.js (tools/).
+
+G1-G3's new instruction take, said again after 7 s of quiet; G4's right sentence a new take ([pick-vo] + [pick-idle], 2026-11-16)
+- Asked: "1. At Pages 9 G1, 10 G2 and 11 G3 of this file replace the instruction Vo in the background with this Vo
+  "C:\Users\25606\Downloads\vo_1  (1).wav" and at these pages in the case of 7 seconds of inactivity from the user end this instruction
+  Vo should repeat. 2. At Page 12 G4 of this file replace the correct option Vo with this Vo "C:\Users\25606\Downloads\vo_2 .wav"
+  whenever it is used as per the responce from the user end and follow the exact same flow of hints and feedbacks as of now. ... Rest
+  keep everything exactly the same in this file."
+- Heard first (faster-whisper, as vo_rec.py): vo_1 = "वाक्य पढ़िए और सही जगह पर विराम चिह्न लगाइए" (4.16 s; the old take said "वाक्य
+  सुनिए और ...", 4.32 s); vo_2 = "लड़की पतंग उड़ा रही है" (2.44 s; the old take ended "... पूर्णविराम", 3.4 s).
+- The IDs stay: vo_g1_intro (G1-G3's data.intro_audio and 🔊 chip) and vo_g4_o1 (G4's right sentence) now ARE the new takes —
+  vo_rec/vo_g1_intro.wav and vo_rec/vo_g4_o1.wav replaced (cp -p), their transcripts.json entries made with vo_rec.py's own settings,
+  only these two clips encoded (vo_rec.py's encode settings: Opus 96k 48 kHz, into g1_assets/ and g4_assets/), vo_rec.py SPOKEN = the
+  words said, and vo_rec.py --cues-only re-derived the timings against a scratch copy of the dist's Audio folder (a baseline run first
+  reproduced every words.json / derived.json byte for byte). G4's sentence lights its words on the new clip (लड़की 0.435, पतंग 0.90,
+  उड़ा 1.26 — whisper joined "पतंग उड़ा", split by letters as before —, रही 1.62, है 1.90, the danda as the voice ends 2.075).
+- G4's flow is unchanged: the new sentence take sounds where the old one did, after a right tap ("शाबाश! यह सही वाक्य है ।" then the
+  sentence, words lit); the hints (hint 1, hint 2, hint 3 + the tapping hand) and the guided tap (no line) as before.
+- [pick-idle]: G1-G3 data.idle_intro_ms 7000 — the PUNCT_SCENE pick's idleIntro: once the tiles are the child's, the instruction line
+  again after every 7 s of quiet (no touch anywhere, nothing sounding); a touch or any sound restarts the count; it repeats while the
+  child does nothing; not while the pointing hand shows (the chip's rule since [hand-quiet]: after the 3rd wrong tap only hint 3
+  speaks) and never after the answer; a tap cuts it short and answers. The engine's one-shot reminder stays off (data.no_idle_vo).
+  The sentence and its word light still play once ([g1-quiet]). Emits idle_vo_replay like the engine's reminder.
+- Not changed: the VO manifest xlsx in the dist still lists the old words for vo_g1_intro and vo_g4_o1.
+- scene_check.py (G1-G3): [g1-quiet]'s "8.5 s of quiet: nothing re-read" became [pick-idle]'s: the line 7 s after the page fell quiet
+  with its tiles live, again 7 s after it ended, a touch on the picture 3 s into the next quiet restarts the count, only that line,
+  the sentence once; and with the hand: 8 s of quiet, no line.
+- Checked: the dist's two clips decode to the new takes (correlation .998, same lengths); dist diff vs the backup = the two clips, the
+  card's idle_intro_ms x3 / G4 o1 word times / two registry texts, the preload manifest's two sizes, the module's idleIntro.
+  scene_check G1 46/46 (idle gaps 7.05 / 7.10 / 7.12 s), G2 47/47 (7.06 / 7.13 / 7.08), G3 56/56 twice (a first run failed only its
+  eye-smoothness frame limit, 0.455 px vs 0.45 — the reruns 0.35); g4_check G4 30/30 (all six words lit on the new clip); smoke 53/53.
+- `../_before_pick_vo/` holds the dist's three files ([title-punct]'s build), the tools, the two old takes + transcripts.json /
+  derived.json (vo_rec/), and the old encoded clips / words.json (g1_assets/, g4_assets/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

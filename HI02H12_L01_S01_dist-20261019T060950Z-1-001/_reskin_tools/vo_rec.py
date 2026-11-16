@@ -44,7 +44,15 @@ SPOKEN keeps what is said. T3's / T4's explanation cues (the "?" / "," tile ligh
 [hint2-lit] (2026-11-10) G1-G3's hint 2 (vo_build_hint2: "वाक्य पूरा होने पर पूर्णविराम, वाक्य में रुकने पर अल्प विराम और प्रश्न पूछने पर
 प्रश्नवाचक चिह्न लगाते हैं ।") lights each sign's tile as the line names it: cues.build_hint2_s = per mark the sound onset of its name
 ("पूर्ण…", "अल्प…", "प्रश्नवा…") and of the next sign's part (the second "वाक्य", "और") where its light goes; the last one's off is null
-(the line's end). Run with --cues-only (no clip re-encoded)."""
+(the line's end). Run with --cues-only (no clip re-encoded).
+
+[pick-vo] (2026-11-16) two single takes from the user (~/Downloads): "vo_1  (1).wav" = G1-G3's instruction, now "वाक्य पढ़िए और सही जगह पर
+विराम चिह्न लगाइए" (4.16 s), copied over vo_rec/vo_g1_intro.wav; "vo_2 .wav" = G4's right sentence read WITHOUT naming its danda ("लड़की पतंग
+उड़ा रही है", 2.44 s), copied over vo_rec/vo_g4_o1.wav (the old takes in ../_before_pick_vo/vo_rec/). Their transcripts.json entries were
+made with this script's own step-1 settings (vo_g1_intro prompted with its spoken line, its manifest row being the old words); only these
+two clips were encoded (this script's encode() settings, into g1_assets/ and g4_assets/, where build.py copies them from), and the
+derivation ran with --cues-only against a scratch copy of the dist's Audio folder (the dist itself had lost a few unused clips the
+assertion wants). The dist's VO manifest still has the two old lines."""
 import sys, json, pathlib, subprocess, re, unicodedata, difflib, shutil, datetime
 import numpy as np, openpyxl
 
@@ -88,7 +96,8 @@ SPOKEN = {
   # [vo-rec3] the third batch's takes where the voice's words differ from the manifest (all four are said, not shown)
   "vo_demo2_explain": "यह एक प्रश्न है, प्रश्न के अंत में प्रश्नवाचक चिह्न लगाया जाता है ।",   # the manifest: "यह एक सवाल है, सवाल के अंत में ..."
   "vo_recap_prashn_when": "प्रश्न पूछने पर प्रश्नवाचक चिह्न लगाया जाता है ।",   # the manifest: "सवाल पूछने पर ..."
-  "vo_g1_intro": "वाक्य सुनिए और सही जगह पर विराम चिह्न लगाइए ।",   # the manifest has no "और"
+  "vo_g1_intro": "वाक्य पढ़िए और सही जगह पर विराम चिह्न लगाइए ।",   # [pick-vo] (2026-11-16) the user's new take (vo_1  (1).wav) says पढ़िए (was "वाक्य सुनिए और ...": the manifest has no "और")
+  "vo_g4_o1": "लड़की पतंग उड़ा रही है ।",   # [pick-vo] (2026-11-16) the user's new take (vo_2 .wav) reads the sentence without naming its danda (the manifest: "... पूर्णविराम")
   "vo_stamp1_hint3": "नमस्ते दादाजी, आप कैसे हैं? यह प्रश्न है । प्रश्न पूछने पर प्रश्न वाचक चिह्न लगाया जाता है ।",   # the manifest: "यह एक प्रश्न है"
 }
 SHOWN_OVERRIDE = {}   # [vo-rec2] (was {"vo_recap_purn_eg": "पिंकी स्कूल गई ।"}: the first batch's example) — the words.json "shown" is the page's

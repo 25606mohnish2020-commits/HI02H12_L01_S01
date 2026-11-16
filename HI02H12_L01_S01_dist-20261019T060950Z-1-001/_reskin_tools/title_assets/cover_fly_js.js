@@ -21,9 +21,19 @@
    3. the purple question mark stays where it stands and watches: its eyes follow the flying symbols (SGEyes.look, priority 8;
       between the two halves of the comma it glances from one to the other), curious at each lift-off, surprised at the first
       landing, happy at the end. The flying symbols' own eyes look at the title (SGEyes.faceLook).
-   The heading itself is never touched: no animation, no change of its text, colours or box (the clones are separate elements).
+   The heading itself is never animated: no change of its text, colours or box (the clones are separate elements).
+   [title-punct] (asked 2026-11-16: "before the green and the blue symbols fly and gets integrated at the title heading text ... the
+   symbols in the title heading text should not be visible at their places and when ... they get integrated then only the original
+   title font and text colored symbols should be visible"): the heading's , , । are HIDDEN until their symbols land. The heading is
+   clipped (clip-path, even-odd path) with one hole round each of the three glyphs - exactly the region its landing clone shows (the
+   glyph's ink box + PAD: the glyph's own white rim, blue edge and soft drop, measured within 9 / 8 / 17 px of the ink; the next
+   letters' paint starts 1-3 px outside the hole). From the first paint the CSS rule .sgf-heading.sgf-punct-off holds the holes
+   (baked from this measure in Chrome); when the flight starts they are re-measured here and set inline. A hole closes the moment
+   its clone has settled at exactly 1x on the glyph (the clone is a copy of the heading: identical pixels), so the title's own glyph
+   is there under it before the clone fades away. When all three have landed the heading has no clip-path at all. Should no flight
+   run (a welcome that failed or hung: the play button comes without one) or should it fail, the three glyphs are shown at once.
    Motion: Web Animations (transform/opacity, keyframes sampled from the paths); side effects (bursts, expressions) on timers.
-   SAFE: any error leaves the cover as it was before the flight. */
+   SAFE: any error leaves the cover as it was before the flight (the heading whole). */
 (function(){
   "use strict";
   // the pictures' ink boxes (alpha > 40), as fractions of each art's width/height (title_char_purn.png 1254x1254, title_char_comma.png 1022x1538)
@@ -32,7 +42,7 @@
   // comma, the last copy's fade, and the margin kept before the clip's end (the speech ends ~0.45 s before it; all done ~0.25 s before that)
   const T = { lead: 200, blueMs: 3600, overlap: 0.62, greenMs: 4200, outMs: 450, tail: 700, left: 6700 };
   const N = 90;                                                                   // keyframes per flight
-  const st = window.__sgFly = { phase: "wait", t0: 0, glyphs: null, flights: [] };
+  const st = window.__sgFly = { phase: "wait", t0: 0, glyphs: null, flights: [], hidden: null, shown: [] };   // [title-punct] hidden / shown
   const now = ()=> performance.now();
   const lerp = (a, b, k)=> a + (b - a) * k, clamp01 = v => Math.max(0, Math.min(1, v));
   const sine = u => 0.5 - 0.5 * Math.cos(Math.PI * clamp01(u));
@@ -45,6 +55,22 @@
   function cardRect(){ const tn = now(); if(!crC || tn - crAt > 200){ const c = card(), r = c.getBoundingClientRect(); crC = { left: r.left, top: r.top, k: r.width / c.offsetWidth }; crAt = tn; } return crC; }
   const toScreen = p =>{ const c = cardRect(); return { x: c.left + (p.x + 9) * c.k, y: c.top + (p.y + 9) * c.k }; };
   const toLocal = (x, y)=>{ const c = cardRect(); return { x: (x - c.left) / c.k - 9, y: (y - c.top) / c.k - 9 }; };
+  const heading = ()=> document.querySelector(".sg-card > .sgf-heading");
+
+  /* [title-punct] a glyph's own region round its ink box, in the heading's px: the landing clone's clip and the heading's hole */
+  const PAD = { x: 14, t: 12, b: 24 };
+  const holeOf = b => [b.l - PAD.x, b.t - PAD.t, b.r + PAD.x, b.b + PAD.b];
+  let holes = null;                                                               // the glyphs still hidden (measured); null = the CSS's holes
+  function setHoles(list){
+    const h = heading(); if(!h) return; holes = list;
+    // the outer rectangle (the heading's 1096 x 74 box and all its paint, with room to spare) less one rectangle per hidden glyph
+    h.style.clipPath = list.length ? 'path(evenodd, "M-200 -200H1296V300H-200Z' + list.map(g =>{ const q = holeOf(g.box).map(v => v.toFixed(2));
+      return " M" + q[0] + " " + q[1] + "H" + q[2] + "V" + q[3] + "H" + q[0] + "Z"; }).join("") + '")' : "";
+    h.classList.remove("sgf-punct-off");
+    st.hidden = list.map(g => g.ch + "@" + g.i);
+  }
+  function showGlyph(g){ if(!holes) return; setHoles(holes.filter(x => x.i !== g.i)); st.shown.push({ ch: g.ch, i: g.i, at: now() }); }
+  function showAll(){ const h = heading(); if(!h || (holes && !holes.length)) return; setHoles([]); st.shown.push({ ch: "all", at: now() }); }
 
   /* the heading's punctuation, left to right: each glyph's ink box in the heading's own px (for the clone's clip) and in card px */
   function measureGlyphs(){
@@ -68,9 +94,9 @@
   function makeClone(g){
     const h = document.querySelector(".sg-card > .sgf-heading");
     const w = document.createElement("div"); w.className = "sgf-mergew"; w.setAttribute("aria-hidden", "true");
-    const c = h.cloneNode(true); c.classList.add("sgf-hclone"); ["role", "aria-level", "aria-label"].forEach(a => c.removeAttribute(a));
-    const b = g.box, P = 14, PT = 12, PB = 24;
-    c.style.clipPath = "polygon(" + [[b.l - P, b.t - PT], [b.r + P, b.t - PT], [b.r + P, b.b + PB], [b.l - P, b.b + PB]].map(q => q[0].toFixed(2) + "px " + q[1].toFixed(2) + "px").join(", ") + ")";
+    const c = h.cloneNode(true); c.classList.add("sgf-hclone"); c.classList.remove("sgf-punct-off"); ["role", "aria-level", "aria-label"].forEach(a => c.removeAttribute(a));
+    const [L, T_, R, B] = holeOf(g.box);                                         // [title-punct] the same region as the heading's hole
+    c.style.clipPath = "polygon(" + [[L, T_], [R, T_], [R, B], [L, B]].map(q => q[0].toFixed(2) + "px " + q[1].toFixed(2) + "px").join(", ") + ")";
     w.style.transformOrigin = g.local.cx.toFixed(2) + "px " + g.local.cy.toFixed(2) + "px"; w.style.opacity = "0";
     w.appendChild(c); card().appendChild(w); return w;
   }
@@ -110,14 +136,19 @@
     const cw = makeClone(o.g);
     o.el.style.transformOrigin = o.ink.x.toFixed(2) + "px " + o.ink.y.toFixed(2) + "px"; o.el.classList.add("sgf-flying");
     const opt = { duration: o.ms, delay: o.delay, fill: "both", easing: "linear" };
-    o.el.animate(kf, opt); cw.animate(kc, opt);
+    o.el.animate(kf, opt); const ca = cw.animate(kc, opt);
     if(o.shadow) o.shadow.animate([{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(.55)" }],
                                   { duration: o.ms * 0.3, delay: o.delay + o.ms * o.a * 0.6, fill: "forwards", easing: "ease-out" });
     o.start = st.t0 + o.delay; o.cw = cw;
     st.flights.push({ name: o.name, ch: o.g.ch, start: o.start, ms: o.ms, a: o.a, m: o.m, glyph: { cx: G.cx, cy: G.cy, w: G.w, h: G.h } });
     const dock = o.delay + o.ms * (o.m + 0.6 * (1 - o.m));
     setTimeout(()=> burst(G.cx, G.cy, true), dock);
-    setTimeout(()=>{ o.el.classList.add("sgf-gone"); const f = cw.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T.outMs, fill: "forwards" });
+    // [title-punct] once the clone has settled on the glyph (1x and opaque from 95 % of its own animation - its clock can start a frame or
+    // more after this timer's, so it is read, and waited for on a slow device) the heading's own glyph is shown under it, then the clone
+    // fades away over that identical glyph
+    setTimeout(function land(){ const p = ca.effect ? ca.effect.getComputedTiming().progress : null;
+      if(p !== null && p < 0.95 && ca.playState === "running"){ setTimeout(land, 20); return; }
+      showGlyph(o.g); o.el.classList.add("sgf-gone"); const f = cw.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T.outMs, fill: "forwards" });
       f.onfinish = ()=> cw.remove(); }, o.delay + o.ms + 60);
     return o;
   }
@@ -144,12 +175,13 @@
   const react = n =>{ const E = eyes(); if(E) E.react(n); };
 
   function run(left){
-    const c = card(); if(!c || !document.body.classList.contains("is-start")) return;
-    const g = measureGlyphs(); if(!g || g.length !== 3 || g[0].ch !== "," || g[1].ch !== "," || g[2].ch !== "।") return;
+    const c = card(); if(!c || !document.body.classList.contains("is-start")) return false;
+    const g = measureGlyphs(); if(!g || g.length !== 3 || g[0].ch !== "," || g[1].ch !== "," || g[2].ch !== "।") return false;
     const [c1, c2, dn] = g;
     const purnW = c.querySelector(".sgf-purn"), purnI = purnW && purnW.querySelector("img");
     const commaW = c.querySelector(".sgf-commaw"), commaI = commaW && commaW.querySelector(".sgf-comma");
-    if(!purnI || !commaI) return;
+    if(!purnI || !commaI) return false;
+    setHoles(g.slice());                                                          // [title-punct] the holes, as measured here (= the CSS's in Chrome)
     // [title-fly2] the timeline, fitted into what is left of the welcome (the last copy's 60 + outMs fade is not scaled)
     if(!(left > 0 && isFinite(left))) left = T.left;
     const f = Math.max(0.6, Math.min(1, (left - T.tail - 60 - T.outMs) / (T.lead + T.blueMs * T.overlap + T.greenMs)));
@@ -203,8 +235,13 @@
     setTimeout(()=> react("surprise"), blueAt + blueMs * 0.92);
     setTimeout(()=>{ st.phase = "done"; st.doneAt = now(); react("happy"); const e = eyes(); if(e){ e.release("titlefly"); e.faceRelease("purn"); e.faceRelease("comma"); }
       try { window.dispatchEvent(new Event("sgflydone")); } catch(err){} }, endAt);   // [title-fly2] the last copy has faded: the play button may come
+    return true;
   }
   let fired = false;
   window.addEventListener("sgwelcomestart", ev =>{ if(fired) return; fired = true;
-    try { run(ev && ev.detail ? ev.detail.left : 0); } catch(err){ st.phase = "error"; st.err = String(err); try { window.dispatchEvent(new Event("sgflydone")); } catch(e){} } });
+    try { if(!run(ev && ev.detail ? ev.detail.left : 0)) showAll(); }                 // [title-punct] no flight: the heading whole at once
+    catch(err){ st.phase = "error"; st.err = String(err); try { showAll(); } catch(e){} try { window.dispatchEvent(new Event("sgflydone")); } catch(e){} } });
+  // [title-punct] the play button came and no symbol has flown (the welcome failed or hung): the heading whole, as before
+  const btn = document.getElementById("sgBtn");
+  if(btn) new MutationObserver(()=>{ if(btn.classList.contains("ready") && st.phase === "wait") showAll(); }).observe(btn, { attributes:true, attributeFilter:["class"] });
 })();

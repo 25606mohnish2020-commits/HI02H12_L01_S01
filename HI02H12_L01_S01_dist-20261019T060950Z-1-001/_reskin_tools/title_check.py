@@ -49,6 +49,15 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
 [title-fly2] (2026-11-15, later) the flight now runs INSIDE the welcome: nothing moves before the line sounds; it starts within 1.2 s of
    the line's first sample and is over (the last glyph copy faded) while the line still plays; the play button comes only after that,
    at the line's end as before. The before shot of the heading is the still page (autoplay blocked) at the autoplay run's viewport.
+[title-punct] (2026-11-16) the heading's , , । are hidden until their symbols land. On the still page the heading carries
+   .sgf-punct-off: an even-odd clip-path with one hole per glyph, each = that glyph's ink box (measured here: Range + canvas
+   measureText, as the flight does) + 14 px each side, 12 above, 24 below (= its landing clone's region). With every moving layer
+   stopped: inside the holes nothing of the heading is painted (= the page with no heading), outside them the heading is the whole
+   heading's, pixel for pixel, and no heading paint crosses a hole's edge (no neighbour cut, nothing of a symbol left outside). In the
+   autoplay run (a recorder on the heading's style/class): three holes until the flight, the holes it re-measures = the CSS's; each
+   hole closes only once its clone has settled (its animation at >= 95 %: exactly 1x, opaque), the । first, then the two commas; then
+   no clip at all. A play button that comes with no flight (page 1 forces .ready) shows the heading whole at once. The [title-fly]
+   before/after comparison now leaves the holes out; inside them the heading after the flight = the heading whole.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -126,6 +135,30 @@ HEAD_INFO = """(refShadow) => { const all = document.querySelectorAll('.sgf-head
 HEAD_CLIP = """() => { const e = document.querySelector('.sg-card > .sgf-heading:not(.sgf-hclone)'), r = e.getBoundingClientRect(); return [r.left - 30, r.top - 30, r.right + 30, r.bottom + 30]; }"""   # [title-fly]
 BOXES ="""(sels) => { const o = {}; for (const s of sels) { const e = document.querySelector(s);
   if (!e) { o[s] = null; continue; } const r = e.getBoundingClientRect(); o[s] = [r.left, r.top, r.width, r.height]; } return o; }"""
+# [title-punct] the heading's punctuation: each glyph's ink box in the heading's own px (as cover_fly_js measures it), the heading's
+# place and scale, its class and computed clip-path
+PUNCT_INFO = """() => { const h = document.querySelector('.sg-card > .sgf-heading'); const tn = [...h.childNodes].find(n => n.nodeType === 3);
+  const cs = getComputedStyle(h), hr = h.getBoundingClientRect(), u = hr.width / h.offsetWidth, lh = parseFloat(cs.lineHeight);
+  const x = document.createElement('canvas').getContext('2d'); x.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily; const ink = [];
+  for (let i = 0; i < tn.data.length; i++) { const ch = tn.data[i]; if (ch !== ',' && ch !== '।') continue;
+    const rg = document.createRange(); rg.setStart(tn, i); rg.setEnd(tn, i + 1); const rr = rg.getBoundingClientRect(), m = x.measureText(ch);
+    const ox = (rr.left - hr.left) / u, base = (lh - (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent)) / 2 + m.fontBoundingBoxAscent;
+    ink.push([ch, ox - m.actualBoundingBoxLeft, base - m.actualBoundingBoxAscent, ox + m.actualBoundingBoxRight, base + m.actualBoundingBoxDescent]); }
+  return { off: h.classList.contains('sgf-punct-off'), clip: cs.clipPath, hl: hr.left, ht: hr.top, u, ink }; }"""
+FREEZE = """() => { document.querySelectorAll('.sg-fx, .sgf-eyes, .sg-sky, .sg-glow, #sgMascot, #sgSwiftieAnim').forEach(e => e.style.visibility = 'hidden');
+  document.getAnimations().forEach(a => a.pause()); }"""
+PUNCT_REC = """() => { const h = document.querySelector('.sg-card > .sgf-heading'); window.__punctRec = [];
+  const snap = () => window.__punctRec.push({ t: performance.now(), off: h.classList.contains('sgf-punct-off'), clip: getComputedStyle(h).clipPath,
+    cw: [...document.querySelectorAll('.sgf-mergew')].map(w => { const a = w.getAnimations()[0], c = w.firstElementChild;
+      return { p: a ? a.effect.getComputedTiming().progress : null, op: +getComputedStyle(w).opacity, l: c ? parseFloat((c.style.clipPath.match(/polygon\\(([-\\d.]+)px/) || [])[1]) : null }; }) });
+  snap(); new MutationObserver(snap).observe(h, { attributes: true, attributeFilter: ['style', 'class'] }); }"""
+def holes_of(clip):
+    """the holes of an even-odd clip path: [l, t, r, b] per hole (the first rectangle is the outer one)"""
+    if not clip or not clip.startswith("path(evenodd"): return None
+    rects = []
+    for sub in re.findall(r"M\s*([-\d.]+)\s+([-\d.]+)\s*H\s*([-\d.]+)\s*V\s*([-\d.]+)\s*H\s*[-\d.]+\s*Z", clip):
+        l, t, r, b = map(float, sub); rects.append([l, t, r, b])
+    return rects[1:] if rects and rects[0][:2] == [-200.0, -200.0] else None
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", args=["--mute-audio"])          # default policy: autoplay blocked
@@ -135,7 +168,12 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(4000)
     check("with autoplay blocked the welcome has not played: the play button is NOT on the page yet, the chip is off",
           pg.evaluate("getComputedStyle(document.getElementById('sgBtn')).display === 'none' && document.getElementById('sgVo').classList.contains('sg-vo-off')"))
+    pi0 = pg.evaluate(PUNCT_INFO)
     pg.evaluate("document.getElementById('sgBtn').classList.add('ready')"); pg.wait_for_timeout(700)   # to measure its box
+    pi1 = pg.evaluate(PUNCT_INFO)
+    check("[title-punct] a play button that comes with no flight (here the welcome never sounded) shows the heading whole at once: its three holes, then no clip",
+          len(holes_of(pi0["clip"]) or []) == 3 and pi0["off"] and not pi1["off"] and pi1["clip"] == "none" and pg.evaluate("window.__sgFly.phase") == "wait",
+          (pi0["off"], len(holes_of(pi0["clip"]) or []), pi1["off"], pi1["clip"][:40]))
     # [cover-fx] / [cover-eyes] the added light and the eye canvases sit on top of the frame's art: their place is checked here, and
     # they are hidden for the Figma comparison below (the frame has neither)
     fx = pg.evaluate("""() => { const fx = document.querySelector('.sg-card > .sg-fx'), sc = document.querySelector('.sgf-scene'), c = document.querySelector('.sg-card').getBoundingClientRect();
@@ -225,7 +263,37 @@ with sync_playwright() as p:
     p2 = b.new_page(viewport={"width": 1333, "height": 750}); p2.goto(html.as_uri()); p2.wait_for_timeout(4000)
     p2.evaluate("document.querySelectorAll('.sg-fx').forEach(e => e.style.visibility = 'hidden')"); p2.wait_for_timeout(100)
     p2.screenshot(path=str(out / "fly_before.png"))
-    fly_before = {"clip": p2.evaluate(HEAD_CLIP), "fly": p2.evaluate("window.__sgFly ? window.__sgFly.phase : null")}; p2.close()
+    fly_before = {"clip": p2.evaluate(HEAD_CLIP), "fly": p2.evaluate("window.__sgFly ? window.__sgFly.phase : null")}
+    # [title-punct] the still heading: its three holes on the glyphs' ink boxes, then three shots with every moving layer stopped -
+    # the heading as it stands, the heading whole (the class taken off), no heading at all
+    pi = p2.evaluate(PUNCT_INFO); css_holes = holes_of(pi["clip"])
+    want = [[l - 14, t - 12, r + 14, b + 24] for (_, l, t, r, b) in pi["ink"]]
+    check("[title-punct] before the symbols fly the heading's , , । are cut out: .sgf-punct-off, an even-odd clip-path with three holes, each on its glyph's "
+          "ink box + 14 px each side, 12 above, 24 below (= its landing clone's region; within 0.01 px)",
+          pi["off"] and [c for c, *_ in pi["ink"]] == [",", ",", "।"] and css_holes is not None and len(css_holes) == 3
+          and max(abs(a - b) for h, w in zip(css_holes, want) for a, b in zip(h, w)) <= 0.01, (pi["off"], css_holes, [[round(v, 2) for v in w] for w in want]))
+    p2.evaluate(FREEZE); p2.wait_for_timeout(150); p2.screenshot(path=str(out / "punct_holes.png"))
+    p2.evaluate("document.querySelector('.sg-card > .sgf-heading').classList.remove('sgf-punct-off')"); p2.wait_for_timeout(150); p2.screenshot(path=str(out / "punct_whole.png"))
+    p2.evaluate("document.querySelector('.sg-card > .sgf-heading').style.visibility = 'hidden'"); p2.wait_for_timeout(150); p2.screenshot(path=str(out / "punct_none.png"))
+    p2.close()
+    import numpy as np
+    A = lambda n: np.asarray(Image.open(out / n).convert("RGB")).astype(int)
+    PH, PW, PN = A("punct_holes.png"), A("punct_whole.png"), A("punct_none.png")
+    yy, xx = np.mgrid[0:PH.shape[0], 0:PH.shape[1]]; lx = (xx + 0.5 - pi["hl"]) / pi["u"]; ly = (yy + 0.5 - pi["ht"]) / pi["u"]
+    def in_rects(rs, grow):
+        m = np.zeros(PH.shape[:2], bool)
+        for l, t, r, b in rs: m |= (lx >= l - grow) & (lx <= r + grow) & (ly >= t - grow) & (ly <= b + grow)
+        return m
+    hole_m = in_rects(css_holes or [], 0); edge = in_rects(css_holes or [], 1.5) & ~in_rects(css_holes or [], -1.5)   # pixels split by a hole's edge
+    region = (lx >= -40) & (lx <= 1136) & (ly >= -40) & (ly <= 120)
+    d_hw = np.abs(PH - PW).max(axis=2); d_hn = np.abs(PH - PN).max(axis=2); d_wn = np.abs(PW - PN).max(axis=2)
+    out_m, in_m = region & ~hole_m & ~edge, hole_m & ~edge
+    ring = in_rects(css_holes or [], 2) & ~in_rects(css_holes or [], -2)
+    check("[title-punct] ...so the symbols are not there and nothing else changes: inside the holes not a pixel of the heading (= no heading), outside them "
+          "the heading whole, pixel for pixel; no heading paint crosses a hole's edge (no letter cut, nothing of a symbol left outside: <= 2 levels there); "
+          "and the holes did hold the symbols (their pixels differ from the empty page)",
+          bool(in_m.any()) and int(d_hn[in_m].max()) == 0 and int(d_hw[out_m].max()) == 0 and int(d_wn[ring].max()) <= 2 and int((d_wn[hole_m] > 40).sum()) > 1500,
+          (int(d_hn[in_m].max()) if in_m.any() else None, int(d_hw[out_m].max()), int(d_wn[ring].max()), int((d_wn[hole_m] > 40).sum())))
     b.close()
 
     # ---- the welcome, the play button, the chip, the bird, the sky ----
@@ -236,7 +304,8 @@ with sync_playwright() as p:
     pg.evaluate("""() => { const btn = document.getElementById('sgBtn'); window.__readyOpacity = null;
       new MutationObserver(() => { if (window.__readyOpacity === null && btn.classList.contains('ready')) window.__readyOpacity = getComputedStyle(btn).opacity; })
         .observe(btn, { attributes: true, attributeFilter: ['class'] }); }""")
-    STATE = """() => { const a = (typeof currentAudio !== 'undefined') ? currentAudio : null; const btn = document.getElementById('sgBtn'), vo = document.getElementById('sgVo'), bird = document.getElementById('sgMascot');
+    pg.evaluate(PUNCT_REC)   # [title-punct] every change of the heading's class / style, with the glyph clones' state at that moment
+    STATE ="""() => { const a = (typeof currentAudio !== 'undefined') ? currentAudio : null; const btn = document.getElementById('sgBtn'), vo = document.getElementById('sgVo'), bird = document.getElementById('sgMascot');
       return { t: performance.now(), vo: !!(a && !a.paused && !a.ended && isPlaying), src: a ? a.src.split('/').pop().split('?')[0] : null,
                btn: getComputedStyle(btn).display !== 'none', ready: btn.classList.contains('ready'), breathe: btn.classList.contains('sg-breathe'), btnAnim: getComputedStyle(btn).animationName,
                chipOff: vo.classList.contains('sg-vo-off'), bird: (bird.src || '').split('/').pop().split('?')[0], loaded: document.body.classList.contains('loaded'),
@@ -314,14 +383,40 @@ with sync_playwright() as p:
     end = pg.evaluate("[[...document.querySelectorAll('.sgf-purn, .sgf-commaw')].map(e => getComputedStyle(e).visibility), document.querySelectorAll('.sgf-mergew, .sgf-burst').length]")
     check("[title-fly] at the end the danda and the comma (and its twin) are gone from the ground, the question mark stands where it stood, no clone or sparkle is left",
           end[0] == ["hidden", "hidden", "hidden"] and end[1] == 0 and sym0 and samples[-1]["sym"][2] == sym0[2], (end, sym0 and sym0[2], samples[-1]["sym"][2]))
-    moved, dv = 0, [0]
+    # [title-punct] the holes through the welcome: three until the flight (the ones it re-measures = the CSS's), each closed only once its
+    # clone has settled (>= 95 % of its animation: exactly 1x, opaque), the । first, then the two commas; at the end no clip at all
+    rec = pg.evaluate("window.__punctRec || []")
+    hs = [holes_of(r["clip"]) if r["clip"] != "none" else [] for r in rec]
+    closes, bad_close = [], []
+    for k in range(1, len(rec)):
+        if hs[k] is None or hs[k - 1] is None: bad_close.append(("unreadable", k)); continue
+        gone = [h for h in hs[k - 1] if not any(abs(h[0] - g[0]) < 0.02 for g in hs[k])]
+        for h in gone:
+            cl = [c for c in rec[k]["cw"] if c["l"] is not None and abs(c["l"] - h[0]) < 0.02]
+            closes.append((round(h[0], 2), round(rec[k]["t"]), cl and round(cl[0]["p"], 3)))
+            if not cl or cl[0]["p"] is None or cl[0]["p"] < 0.95 or cl[0]["op"] < 0.999: bad_close.append((round(h[0], 2), cl))
+    first_fly = next((k for k, r in enumerate(rec) if not r["off"]), None)
+    same = first_fly is not None and hs[0] and hs[first_fly] and len(hs[first_fly]) == 3 and max(abs(a - b) for h, w in zip(hs[0], hs[first_fly]) for a, b in zip(h, w)) <= 0.02
+    check("[title-punct] through the welcome the , , । stay hidden until their symbols land: three holes until the flight starts (the holes it measures = the CSS's), "
+          "each closed only when its clone has settled on the glyph (its animation at >= 95 %, opaque) - the । first, then the two commas - and no clip at all at the end",
+          bool(rec) and rec[0]["off"] and len(hs[0] or []) == 3 and same and not bad_close and len(closes) == 3
+          and css_holes is not None and closes[0][0] == round(css_holes[2][0], 2) and {c[0] for c in closes[1:]} == {round(css_holes[0][0], 2), round(css_holes[1][0], 2)}
+          and rec[-1]["clip"] == "none" and not rec[-1]["off"] and pg.evaluate("getComputedStyle(document.querySelector('.sg-card > .sgf-heading')).clipPath") == "none",
+          (len(rec), closes, bad_close, same, rec[-1]["clip"][:30] if rec else None))
+    moved, dv, inner, iv = 0, [0], 0, [0]
     shot_before = fly_before["clip"] if fly_before else None   # [title-fly2] the still page (autoplay blocked, same viewport): the heading before any flight
     if shot_before:
         box = tuple(round(v) for v in shot_before)
         hb = Image.open(out / "fly_before.png").convert("RGB").crop(box); hn = ia.crop(box)
-        dv = list(ImageChops.difference(hb, hn).convert("L").getdata()); moved = sum(1 for v in dv if v > 40)
-    check("[title-fly] the heading is untouched by the flight: the same box in every sample (above) and the same pixels before and after it (under 0.3 % off by > 40)",
-          shot_before is not None and shot_after == shot_before and moved / len(dv) < 0.003, shot_before and (moved, len(dv), shot_after == shot_before))
+        hw = Image.open(out / "punct_whole.png").convert("RGB").crop(box)
+        # [title-punct] the holes (+2 px) are left out of the before/after comparison; inside them the heading after the flight = the heading whole
+        hm = Image.fromarray((in_rects(css_holes or [], 2.0).astype("uint8") * 255)).crop(box)
+        dv = [v for v, m in zip(ImageChops.difference(hb, hn).convert("L").getdata(), hm.getdata()) if not m]; moved = sum(1 for v in dv if v > 40)
+        iv = [v for v, m in zip(ImageChops.difference(hw, hn).convert("L").getdata(), hm.getdata()) if m]; inner = sum(1 for v in iv if v > 40)
+    check("[title-fly] the heading is untouched by the flight: the same box in every sample (above) and the same pixels before and after it (under 0.3 % off by > 40) "
+          "[title-punct] outside the three holes; inside them, after the flight, the title's own , , । (= the heading whole, under 0.3 % off by > 40)",
+          shot_before is not None and shot_after == shot_before and moved / len(dv) < 0.003 and len(iv) > 1000 and inner / len(iv) < 0.003,
+          shot_before and (moved, len(dv), inner, len(iv), shot_after == shot_before))
     check("the bird is the reference's wave file, in place from the loader's fade", all(s["bird"] == "new_landing_swiftee_anim.webp" for s in samples if s["loaded"]), {s["bird"] for s in samples})
     check("the sky is on: the kit's 87 drifting stars and the breathing glow", pg.evaluate("document.querySelectorAll('.sg-sky i').length === 87 && getComputedStyle(document.querySelector('.sg-glow')).animationName === 'sgBreathe' && getComputedStyle(document.querySelector('.sg-sky')).display === 'block'"),
           pg.evaluate("[document.querySelectorAll('.sg-sky i').length, getComputedStyle(document.querySelector('.sg-glow')).animationName]"))

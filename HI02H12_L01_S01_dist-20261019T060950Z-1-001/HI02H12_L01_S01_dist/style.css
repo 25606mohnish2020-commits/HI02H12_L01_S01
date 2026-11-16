@@ -1977,6 +1977,15 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
   padding-top:24px;background:linear-gradient(180deg, #F08400 0px, #F08400 38px, #EA7300 46px, #E06200 58.5px, #D45500 70px, #C84900 78.5px, #B83C00 90px, #B83C00 121.6px);
   -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;
   pointer-events:none;animation:none;transition:none;}
+/* [title-punct] (asked 2026-11-16: "before the green and the blue symbols fly and gets integrated at the title heading text ... the
+   symbols in the title heading text should not be visible at their places ... when they get integrated then only the original title
+   font and text colored symbols should be visible"): until its symbol lands, each of the heading's , , । is cut out of the heading by
+   an even-odd clip path - one hole per glyph = its landing clone's region (ink box + 14 px each side, 12 above, 24 below: its own
+   white rim, blue edge and soft drop, measured within 9 / 8 / 17 px; the next letters' paint starts 1-3 px outside). Hole numbers
+   in the heading's own px, measured in Chrome (Baloo 2 800 64px, the same at every viewport): commas' ink 315.69-331.69 and
+   515.86-531.86 x 42.3-62.3, the danda's 905.05-917.05 x 12.3-55.3. cover_fly_js re-measures them when the flight starts, closes
+   each as its clone settles and drops the clip at the end (or at once if no flight runs). Nothing else of the heading changes. */
+.sgf-heading.sgf-punct-off{clip-path:path(evenodd, "M-200 -200H1296V300H-200Z M301.69 30.30H345.69V86.30H301.69Z M501.86 30.30H545.86V86.30H501.86Z M891.05 0.30H931.05V79.30H891.05Z");}
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
 .sgf-shadow.s1{left:858.53px;top:287.53px;}    /* [title-fly] ellipse 3761 883.53,312.53 77x18 (the danda's) */
 .sgf-shadow.s2{left:149px;top:283px;}          /* [title-fly] ellipse 3762 174,308 79x12 (the comma's) */

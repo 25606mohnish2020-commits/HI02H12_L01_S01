@@ -755,13 +755,37 @@ with sync_playwright() as p:
     if PICKM:   # ---- 2b. [g1-scene] three wrong taps: the hand, the dead decoys, the guided tap without a line ([hand-quiet])
         W1, W2 = C["wrong"]
         pg = b.new_page(viewport={"width": 1333, "height": 750}); pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("requestfailed", lambda r: bad.append(r.url))
-        pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate("_ac()"); pg.wait_for_timeout(300); pg.evaluate(SOUNDS); pg.evaluate(GOTO, PAGE)
+        pg.goto(html.as_uri()); pg.wait_for_timeout(1500); pg.evaluate("_ac()"); pg.wait_for_timeout(300); pg.evaluate(SOUNDS)
+        pg.evaluate("""() => { window._ql = []; window._live0 = null; let last = null;   // [pick-idle] when the page goes quiet / busy, when its first tile goes live
+          setInterval(() => { const b = !!(isPlaying || sfxBusy()); if (b !== last) { window._ql.push([performance.now(), b]); last = b; }
+            if (window._live0 === null && document.querySelector('.dsc-tile.live')) window._live0 = performance.now(); }, 20); }""")
+        pg.evaluate(GOTO, PAGE)
         pg.wait_for_function("document.querySelectorAll('.dsc-tile.live').length === 3", timeout=40000, polling=20)
         def quiet_(): pg.wait_for_function("!isPlaying && !sfxBusy()", timeout=20000, polling=20); pg.wait_for_timeout(300)
         def T(k): pg.click(f".dsc-tile.t{k + 1}", force=True)
-        pg.wait_for_timeout(8500)   # [g1-quiet] 8.5 s of quiet with the tiles the child's: the engine's 7 s idle reminder must NOT re-read the sentence
-        idle = pg.evaluate(f"[window._snd.filter(e => e.kind === 'media' && e.src === '{C['sent_clip']}.ogg').length, document.querySelectorAll('.dsc-sent .hot').length, isPlaying, !!_idleVoTimer]")
-        check("[g1-quiet] 8.5 s of quiet once the tiles are the child's: the sentence's clip has sounded ONCE (no idle re-read), no word lit, nothing speaking, the idle ticker not running", idle[0] == 1 and idle[1] == 0 and not idle[2] and not idle[3], idle)
+        # [pick-idle] (2026-11-16, replaces [g1-quiet]'s "8.5 s of quiet: nothing re-read"): once the tiles are the child's, the
+        # instruction line (C['intro_clip']) again after every 7 s of quiet — no touch, nothing sounding — never the sentence: the
+        # first 7 s after the page fell quiet with its tiles live, the second 7 s after the first ended; then a touch on the picture
+        # (no tile) 3 s into the next quiet starts the count over: the third 7 s after that touch
+        pg.wait_for_function(f"window._snd.filter(e => e.kind === 'media' && e.src === '{C['intro_clip']}.ogg' && e.ms > window._live0).length >= 2", timeout=30000, polling=50)
+        quiet_(); pg.wait_for_timeout(3000)
+        cr_ = pg.evaluate("(() => { const r = document.querySelector('.tut-card.sfig-card').getBoundingClientRect(); return [r.left + r.width * 0.1, r.top + r.height * 0.12]; })()")
+        att0 = pg.evaluate("state.attempts"); t_poke = pg.evaluate("performance.now()"); pg.mouse.click(cr_[0], cr_[1]); t_poke = (t_poke + pg.evaluate("performance.now()")) / 2
+        pg.wait_for_function(f"window._snd.filter(e => e.kind === 'media' && e.src === '{C['intro_clip']}.ogg' && e.ms > window._live0).length >= 3", timeout=15000, polling=50)
+        quiet_()
+        live0, ql, snd_i = pg.evaluate("window._live0"), pg.evaluate("window._ql"), pg.evaluate("window._snd")
+        idl = [e["ms"] for e in snd_i if e["kind"] == "media" and e["src"] == f"{C['intro_clip']}.ogg" and e["ms"] > live0]
+        vo_after = [e["src"] for e in snd_i if e["kind"] == "media" and e["src"].startswith("vo_") and e["ms"] > live0 and e.get("slide") == PAGE]
+        def ref_(p):   # what the count ran from: the last fall to quiet before p, the tiles going live, the touch — the latest of them
+            q = max([t for t, busy in ql if not busy and t < p] or [0]); return max(q, live0, t_poke if t_poke < p else 0)
+        gaps = [round(p - ref_(p)) for p in idl[:3]]
+        check("[pick-idle] once the tiles are the child's, the instruction line again after every 7 s of quiet (no touch, nothing sounding): the first 7 s after the page fell quiet with its "
+              "tiles live, the second 7 s after the first ended, and a touch on the picture (no tile, no attempt) 3 s into the next quiet starts the count over — the third 7 s after the touch "
+              f"(each within -0.1/+0.35 s); only that line ({C['intro_clip']}): the sentence's clip sounded ONCE, no word lit",
+              len(idl) >= 3 and all(6900 <= g <= 7350 for g in gaps) and idl[2] - t_poke >= 6900 and set(vo_after) == {f"{C['intro_clip']}.ogg"}
+              and sum(1 for e in snd_i if e["kind"] == "media" and e["src"] == f"{C['sent_clip']}.ogg") == 1 and pg.evaluate("document.querySelectorAll('.dsc-sent .hot').length") == 0
+              and pg.evaluate("state.attempts") == att0 == 0 and not pg.evaluate("_idleVoTimer"),
+              (gaps, round(idl[2] - t_poke) if len(idl) > 2 else None, sorted(set(vo_after)), att0))
         T(W1); quiet_(); T(W2); quiet_(); t_w3 = pg.evaluate("performance.now()"); T(W1); pg.wait_for_timeout(150); pg.screenshot(path=str(out / "h_hand_1333.png"))
         hand = pg.evaluate(f"""() => {{ const h = document.querySelector('.slide-stage .reveal-hand.dmf-hand'), t = document.querySelectorAll('.dsc-tile')[{PICK}]; if (!h) return null; const r = h.getBoundingClientRect(), tr = t.getBoundingClientRect();
           return [state.attempts, +(r.left + r.width / 2 - (tr.left + tr.width / 2)).toFixed(2), +(r.top - tr.bottom).toFixed(2), [...document.querySelectorAll('.dsc-tile')].map(x => [x.classList.contains('off'), x.classList.contains('live'), getComputedStyle(x).pointerEvents]), !!document.querySelector('.dsc-tile.on'), r.width]; }}""")
@@ -771,6 +795,9 @@ with sync_playwright() as p:
         h3 = [e for e in pg.evaluate("window._snd") if e["kind"] == "media" and e["src"].startswith("vo_") and e["ms"] > t_w3 and e.get("slide") == PAGE]
         check("[vo-rec3] with the hand, hint 3's line (vo_build_hint3, \"यह सही चिह्न है, इसपर टैप कीजिए ।\") and nothing else, once, 0.35-1 s after the third wrong tap (0.5 s after the wiggle, as hints 1 / 2)",
               [e["src"] for e in h3] == ["vo_build_hint3.ogg"] and 350 <= h3[0]["ms"] - t_w3 <= 1000, [(e["src"], round(e["ms"] - t_w3)) for e in h3])
+        pg.wait_for_timeout(8000)   # [pick-idle] with the hand showing the instruction line does not come back (the chip's rule)
+        h3b = [e["src"] for e in pg.evaluate("window._snd") if e["kind"] == "media" and e["src"].startswith("vo_") and e["ms"] > t_w3 and e.get("slide") == PAGE]
+        check("[pick-idle] ...but not while the pointing hand shows: 8 s of quiet after hint 3, no line", h3b == ["vo_build_hint3.ogg"], h3b)
         n0 = len(pg.evaluate("window._snd")); T(W2); pg.wait_for_timeout(300)
         check("a dead tile tapped: nothing (no sound, no attempt, no wiggle)", pg.evaluate("state.attempts") == 3 and len(pg.evaluate("window._snd")) == n0 and not pg.evaluate("[...document.querySelectorAll('.dsc-tile')].some(t => t.classList.contains('wiggle'))"))
         t_tap = pg.evaluate("performance.now()"); T(PICK); pg.wait_for_timeout(250)

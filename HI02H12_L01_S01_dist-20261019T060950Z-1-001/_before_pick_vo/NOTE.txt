@@ -1,0 +1,1 @@
+Backup before [pick-vo] (2026-11-16): the dist three files, the tools, and the two takes replaced (vo_rec/vo_g1_intro.wav = "वाक्य सुनिए ...", vo_rec/vo_g4_o1.wav = "... पूर्णविराम") with their encoded clips and the transcripts / derived cues as they were (dist = the [title-punct] build, uncommitted).

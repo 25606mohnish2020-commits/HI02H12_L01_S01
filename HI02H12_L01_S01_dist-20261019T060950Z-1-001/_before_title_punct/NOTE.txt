@@ -1,0 +1,2 @@
+Backup before [title-punct] (2026-11-16): the dist three files and the tools as they were at commit ecb387a "Loading bar removed from title page"
+(the heading's , , । were visible all along; the flying symbols' glyph clones landed and faded over them).

@@ -1799,12 +1799,33 @@ scene_mod = r"""  /* ===== [t2-scene] PUNCT_SCENE — T2, the first example (FLN
         const id = n <= 1 ? d.hint1_audio : d.hint2_audio;
         after(500, ()=>{ if(!live || isPlaying) return; if(id){ play(A(id), ()=>{}); fbAudio = currentAudio; if(n === 2) signLights(currentAudio); } });   // a hint line is feedback: no tile answers while it speaks; [hint2-lit] hint 2 lights the signs as it names them
       };
+      // [pick-idle] (asked 2026-11-16 for G1-G3: "in the case of 7 seconds of inactivity from the user end this instruction Vo should
+      // repeat"): data.idle_intro_ms — once the tiles are the child's, the instruction line (data.intro_audio) again after every
+      // idle_intro_ms of quiet: no touch anywhere and nothing sounding (a line, a hint, an effect). Every touch and every sound starts the
+      // count over, so the line comes 7 s after the last of them, and again 7 s after itself for as long as the child does nothing. Not
+      // while the pointing hand shows (the chip's own rule: after the 3rd wrong tap only hint 3 speaks, [hand-quiet] / [vo-rec3]) and
+      // never after the answer. A tap cuts the line short and answers, as for the chip's. The engine's idle reminder stays off here
+      // (data.no_idle_vo): it speaks once per page only.
+      const idleIntro = ()=>{
+        const ms = d.idle_intro_ms; if(!ms || !d.intro_audio) return;
+        let since = 0; const poke = ()=>{ since = 0; };
+        document.addEventListener("pointerdown", poke, true);
+        const tick = ()=>{
+          if(!alive() || !live){ document.removeEventListener("pointerdown", poke, true); return; }
+          if(isPlaying || sfxBusy() || hintHand) since = 0;
+          else if(!since) since = Date.now();
+          else if(Date.now() - since >= ms){ since = 0; GameBus.emit("idle_vo_replay", { slide_id: slide.id, phase: slide.phase }); say(A(d.intro_audio), ()=>{}); }
+          setTimeout(tick, 100);
+        };
+        tick();
+      };
       function armTile(k){
         if(!live){ live = true; state.demoRunning = false; setSwMood("point");
           // [g1-quiet] the 🔊 chip: the instruction line (data.intro_audio) again — NOT the sentence: its clip and its word light play
           // once on this page (asked twice: "the VO and the highlight animation of the sentence should not repeat"); the engine's
           // idle reminder, which would call this too, is off here (data.no_idle_vo)
-          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; say(A(d.intro_audio), ()=>{}); }; }
+          state.replayAudio = ()=>{ if(!live || isPlaying || sfxBusy() || hintHand || !alive()) return; say(A(d.intro_audio), ()=>{}); };
+          idleIntro(); }   // [pick-idle]
         const t = tiles[k]; t.classList.add("live"); t.onclick = ()=> pickTap(k);
         t.onanimationend = (e)=>{ if(e.target === t && e.animationName === "wgNo") t.classList.remove("wiggle"); };
       }
@@ -3253,6 +3274,15 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
   padding-top:24px;background:linear-gradient(180deg, #F08400 0px, #F08400 38px, #EA7300 46px, #E06200 58.5px, #D45500 70px, #C84900 78.5px, #B83C00 90px, #B83C00 121.6px);
   -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;
   pointer-events:none;animation:none;transition:none;}
+/* [title-punct] (asked 2026-11-16: "before the green and the blue symbols fly and gets integrated at the title heading text ... the
+   symbols in the title heading text should not be visible at their places ... when they get integrated then only the original title
+   font and text colored symbols should be visible"): until its symbol lands, each of the heading's , , । is cut out of the heading by
+   an even-odd clip path - one hole per glyph = its landing clone's region (ink box + 14 px each side, 12 above, 24 below: its own
+   white rim, blue edge and soft drop, measured within 9 / 8 / 17 px; the next letters' paint starts 1-3 px outside). Hole numbers
+   in the heading's own px, measured in Chrome (Baloo 2 800 64px, the same at every viewport): commas' ink 315.69-331.69 and
+   515.86-531.86 x 42.3-62.3, the danda's 905.05-917.05 x 12.3-55.3. cover_fly_js re-measures them when the flight starts, closes
+   each as its clone settles and drops the clip at the end (or at once if no flight runs). Nothing else of the heading changes. */
+.sgf-heading.sgf-punct-off{clip-path:path(evenodd, "M-200 -200H1296V300H-200Z M301.69 30.30H345.69V86.30H301.69Z M501.86 30.30H545.86V86.30H501.86Z M891.05 0.30H931.05V79.30H891.05Z");}
 .sgf-shadow{position:absolute;display:block;}   /* each SVG keeps its own root size; offsets include its 25px blur bleed */
 .sgf-shadow.s1{left:858.53px;top:287.53px;}    /* [title-fly] ellipse 3761 883.53,312.53 77x18 (the danda's) */
 .sgf-shadow.s2{left:149px;top:283px;}          /* [title-fly] ellipse 3762 174,308 79x12 (the comma's) */
@@ -4292,7 +4322,7 @@ new_gate = f"""  <!-- TAP-TO-START — the Figma "Title Page" frame (FLN-by-MJ, 
         <img class="sgf-question" src="assets/UI/title_char_question.png" alt="" draggable="false">
         <img class="sgf-shadow s2" src="assets/UI/title_shadow_2.svg" width="129" height="62" alt="" draggable="false">
         <div class="sgf-commaw"><img class="sgf-comma" src="assets/UI/title_char_comma.png" alt="" draggable="false"></div>
-        <div class="sgf-heading" role="heading" aria-level="1" aria-label="रुको , सोचो , चिह्न लगाओ ।" data-text="रुको , सोचो , चिह्न लगाओ ।">रुको , सोचो , चिह्न लगाओ ।</div>   <!-- [title-text] the cover's heading, static (CSS: title_css) -->
+        <div class="sgf-heading sgf-punct-off" role="heading" aria-level="1" aria-label="रुको , सोचो , चिह्न लगाओ ।" data-text="रुको , सोचो , चिह्न लगाओ ।">रुको , सोचो , चिह्न लगाओ ।</div>   <!-- [title-text] the cover's heading, static (CSS: title_css) -->
         {sg_content}
         {sg_btn}
       </div>
@@ -4453,6 +4483,7 @@ _dust_js = (SCR / "title_assets" / "cover_dust_js.js").read_text(encoding="utf-8
 # question mark watches (title_assets/cover_fly_js.js); [title-fly2] it starts once the welcome is sounding (the cover block's
 # "heard" -> "sgwelcomestart") and is over before the welcome ends; the play button still comes at the welcome's end (after "sgflydone")
 _fly_js = (SCR / "title_assets" / "cover_fly_js.js").read_text(encoding="utf-8")
+assert "showGlyph(o.g)" in _fly_js and "setHoles(g.slice())" in _fly_js and "c.classList.remove(\"sgf-punct-off\")" in _fly_js, "title-punct: the heading's holes"   # [title-punct]
 assert 'addEventListener("sgwelcomestart"' in _fly_js and '"sgflydone"' in _fly_js and "faceLook(name, t, ms)" in (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8"), "title-fly: scripts"
 cover_fx_css = (SCR / "title_assets" / "cover_fx.css").read_text(encoding="utf-8")
 assert "__FACES__" not in _eyes_js and len(_faces) == 3 and all(f["name"] and f["art"] and f["face"] and f["rig"] for f in _faces) and all(len(f["eyes"]) == 2 and len(f["brows"]) == 2 for f in _faces), "cover-eyes: faces"
@@ -4619,6 +4650,20 @@ _h2s = VR["cues"]["build_hint2_s"]
 assert [s["mark"] for s in _h2s] == ["।", ",", "?"] and all(a["on"] < (a["off"] or 99) <= b["on"] for a, b in zip(_h2s, _h2s[1:])) and _h2s[-1]["off"] is None, _h2s
 assert all(sorted(o["mark"] for o in SL[sid]["data"]["options"]) == sorted(s["mark"] for s in _h2s) for sid in ("G1", "G2", "G3"))   # every sign named has its tile
 for sid in ("G1", "G2", "G3"): SL[sid]["data"]["hint2_signs"] = _h2s
+# [pick-vo] (asked 2026-11-16: "At Pages 9 G1, 10 G2 and 11 G3 of this file replace the instruction Vo in the background with this Vo
+# (vo_1  (1).wav) and at these pages in the case of 7 seconds of inactivity from the user end this instruction Vo should repeat"): the
+# instruction's ID stays vo_g1_intro (all three pages play it: data.intro_audio, the 🔊 chip) — its recording is the new take, "वाक्य
+# पढ़िए और सही जगह पर विराम चिह्न लगाइए" (vo_rec/vo_g1_intro.wav; was "वाक्य सुनिए और ..."), and [pick-idle] says it again after every 7 s of
+# quiet once the tiles are the child's (the module's idleIntro; the engine's one-shot reminder stays off: data.no_idle_vo)
+for sid in ("G1", "G2", "G3"):
+    assert SL[sid]["data"]["intro_audio"] == "vo_g1_intro" and SL[sid]["data"]["no_idle_vo"] is True, sid
+    SL[sid]["data"]["idle_intro_ms"] = 7000
+assert VR["texts"]["vo_g1_intro"].startswith("वाक्य पढ़िए") and VR["texts"]["vo_g4_o1"] == "लड़की पतंग उड़ा रही है ।", "[pick-vo] run vo_rec.py for the new takes"
+# [pick-vo] (asked the same day: "At Page 12 G4 of this file replace the correct option Vo with this Vo (vo_2 .wav) whenever it is used as
+# per the responce from the user end and follow the exact same flow of hints and feedbacks as of now"): the right sentence's ID stays
+# vo_g4_o1 — its recording is the new take, read without naming its danda ("लड़की पतंग उड़ा रही है", 2.44 s; was "... पूर्णविराम", 3.4 s),
+# with its words lit on it (g4_assets/vo_g4_o1.words.json re-derived by vo_rec.py: the danda lights as the voice ends). G4 plays it in one
+# place, as before: after a right tap, "शाबाश! यह सही वाक्य है ।" then the sentence; the hints and the rest of the flow unchanged
 # [vo-rec3] the sentence picks' own hints (the deck's slides 16-18): hint 1 in the try_again slot, hint 2 a line of its own (the 2nd wrong
 # pill; was the three pills read out — the old deck's production note); P1 / P2 no longer share vo_pick_hint1
 SL["G4"]["audio"].update({"try_again": "vo_g4_hint1", "hint2": "vo_g4_hint2", "hint3": "vo_pick_hint3", "ok": "vo_ok_pick"})
