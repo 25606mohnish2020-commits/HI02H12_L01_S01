@@ -2554,7 +2554,7 @@ const SlideModules = {
     }
   },
 
-  /* BUILD_PUNCT (H12 L01 विराम-चिह्न) — PRODUCE: an unpunctuated sentence as word chips with a GAP
+  /* BUILD_PUNCT (H05 L03 विराम-चिह्न) — PRODUCE: an unpunctuated sentence as word chips with a GAP
      after every word; the child drags a mark (। , ?) from the tray into the right gap — or taps a mark
      (selects it, hears its name) then taps a gap. Right mark in a right gap → it snaps in green; a gap
      that needs nothing / the wrong mark → buzz + red flash + spoken try_again; 2 misses in a row → hint

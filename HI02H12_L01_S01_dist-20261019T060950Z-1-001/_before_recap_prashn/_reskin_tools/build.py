@@ -1,4 +1,4 @@
-"""Re-skin HI02H12_L01_S01 (punctuation) onto the Ek-aur-Anek reference chrome.
+"""Re-skin HI02H05_L03_S01 (punctuation) onto the Ek-aur-Anek reference chrome.
 
 Base   = the reference build's CSS + body markup + engine JS (landing, boot loader, peek-gate
          transitions, dev nav, SVG nav/play buttons, mascot head, end screen, background music ...).
@@ -110,7 +110,7 @@ SCR  = pathlib.Path(__file__).resolve().parent
 # usage: python -I build.py [<path to a clone of github.com/siddharthsharma-ctrl/Ek-aur-Anek>] [<path to the game's dist folder>]
 REF_DIR  = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else SCR / "ref" / "Ek-aur-Anek"
 REF_HTML = REF_DIR / "HI02H11_L03_S01_poem.html"
-DIST = pathlib.Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else SCR.parent / "HI02H12_L01_S01_dist"
+DIST = pathlib.Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else SCR.parent / "HI02H05_L03_S01_dist"
 BACKUP = DIST.parent / "_before_reskin"
 
 def must(pattern, text, flags=0, what=""):
@@ -687,7 +687,7 @@ js = sub1(js, r'const endPraiseVo = "assets/Audio/ocean_correct_1\.mp3";',
 js = sub1(js, r"/\* ---------- 12\. SLIDE MODULES ---------- \*/",
           lambda m: ported_js + m.group(0), 0, "section 12")
 js = sub1(js, r"^  PHASE_TRANSITION: \{",
-          lambda m: "  /* ===== [reskin] PORTED from the HI02H12_L01_S01 engine (2026.07.21b-unified): the punctuation lesson's own\n"
+          lambda m: "  /* ===== [reskin] PORTED from the HI02H05_L03_S01 engine (2026.07.21b-unified): the punctuation lesson's own\n"
                     "     content modules. Same helper contracts (mountTapOptions / makeDraggable / dragWrong / celebrateThenAdvance /\n"
                     "     startNudge / imgOrEmoji / audioFor / setNavActive / completeSlide); only the bus name changed (SwiftPAL -> GameBus). ===== */\n"
                     + ported_mods + "\n" + m.group(0), re.M, "PHASE_TRANSITION anchor")
@@ -2641,7 +2641,7 @@ body.vo-lock .stage.sent-page .opt-grid.sent-opts .opt-cell:not(.opt-dim):not(.c
 @keyframes guidedHandBob{0%,100%{transform:translateY(2px);}50%{transform:translateY(-14px);}}
 """
 css = (ref_css
-       + "\n\n/* ===== [reskin] PORTED FROM THE HI02H12_L01_S01 ENGINE: evidence / sort / punctuation modules ===== */\n"
+       + "\n\n/* ===== [reskin] PORTED FROM THE HI02H05_L03_S01 ENGINE: evidence / sort / punctuation modules ===== */\n"
        + mod_css
        + "\n/* ===== [reskin] from the reference's ocean-games.css: wrong-answer feedback is motion-only ===== */\n"
        + feedback_rules + fit_rules + title_css + story_css + recap_css + demo_css + sent_css + letter_css + stamp_css)

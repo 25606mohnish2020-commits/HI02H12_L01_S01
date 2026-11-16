@@ -9,7 +9,7 @@
   OK  .sgf-shadow.s2       got [558.0, 403.9, 142.0, 64.0]  frame [558, 404, 142, 64]  max|d|=0.10
   OK  .sgf-shadow.s3       got [941.9, 439.9, 115.0, 69.0]  frame [942, 440, 115, 69]  max|d|=0.11
 Traceback (most recent call last):
-  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\title_check.py", line 42, in <module>
+  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H05_L03_S01_dist-20261019T060950Z-1-001\_reskin_tools\title_check.py", line 42, in <module>
     print(f"  {'OK ' if d <= 1.0 else 'OFF'} {s:20s} got {[round(v,1) for v in got]}  frame {list(exp)}  max|d|={d:.2f}")
                                                                                ^^^
 TypeError: 'NoneType' object is not iterable

@@ -19,7 +19,7 @@ PASS its name ("पूर्ण विराम", the ।) sounds as the tile is
 PASS one beat (~1 s) after the name the page moves on to G2 by itself, with no round gate — 1093 ms after the name
 PASS आगे never shows on this page
 PASS each clip plays once on this page (no idle reminder yet: the taps came within 7 s) — [1, 1, 1]
-PASS punct_build_done is reported once, with the two wrong tiles counted (3 wrong taps) — ([{'ts': 1793094867449, 'skill_code': 'HI02H12_L01_S01', 'lo_code': 'HI02H12_L01', 'signal': 'punct_build_done', 'slide_id': 'G1', 'phase': 'guided', 'value': True, 'first_try': False, 'wrong': 3, 'latency_ms': 12346}], 3)
+PASS punct_build_done is reported once, with the two wrong tiles counted (3 wrong taps) — ([{'ts': 1793094867449, 'skill_code': 'HI02H05_L03_S01', 'lo_code': 'HI02H05_L03', 'signal': 'punct_build_done', 'slide_id': 'G1', 'phase': 'guided', 'value': True, 'first_try': False, 'wrong': 3, 'latency_ms': 12346}], 3)
 PASS ~7 s of quiet with the tiles live: the engine's idle reminder reads the sentence again — once — 1 replay(s), first 7062 ms after the tiles went live
 PASS ...each word highlighted as the reminder reaches it, the highlight gone after — 176 samples, words seen [-1, 0, 1, 2, 3, 4, 5], off-time 0
 PASS ...and the tiles stay live meanwhile

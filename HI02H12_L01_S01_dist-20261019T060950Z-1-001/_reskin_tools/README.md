@@ -1,4 +1,4 @@
-# Re-skin tooling — HI02H12_L01_S01 on the Ek-aur-Anek chrome
+# Re-skin tooling — HI02H05_L03_S01 on the Ek-aur-Anek chrome
 
 `HI02H12_L01_S01_dist/` was rebuilt on 2026-10-19 so its landing, header, buttons, dev nav,
 phase-transition gate and end screen are the ones from
@@ -1058,7 +1058,7 @@ The celebration's line is the reference's ([cel-vo], 2026-10-28)
   here; `dun_assets/Audio/vo_well_done.ogg`, 2.95 s, nothing changed in time), the reference card's own beak bits (117 x 25 ms,
   `dun_assets/cel_bits_ref.json`, with its text) and its text in the card: the CEL slide's audio.prompt + prompt_hi, assets.audio +
   audio_text, end_anim.vo + bits + step_ms (build.py [cel-vo], after the [dun-chrome] card step). vo_celebrate.ogg stays in
-  assets/Audio, unused. NB the VO manifest (HI02H12_L01_S01_VO_Manifest.xlsx, 2026-10-28) still lists the celebration line as
+  assets/Audio, unused. NB the VO manifest (HI02H05_L03_S01_VO_Manifest.xlsx, 2026-10-28) still lists the celebration line as
   vo_celebrate with the old text; that row is now vo_well_done, "बहुत बढ़िया, दोस्त! तुमने कमाल कर दिया!" (the reference's recording
   is used as is, so nothing to record).
 - Measured after (cel_probe.py, three runs each): the line's play() 1712 / 1712 / 2071 ms after the mount here, 1690-1704 there

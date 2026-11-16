@@ -2557,7 +2557,7 @@ html.no-anim .tis-object-outline{animation:none!important;}
 @media (prefers-reduced-motion:reduce){.ck-crown,.wg-pulse{display:none}.tis-object-outline{animation:none!important}}
 /* ===== FLN ANIMATION KIT: current-generation overrides END ===== */
 
-/* ===== [reskin] PORTED FROM THE HI02H12_L01_S01 ENGINE: evidence / sort / punctuation modules ===== */
+/* ===== [reskin] PORTED FROM THE HI02H05_L03_S01 ENGINE: evidence / sort / punctuation modules ===== */
 /* ===== EVIDENCE comprehension (H04 L03 शाब्दिक एवं अनुमान-आधारित बोध) — ADDITIVE r4n ===== */
 .ev-passage{background:#FFFDF7;border:4px solid #F7C24D;border-radius:28px;padding:14px 18px 16px;box-shadow:0 12px 28px rgba(11,61,140,.13);display:flex;flex-direction:column;gap:10px;min-height:0;}
 .ev-pic{border-radius:18px;overflow:hidden;flex:0 0 auto;background:#EEF6FF;}

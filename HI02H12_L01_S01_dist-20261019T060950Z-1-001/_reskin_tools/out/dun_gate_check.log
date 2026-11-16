@@ -2,7 +2,7 @@ PASS the card asks for the round-3 gate after P2
 PASS the pages: ... G4, P1, P2, L1 (the letter page), L2 (the stamp page), then the end screen (15 in all; the ported P3-P6 gone) — ['T0', 'T0B', 'T1', 'T2', 'T3', 'T4', 'G1', 'G2', 'G3', 'G4', 'P1', 'P2', 'L1', 'L2', 'CEL']
 PASS G4 -> P1 straight on, no gate opening — []
 Traceback (most recent call last):
-  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\gate_check.py", line 73, in <module>
+  File "C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H05_L03_S01_dist-20261019T060950Z-1-001\_reskin_tools\gate_check.py", line 73, in <module>
     pg.wait_for_function("document.getElementById('phaseGate').classList.contains('text-speaking')", timeout=20000)
   File "C:\Users\25606\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 12809, in wait_for_function
     self._sync(

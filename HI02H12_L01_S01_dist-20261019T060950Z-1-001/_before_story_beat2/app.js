@@ -5772,7 +5772,7 @@ const SlideModules = {
     }
   },
 
-  /* ===== [reskin] PORTED from the HI02H12_L01_S01 engine (2026.07.21b-unified): the punctuation lesson's own
+  /* ===== [reskin] PORTED from the HI02H05_L03_S01 engine (2026.07.21b-unified): the punctuation lesson's own
      content modules. Same helper contracts (mountTapOptions / makeDraggable / dragWrong / celebrateThenAdvance /
      startNudge / imgOrEmoji / audioFor / setNavActive / completeSlide); only the bus name changed (SwiftPAL -> GameBus). ===== */
   QTYPE_RECAP: {

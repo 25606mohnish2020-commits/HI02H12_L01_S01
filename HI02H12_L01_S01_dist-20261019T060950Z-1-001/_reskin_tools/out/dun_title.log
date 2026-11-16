@@ -1,4 +1,4 @@
-C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H12_L01_S01_dist-20261019T060950Z-1-001\_reskin_tools\title_check.py:71: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+C:\Users\25606\OneDrive\FLN @ CG\Bindu's Second File\HI02H05_L03_S01_dist-20261019T060950Z-1-001\_reskin_tools\title_check.py:71: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
   vals = [d for d, m in zip(diff.getdata(), mask.getdata()) if m]
 PASS with autoplay blocked the welcome has not played: the play button is NOT on the page yet, the chip is off
 == geometry (rendered vs frame, px) ==

@@ -1,7 +1,7 @@
 """[optimize] (2026-11-15) the post-build step that makes the dist light and fully preloaded.
 
 build.py calls run() last, on the dist it has just written; it can also run by itself:
-    python -I -X utf8 optimize.py ../HI02H12_L01_S01_dist
+    python -I -X utf8 optimize.py ../HI02H05_L03_S01_dist
 
 What it does, in order (every step is idempotent, so a rebuild gives the same dist):
  1. quarantine: the assets no page can use (optimize_assets/unused_assets.txt, decided from every static reference and
@@ -711,5 +711,5 @@ def run(dist: pathlib.Path, report_path=None):
 
 
 if __name__ == "__main__":
-    d = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else SCR.parent / "HI02H12_L01_S01_dist"
+    d = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else SCR.parent / "HI02H05_L03_S01_dist"
     run(d, sys.argv[2] if len(sys.argv) > 2 else None)

@@ -18,12 +18,12 @@ import numpy as np, openpyxl
 
 SCR = pathlib.Path(__file__).resolve().parent
 args = [a for a in sys.argv[1:] if not a.startswith("--")]
-DIST = pathlib.Path(args[0]).resolve() if args else SCR.parent / "HI02H12_L01_S01_dist"
+DIST = pathlib.Path(args[0]).resolve() if args else SCR.parent / "HI02H05_L03_S01_dist"
 REC = SCR / "vo_rec"; AUD = DIST / "assets" / "Audio"
 GAIN = float(sys.argv[sys.argv.index("--gain") + 1]) if "--gain" in sys.argv else 0.0
 
 # ---- 1. what was said ----
-wb = openpyxl.load_workbook(DIST / "HI02H12_L01_S01_VO_Manifest.xlsx", data_only=True)
+wb = openpyxl.load_workbook(DIST / "HI02H05_L03_S01_VO_Manifest.xlsx", data_only=True)
 MAN = {str(r[0]): str(r[1]).strip() for r in wb.worksheets[0].iter_rows(values_only=True) if r[0] and str(r[0]).startswith("vo_")}
 tcache = REC / "transcripts.json"
 if tcache.exists() and "--retranscribe" not in sys.argv:

@@ -1,6 +1,6 @@
-# Re-skin tooling — HI02H12_L01_S01 on the Ek-aur-Anek chrome
+# Re-skin tooling — HI02H05_L03_S01 on the Ek-aur-Anek chrome
 
-`HI02H12_L01_S01_dist/` was rebuilt on 2026-10-19 so its landing, header, buttons, dev nav,
+`HI02H05_L03_S01_dist/` was rebuilt on 2026-10-19 so its landing, header, buttons, dev nav,
 phase-transition gate and end screen are the ones from
 https://github.com/siddharthsharma-ctrl/Ek-aur-Anek (`HI02H11_L03_S01_poem.html`).
 
@@ -24,7 +24,7 @@ Title page (added 2026-10-19)
   stars); it still runs on the end screen.
 - Swiftie rests on the frame's "Hello" still and waves (new_landing_swiftee_anim.webp, frame 0 = that still)
   only while the landing greeting is sounding, then returns to the still the moment it stops.
-- `python -I title_check.py ../HI02H12_L01_S01_dist/index.html title_assets_figma_render_1280x720.png out`
+- `python -I title_check.py ../HI02H05_L03_S01_dist/index.html title_assets_figma_render_1280x720.png out`
   checks every element's box against the frame, pixel-diffs against the Figma render, and logs Swiftie vs VO.
 
 Story page (added 2026-10-20)
@@ -62,7 +62,7 @@ Story page (added 2026-10-20)
   regenerates ONE line + its timings (needs edge-tts >= 7.3; 7.2.x gets HTTP 403). For a human recording: drop
   it in as `story_assets/vo_story_<line>.ogg`, run `python -I -X utf8 align_story_vo.py <line> --write`
   (faster-whisper word timestamps), then rebuild.
-- `python -I -X utf8 story_check.py ../HI02H12_L01_S01_dist/index.html story_figma_render_1280x720.png
+- `python -I -X utf8 story_check.py ../HI02H05_L03_S01_dist/index.html story_figma_render_1280x720.png
   story2_figma_render_1280x720.png out` checks the flow, both lines' word-vs-VO sync, the turn, when आगे
   appears, and at the end of each beat every element's box + the pixel diff vs that frame's Figma render.
 - `../_before_story/` holds the dist's index.html / style.css / app.js from before the story page;
@@ -102,7 +102,7 @@ Read-again page T0B "आइए वाक्य सुनें।" (added 2026-1
 - Both clips are SYNTHESISED like T0's (`story_vo.py r0|r1`; `align_story_vo.py r0|r1`). For r1 the
   synthesiser's word starts are the right ones: whisper puts a few words that follow a long pause inside the
   silence (checked against the clip's energy).
-- `python -I -X utf8 relisten_check.py ../HI02H12_L01_S01_dist/index.html relisten_figma_render_1280x720.png out`
+- `python -I -X utf8 relisten_check.py ../HI02H05_L03_S01_dist/index.html relisten_figma_render_1280x720.png out`
   checks the timing (in-page, every frame), the card vs the frame and Swiftie/chip/आगे vs T0, the frame's
   geometry/line breaks/fonts, and pixel diffs vs Figma's render over the title + box and over the whole card (less
   Swiftie/chip/आगे; there it counts only SOLID diffs, since a 1-px anti-alias line along the border's edges is
@@ -151,7 +151,7 @@ Three-marks recap T1 "ये हैं तीन विराम चिह्न
   vo_nm_alp / vo_nm_prashn) — not used, so that the page keeps one voice until everything is recorded; to use them,
   point the three name parts at those ids in build.py and give them timings. For a human recording: drop it in as
   recap_assets/vo_recap_<line>.ogg, `python -I -X utf8 align_story_vo.py recap_<line> --write`, rebuild.
-- `python -I -X utf8 recap_check.py ../HI02H12_L01_S01_dist/index.html recap_figma_render_1280x720.png out` checks the
+- `python -I -X utf8 recap_check.py ../HI02H05_L03_S01_dist/index.html recap_figma_render_1280x720.png out` checks the
   timing in-page every frame (title vs the intro, every beat's box and words vs its clip, the breaths, the two chip
   taps, आगे, the replay, आगे -> T2), the card / Swiftie / chip / आगे boxes, every element vs the frame, the fonts, each
   text's ink vs the Figma render and the pixel diffs. `recap_figma_render_1280x720.png` is Figma's own render of the
@@ -201,7 +201,7 @@ Run-on sentence demo T2 "सुनो यह वाक्य बिना रु
   the lesson's human vo_nm_purn says the same and could replace it — see T1's note on keeping one voice), full
   ("रीना स्कूल जा रही है, पूर्णविराम।": 5 word times + the mark's). Placeholders until recorded; for a human recording:
   drop it in as demo1_assets/vo_demo1_<line>.ogg, `align_story_vo.py demo1_<line> --write`, rebuild.
-- `python -I -X utf8 demo_check.py ../HI02H12_L01_S01_dist/index.html demo1_figma_render_1280x720.png out T2` checks the
+- `python -I -X utf8 demo_check.py ../HI02H05_L03_S01_dist/index.html demo1_figma_render_1280x720.png out T2` checks the
   whole timeline in-page every frame (bar vs the intro, the boxes, the words vs the clip, the blink's length, pace and
   silence, the tap — colours unchanged — and the dimming, the mark, the second reading's highlights vs the clip, the box
   going, the self-advance to T3, no आगे), no Swiftie / chip, every element vs the frame, the fonts, each text's ink vs
@@ -256,7 +256,7 @@ Run-on sentence demo T3 "तुम्हारा नाम क्या है"
   mark's 2). The "?" in the second reading makes the synthesiser pause ~1 s before naming the mark; its pitch on
   "क्या है?" is the same falling contour as the run-on's (normal for a Hindi क्या-question) — a human recording can
   give it more question colour. Placeholders until recorded (`align_story_vo.py demo2_<line> --write` after a recording).
-- `python -I -X utf8 demo_check.py ../HI02H12_L01_S01_dist/index.html demo2_figma_render_1280x720.png out T3` runs T2's
+- `python -I -X utf8 demo_check.py ../HI02H05_L03_S01_dist/index.html demo2_figma_render_1280x720.png out T3` runs T2's
   checks against this frame (its picture and sentence boxes, the third tile tapped, the "?" centred, the self-advance to
   T4). `demo2_figma_render_1280x720.png` is Figma's own render of the frame. `../_before_demo2_fig/` holds the dist's
   three files from before (T3 = the ported BUILD_PUNCT auto demo).
@@ -313,7 +313,7 @@ Run-on sentence demo T4 "मेरे पास आम केला सेब �
   danda shown with "है"), alp "अल्प विराम" (the lesson's human vo_nm_alp says the same), full as above (10 times).
   Naming each comma in place is a choice: the alternative is T2's literal pattern, the sentence read with its pauses
   and "अल्पविराम" once at the end (both slots lit then) — a VO / one-line data change. Placeholders until recorded.
-- `python -I -X utf8 demo_check.py ../HI02H12_L01_S01_dist/index.html demo3_figma_render_1280x720.png out T4` — T2's
+- `python -I -X utf8 demo_check.py ../HI02H05_L03_S01_dist/index.html demo3_figma_render_1280x720.png out T4` — T2's
   checks plus: two slots, blinking in lockstep with one animation; both marks landing in order and centred; each slot
   lit while its comma is named; the gate into G1. `demo3_figma_render_1280x720.png` is Figma's own render of the frame.
   `../_before_demo3_fig/` holds the dist's three files from before (T4 = the ported BUILD_PUNCT auto demo).
@@ -349,7 +349,7 @@ First sentence the child punctuates, G1 "राजू गेंद से खे
   vo_g1_*.ogg: intro "वाक्य सुनिए और सही चिह्न लगाइए ।" and sent "राजू गेंद से खेल रहा था" (6 word times). The name on the right
   tap is T2's vo_demo1_purn ("पूर्ण विराम"). Placeholders until recorded (`align_story_vo.py g1_<line> --write` after a
   recording).
-- `python -I -X utf8 pick_check.py ../HI02H12_L01_S01_dist/index.html g1_figma_render_1280x720.png out G1` checks the timeline
+- `python -I -X utf8 pick_check.py ../HI02H05_L03_S01_dist/index.html g1_figma_render_1280x720.png out G1` checks the timeline
   in-page every frame (bar vs the intro, the boxes, the words vs the clip, the blink, the tiles going live and no earlier),
   the wrong taps (wiggle, colours, attempts, no mark), the right tap (press, dim, mark at once, the name, G2 a beat later, no
   gate, no आगे), the signals, the idle reminder, no header / Swiftie / chip, every box vs the frame, the fonts, each text's
@@ -394,7 +394,7 @@ Second sentence the child punctuates, G2 "तुम कहाँ जा रह�
   differs (glyph anti-aliasing), no solid differences; every box within 0.5 px; the "?" ink-centred in the slot.
 - VO: one SYNTHESISED clip, the sentence (`python -I -X utf8 recap_vo.py g2 sent`, g2_assets/vo_g2_sent.ogg, 5 word times);
   the name on the right tap is T3's vo_demo2_prashn ("प्रश्नवाचक चिह्न"). Placeholder until recorded.
-- `python -I -X utf8 pick_check.py ../HI02H12_L01_S01_dist/index.html g2_figma_render_1280x720.png out G2` (G1's checks on
+- `python -I -X utf8 pick_check.py ../HI02H05_L03_S01_dist/index.html g2_figma_render_1280x720.png out G2` (G1's checks on
   this frame; G3 next). smoke.py taps G2 too (a wrong tile, then "?") and drives the BUILD_PUNCT builder on G4 instead (two
   marks, through the round gate to P1); the older checks' "no story styling past the Figma pages" step now mounts G3.
   `../_before_g2_fig/` holds the dist's three files and build.py from before (G2 = the ported builder).
@@ -428,7 +428,7 @@ Third sentence the child punctuates, G3 "बाग में गुलाब, �
   together ("हैं ।") — before, the highlight jumped from "फूल" straight to the danda.
 - VO: one SYNTHESISED clip, the sentence read without a pause (`python -I -X utf8 recap_vo.py g3 sent`, 10 word times, the
   danda with "हैं"); the name on the right tap is T4's vo_demo3_alp ("अल्प विराम"). Placeholder until recorded.
-- `python -I -X utf8 pick_check.py ../HI02H12_L01_S01_dist/index.html g3_figma_render_1280x720.png out G3` (G4 next).
+- `python -I -X utf8 pick_check.py ../HI02H05_L03_S01_dist/index.html g3_figma_render_1280x720.png out G3` (G4 next).
   smoke.py taps G3 too (a wrong tile, then ",") and checks the EVIDENCE_QA pick on P2 instead; the older checks' "no story
   styling past the Figma pages" step now mounts G4. `../_before_g3_fig/` holds the dist's three files and build.py from
   before (G3 = the ported reading pick).
@@ -468,7 +468,7 @@ G4 "सही विराम चिह्न वाला वाक्य च�
   made for this page; a choice), and o1-o3, each sentence read with its own punctuation: the synthesiser pauses ~1 s at a danda,
   so the three readings are heard differently. build.py turns each clip's word timings into the pill's word-sync table (each word's
   start, then the last one's end; a lone danda from the end of the word before it). Placeholders until recorded.
-- `python -I -X utf8 g4_check.py ../HI02H12_L01_S01_dist/index.html out [--ref g4_assets/ref_p4_bird_gry.png]` checks the whole flow
+- `python -I -X utf8 g4_check.py ../HI02H05_L03_S01_dist/index.html out [--ref g4_assets/ref_p4_bird_gry.png]` checks the whole flow
   in-page every frame (the right pill, the three wrong ones + the guided tap, the idle repeat, every word lit inside its clip window)
   and, with --ref (needs the network), the pixel match against the live P4 using P4's own picture (ref_p4_bird_gry.png, read from
   that page). smoke.py taps G4 (a wrong pill, then the right one, through the gate to P1) and drives the BUILD_PUNCT builder on P1
@@ -489,7 +489,7 @@ P1 "सही विराम चिह्न वाला वाक्य च�
   SYNTHESISED clips (`python -I -X utf8 recap_vo.py p1 all|<line>`) in p1_assets/: o1-o3, each read with its own "?" — the
   synthesiser lifts and pauses ~1 s there, so "क्या? यह ..." and "क्या यह आपकी? किताब है" are heard broken where theirs sits; a word
   carrying its "?" stays lit through that pause. Placeholders until recorded.
-- `python -I -X utf8 g4_check.py ../HI02H12_L01_S01_dist/index.html out --page P1 [--ref g4_assets/ref_p4_bird_gry.png]` — G4's
+- `python -I -X utf8 g4_check.py ../HI02H05_L03_S01_dist/index.html out --page P1 [--ref g4_assets/ref_p4_bird_gry.png]` — G4's
   checks on P1 (straight on to P2, mastery counted), and the same pixel match against the live P4. smoke.py taps P1 too (a wrong
   pill, then the right one, on to P2) and drives the BUILD_PUNCT builder on P4 instead (a wrong gap, then "," and "।").
   `../_before_p1_ref/` holds the dist's three files and build.py from before (P1 = the ported builder).
@@ -512,7 +512,7 @@ P2 "सही विराम चिह्न वाला वाक्य च�
 - VO: title + try-again = G4's clips again; three new SYNTHESISED clips (`python -I -X utf8 recap_vo.py p2 all|<line>`) in
   p2_assets/, each read as written: ~1 s at each "।" (heard as the sentence ending there), straight through with no mark, and a
   short pause at each comma. Lone dandas light in the pauses they make. Placeholders until recorded.
-- `python -I -X utf8 g4_check.py ../HI02H12_L01_S01_dist/index.html out --page P2 [--ref g4_assets/ref_p4_bird_gry.png]` — the
+- `python -I -X utf8 g4_check.py ../HI02H05_L03_S01_dist/index.html out --page P2 [--ref g4_assets/ref_p4_bird_gry.png]` — the
   same checks (straight on to P3), the two-line rule (one height, centred on y 570.5, the same break word, no line opening with a
   mark, nothing spilling), and the 0 px match against the live P4 with P4's own short sentences. smoke.py taps P2 too and drives
   the EVIDENCE_QA pick on P3 instead. `../_before_p2_ref/` holds the dist's three files and build.py from before (P2 = the
@@ -610,7 +610,7 @@ L1, the letter page after P2's gate (2026-10-26)
   second gate before CEL), isTut for the whole-stage frame (as PUNCT_PICK), the idle-reminder exclusion, and the asset copy (7l).
   Every visual beat starts on its sound's "playing" event (150 ms fallback); window.oceanCleanup (clearHost runs it) stops every
   timer and sound and restores the background music when the page is left (the dev nav, the end screen).
-- Checked: `python -I -X utf8 letter_check.py ../HI02H12_L01_S01_dist/index.html out [<dir with render_538-39/558-2/610-6.png>]`
+- Checked: `python -I -X utf8 letter_check.py ../HI02H05_L03_S01_dist/index.html out [<dir with render_538-39/558-2/610-6.png>]`
   — the page mounted straight: every beat at its moment on the page's clock, each sound within 20 ms of its beat, the icon's
   box, the 610:6 box, the pulse, the opening, the end screen 3.3 s after the tap, every sound stopped on leaving, a clean re-run
   and a clean mid-way exit; against Figma's renders the grandfather stage (mean 11.3 / 255x3, cloud region 17.3) and the
@@ -729,7 +729,7 @@ and the box disappears but not the symbol")
   (vo_stamp_*.words.json) — placeholders until recorded; a human recording goes in as stamp_assets/vo_stamp_<line>.ogg, then
   `align_story_vo.py stamp_<line> --write` and a rebuild. Bitmaps by the scratchpad's make_stamp_assets.py (the sheet, tray and
   stamps lossless; the table q95) — stamp_assets/img_stamp_*.webp; stamp_figma_render_1280x720.png is Figma's render of the frame.
-- Checked: `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out [stamp_figma_render_1280x720.png]` — the page
+- Checked: `python -I -X utf8 stamp_check.py ../HI02H05_L03_S01_dist/index.html out [stamp_figma_render_1280x720.png]` — the page
   mounted straight: every beat read from the page's OWN frame trace (rAF) and a hook on every media play, judged against each
   other and against the clips' own clocks (not Playwright's polls): the bar within 60 ms of the line's first sounding frame, the
   sheet 0.5 s after its ended frame, the pops within 60 ms of their stamps, each word's reveal frame within -60..+40 ms of its
@@ -818,7 +818,7 @@ and the box disappears but not the symbol")
   2100 on its sound, the comma's ink on the slot's centre within 3 px), the end screen 4.4 s after, 4 + 1 lifts; both slot moments
   against their renders (565:28: frame 4.4, sheet 6.3; 579:47: frame < 12, sheet < 20 — the two-row text's edges — each row's ink
   rows within 3 px and its runs within 4 px of the render's, the slot fill at 525..553 x 355..384); a re-run (round 0 again) and a
-  mid-way exit with a stamp in hand. `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/index.html out
+  mid-way exit with a stamp in hand. `python -I -X utf8 stamp_check.py ../HI02H05_L03_S01_dist/index.html out
   stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png`. smoke.py / gate_check.py drop the right stamp once per round
   (stamp_drop(ri) from data.rounds). `../_before_stamp_rounds/` holds the dist's three files, build.py, recap_vo.py and the three
   checks from before (one round).
@@ -839,7 +839,7 @@ and the box disappears but not the symbol")
   chime/confetti beats, the mark's ink on the slot's centre, each stamp lifted only in hand); the hand-over to the end screen is
   judged on the page's own clock (completeSlide wrapped: 4.4 s after the last drop) — Playwright's wait lags 200-300 ms behind it;
   each round's slot moment against its render (round 3: frame 3.9, sheet 3.9, the sentence's ink rows within 3 px and its run
-  within 4 px of the render's, the slot fill at 751..786 x 331..388). `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/
+  within 4 px of the render's, the slot fill at 751..786 x 331..388). `python -I -X utf8 stamp_check.py ../HI02H05_L03_S01_dist/
   index.html out stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png stamp3_figma_render_1280x720.png`. smoke.py /
   gate_check.py / the live check drop the right stamp once per round (a loop over data.rounds). letter_check.py now judges L1's
   hand-over to L2 on the page's clock too (its 3 s screenshot of the dive's scaled layers can take 0.6 s+ and made the old
@@ -875,7 +875,7 @@ and the box disappears but not the symbol")
   that round, the comma once, the danda never; the page's own sounds 2 + 2 + 3 + 3 pops and 5 thuds, all stopped on leaving) and
   its slot moment against the 593:130 render (frame mean 4.35, sheet 5.77, each row's ink rows exact and its runs within 1 px,
   each slot's fill exact to the pixel — the fill test now matches the slot's own #FFF1B6 within 20 px of its place, since the
-  sheet's paper by the first slot passed the looser colour test). `python -I -X utf8 stamp_check.py ../HI02H12_L01_S01_dist/
+  sheet's paper by the first slot passed the looser colour test). `python -I -X utf8 stamp_check.py ../HI02H05_L03_S01_dist/
   index.html out stamp_figma_render_1280x720.png stamp2_figma_render_1280x720.png stamp3_figma_render_1280x720.png
   stamp4_figma_render_1280x720.png`. smoke.py / gate_check.py / the live check drop the right stamp on each of a round's slots in
   turn (the second once the first's box has gone and .stp.live is back; a round's marks counted). The committed state before this
@@ -920,15 +920,15 @@ Rebuilding after a card/content change
    or edit `build.py` for chrome/CSS changes.
 2. Clone the reference next to this file (or pass its path):
    `git clone https://github.com/siddharthsharma-ctrl/Ek-aur-Anek ref/Ek-aur-Anek`
-3. `python -I build.py [ref/Ek-aur-Anek] [../HI02H12_L01_S01_dist]`
+3. `python -I build.py [ref/Ek-aur-Anek] [../HI02H05_L03_S01_dist]`
 
 Checking it (needs Python 3.12, `pip install playwright`, and Chrome installed)
-- `python -I shoot.py ../HI02H12_L01_S01_dist/index.html shots --gate` — screenshots of every screen.
-- `python -I smoke.py ../HI02H12_L01_S01_dist/index.html` — drives the start button, the story page's आगे, the Figma pages
+- `python -I shoot.py ../HI02H05_L03_S01_dist/index.html shots --gate` — screenshots of every screen.
+- `python -I smoke.py ../HI02H05_L03_S01_dist/index.html` — drives the start button, the story page's आगे, the Figma pages
   through the gate into G1 and on through G2, G3 (wrong + right tiles), G4, P1 and P2 (wrong + right pill), P2's gate, L1 (the
   letter page to its pulsing envelope, then the tap), to the end screen (its validator clean), and the dev nav; prints PASS/FAIL
   per step.
-- `python -I -X utf8 letter_check.py ../HI02H12_L01_S01_dist/index.html out` — the letter page beat by beat (see its section).
+- `python -I -X utf8 letter_check.py ../HI02H05_L03_S01_dist/index.html out` — the letter page beat by beat (see its section).
 
 In the browser: open `index.html?dev=1` for the slide-jump bar (bottom-right) and the signal banner;
 `index.html?slide=N` mounts slide N directly.
