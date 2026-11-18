@@ -72,6 +72,8 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    checked as above (one snapshot each) with its 56 px stars on the symbol(s) just placed (the । / the two commas, at their ink's centre);
    during the blue one the heading's two copies carry the heading's own clip (the two comma holes, = the CSS's), so the commas stay hidden
    in the gold; at the green one no clip anywhere. The button after the green one, as above.
+[title-seq3] (2026-11-18, next) the whole title's shine only at the green landing: the blue landing's record has no shine and no stars, and
+   the recorder takes ONE snapshot, at the green pop (no gold layer animated before it); the green shine's checks as above.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -414,8 +416,14 @@ with sync_playwright() as p:
     # each sparkle: on the title, timed to its sound, its stars on the symbol(s) just placed (56 px, at their ink's centre: within 6 px across, 10 down)
     ink = {}
     for k_, (ch, l_, t_, r_, b_) in enumerate(pi["ink"]): ink.setdefault(ch, []).append(((l_ + r_) / 2, (t_ + b_) / 2))
-    for k, (kind, marks) in enumerate((("blue", ink.get("।", [])), ("green", ink.get(",", [])))):
-        gold = golds[k] if len(golds) > k else {}; lay = snaps[k] if len(snaps) > k else {}
+    # [title-seq3] the blue landing: the badge pop ALONE - no golden layer animated (no snapshot taken until the green pop), no stars
+    gb = golds[0] if golds else {}; gg = golds[1] if len(golds) > 1 else {}
+    check("[title-seq3] the blue danda's landing has the badge pop alone: no shine on the title then (no glow, wash, gleam, stars or dust animated "
+          "before the green landing's pop)",
+          gb.get("kind") == "blue" and gb.get("shine") is False and not gb.get("stars") and len(snaps) == 1 and gg.get("t0") is not None and snaps[0]["t"] >= gg["t0"],
+          (gb.get("kind"), gb.get("shine"), gb.get("stars"), len(snaps), snaps and gg.get("t0") and round(snaps[0]["t"] - gg["t0"])))
+    for k, (kind, marks) in ((1, ("green", ink.get(",", []))),):
+        gold = golds[k] if len(golds) > k else {}; lay = snaps[0] if len(snaps) == 1 else {}
         bx = gold.get("box") or {}; stl = gold.get("starList") or []
         st_in = [s for s in stl if bx and bx["l"] - 10 <= s[0] <= bx["r"] + 10 and bx["t"] - 10 <= s[1] <= bx["b"] + 10]
         big = [s for s in stl if s[2] == 56]
@@ -429,7 +437,7 @@ with sync_playwright() as p:
         clip_ok = ((hh is not None and len(hh) == 2 and wh == hh and gh == hh and css_holes is not None
                     and max(abs(a - b) for h_, w_ in zip(hh, css_holes[:2]) for a, b in zip(h_, w_)) <= 0.02) if kind == "blue"
                    else (lay.get("headClip") == "none" and lay.get("washClip") == "none" and lay.get("gleamClip") == "none"))
-        check(f"[title-seq2] ...the {kind} sparkle is ON the title and timed to its sound: a gold glow behind the words and a gold wash over the letters peaking at 70 ms "
+        check(f"[title-seq2] ...the {kind} landing's shine is ON the title and timed to its sound: a gold glow behind the words and a gold wash over the letters peaking at 70 ms "
               "(the pop's peak) and gone by 1.1 s, a white-gold gleam sweeping the letters (60-900 ms), 30+ gold stars on the heading - 56 px on "
               + ("the new ।" if kind == "blue" else "the two new commas") + " at the pop - and gold dust drawn on one canvas every frame (painted ~0.15 and ~0.45 s in); "
               "every layer pinned to the sound's own clock (built ahead, invisible, while the comma flew); "

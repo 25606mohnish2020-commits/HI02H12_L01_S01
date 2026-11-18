@@ -3686,7 +3686,7 @@ G1-G3's new instruction take, said again after 7 s of quiet; G4's right sentence
 - `../_before_pick_vo/` holds the dist's three files ([title-punct]'s build), the tools, the two old takes + transcripts.json /
   derived.json (vo_rec/), and the old encoded clips / words.json (g1_assets/, g4_assets/).
 
-The title page in order: the welcome alone, then the symbols' flight, a badge pop with a golden sparkle as EACH symbol lands, then the play button ([title-seq] + [title-seq2], 2026-11-18)
+The title page in order: the welcome alone, the symbols' flight, a badge pop as EACH symbol lands, the title's golden shine with the last, then the play button ([title-seq] + [title-seq2] + [title-seq3], 2026-11-18)
 - Asked: "At the title page of this file First of all the Vo should play in the bg and after the VO is over then the green and the blue
   flying animation should take place and ehen these green and blue symbols gets integrated and placed then this
   "C:\Users\25606\Downloads\vadim_makes_sound-achievement-badge-pop-sound-3-547866.mp3" sound effect should come along with the golden
@@ -3725,6 +3725,11 @@ The title page in order: the welcome alone, then the symbols' flight, a badge po
   During the blue sparkle the commas are not placed yet: the heading's two gold copies take the heading's own clip of the moment
   (its two comma holes), so the gold never shows a comma before it lands ([title-punct] kept). The same Audio element plays twice
   (a restart while still sounding would start the light at once, since it gives no new "playing").
+- [title-seq3] (asked next: "The whole title heading text should show shine animation only after the green symbols get integrated
+  not at the time of blue one. Rest keep everything exactly the same in this file."): the blue landing keeps the badge pop ALONE - no
+  glow, wash, gleam, stars or dust (the flight's own soft landing glow at the danda stays, as it always was); the whole title's shine
+  comes only with the green landing's pop, unchanged (stars on the two new commas, then over the words). sparkle("blue") = the sound
+  and its record only (g.shine false); the layers, prepared ahead, are first animated at the green pop.
 - Checks: title_check.py [title-seq] replaces the three [title-fly2] checks - the welcome alone (no flight, no button while it
   sounds); the flight within 1.2 s after its last sounding sample, at .84; the badge played once within 60 ms of the last glyph's
   return and the sparkle on its "playing" (40 ms); one glow and one wash peaking at 70 ms, the gleam 60-900 ms, 30+ stars all on the
@@ -3738,6 +3743,7 @@ The title page in order: the welcome alone, then the symbols' flight, a badge po
   runs 20 samples past the flight's end (the button's breathing starts ~0.9 s after it comes). optimize_check A: "the play button
   comes at the welcome's end" became "comes 5.5-11 s after the welcome's end with the flight done (both sparkles), the files still
   loading".
+  [title-seq3]: the blue landing's record has no shine and no stars and the recorder takes ONE snapshot, at the green pop.
 - Checked: the unchanged tools first rebuilt the dist byte for byte (git clean). Then title_check 50/50 (ALL PASS: badge 3-6 ms after
   the last glyph, sparkle 0.7-1.1 ms after the sound's "playing", button 78 ms after the sparkle), smoke 53/53, story_check 75/75,
   __OPT__. Frames rendered at fixed times after the pop (the sparkle held, every layer set to that time): the letters flash gold

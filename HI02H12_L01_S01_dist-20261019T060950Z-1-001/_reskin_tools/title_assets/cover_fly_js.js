@@ -49,6 +49,9 @@
    (sparkle("blue"): its stars on the new "।"; the commas, not placed yet, stay hidden in the gold too - the heading's copies take its
    clip of the moment), then when the green comma's two halves are placed (sparkle("green"): stars on the two new commas); the play
    button after the second, as before. ~2.4 s apart, so the two never overlap (should they, the first is ended at once).
+   [title-seq3] (asked 2026-11-18, next: "The whole title heading text should show shine animation only after the green symbols get
+   integrated not at the time of blue one"): the blue landing keeps the badge pop ALONE (no glow, wash, gleam or stars - the flight's
+   own soft landing glow at the danda, as always); the whole title's shine comes only with the green landing's pop, as it was.
    Motion: Web Animations (transform/opacity, keyframes sampled from the paths); side effects (bursts, expressions) on timers.
    SAFE: any error leaves the cover as it was before the flight (the heading whole). */
 (function(){
@@ -168,7 +171,7 @@
       if(p !== null && p < 0.95 && ca.playState === "running"){ setTimeout(land, 20); return; }
       showGlyph(o.g); o.el.classList.add("sgf-gone"); const f = cw.animate([{ opacity: 1 }, { opacity: 0 }], { duration: T.outMs, fill: "forwards" });
       f.onfinish = ()=> cw.remove();
-      if(o.name === "purn") sparkle("blue");                                       // [title-seq2] the blue danda is placed: the badge pop + the golden sparkle
+      if(o.name === "purn") sparkle("blue");                                       // [title-seq2] the blue danda is placed: the badge pop ([title-seq3] alone: no shine)
       if(holes && !holes.length && st.phase === "green") sparkle("green"); }, o.delay + o.ms + 60);   // [title-seq] the green comma's two halves placed (the last): again, then the button
     return o;
   }
@@ -413,15 +416,20 @@
         st.phase = "done"; st.doneAt = now(); try { window.dispatchEvent(new Event("sgflydone")); } catch(e){} } };
     endCur = end;
     try {
-      const ahead = !!prep; P = prepare(); g.ahead = ahead; g.box = P.box;
-      const S = makeStars(P, P.runs.filter(r => r.w === (last ? "," : "।"))); g.stars = S.stars.length; g.dust = S.dust.length;
-      g.starList = S.stars.map(s => [+s.x.toFixed(1), +s.y.toFixed(1), +s.s.toFixed(1), Math.round(s.at)]);   // (heading px, size, start ms) for the checks
-      // the heading's copies take its clip of the moment: a symbol not placed yet stays hidden in the gold too ([title-punct])
-      const clip = h ? h.style.clipPath : ""; P.wash.style.clipPath = clip; P.gleam.style.clipPath = clip; g.clip = clip;
+      // [title-seq3] the title's shine (glow, wash, gleam, stars) only with the green one; the blue one is the badge pop alone
+      const shine = g.shine = last; let S = null;
+      if(shine){
+        const ahead = !!prep; P = prepare(); g.ahead = ahead; g.box = P.box;
+        S = makeStars(P, P.runs.filter(r => r.w === ",")); g.stars = S.stars.length; g.dust = S.dust.length;
+        g.starList = S.stars.map(s => [+s.x.toFixed(1), +s.y.toFixed(1), +s.s.toFixed(1), Math.round(s.at)]);   // (heading px, size, start ms) for the checks
+        // the heading's copies take its clip of the moment: a symbol not placed yet stays hidden in the gold too ([title-punct])
+        const clip = h ? h.style.clipPath : ""; P.wash.style.clipPath = clip; P.gleam.style.clipPath = clip; g.clip = clip;
+      }
       // t0 = the clip's own time zero on the page's clock: every animation is pinned to it (startTime), so a late first frame skips
       // ahead and the light never trails the sound
       const play = t0 =>{
         if(started || done) return; started = true; g.at = now(); g.t0 = t0;
+        if(!shine){ setTimeout(end, Math.max(0, t0 + G.endMs - now())); return; }   // [title-seq3] the blue one: the sound alone, over with the clip
         const A = (el, kf, opt)=>{ const a = el.animate(kf, opt); anims.push(a); return a; };
         const o = (ms, extra)=> Object.assign({ duration: ms, fill: "both", easing: "linear", delay: 0 }, extra || {});
         const pk = G.peak, p = x => (100 * (1 - x / P.W)).toFixed(2) + "% 0%";
