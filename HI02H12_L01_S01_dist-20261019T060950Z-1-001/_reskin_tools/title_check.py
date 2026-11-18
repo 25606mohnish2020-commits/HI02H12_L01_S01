@@ -64,9 +64,14 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    sounds; 2. the flight starts within 1.2 s after its last sounding sample, at pace .84; 3. the badge plays once, within 60 ms of the last
    glyph's return, and the sparkle starts on its "playing" (40 ms): one glow and one wash peaking at 70 ms (glow <= 1.1 s, wash <= 1 s, wash
    >= .7), one gleam on the copy's ::after (60 ms + <= 840), 30+ stars all on the heading (the first by 30 ms), 10+ dust, all drawn on
-   one canvas (10+ frames, painted > 500 px at the start and 300 ms in), every layer
+   one canvas (10+ frames, painted > 500 px ~0.15 and ~0.45 s in), every layer
    pinned (startTime, 1 ms) to the clip's own time zero = its "playing" (40 ms), the layers built ahead; 4. the layers are gone and the flight 'done' 1.45-1.8 s after it, the button within
    0.4 s of that and never before. The [title-fly2] checks (flight inside the welcome) went with it.
+[title-seq2] (2026-11-18, right after) the badge pop + its sparkle at EACH integration: two plays - within 60 ms of the । coming back, then
+   within 60 ms of the two commas (the last) - each sparkle on its own "playing" (40 ms), the first over before the second; each sparkle
+   checked as above (one snapshot each) with its 56 px stars on the symbol(s) just placed (the । / the two commas, at their ink's centre);
+   during the blue one the heading's two copies carry the heading's own clip (the two comma holes, = the CSS's), so the commas stay hidden
+   in the gold; at the green one no clip anywhere. The button after the green one, as above.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -161,34 +166,34 @@ PUNCT_REC = """() => { const h = document.querySelector('.sg-card > .sgf-heading
     cw: [...document.querySelectorAll('.sgf-mergew')].map(w => { const a = w.getAnimations()[0], c = w.firstElementChild;
       return { p: a ? a.effect.getComputedTiming().progress : null, op: +getComputedStyle(w).opacity, l: c ? parseFloat((c.style.clipPath.match(/polygon\\(([-\\d.]+)px/) || [])[1]) : null }; }) });
   snap(); new MutationObserver(snap).observe(h, { attributes: true, attributeFilter: ['style', 'class'] }); }"""
-# [title-seq] every media play() (its file and moment) and the badge's "playing"; the golden layers the moment they are filled (a frame
-# after they appear): the stars' centres against the heading's painted box, every layer's animations (target, start, delay, length,
-# keyframes' opacity peak), and the moment they are all gone
-GOLD_REC = """() => { const R = window.__goldRec = { plays: [], playing: null, layers: null, goneAt: null };
+# [title-seq] every media play() (its file and moment) and each of the badge's "playing"s; [title-seq2] the golden layers at EACH sparkle,
+# two frames after its wash animation appears: every layer's animations (target, start, delay, length, keyframes' opacity peak), the
+# stars' canvas painted 120 and 400 ms later, the heading's and its two copies' clip-paths; and the moment the layers are all gone
+GOLD_REC = """() => { const R = window.__goldRec = { plays: [], playing: [], snaps: [], goneAt: null };
   const op = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.play = function () { const f = (this.src || '').split('/').pop().split('?')[0]; R.plays.push([performance.now(), f]);
-    if (/sfx_title_badge/.test(f) && !this.__goldRec) { this.__goldRec = 1; this.addEventListener('playing', () => { if (!R.playing) R.playing = performance.now(); }); }
+    if (/sfx_title_badge/.test(f) && !this.__goldRec) { this.__goldRec = 1; this.addEventListener('playing', () => R.playing.push(performance.now())); }
     return op.apply(this, arguments); };
-  const card = document.querySelector('.sg-fig .sg-card'); let wait = -1;
-  // every frame: once the gold wash is animated (on the sound's "playing"; the layers are built ahead, invisible), two frames later the
-  // record; the stars' canvas: its painted pixels then and 300 ms later
+  const card = document.querySelector('.sg-fig .sg-card'); let wait = -1, lastA = null;
   const painted = cv => { if (!cv) return null; const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 8) n++; return n; };
-  const tick = () => { const fr = card.querySelector(':scope > .sgf-gold.front'), w0 = card.querySelector(':scope > .sgf-goldw .sgf-gwash');
-    if (w0 && !R.layers && w0.getAnimations().length && wait < 0) wait = 2;
-    if (wait > 0) wait--; else if (wait === 0 && !R.layers) {
-      const h = document.querySelector('.sg-card > .sgf-heading').getBoundingClientRect();
+  const tick = () => { const fr = card.querySelector(':scope > .sgf-gold.front'), w0 = card.querySelector(':scope > .sgf-goldw .sgf-gwash'), g0 = card.querySelector(':scope > .sgf-goldw .sgf-ggleam');
+    const a0 = w0 && w0.getAnimations()[0];
+    if (a0 && a0 !== lastA && wait < 0) { lastA = a0; wait = 2; }
+    if (wait > 0) wait--; else if (wait === 0) { wait = -1;
+      const hd = document.querySelector('.sg-card > .sgf-heading'), h = hd.getBoundingClientRect();
       const anims = [...card.querySelectorAll(':scope > .sgf-gold, :scope > .sgf-goldw')].flatMap(l => l.getAnimations({ subtree: true })).map(a => {
         const t = a.effect.target, k = a.effect.getKeyframes(), tm = a.effect.getTiming();
         return { cls: t.className, pseudo: a.effect.pseudoElement || null, start: a.startTime, delay: tm.delay, dur: tm.duration,
                  peak: Math.max(...k.map(f => f.opacity == null ? 0 : +f.opacity)), peakAt: (k.reduce((b, f) => (f.opacity != null && +f.opacity > +(b.opacity || 0)) ? f : b, {}).computedOffset) };});
       const cv = fr && fr.querySelector('canvas.sgf-gcv');
-      R.layers = { t: performance.now(), heading: [h.left, h.top, h.right, h.bottom], anims, canvas: !!cv, painted: [painted(cv)],
-        pending: anims.filter(a => a.start == null).length };
-      setTimeout(() => { R.layers.painted.push(painted(cv)); }, 300); }
-    if (R.layers && !R.goneAt && !card.querySelector('.sgf-gold, .sgf-goldw')) R.goneAt = performance.now();
+      const snap = { t: performance.now(), heading: [h.left, h.top, h.right, h.bottom], anims, canvas: !!cv, painted: [],
+        pending: anims.filter(a => a.start == null).length,
+        headClip: getComputedStyle(hd).clipPath, washClip: getComputedStyle(w0).clipPath, gleamClip: g0 ? getComputedStyle(g0).clipPath : null };
+      R.snaps.push(snap); setTimeout(() => { snap.painted.push(painted(cv)); }, 120); setTimeout(() => { snap.painted.push(painted(cv)); }, 400); }
+    if (R.snaps.length && !R.goneAt && !card.querySelector('.sgf-gold, .sgf-goldw')) R.goneAt = performance.now();
     if (!R.goneAt) requestAnimationFrame(tick); };
   requestAnimationFrame(tick);
-  new MutationObserver(() => { if (R.layers && !R.goneAt && !card.querySelector('.sgf-gold, .sgf-goldw')) R.goneAt = performance.now(); }).observe(card, { childList: true }); }"""
+  new MutationObserver(() => { if (R.snaps.length && !R.goneAt && !card.querySelector('.sgf-gold, .sgf-goldw')) R.goneAt = performance.now(); }).observe(card, { childList: true }); }"""
 def holes_of(clip):
     """the holes of an even-odd clip path: [l, t, r, b] per hole (the first rectangle is the outer one)"""
     if not clip or not clip.startswith("path(evenodd"): return None
@@ -359,7 +364,8 @@ with sync_playwright() as p:
         pg.evaluate("document.querySelectorAll('.sg-fx').forEach(e => e.style.visibility = 'hidden')"); pg.wait_for_timeout(60)
         pg.screenshot(path=str(path)); pg.evaluate("document.querySelectorAll('.sg-fx').forEach(e => e.style.visibility = '')")
     samples = []; clones = None; fly_st = None
-    while len(samples) < 150 or (samples[-1]["fly"] not in ("done", "error", None) and len(samples) < 450):   # None: a build without the flight
+    # [title-seq] ... and 20 samples past the flight's end (the button comes then, and breathes from ~0.9 s after)
+    while len(samples) < 150 or (samples[-1]["fly"] not in ("done", "error", None) and len(samples) < 450) or (len(samples) < 470 and sum(1 for s in samples if s["fly"] in ("done", "error")) < 20):
         s = pg.evaluate(STATE); samples.append(s)
         if clones is None and s["fly"] not in (None, "wait"): clones = pg.evaluate(CLONES); fly_st = pg.evaluate("JSON.parse(JSON.stringify(window.__sgFly))")
         pg.wait_for_timeout(100)
@@ -384,7 +390,7 @@ with sync_playwright() as p:
     last_vo = during[-1] if during else None
     gst = pg.evaluate("window.__sgFly ? JSON.parse(JSON.stringify(window.__sgFly)) : null") or {}
     grec = pg.evaluate("window.__goldRec") or {}
-    gold = gst.get("gold") or {}; shown = gst.get("shown") or []; lay = grec.get("layers") or {}
+    shown = gst.get("shown") or []
     check("[title-seq] 1. the welcome plays alone: nothing flies while it sounds (the danda and the comma stand still, the flight waits) and no play button",
           first_vo is not None and sym0 and during and all(s["fly"] == "wait" and s["sym"][:2] == sym0[:2] and not s["ready"] for s in samples if s["loaded"] and s["t"] <= last_vo["t"]),
           (first_vo and round(first_vo["t"]), last_vo and round(last_vo["t"]), sym0))
@@ -392,38 +398,52 @@ with sync_playwright() as p:
           "at the pace it had since [title-fly2] (.84 of the natural timeline)",
           fly_first is not None and last_vo is not None and 0 < fly_first["t"] - last_vo["t"] <= 1200 and not fly_first["vo"] and (fly_end[1] or {}).get("f") == 0.84,
           (fly_first and last_vo and round(fly_first["t"] - last_vo["t"]), fly_end[1], fly_st and fly_st.get("err")))
-    lands = [x["at"] for x in shown if x.get("ch") != "all"]
+    # [title-seq2] EACH integration: the blue danda's (its ।), then the green comma's two halves (the two commas, the last) - each with the
+    # badge pop and its golden sparkle; the button after the second
+    golds = gst.get("golds") or []; rp = grec.get("playing") or []; snaps = grec.get("snaps") or []
+    land_d = [x["at"] for x in shown if x.get("ch") == "।"]; land_c = [x["at"] for x in shown if x.get("ch") == ","]
     plays = grec.get("plays") or []; badge = [p for p in plays if p[1].startswith("sfx_title_badge.")]
-    check("[title-seq] 3. the moment the last symbol is placed (its glyph back in the title) the user's badge pop plays (sfx_title_badge, once, "
-          "within 60 ms) and the golden sparkle starts with it (on the sound's own 'playing', within 40 ms)",
-          len(lands) == 3 and len(badge) == 1 and 0 <= badge[0][0] - max(lands) <= 60 and gold.get("snd") == "playing" and grec.get("playing")
-          and gold.get("at") is not None and gold.get("sndAt") is not None and 0 <= gold["at"] - gold["sndAt"] <= 40 and abs(grec["playing"] - gold["sndAt"]) <= 40,
-          (len(lands), badge, lands and badge and round(badge[0][0] - max(lands)), gold.get("snd"), gold.get("at") and gold.get("sndAt") and (round(gold["at"] - gold["sndAt"], 1), round(grec["playing"] - gold["sndAt"], 1))))
-    # the stars (the sparkle's own model, heading px) on the heading's words and marks (their measured box, + 10 px)
-    bx = gold.get("box") or {}; stl = gold.get("starList") or []
-    st_in = [s for s in stl if bx and bx["l"] - 10 <= s[0] <= bx["r"] + 10 and bx["t"] - 10 <= s[1] <= bx["b"] + 10]
-    an = lay.get("anims") or []
-    glow = [a for a in an if "sgf-gglow" in a["cls"]]; wash = [a for a in an if "sgf-gwash" in a["cls"]]; gleam = [a for a in an if "sgf-ggleam" in a["cls"] and a["pseudo"] == "::after"]
-    # every layer pinned to the clip's own time zero (gold.t0 = its 'playing' less its clock), which is the sound's 'playing' (within 40 ms);
-    # the layers were built ahead (while the comma flew)
-    sync_ok = (grec.get("playing") and glow and wash and lay.get("pending") == 0 and gold.get("t0") is not None and gold.get("ahead") is True
-               and abs(gold["t0"] - grec["playing"]) <= 40 and all(a["start"] is not None and abs(a["start"] - gold["t0"]) <= 1 for a in glow + wash + gleam))
-    check("[title-seq] ...the sparkle is ON the title and timed to the sound: a gold glow behind the words and a gold wash over the letters peaking at 70 ms "
-          "(the pop's peak) and gone by 1.1 s, a white-gold gleam sweeping the letters (60-900 ms), 30+ gold stars on the heading (the first at the pop) and gold dust "
-          "drawn on one canvas every frame (painted at the start and 300 ms in); "
-          "every layer pinned to the sound's own clock (its layers built ahead, invisible, while the comma flew)",
-          len(glow) == 1 and len(wash) == 1 and len(gleam) == 1 and round(glow[0]["dur"] * glow[0]["peakAt"]) == 70 and round(wash[0]["dur"] * wash[0]["peakAt"]) == 70
-          and glow[0]["dur"] <= 1100 and wash[0]["dur"] <= 1000 and wash[0]["peak"] >= 0.7 and gleam[0]["delay"] == 60 and gleam[0]["delay"] + gleam[0]["dur"] <= 900
-          and len(stl) >= 30 and len(st_in) == len(stl) and min(s[3] for s in stl) <= 30 and gold.get("dust", 0) >= 10 and lay.get("canvas")
-          and len(lay.get("painted") or []) == 2 and all((v or 0) > 500 for v in lay["painted"]) and gold.get("frames", 0) >= 10 and not gold.get("drawErr") and sync_ok,
-          (len(glow), len(wash), len(gleam), len(stl), len(st_in), gold.get("dust"), lay.get("painted"), gold.get("frames"), gold.get("drawErr"), sync_ok,
-           glow and round(glow[0]["dur"] * glow[0]["peakAt"]), wash and wash[0]["peak"],
-           lay.get("pending"), gold.get("ahead"), gold.get("t0") and grec.get("playing") and round(gold["t0"] - grec["playing"], 1),
-           gold.get("t0") and [round(min(a["start"] - gold["t0"] for a in glow + wash + gleam if a["start"] is not None), 1),
-                               round(max(a["start"] - gold["t0"] for a in glow + wash + gleam if a["start"] is not None), 1)]))
-    check("[title-seq] 4. only after the sparkle the play button appears: its layers all gone at the end (~1.5 s, the clip's length), the flight 'done', "
+    g_ok = lambda g, k: (g.get("snd") == "playing" and g.get("at") is not None and g.get("sndAt") is not None and 0 <= g["at"] - g["sndAt"] <= 40
+                         and len(rp) > k and abs(rp[k] - g["sndAt"]) <= 40)
+    check("[title-seq2] 3. EACH time a symbol is placed the user's badge pop plays: twice - within 60 ms of the blue danda's । coming back, then within "
+          "60 ms of the green comma's two commas (the last) - and each golden sparkle starts on its own sound's 'playing' (within 40 ms); the first is over before the second",
+          len(land_d) == 1 and len(land_c) == 2 and len(badge) == 2 and 0 <= badge[0][0] - land_d[0] <= 60 and 0 <= badge[1][0] - max(land_c) <= 60
+          and [g.get("kind") for g in golds] == ["blue", "green"] and g_ok(golds[0], 0) and g_ok(golds[1], 1) and golds[0].get("endAt") is not None and golds[0]["endAt"] <= golds[1]["asked"],
+          (len(land_d), len(land_c), [round(x[0]) for x in badge], land_d and land_c and len(badge) == 2 and (round(badge[0][0] - land_d[0]), round(badge[1][0] - max(land_c))),
+           [(g.get("kind"), g.get("snd"), g.get("at") and g.get("sndAt") and round(g["at"] - g["sndAt"], 1)) for g in golds], golds and golds[0].get("endAt") and len(golds) == 2 and round(golds[1]["asked"] - golds[0]["endAt"])))
+    # each sparkle: on the title, timed to its sound, its stars on the symbol(s) just placed (56 px, at their ink's centre: within 6 px across, 10 down)
+    ink = {}
+    for k_, (ch, l_, t_, r_, b_) in enumerate(pi["ink"]): ink.setdefault(ch, []).append(((l_ + r_) / 2, (t_ + b_) / 2))
+    for k, (kind, marks) in enumerate((("blue", ink.get("।", [])), ("green", ink.get(",", [])))):
+        gold = golds[k] if len(golds) > k else {}; lay = snaps[k] if len(snaps) > k else {}
+        bx = gold.get("box") or {}; stl = gold.get("starList") or []
+        st_in = [s for s in stl if bx and bx["l"] - 10 <= s[0] <= bx["r"] + 10 and bx["t"] - 10 <= s[1] <= bx["b"] + 10]
+        big = [s for s in stl if s[2] == 56]
+        on_marks = len(big) == len(marks) and all(any(abs(s[0] - mx) <= 6 and abs(s[1] - my) <= 10 for s in big) for mx, my in marks)
+        an = lay.get("anims") or []
+        glow = [a for a in an if "sgf-gglow" in a["cls"]]; wash = [a for a in an if "sgf-gwash" in a["cls"]]; gleam = [a for a in an if "sgf-ggleam" in a["cls"] and a["pseudo"] == "::after"]
+        sync_ok = (len(rp) > k and glow and wash and lay.get("pending") == 0 and gold.get("t0") is not None and gold.get("ahead") is True
+                   and abs(gold["t0"] - rp[k]) <= 40 and all(a["start"] is not None and abs(a["start"] - gold["t0"]) <= 1 for a in glow + wash + gleam))
+        # the copies are clipped as the heading is at that moment: during the blue sparkle the two commas are still holes in both
+        hh, wh, gh = holes_of(lay.get("headClip")), holes_of(lay.get("washClip")), holes_of(lay.get("gleamClip"))
+        clip_ok = ((hh is not None and len(hh) == 2 and wh == hh and gh == hh and css_holes is not None
+                    and max(abs(a - b) for h_, w_ in zip(hh, css_holes[:2]) for a, b in zip(h_, w_)) <= 0.02) if kind == "blue"
+                   else (lay.get("headClip") == "none" and lay.get("washClip") == "none" and lay.get("gleamClip") == "none"))
+        check(f"[title-seq2] ...the {kind} sparkle is ON the title and timed to its sound: a gold glow behind the words and a gold wash over the letters peaking at 70 ms "
+              "(the pop's peak) and gone by 1.1 s, a white-gold gleam sweeping the letters (60-900 ms), 30+ gold stars on the heading - 56 px on "
+              + ("the new ।" if kind == "blue" else "the two new commas") + " at the pop - and gold dust drawn on one canvas every frame (painted ~0.15 and ~0.45 s in); "
+              "every layer pinned to the sound's own clock (built ahead, invisible, while the comma flew); "
+              + ("the commas not placed yet stay hidden in the gold too (the copies clipped with the heading's two holes)" if kind == "blue" else "no clip left on the heading or its copies"),
+              len(glow) == 1 and len(wash) == 1 and len(gleam) == 1 and round(glow[0]["dur"] * glow[0]["peakAt"]) == 70 and round(wash[0]["dur"] * wash[0]["peakAt"]) == 70
+              and glow[0]["dur"] <= 1100 and wash[0]["dur"] <= 1000 and wash[0]["peak"] >= 0.7 and gleam[0]["delay"] == 60 and gleam[0]["delay"] + gleam[0]["dur"] <= 900
+              and len(stl) >= 30 and len(st_in) == len(stl) and min(s[3] for s in stl) <= 30 and on_marks and gold.get("dust", 0) >= 10 and lay.get("canvas")
+              and len(lay.get("painted") or []) == 2 and all((v or 0) > 500 for v in lay["painted"]) and gold.get("frames", 0) >= 10 and not gold.get("drawErr") and sync_ok and clip_ok,
+              (len(glow), len(wash), len(gleam), len(stl), len(st_in), [s[:2] for s in big], marks, gold.get("dust"), lay.get("painted"), gold.get("frames"), gold.get("drawErr"),
+               sync_ok, clip_ok, hh and len(hh), lay.get("washClip", "")[:30], gold.get("t0") and len(rp) > k and round(gold["t0"] - rp[k], 1)))
+    gold = golds[1] if len(golds) > 1 else {}
+    check("[title-seq] 4. only after the (green) sparkle the play button appears: its layers all gone at the end (~1.5 s, the clip's length), the flight 'done', "
           "then the button within 0.3 s - never before (every sample with the button has the flight done)",
-          after is not None and fly_end[0] is not None and grec.get("goneAt") and gold.get("at") and 1450 <= fly_end[0] - gold["t0"] <= 1800
+          after is not None and fly_end[0] is not None and grec.get("goneAt") and gold.get("t0") and 1450 <= fly_end[0] - gold["t0"] <= 1800
           and abs(grec["goneAt"] - fly_end[0]) <= 50 and 0 <= after["t"] - fly_end[0] <= 300 + 100 and all(s["fly"] == "done" for s in samples if s["ready"]),
           (gold.get("t0") and fly_end[0] and round(fly_end[0] - gold["t0"]), grec.get("goneAt") and fly_end[0] and round(grec["goneAt"] - fly_end[0]), after and fly_end[0] and round(after["t"] - fly_end[0])))
     fl = fly_st["flights"] if fly_st else []

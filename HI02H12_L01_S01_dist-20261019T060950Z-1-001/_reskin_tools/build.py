@@ -4507,8 +4507,9 @@ _fly_js = (SCR / "title_assets" / "cover_fly_js.js").read_text(encoding="utf-8")
 assert "showGlyph(o.g)" in _fly_js and "setHoles(g.slice())" in _fly_js and "c.classList.remove(\"sgf-punct-off\")" in _fly_js, "title-punct: the heading's holes"   # [title-punct]
 assert 'addEventListener("sgwelcomeend"' in _fly_js and '"sgflydone"' in _fly_js and "faceLook(name, t, ms)" in (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8"), "title-fly: scripts"
 # [title-seq] (2026-11-18) the order: the welcome alone, then (at its end, "sgwelcomeend") the flight, then the user's badge pop with the
-# golden sparkle on the title the moment the last symbol is placed, then the play button (gold() -> "sgflydone")
-assert "function gold()" in _fly_js and '"assets/Audio/sfx_title_badge.mp3"' in _fly_js and "pace: 0.84" in _fly_js and 'addEventListener("sgwelcomestart"' not in _fly_js, "title-seq: the flight script"
+# golden sparkle on the title the moment the last symbol is placed, then the play button (-> "sgflydone"); [title-seq2] the same pop + sparkle
+# at EACH integration: the blue danda's, then the green comma's (the button after the second)
+assert "function sparkle(kind)" in _fly_js and 'sparkle("blue")' in _fly_js and 'sparkle("green")' in _fly_js and '"assets/Audio/sfx_title_badge.mp3"' in _fly_js and "pace: 0.84" in _fly_js and 'addEventListener("sgwelcomestart"' not in _fly_js, "title-seq: the flight script"
 cover_fx_css = (SCR / "title_assets" / "cover_fx.css").read_text(encoding="utf-8")
 assert "__FACES__" not in _eyes_js and len(_faces) == 3 and all(f["name"] and f["art"] and f["face"] and f["rig"] for f in _faces) and all(len(f["eyes"]) == 2 and len(f["brows"]) == 2 for f in _faces), "cover-eyes: faces"
 assert "SlideModules.CELEBRATION" in _cel_js and "runCelSprite" in _cel_js, "dun: cel block"

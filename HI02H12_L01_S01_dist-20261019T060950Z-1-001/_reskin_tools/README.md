@@ -3686,7 +3686,7 @@ G1-G3's new instruction take, said again after 7 s of quiet; G4's right sentence
 - `../_before_pick_vo/` holds the dist's three files ([title-punct]'s build), the tools, the two old takes + transcripts.json /
   derived.json (vo_rec/), and the old encoded clips / words.json (g1_assets/, g4_assets/).
 
-The title page in order: the welcome alone, then the symbols' flight, then the badge pop with a golden sparkle, then the play button ([title-seq], 2026-11-18)
+The title page in order: the welcome alone, then the symbols' flight, a badge pop with a golden sparkle as EACH symbol lands, then the play button ([title-seq] + [title-seq2], 2026-11-18)
 - Asked: "At the title page of this file First of all the Vo should play in the bg and after the VO is over then the green and the blue
   flying animation should take place and ehen these green and blue symbols gets integrated and placed then this
   "C:\Users\25606\Downloads\vadim_makes_sound-achievement-badge-pop-sound-3-547866.mp3" sound effect should come along with the golden
@@ -3716,12 +3716,28 @@ The title page in order: the welcome alone, then the symbols' flight, then the b
   glows) they were 50 composited layers and the frames stalled 0.5-0.7 s in the test Chrome (where the flight itself runs ~30 fps);
   on the canvas the sparkle paces like the flight (41-43 frames in 1.5 s, worst gap 133-150 ms, as the flight's 117-150). The heading
   itself still never animates. A muted lesson (the engine's mute) or a refused sound: the sparkle runs on its own clock.
+- [title-seq2] (asked right after, the first build seen: "Noo at the title page each time the green and the blue symbol gets integrated
+  play the sound effect"): the badge pop - with its golden sparkle, kept synced to it - now comes at EACH integration: when the blue
+  danda's । is placed (sparkle("blue"), ~3.25 s into the flight: its 56 px stars on the new ।), and again when the green comma's two
+  halves are placed (sparkle("green"), ~2.4 s later: stars on the two new commas); the play button after the second, as before. The
+  two never overlap (a sparkle lasts 1.52 s; should a second start early, the first is ended at once). The layers are built once and
+  reused, the stars made afresh for each; each sparkle's animations are cancelled at its end (back to the layers' invisible look).
+  During the blue sparkle the commas are not placed yet: the heading's two gold copies take the heading's own clip of the moment
+  (its two comma holes), so the gold never shows a comma before it lands ([title-punct] kept). The same Audio element plays twice
+  (a restart while still sounding would start the light at once, since it gives no new "playing").
 - Checks: title_check.py [title-seq] replaces the three [title-fly2] checks - the welcome alone (no flight, no button while it
   sounds); the flight within 1.2 s after its last sounding sample, at .84; the badge played once within 60 ms of the last glyph's
   return and the sparkle on its "playing" (40 ms); one glow and one wash peaking at 70 ms, the gleam 60-900 ms, 30+ stars all on the
   heading (the first by 30 ms), 10+ specks, the canvas painted at the start and 300 ms in, every layer pinned to the clip's time zero
   (1 ms), the layers built ahead; the layers gone and the flight done 1.45-1.8 s after it, the button within 0.4 s of that and never
   before. smoke.py and story_check.py wait for the button's .ready before tapping it (they tapped at the welcome's end).
+  [title-seq2]: two plays (within 60 ms of the । coming back, then of the last comma), each sparkle on its own "playing" (40 ms), the
+  first over before the second; one snapshot per sparkle (the recorder keys on each new wash animation) with the checks above plus
+  its 56 px stars on the symbol(s) just placed (at their ink's centre) and, for the blue one, the copies clipped with the heading's two
+  comma holes (= the CSS's); the canvas sampled ~0.15 and ~0.45 s in (its first frames hold only tiny stars). The sampling loop now
+  runs 20 samples past the flight's end (the button's breathing starts ~0.9 s after it comes). optimize_check A: "the play button
+  comes at the welcome's end" became "comes 5.5-11 s after the welcome's end with the flight done (both sparkles), the files still
+  loading".
 - Checked: the unchanged tools first rebuilt the dist byte for byte (git clean). Then title_check 50/50 (ALL PASS: badge 3-6 ms after
   the last glyph, sparkle 0.7-1.1 ms after the sound's "playing", button 78 ms after the sparkle), smoke 53/53, story_check 75/75,
   __OPT__. Frames rendered at fixed times after the pop (the sparkle held, every layer set to that time): the letters flash gold
