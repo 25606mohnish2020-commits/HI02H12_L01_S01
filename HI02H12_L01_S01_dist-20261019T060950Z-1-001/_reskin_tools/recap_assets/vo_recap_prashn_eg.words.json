@@ -1,27 +1,27 @@
 {
- "text": "उदाहरण- तुम्हारा घर कहाँ है?",
+ "text": "जैसे- तुम्हारा घर कहाँ है ?",
  "shown": "तुम्हारा घर कहाँ है ?",
  "word_times": [
   [
-   1.5,
-   1.94
+   0.86,
+   1.92
   ],
   [
-   1.94,
-   2.16
+   1.92,
+   2.26
   ],
   [
-   2.16,
-   2.56
+   2.26,
+   2.68
   ],
   [
-   2.56,
-   2.73
+   2.68,
+   2.82
   ],
   [
-   2.73,
-   2.83
+   2.82,
+   2.96
   ]
  ],
- "source": "recording vo_recap_prashn_eg.wav (2026-11-10), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_recap_prashn_eg.wav (2026-11-18), faster-whisper word times, vo_rec.py"
 }

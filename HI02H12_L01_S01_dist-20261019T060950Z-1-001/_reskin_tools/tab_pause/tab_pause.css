@@ -1,0 +1,5 @@
+/* [tab-pause] while the tab is hidden every CSS animation stands still where it is (tab_pause.js sets :root.sgp-hidden and flushes the
+   style at once); the :not(#…) gives the rule an id's weight, so it also holds the cover card's own !important play-state rules
+   (body.is-start.landing-play-ready .sg-card … running !important). Removed when the tab is seen again: each animation goes on
+   from where it stood, under its own CSS play-state again. */
+:root.sgp-hidden *:not(#sgp-none),:root.sgp-hidden *:not(#sgp-none)::before,:root.sgp-hidden *:not(#sgp-none)::after{animation-play-state:paused !important;}

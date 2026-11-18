@@ -3359,3 +3359,8 @@ body.vo-playing .tut-card.sfig-card.sfig-full .tut-audio,
 #slideHost[data-slide="P1"] .sent-opt .p2-word{font-family:'Story Noto Q',var(--font-hi);}   /* the options' "?", ExtraBold at the options' size */
 #slideHost[data-slide="L2"] .stp-mark{font-family:'Story Noto Q','Story Baloo 2',var(--font-hi);}   /* the stamped "?", ExtraBold at the sentence's size */
 /* ===== [q-noto] end ===== */
+
+/* [mark-lit] (2026-11-18) G4 / P1 / P2: while hint 2's line speaks, a sentence's punctuation mark in a box of its own (inline-block, as the
+   words are, for the pop), lit in the words' orange with their pop (the read word's .p2-word.on look; G1-G3's .dsc-tile.lit .dsc-sym) */
+.stage.sent-page .sent-opt .so-pill .p2-mk{display:inline-block;transform-origin:50% 60%;}
+.stage.sent-page .sent-opt .so-pill .p2-mk.lit{color:#E86A00;animation:p2WordPop .28s ease-out 1;}

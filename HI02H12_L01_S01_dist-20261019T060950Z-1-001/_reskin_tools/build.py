@@ -5093,6 +5093,62 @@ qnoto_js = r"""
 """
 js = js + qnoto_js
 assert "@font-face{font-family:'Story Noto Q';" in css and css.count("@font-face{font-family:'Story Noto Q 700';") == 1 and js.count("[q-noto]") == 1, "q-noto: blocks"
+# ---------- [mark-lit] (asked 2026-11-18: "At Pages 12 G4, 13 P1 AND 14 P2 of this file, at the second time wrong attempt from the user the
+#            (। ? and ,) symbols which ever is present in the options shown at these pages should be highlighted in the exact same orange
+#            shade as of the previous pages while the Vo is being played in the background and once the Vo is over the highlight
+#            animation will also disappear from the symbols"): the 2nd wrong pill's hint 2 line ([vo-rec3] audio.hint2) lights every
+#            punctuation mark in the three sentences - G4's ।, P1's ?, P2's , and । - in the words' orange #E86A00 with their pop
+#            (p2WordPop .28 s, as G1-G3's hint-2 sign light .dsc-tile.lit .dsc-sym and the read word .p2-word.on), from the line's
+#            first sounding frame, held while it speaks and gone when it ends (or is cut). While lit each mark is a span of its own
+#            inside its word (.p2-mk.lit, inline-block like the words, for the pop); when the light goes the word is its plain text again:
+#            at rest nothing is split (a span boundary shapes the letters before a mark a sub-pixel differently - P1 100 px / P2 403 px
+#            off by up to 40 levels when they were split at mount), so the pills are the previous build's pixel for pixel. ----------
+js = rep1(js, """      // the instruction: on entry, from the header chip, and after every IDLE_MS of quiet""",
+          """      // [mark-lit] hint 2's line lights every mark in the sentences (the words' orange + pop) from its first sounding frame while it speaks;
+      // read off the clip every frame, so a line that ends, is cut or replaced takes the light with it (a 30 s cap for one that never starts)
+      // Only while lit is each mark a span of its own inside its word (.p2-mk.lit); when the light goes the word is its own text again, as
+      // it always is (a span boundary shapes the letters before a mark a sub-pixel differently, so at rest the sentences are not split)
+      const markLights = (a)=>{
+        const ws = items.flatMap(it=> it.words).filter(w=> /[।?,]/.test(w.textContent)); if(!a || !ws.length) return;
+        let on = false; const cap = performance.now() + 30000;
+        const light = ()=> ws.forEach(w=>{ const t = w.textContent; w.__mk = t; w.textContent = "";
+          t.split(/([।?,])/).forEach(q=>{ if(!q) return;
+            if(/^[।?,]$/.test(q)){ const mk = document.createElement("span"); mk.className = "p2-mk lit"; mk.textContent = q; w.appendChild(mk); }
+            else w.appendChild(document.createTextNode(q)); }); });
+        const unlight = ()=> ws.forEach(w=>{ if(w.__mk != null){ w.textContent = w.__mk; w.__mk = null; } });
+        const tick = ()=>{
+          const gone = !alive() || a.ended || currentAudio !== a || (a.paused && a.currentTime > 0) || performance.now() > cap;
+          const want = !gone && !a.paused && a.currentTime > 0;
+          if(want !== on){ on = want; if(on) light(); else unlight(); }
+          if(!gone) requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      };
+      // the instruction: on entry, from the header chip, and after every IDLE_MS of quiet""", "mark-lit: markLights")
+js = rep1(js, """fbAudio = currentAudio; return; }   // [vo-rec3] the deck's hint 2 line""",
+          """fbAudio = currentAudio; markLights(currentAudio); return; }   // [vo-rec3] the deck's hint 2 line; [mark-lit] its marks lit while it speaks""", "mark-lit: hint 2 call")
+css += """
+/* [mark-lit] (2026-11-18) G4 / P1 / P2: while hint 2's line speaks, a sentence's punctuation mark in a box of its own (inline-block, as the
+   words are, for the pop), lit in the words' orange with their pop (the read word's .p2-word.on look; G1-G3's .dsc-tile.lit .dsc-sym) */
+.stage.sent-page .sent-opt .so-pill .p2-mk{display:inline-block;transform-origin:50% 60%;}
+.stage.sent-page .sent-opt .so-pill .p2-mk.lit{color:#E86A00;animation:p2WordPop .28s ease-out 1;}
+"""
+# ---------- [tab-pause] (asked 2026-11-18: "When any other tab is opened in the browser along with this tab then this file should pause
+#            completely at the place where it was left and if that tab in the browser is opened again then it should continue from the
+#            exact place where it was left"): tab_pause/tab_pause.js + .css, inline in <head> so they run before the preloader and the
+#            engine (see the script's own note). The lesson's analytics keep the wall clock for their stamps and their session length
+#            (GameBus: startedAt / ts / exported_at / session_ms / duration_ms - Date.__sgpReal); every other "how long" in the engine runs
+#            on the page's clock, which stands still while the tab is hidden. ----------
+TP = SCR / "tab_pause"
+tab_pause_js = (TP / "tab_pause.js").read_text(encoding="utf-8"); tab_pause_css = (TP / "tab_pause.css").read_text(encoding="utf-8")
+assert "</script" not in tab_pause_js and "</style" not in tab_pause_css and 'D.addEventListener("visibilitychange"' in tab_pause_js, "tab-pause: sources"
+WALL = "(Date.__sgpReal ? Date.__sgpReal() : Date.now())"
+js = rep1(js, "  startedAt: Date.now(),", "  startedAt: " + WALL + ",   // [tab-pause] the wall clock", "tab-pause: GameBus.startedAt")
+js = rep1(js, "      ts: Date.now(),", "      ts: " + WALL + ",", "tab-pause: GameBus ts")
+js = rep1(js, "exported_at: Date.now(),", "exported_at: " + WALL + ",", "tab-pause: exported_at")
+js = rep1(js, "session_ms: Date.now() - this.startedAt,", "session_ms: " + WALL + " - this.startedAt,", "tab-pause: session_ms")
+assert js.count("duration_ms: Date.now() - GameBus.startedAt") == 2, "tab-pause: duration_ms"   # two copies before the [optimize] prune (one in dead code)
+js = js.replace("duration_ms: Date.now() - GameBus.startedAt", "duration_ms: " + WALL + " - GameBus.startedAt")
+tab_pause_head = ('<style id="sgPauseCss">\n' + tab_pause_css.strip() + '\n</style>\n<script id="sgPauseJs">\n' + tab_pause_js.strip() + '\n</script>\n')
 html = f"""<!doctype html>
 <html lang="hi">
 <head>
@@ -5101,7 +5157,7 @@ html = f"""<!doctype html>
 <title>SwiftPAL · {card['skill_code']} · {title_hi}</title>
 <link rel="icon" href="data:,"><!-- [optimize] no icon file: the browser's own /favicon.ico request 404'd on every load -->
 <link rel="stylesheet" href="style.css">
-</head>
+{tab_pause_head}</head>
 <body class="is-start">
 {body}
 <!-- ============ CARD DATA (embedded; in prod the compiler does this) ============ -->

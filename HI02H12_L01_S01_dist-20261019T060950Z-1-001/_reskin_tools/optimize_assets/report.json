@@ -453,8 +453,8 @@
   [
    "assets/Audio/vo_recap_alp_eg.ogg",
    "assets/Audio/vo_recap_alp_eg.ogg",
-   65639,
-   43015,
+   63630,
+   42485,
    "converted "
   ],
   [
@@ -481,8 +481,8 @@
   [
    "assets/Audio/vo_recap_prashn_eg.ogg",
    "assets/Audio/vo_recap_prashn_eg.ogg",
-   40429,
-   27146,
+   41465,
+   28729,
    "converted "
   ],
   [
@@ -502,8 +502,8 @@
   [
    "assets/Audio/vo_recap_purn_eg.ogg",
    "assets/Audio/vo_recap_purn_eg.ogg",
-   49639,
-   32992,
+   43320,
+   29195,
    "converted "
   ],
   [
@@ -2291,8 +2291,8 @@
   "assets/UI/sw_head_tryagain.webp",
   "assets/UI/sw_head_tryagain_anim.webp"
  ],
- "bytes_before": 83481501,
- "bytes_after": 48794167,
+ "bytes_before": 83488705,
+ "bytes_after": 48805881,
  "manifest_files": 199,
- "manifest_bytes": 23996844
+ "manifest_bytes": 23994100
 }

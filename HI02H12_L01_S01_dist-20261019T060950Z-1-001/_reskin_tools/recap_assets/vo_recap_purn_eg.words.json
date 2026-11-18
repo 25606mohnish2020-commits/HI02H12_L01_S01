@@ -1,27 +1,27 @@
 {
- "text": "उदाहरण- मुझे आम खाना पसंद है।",
+ "text": "जैसे- मुझे आम खाना पसंद है।",
  "shown": "मुझे आम खाना पसंद है।",
  "word_times": [
   [
-   1.315,
-   1.72
+   0.84,
+   1.42
   ],
   [
-   1.72,
-   2.18
+   1.42,
+   1.84
   ],
   [
-   2.18,
-   2.75
+   1.84,
+   2.24
   ],
   [
-   2.75,
-   3.12
+   2.24,
+   2.62
   ],
   [
-   3.12,
-   3.54
+   2.62,
+   2.94
   ]
  ],
- "source": "recording vo_recap_purn_eg.wav (2026-11-10), faster-whisper word times, vo_rec.py"
+ "source": "recording vo_recap_purn_eg.wav (2026-11-18), faster-whisper word times, vo_rec.py"
 }

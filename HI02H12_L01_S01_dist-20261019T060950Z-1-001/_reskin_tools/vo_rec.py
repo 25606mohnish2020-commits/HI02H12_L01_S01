@@ -52,7 +52,15 @@ SPOKEN keeps what is said. T3's / T4's explanation cues (the "?" / "," tile ligh
 made with this script's own step-1 settings (vo_g1_intro prompted with its spoken line, its manifest row being the old words); only these
 two clips were encoded (this script's encode() settings, into g1_assets/ and g4_assets/, where build.py copies them from), and the
 derivation ran with --cues-only against a scratch copy of the dist's Audio folder (the dist itself had lost a few unused clips the
-assertion wants). The dist's VO manifest still has the two old lines."""
+assertion wants). The dist's VO manifest still has the two old lines.
+
+[eg-vo] (2026-11-18) three single takes from the user (~/Downloads/audio_s1.mp3, audio_s2.mp3, audio_s3.mp3 - WAV data, 24 kHz mono, despite
+the name) = the examples of T1 / T1B / T1C, each saying "जैसे- <the page's sentence>" (the old takes said "उदाहरण- ..."): copied as given
+over vo_rec/vo_recap_purn_eg.wav / vo_recap_alp_eg.wav / vo_recap_prashn_eg.wav (the old takes in ../_before_tab_pause/tools/vo_rec/),
+their transcripts.json entries made with step 1's settings (each prompted with its spoken line), SPOKEN = the words said, only these
+three clips encoded (encode()'s settings, into recap_assets/), then --cues-only against a scratch copy of the dist's Audio folder (a
+baseline run first reproduced every words.json / derived.json byte for byte). Only the three examples' words.json / derived entries
+changed. The dist's VO manifest still has the old "उदाहरण- ..." lines."""
 import sys, json, pathlib, subprocess, re, unicodedata, difflib, shutil, datetime
 import numpy as np, openpyxl
 
@@ -87,7 +95,9 @@ else:
 # sentence while the frame shows its short form)
 SPOKEN = {
   "vo_demo1_sent": "पिंकी स्कूल जा रही है", "vo_demo1_full": "पिंकी स्कूल जा रही है, पूर्णविराम।",
-  "vo_recap_purn_eg": "उदाहरण- मुझे आम खाना पसंद है।",   # [vo-rec2] the [recap-eg] sentence, as the second batch says it (was "उदाहरण- पिंकी स्कूल गई ।")
+  "vo_recap_purn_eg": "जैसे- मुझे आम खाना पसंद है।",   # [eg-vo] (2026-11-18) the user's new take (audio_s1.mp3) says "जैसे-" (was "उदाहरण- ..."; [vo-rec2] "उदाहरण- पिंकी स्कूल गई ।" before that)
+  "vo_recap_alp_eg": "जैसे- मुझे लाल, हरा और पीला रंग पसंद है ।",   # [eg-vo] (2026-11-18) the user's new take (audio_s2.mp3); the manifest: "उदाहरण- ..."
+  "vo_recap_prashn_eg": "जैसे- तुम्हारा घर कहाँ है ?",   # [eg-vo] (2026-11-18) the user's new take (audio_s3.mp3); the manifest: "उदाहरण- ..."
   "vo_story_b1": "पिंकी बोली, “माँ बिल्ली रसोई में जा रही है।”", "vo_story_b2": "माँ ने कहा, “उसे रोको मत जाने दो।”",   # [story-pinki] the frames' texts
   "vo_story_b3": "पिंकी ने पूछा, “क्या, उसे जाने दूँ ?”", "vo_story_b4": "माँ ने कहा, “उसे रोको, मत जाने दो।”",
   "vo_story_c1": "उसे रोको, मत जाने दो।", "vo_story_c2": "उसे रोको मत, जाने दो।",   # [relisten-pinki] frame 654:567's lines
