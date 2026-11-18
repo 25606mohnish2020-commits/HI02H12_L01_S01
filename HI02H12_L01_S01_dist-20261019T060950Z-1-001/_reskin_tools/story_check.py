@@ -124,6 +124,7 @@ with sync_playwright() as p:
     pg.goto(html.as_uri()); pg.wait_for_timeout(2500)
     pg.wait_for_function("!document.body.classList.contains('vo-lock')", timeout=25000)
     pg.evaluate(NAVLOG)
+    pg.wait_for_function("document.getElementById('sgBtn').classList.contains('ready')", timeout=30000)   # [title-seq] the button comes after the flight + the sparkle (~7.5 s after the welcome)
     pg.click("#sgBtn", force=True)
     pg.wait_for_function("document.getElementById('phaseGate').classList.contains('pg-say')", timeout=15000)   # [dun-chrome] the headline is in (GATE-REF-ANIM)
     pg.screenshot(path=str(out / "1_gate.png"))

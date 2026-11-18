@@ -3686,6 +3686,50 @@ G1-G3's new instruction take, said again after 7 s of quiet; G4's right sentence
 - `../_before_pick_vo/` holds the dist's three files ([title-punct]'s build), the tools, the two old takes + transcripts.json /
   derived.json (vo_rec/), and the old encoded clips / words.json (g1_assets/, g4_assets/).
 
+The title page in order: the welcome alone, then the symbols' flight, then the badge pop with a golden sparkle, then the play button ([title-seq], 2026-11-18)
+- Asked: "At the title page of this file First of all the Vo should play in the bg and after the VO is over then the green and the blue
+  flying animation should take place and ehen these green and blue symbols gets integrated and placed then this
+  "C:\Users\25606\Downloads\vadim_makes_sound-achievement-badge-pop-sound-3-547866.mp3" sound effect should come along with the golden
+  sparkels animation in the heading title text synced and only after this the play button should appear at the title page of this
+  file. ... Rest keep everything exactly the same in this file."
+- Was ([title-fly2]): the flight ran INSIDE the welcome (from its first sounding 0.25 s, fitted to end before the speech) and the play
+  button came at the welcome's end.
+- Now: 1. the welcome plays alone - nothing moves, no button. 2. When it is over (the cover block's reveal() at the line's end
+  dispatches "sgwelcomeend"; once, and only after a welcome that really sounded - a failed / hung one still gives the button at once
+  with the heading whole) the danda and the comma fly exactly as before, at the pace they have had since [title-fly2] (T.pace .84 of
+  the natural timeline = its fit on the 7.09 s welcome; nothing is fitted now): ~6.1 s. 3. The moment the last symbol is placed (the
+  two commas' clones settled, the heading whole again) the user's sound plays (title_assets/sfx_title_badge.mp3, bytes as given, 1.49
+  s; optimize.py makes the dist's copy Opus, 22 KB; its own Audio element at .65 - the file peaks at +3.2 dB in float, -1.3 dB at .65,
+  about the welcome's loudness - not the engine's voice player, so the welcome's state is untouched) and the golden sparkle runs on
+  the sound's own clock (its "playing" event; the file's pop: onset ~20 ms, peak ~60 ms, a shimmering tail ~-30 dB at 0.4 s, gone
+  ~1.2 s): a gold glow behind the words and a gold wash over the letters (a copy of the heading with a gold fill: bright gold tops to
+  amber feet, .8) both peaking at 70 ms and fading with the tail (1.1 s / 1 s); a white-gold gleam (a copy of the heading whose fill
+  is one band, swept by background-position) crossing the letters left to right 60-900 ms; gold four-point stars - 56 px on the
+  three new symbols and five 40-48 px over the words at the pop, then 24 on the letters as the gleam reaches each, smaller as the tail
+  fades, each twinkling (grow, turn, shrink) in 420-600 ms; 18 gold specks rising. All gone by ~1.46 s. 4. At the clip's end (1.52 s)
+  the layers are removed, the flight is "done" ("sgflydone") and only then the play button pops in (as before: sgBtnReveal, then
+  the breathing). The button's wait for the flight is capped at 16 s (was 9).
+- How (title_assets/cover_fly_js.js, build.py): the sparkle's layers are built while the comma flies, invisible (opacity 0, the band
+  off the letters), so at the pop only the animations start; every one is pinned to the clip's own time zero (startTime), so a late
+  first frame skips ahead and the light never trails the sound. The stars and the specks are drawn on ONE canvas (sprites made once,
+  each frame computed from the clip's clock with the same keyframes and easings): as 50 elements (clipped gradient shapes with
+  glows) they were 50 composited layers and the frames stalled 0.5-0.7 s in the test Chrome (where the flight itself runs ~30 fps);
+  on the canvas the sparkle paces like the flight (41-43 frames in 1.5 s, worst gap 133-150 ms, as the flight's 117-150). The heading
+  itself still never animates. A muted lesson (the engine's mute) or a refused sound: the sparkle runs on its own clock.
+- Checks: title_check.py [title-seq] replaces the three [title-fly2] checks - the welcome alone (no flight, no button while it
+  sounds); the flight within 1.2 s after its last sounding sample, at .84; the badge played once within 60 ms of the last glyph's
+  return and the sparkle on its "playing" (40 ms); one glow and one wash peaking at 70 ms, the gleam 60-900 ms, 30+ stars all on the
+  heading (the first by 30 ms), 10+ specks, the canvas painted at the start and 300 ms in, every layer pinned to the clip's time zero
+  (1 ms), the layers built ahead; the layers gone and the flight done 1.45-1.8 s after it, the button within 0.4 s of that and never
+  before. smoke.py and story_check.py wait for the button's .ready before tapping it (they tapped at the welcome's end).
+- Checked: the unchanged tools first rebuilt the dist byte for byte (git clean). Then title_check 50/50 (ALL PASS: badge 3-6 ms after
+  the last glyph, sparkle 0.7-1.1 ms after the sound's "playing", button 78 ms after the sparkle), smoke 53/53, story_check 75/75,
+  __OPT__. Frames rendered at fixed times after the pop (the sparkle held, every layer set to that time): the letters flash gold
+  with the glow at 70 ms, stars on the three new symbols, the gleam crossing सोचो at 450 ms and the । at 800 ms, nothing left at
+  1.45 s. The layers built ahead paint nothing (all at opacity 0; everything else hidden: 2 stray pixels).
+- `../_before_title_seq/` holds the dist's three files ([pick-vo]'s build) and build.py, title_check.py, README.md, cover_fly_js.js
+  (tools/).
+
 Rebuilding after a card/content change
 1. Edit the ORIGINAL card in `../_before_reskin/index.html` (the build always starts from there),
    or edit `build.py` for chrome/CSS changes.

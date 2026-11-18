@@ -58,6 +58,15 @@ usage: python -I title_check.py <index.html> <figma_target.png> <outdir>
    hole closes only once its clone has settled (its animation at >= 95 %: exactly 1x, opaque), the । first, then the two commas; then
    no clip at all. A play button that comes with no flight (page 1 forces .ready) shows the heading whole at once. The [title-fly]
    before/after comparison now leaves the holes out; inside them the heading after the flight = the heading whole.
+[title-seq] (2026-11-18) the order is now: the welcome alone -> (when it is over) the flight -> (the moment the last symbol is placed) the
+   user's badge pop (sfx_title_badge) with a golden sparkle on the title -> the play button. Checked in the autoplay run (GOLD_REC records
+   every play(), the badge's "playing" and the golden layers a frame after they appear): 1. nothing flies and no button while the welcome
+   sounds; 2. the flight starts within 1.2 s after its last sounding sample, at pace .84; 3. the badge plays once, within 60 ms of the last
+   glyph's return, and the sparkle starts on its "playing" (40 ms): one glow and one wash peaking at 70 ms (glow <= 1.1 s, wash <= 1 s, wash
+   >= .7), one gleam on the copy's ::after (60 ms + <= 840), 30+ stars all on the heading (the first by 30 ms), 10+ dust, all drawn on
+   one canvas (10+ frames, painted > 500 px at the start and 300 ms in), every layer
+   pinned (startTime, 1 ms) to the clip's own time zero = its "playing" (40 ms), the layers built ahead; 4. the layers are gone and the flight 'done' 1.45-1.8 s after it, the button within
+   0.4 s of that and never before. The [title-fly2] checks (flight inside the welcome) went with it.
 """
 import sys, pathlib, json
 from playwright.sync_api import sync_playwright
@@ -152,6 +161,34 @@ PUNCT_REC = """() => { const h = document.querySelector('.sg-card > .sgf-heading
     cw: [...document.querySelectorAll('.sgf-mergew')].map(w => { const a = w.getAnimations()[0], c = w.firstElementChild;
       return { p: a ? a.effect.getComputedTiming().progress : null, op: +getComputedStyle(w).opacity, l: c ? parseFloat((c.style.clipPath.match(/polygon\\(([-\\d.]+)px/) || [])[1]) : null }; }) });
   snap(); new MutationObserver(snap).observe(h, { attributes: true, attributeFilter: ['style', 'class'] }); }"""
+# [title-seq] every media play() (its file and moment) and the badge's "playing"; the golden layers the moment they are filled (a frame
+# after they appear): the stars' centres against the heading's painted box, every layer's animations (target, start, delay, length,
+# keyframes' opacity peak), and the moment they are all gone
+GOLD_REC = """() => { const R = window.__goldRec = { plays: [], playing: null, layers: null, goneAt: null };
+  const op = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function () { const f = (this.src || '').split('/').pop().split('?')[0]; R.plays.push([performance.now(), f]);
+    if (/sfx_title_badge/.test(f) && !this.__goldRec) { this.__goldRec = 1; this.addEventListener('playing', () => { if (!R.playing) R.playing = performance.now(); }); }
+    return op.apply(this, arguments); };
+  const card = document.querySelector('.sg-fig .sg-card'); let wait = -1;
+  // every frame: once the gold wash is animated (on the sound's "playing"; the layers are built ahead, invisible), two frames later the
+  // record; the stars' canvas: its painted pixels then and 300 ms later
+  const painted = cv => { if (!cv) return null; const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 8) n++; return n; };
+  const tick = () => { const fr = card.querySelector(':scope > .sgf-gold.front'), w0 = card.querySelector(':scope > .sgf-goldw .sgf-gwash');
+    if (w0 && !R.layers && w0.getAnimations().length && wait < 0) wait = 2;
+    if (wait > 0) wait--; else if (wait === 0 && !R.layers) {
+      const h = document.querySelector('.sg-card > .sgf-heading').getBoundingClientRect();
+      const anims = [...card.querySelectorAll(':scope > .sgf-gold, :scope > .sgf-goldw')].flatMap(l => l.getAnimations({ subtree: true })).map(a => {
+        const t = a.effect.target, k = a.effect.getKeyframes(), tm = a.effect.getTiming();
+        return { cls: t.className, pseudo: a.effect.pseudoElement || null, start: a.startTime, delay: tm.delay, dur: tm.duration,
+                 peak: Math.max(...k.map(f => f.opacity == null ? 0 : +f.opacity)), peakAt: (k.reduce((b, f) => (f.opacity != null && +f.opacity > +(b.opacity || 0)) ? f : b, {}).computedOffset) };});
+      const cv = fr && fr.querySelector('canvas.sgf-gcv');
+      R.layers = { t: performance.now(), heading: [h.left, h.top, h.right, h.bottom], anims, canvas: !!cv, painted: [painted(cv)],
+        pending: anims.filter(a => a.start == null).length };
+      setTimeout(() => { R.layers.painted.push(painted(cv)); }, 300); }
+    if (R.layers && !R.goneAt && !card.querySelector('.sgf-gold, .sgf-goldw')) R.goneAt = performance.now();
+    if (!R.goneAt) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+  new MutationObserver(() => { if (R.layers && !R.goneAt && !card.querySelector('.sgf-gold, .sgf-goldw')) R.goneAt = performance.now(); }).observe(card, { childList: true }); }"""
 def holes_of(clip):
     """the holes of an even-odd clip path: [l, t, r, b] per hole (the first rectangle is the outer one)"""
     if not clip or not clip.startswith("path(evenodd"): return None
@@ -305,6 +342,7 @@ with sync_playwright() as p:
       new MutationObserver(() => { if (window.__readyOpacity === null && btn.classList.contains('ready')) window.__readyOpacity = getComputedStyle(btn).opacity; })
         .observe(btn, { attributes: true, attributeFilter: ['class'] }); }""")
     pg.evaluate(PUNCT_REC)   # [title-punct] every change of the heading's class / style, with the glyph clones' state at that moment
+    pg.evaluate(GOLD_REC)    # [title-seq] the plays, the badge's "playing", the golden layers
     STATE ="""() => { const a = (typeof currentAudio !== 'undefined') ? currentAudio : null; const btn = document.getElementById('sgBtn'), vo = document.getElementById('sgVo'), bird = document.getElementById('sgMascot');
       return { t: performance.now(), vo: !!(a && !a.paused && !a.ended && isPlaying), src: a ? a.src.split('/').pop().split('?')[0] : null,
                btn: getComputedStyle(btn).display !== 'none', ready: btn.classList.contains('ready'), breathe: btn.classList.contains('sg-breathe'), btnAnim: getComputedStyle(btn).animationName,
@@ -341,16 +379,53 @@ with sync_playwright() as p:
     sym0 = next((s["sym"] for s in samples if s["loaded"]), None)
     fly_first = next((s for s in samples if s["fly"] not in (None, "wait")), None)
     fly_done = next((s for s in samples if s["fly"] == "done"), None)
-    # [title-fly2] the flight runs inside the welcome: it waits until the line is sounding, starts at once, is over while the line still
-    # plays, and the play button comes only after both (at the line's end, as before)
-    check("[title-fly2] nothing flies before the welcome sounds: the danda and the comma stand still until the line starts",
-          first_vo is not None and sym0 and all(s["fly"] == "wait" and s["sym"][:2] == sym0[:2] for s in samples if s["loaded"] and s["t"] < first_vo["t"]), (first_vo and round(first_vo["t"]), sym0))
-    check("[title-fly2] ...the flight starts as the welcome sounds (within 1.2 s of its first sample: the line's clock past 0.25 s) and is over (the last glyph copy faded) while the welcome is still playing",
-          fly_first is not None and first_vo is not None and -100 <= fly_first["t"] - first_vo["t"] <= 1200 and fly_done is not None and fly_done["vo"] and fly_done["src"] == "vo_landing.ogg"
-          and after is not None and fly_end[0] is not None and fly_end[0] < after["t"],
-          (fly_first and first_vo and round(fly_first["t"] - first_vo["t"]), fly_done and (fly_done["vo"], fly_done["src"]), after and fly_end[0] and round(after["t"] - fly_end[0]), fly_end[1], fly_st and fly_st.get("err")))
-    check("[title-fly2] ...and only after that the play button appears, at the welcome's end as before (never during the flight)",
-          after is not None and all(s["fly"] == "done" for s in samples if s["ready"]) and not any(s["ready"] for s in during), (after and round(after["t"] - first_vo["t"]),))
+    # [title-seq] (2026-11-18) the order: the welcome alone; when it is over the flight; when the last symbol is placed the badge pop with
+    # the golden sparkle on the title; only then the play button (was [title-fly2]: the flight inside the welcome, the button at its end)
+    last_vo = during[-1] if during else None
+    gst = pg.evaluate("window.__sgFly ? JSON.parse(JSON.stringify(window.__sgFly)) : null") or {}
+    grec = pg.evaluate("window.__goldRec") or {}
+    gold = gst.get("gold") or {}; shown = gst.get("shown") or []; lay = grec.get("layers") or {}
+    check("[title-seq] 1. the welcome plays alone: nothing flies while it sounds (the danda and the comma stand still, the flight waits) and no play button",
+          first_vo is not None and sym0 and during and all(s["fly"] == "wait" and s["sym"][:2] == sym0[:2] and not s["ready"] for s in samples if s["loaded"] and s["t"] <= last_vo["t"]),
+          (first_vo and round(first_vo["t"]), last_vo and round(last_vo["t"]), sym0))
+    check("[title-seq] 2. when the welcome is over the symbols fly: the flight starts after its last sounding sample (within 1.2 s of it, the line silent), "
+          "at the pace it had since [title-fly2] (.84 of the natural timeline)",
+          fly_first is not None and last_vo is not None and 0 < fly_first["t"] - last_vo["t"] <= 1200 and not fly_first["vo"] and (fly_end[1] or {}).get("f") == 0.84,
+          (fly_first and last_vo and round(fly_first["t"] - last_vo["t"]), fly_end[1], fly_st and fly_st.get("err")))
+    lands = [x["at"] for x in shown if x.get("ch") != "all"]
+    plays = grec.get("plays") or []; badge = [p for p in plays if p[1].startswith("sfx_title_badge.")]
+    check("[title-seq] 3. the moment the last symbol is placed (its glyph back in the title) the user's badge pop plays (sfx_title_badge, once, "
+          "within 60 ms) and the golden sparkle starts with it (on the sound's own 'playing', within 40 ms)",
+          len(lands) == 3 and len(badge) == 1 and 0 <= badge[0][0] - max(lands) <= 60 and gold.get("snd") == "playing" and grec.get("playing")
+          and gold.get("at") is not None and gold.get("sndAt") is not None and 0 <= gold["at"] - gold["sndAt"] <= 40 and abs(grec["playing"] - gold["sndAt"]) <= 40,
+          (len(lands), badge, lands and badge and round(badge[0][0] - max(lands)), gold.get("snd"), gold.get("at") and gold.get("sndAt") and (round(gold["at"] - gold["sndAt"], 1), round(grec["playing"] - gold["sndAt"], 1))))
+    # the stars (the sparkle's own model, heading px) on the heading's words and marks (their measured box, + 10 px)
+    bx = gold.get("box") or {}; stl = gold.get("starList") or []
+    st_in = [s for s in stl if bx and bx["l"] - 10 <= s[0] <= bx["r"] + 10 and bx["t"] - 10 <= s[1] <= bx["b"] + 10]
+    an = lay.get("anims") or []
+    glow = [a for a in an if "sgf-gglow" in a["cls"]]; wash = [a for a in an if "sgf-gwash" in a["cls"]]; gleam = [a for a in an if "sgf-ggleam" in a["cls"] and a["pseudo"] == "::after"]
+    # every layer pinned to the clip's own time zero (gold.t0 = its 'playing' less its clock), which is the sound's 'playing' (within 40 ms);
+    # the layers were built ahead (while the comma flew)
+    sync_ok = (grec.get("playing") and glow and wash and lay.get("pending") == 0 and gold.get("t0") is not None and gold.get("ahead") is True
+               and abs(gold["t0"] - grec["playing"]) <= 40 and all(a["start"] is not None and abs(a["start"] - gold["t0"]) <= 1 for a in glow + wash + gleam))
+    check("[title-seq] ...the sparkle is ON the title and timed to the sound: a gold glow behind the words and a gold wash over the letters peaking at 70 ms "
+          "(the pop's peak) and gone by 1.1 s, a white-gold gleam sweeping the letters (60-900 ms), 30+ gold stars on the heading (the first at the pop) and gold dust "
+          "drawn on one canvas every frame (painted at the start and 300 ms in); "
+          "every layer pinned to the sound's own clock (its layers built ahead, invisible, while the comma flew)",
+          len(glow) == 1 and len(wash) == 1 and len(gleam) == 1 and round(glow[0]["dur"] * glow[0]["peakAt"]) == 70 and round(wash[0]["dur"] * wash[0]["peakAt"]) == 70
+          and glow[0]["dur"] <= 1100 and wash[0]["dur"] <= 1000 and wash[0]["peak"] >= 0.7 and gleam[0]["delay"] == 60 and gleam[0]["delay"] + gleam[0]["dur"] <= 900
+          and len(stl) >= 30 and len(st_in) == len(stl) and min(s[3] for s in stl) <= 30 and gold.get("dust", 0) >= 10 and lay.get("canvas")
+          and len(lay.get("painted") or []) == 2 and all((v or 0) > 500 for v in lay["painted"]) and gold.get("frames", 0) >= 10 and not gold.get("drawErr") and sync_ok,
+          (len(glow), len(wash), len(gleam), len(stl), len(st_in), gold.get("dust"), lay.get("painted"), gold.get("frames"), gold.get("drawErr"), sync_ok,
+           glow and round(glow[0]["dur"] * glow[0]["peakAt"]), wash and wash[0]["peak"],
+           lay.get("pending"), gold.get("ahead"), gold.get("t0") and grec.get("playing") and round(gold["t0"] - grec["playing"], 1),
+           gold.get("t0") and [round(min(a["start"] - gold["t0"] for a in glow + wash + gleam if a["start"] is not None), 1),
+                               round(max(a["start"] - gold["t0"] for a in glow + wash + gleam if a["start"] is not None), 1)]))
+    check("[title-seq] 4. only after the sparkle the play button appears: its layers all gone at the end (~1.5 s, the clip's length), the flight 'done', "
+          "then the button within 0.3 s - never before (every sample with the button has the flight done)",
+          after is not None and fly_end[0] is not None and grec.get("goneAt") and gold.get("at") and 1450 <= fly_end[0] - gold["t0"] <= 1800
+          and abs(grec["goneAt"] - fly_end[0]) <= 50 and 0 <= after["t"] - fly_end[0] <= 300 + 100 and all(s["fly"] == "done" for s in samples if s["ready"]),
+          (gold.get("t0") and fly_end[0] and round(fly_end[0] - gold["t0"]), grec.get("goneAt") and fly_end[0] and round(grec["goneAt"] - fly_end[0]), after and fly_end[0] and round(after["t"] - fly_end[0])))
     fl = fly_st["flights"] if fly_st else []
     names = [(f["name"], f["ch"]) for f in fl]
     check("[title-fly] three flights: the blue danda into the heading's ।, the green comma into its second comma and the comma's twin into its first",
@@ -380,7 +455,7 @@ with sync_playwright() as p:
     qb = sum(1 for s in sb if gz(s, "question")[1] > 0.3); pb = sum(1 for s in sb if gz(s, "purn")[2] < -0.15); qg = sum(1 for s in sg if gz(s, "question")[1] < -0.2)
     check("[title-fly] the question mark watches: it looks right while the danda flies (and the danda looks up at the title), left while the comma's halves fly",
           sb and sg and qb >= 0.8 * len(sb) and pb >= 0.6 * len(sb) and qg >= 0.8 * len(sg), (qb, pb, len(sb), qg, len(sg)))
-    end = pg.evaluate("[[...document.querySelectorAll('.sgf-purn, .sgf-commaw')].map(e => getComputedStyle(e).visibility), document.querySelectorAll('.sgf-mergew, .sgf-burst').length]")
+    end = pg.evaluate("[[...document.querySelectorAll('.sgf-purn, .sgf-commaw')].map(e => getComputedStyle(e).visibility), document.querySelectorAll('.sgf-mergew, .sgf-burst, .sgf-gold, .sgf-goldw').length]")   # [title-seq] + the golden layers
     check("[title-fly] at the end the danda and the comma (and its twin) are gone from the ground, the question mark stands where it stood, no clone or sparkle is left",
           end[0] == ["hidden", "hidden", "hidden"] and end[1] == 0 and sym0 and samples[-1]["sym"][2] == sym0[2], (end, sym0 and sym0[2], samples[-1]["sym"][2]))
     # [title-punct] the holes through the welcome: three until the flight (the ones it re-measures = the CSS's), each closed only once its

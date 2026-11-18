@@ -3302,6 +3302,27 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
   background:radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,232,150,.75) 30%, rgba(255,196,70,.32) 55%, rgba(255,196,70,0) 72%);}
 .sgf-burst i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;opacity:0;
   clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);}
+/* [title-seq] (asked 2026-11-18) the golden sparkle on the title once the last symbol is placed, with the user's badge pop (cover_fly_js
+   gold(), timed from the sound): layers in the heading's own px (.sgf-gold: the heading's box and counter-scale; .back = the glow behind
+   the words, under the heading's z 2; .front = the stars and the dust over it) and two copies of the heading in a card-sized wrapper
+   (.sgf-goldw, as the landing clones'): their own text and shadows off, their fill layer (::after, the heading's own geometry, clipped
+   to the letters) gold (.sgf-gwash, light gold tops to amber feet) or one white-gold band on a 200 %-wide fill (.sgf-ggleam, swept by
+   background-position). Longhands only on the copies' ::after: the shorthand would reset its background-clip:text. The heading itself
+   is untouched; every layer is removed when the sparkle ends. */
+.sgf-gold{position:absolute;left:0;top:34px;width:1096px;height:73.6px;z-index:3;pointer-events:none;
+  transform:scale(calc(1 / var(--fig-s)));transform-origin:50% 0;}
+.sgf-gold.back{z-index:1;}
+.sgf-gglow{position:absolute;opacity:0;border-radius:50%;will-change:transform,opacity;
+  background:radial-gradient(closest-side, rgba(255,214,60,.9) 0%, rgba(255,184,20,.5) 48%, rgba(255,170,0,0) 100%);}
+.sgf-goldw{position:absolute;left:0;top:0;width:1096px;height:438px;z-index:3;pointer-events:none;}
+.sgf-goldw .sgf-heading{color:transparent;text-shadow:none;clip-path:none;}
+.sgf-goldw .sgf-gwash{opacity:0;}
+.sgf-goldw .sgf-gwash::after{background-image:linear-gradient(180deg, #FFF27A 0px, #FFF27A 38px, #FFE43A 50px, #FFD000 62px, #FFBE00 74px, #F7A600 90px, #F7A600 121.6px);}
+.sgf-goldw .sgf-ggleam::after{background-image:linear-gradient(104deg, rgba(255,250,220,0) 0%, rgba(255,250,220,0) 46%, rgba(255,240,170,.9) 48.5%, #FFFFF4 50%,
+  rgba(255,230,120,.9) 51.5%, rgba(255,250,220,0) 54%, rgba(255,250,220,0) 100%);background-size:200% 100%;background-repeat:no-repeat;background-position:200% 0%;}
+/* the stars and the gold dust: ONE canvas in the heading's px (cover_fly_js CV: x -70, y -90, 1236 x 260 round the heading's box),
+   drawn every frame from the sound's clock - as 50 elements they were 50 composited layers and the frames stalled */
+.sgf-gcv{position:absolute;left:-70px;top:-90px;width:1236px;height:260px;pointer-events:none;}
 .sgf-swiftie{position:absolute;left:5px;top:371px;width:245px;height:245px;object-fit:cover;z-index:2;}
 /* the wave animation's frame 0 sits exactly on the still (alpha-box matched: scale .4166 of 560x550) */
 .sgf-swiftie-anim{position:absolute;left:19.09px;top:376.5px;width:233.3px;height:229.14px;z-index:3;opacity:0;}
@@ -4484,7 +4505,10 @@ _dust_js = (SCR / "title_assets" / "cover_dust_js.js").read_text(encoding="utf-8
 # "heard" -> "sgwelcomestart") and is over before the welcome ends; the play button still comes at the welcome's end (after "sgflydone")
 _fly_js = (SCR / "title_assets" / "cover_fly_js.js").read_text(encoding="utf-8")
 assert "showGlyph(o.g)" in _fly_js and "setHoles(g.slice())" in _fly_js and "c.classList.remove(\"sgf-punct-off\")" in _fly_js, "title-punct: the heading's holes"   # [title-punct]
-assert 'addEventListener("sgwelcomestart"' in _fly_js and '"sgflydone"' in _fly_js and "faceLook(name, t, ms)" in (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8"), "title-fly: scripts"
+assert 'addEventListener("sgwelcomeend"' in _fly_js and '"sgflydone"' in _fly_js and "faceLook(name, t, ms)" in (SCR / "title_assets" / "cover_eyes_js.js").read_text(encoding="utf-8"), "title-fly: scripts"
+# [title-seq] (2026-11-18) the order: the welcome alone, then (at its end, "sgwelcomeend") the flight, then the user's badge pop with the
+# golden sparkle on the title the moment the last symbol is placed, then the play button (gold() -> "sgflydone")
+assert "function gold()" in _fly_js and '"assets/Audio/sfx_title_badge.mp3"' in _fly_js and "pace: 0.84" in _fly_js and 'addEventListener("sgwelcomestart"' not in _fly_js, "title-seq: the flight script"
 cover_fx_css = (SCR / "title_assets" / "cover_fx.css").read_text(encoding="utf-8")
 assert "__FACES__" not in _eyes_js and len(_faces) == 3 and all(f["name"] and f["art"] and f["face"] and f["rig"] for f in _faces) and all(len(f["eyes"]) == 2 and len(f["brows"]) == 2 for f in _faces), "cover-eyes: faces"
 assert "SlideModules.CELEBRATION" in _cel_js and "runCelSprite" in _cel_js, "dun: cel block"
@@ -4509,11 +4533,15 @@ function stdSfx(name){
   const b = $("sgBtn"), vo = $("sgVo"), bird = $("sgMascot"); if(!b) return;
   b.disabled = false;
   const reveal = ()=>{ if(b.classList.contains("ready")) return;
-    // [title-fly2] the symbols' flight is over before the welcome ends; should it ever still be running, the button waits for it
-    // ([optimize] at most 9 s: a flight that never reports its end holds nothing up)
-    const fly = window.__sgFly; if(fly && (fly.phase === "blue" || fly.phase === "green") && !reveal.flyLate){
+    // [title-seq] (2026-11-18) the welcome is over: NOW the symbols fly (cover_fly_js, "sgwelcomeend"; once, and only after a welcome
+    // that really sounded), then the title sparkles in gold with the badge pop, and only after that ("sgflydone") the button comes.
+    // (Was [title-fly2]: the flight ran inside the welcome and the button came at its end.) At most 16 s (~6.1 s flight + ~1.5 s
+    // sparkle): a flight that never reports its end holds nothing up.
+    const fly = window.__sgFly;
+    if(fly && sounded && fly.phase === "wait" && !reveal.asked){ reveal.asked = true; try { window.dispatchEvent(new Event("sgwelcomeend")); } catch(e){} }
+    if(fly && (fly.phase === "blue" || fly.phase === "green" || fly.phase === "gold") && !reveal.flyLate){
       if(!reveal.waiting){ reveal.waiting = true; window.addEventListener("sgflydone", ()=>{ reveal.waiting = false; sync(); }, { once:true });
-        setTimeout(()=>{ if(reveal.waiting){ reveal.waiting = false; reveal.flyLate = true; sync(); } }, 9000); } return; }
+        setTimeout(()=>{ if(reveal.waiting){ reveal.waiting = false; reveal.flyLate = true; sync(); } }, 16000); } return; }
     // [load-bar-off] (2026-11-16) no loading bar on the cover: the button no longer waits for the downloads (they go on behind it)
     b.disabled = false; b.classList.add("ready");
     let on = false; const breathe = ()=>{ if(on) return; on = true; b.classList.add("sg-breathe"); };
@@ -4521,11 +4549,10 @@ function stdSfx(name){
   // "heard": the welcome's own element really sounded (its clock moved) — a blocked autoplay plays a silent beat in this engine,
   // and the reference keeps the button hidden then until the first tap has played the welcome (its pointerdown fallback is this
   // engine's too)
-  let heard = false;
+  let heard = false, sounded = false;   // [title-seq] sounded: the welcome really played (a failed / hung one is "heard" but flies nothing)
   const listen = setInterval(()=>{ if(!document.body.classList.contains("is-start")){ clearInterval(listen); return; }
     const a = currentAudio; if(isPlaying && a && !a.paused && a.currentTime > 0.25 && /vo_landing/.test(a.src)){
-      if(!heard) try { window.dispatchEvent(new CustomEvent("sgwelcomestart", { detail: { left: (a.duration - a.currentTime) * 1000 } })); } catch(e){}   // [title-fly2] the welcome is sounding: the symbols fly (fitted into what is left of it)
-      heard = true; sync(); } }, 100);
+      heard = sounded = true; sync(); } }, 100);   // [title-seq] nothing flies while it sounds now (was [title-fly2]: "sgwelcomestart" here)
   // [optimize] a welcome that failed to load or hung (the engine then holds its silent beat; the clip watchdog ends a hung one)
   // counts as heard, so the button can never be held back by it; a welcome refused by autoplay is neither, and still waits for a tap
   const lost = (ev)=>{ const s = ev && ev.detail && ev.detail.src; if(s && /vo_landing/.test(s) && document.body.classList.contains("is-start")){ heard = true; sync(); } };
@@ -5096,6 +5123,12 @@ assert len(title_files) == 13, f"expected 13 title assets in {TITLE_SRC}, found 
 for f in title_files:
     dst = DIST / "assets" / "UI" / f.name
     if not dst.exists() or dst.read_bytes() != f.read_bytes(): shutil.copy2(f, dst)
+# [title-seq] (2026-11-18) the user's vadim_makes_sound-achievement-badge-pop-sound-3-547866.mp3 (1.49 s, bytes as given): the title's
+# badge pop with the golden sparkle (optimize.py makes the dist's copy Opus if smaller)
+_badge = TITLE_SRC / "sfx_title_badge.mp3"
+assert _badge.exists(), f"missing {_badge}"
+_badge_dst = DIST / "assets" / "Audio" / "sfx_title_badge.mp3"
+if not _badge_dst.exists() or _badge_dst.read_bytes() != _badge.read_bytes(): shutil.copy2(_badge, _badge_dst)
 
 # ---------- 7b. [story-fig] the story page's assets (kept next to this script, in story_assets/) ----------
 STORY_SRC = SCR / "story_assets"

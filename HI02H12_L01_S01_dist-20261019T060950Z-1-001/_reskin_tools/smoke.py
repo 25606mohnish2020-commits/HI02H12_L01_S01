@@ -60,6 +60,7 @@ with sync_playwright() as p:
 
     # 1. landing -> play button -> peek gate -> tutorial slide 0 in the tut frame
     wait_silence(pg, 20000)
+    pg.wait_for_function("document.getElementById('sgBtn').classList.contains('ready')", timeout=30000)   # [title-seq] the button comes after the flight + the sparkle (~7.5 s after the welcome)
     pg.click("#sgBtn", force=True); pg.wait_for_timeout(1200)   # force: the play button pulses forever, so it is never "stable"
     gate_up = pg.evaluate("document.getElementById('phaseGate').classList.contains('show')")
     check("start button opens the peek gate", gate_up)

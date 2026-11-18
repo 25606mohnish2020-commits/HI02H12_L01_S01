@@ -2005,6 +2005,27 @@ body.is-start .sg-glow, body.is-start .sg-sky{display:none !important;}
   background:radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,232,150,.75) 30%, rgba(255,196,70,.32) 55%, rgba(255,196,70,0) 72%);}
 .sgf-burst i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;opacity:0;
   clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);}
+/* [title-seq] (asked 2026-11-18) the golden sparkle on the title once the last symbol is placed, with the user's badge pop (cover_fly_js
+   gold(), timed from the sound): layers in the heading's own px (.sgf-gold: the heading's box and counter-scale; .back = the glow behind
+   the words, under the heading's z 2; .front = the stars and the dust over it) and two copies of the heading in a card-sized wrapper
+   (.sgf-goldw, as the landing clones'): their own text and shadows off, their fill layer (::after, the heading's own geometry, clipped
+   to the letters) gold (.sgf-gwash, light gold tops to amber feet) or one white-gold band on a 200 %-wide fill (.sgf-ggleam, swept by
+   background-position). Longhands only on the copies' ::after: the shorthand would reset its background-clip:text. The heading itself
+   is untouched; every layer is removed when the sparkle ends. */
+.sgf-gold{position:absolute;left:0;top:34px;width:1096px;height:73.6px;z-index:3;pointer-events:none;
+  transform:scale(calc(1 / var(--fig-s)));transform-origin:50% 0;}
+.sgf-gold.back{z-index:1;}
+.sgf-gglow{position:absolute;opacity:0;border-radius:50%;will-change:transform,opacity;
+  background:radial-gradient(closest-side, rgba(255,214,60,.9) 0%, rgba(255,184,20,.5) 48%, rgba(255,170,0,0) 100%);}
+.sgf-goldw{position:absolute;left:0;top:0;width:1096px;height:438px;z-index:3;pointer-events:none;}
+.sgf-goldw .sgf-heading{color:transparent;text-shadow:none;clip-path:none;}
+.sgf-goldw .sgf-gwash{opacity:0;}
+.sgf-goldw .sgf-gwash::after{background-image:linear-gradient(180deg, #FFF27A 0px, #FFF27A 38px, #FFE43A 50px, #FFD000 62px, #FFBE00 74px, #F7A600 90px, #F7A600 121.6px);}
+.sgf-goldw .sgf-ggleam::after{background-image:linear-gradient(104deg, rgba(255,250,220,0) 0%, rgba(255,250,220,0) 46%, rgba(255,240,170,.9) 48.5%, #FFFFF4 50%,
+  rgba(255,230,120,.9) 51.5%, rgba(255,250,220,0) 54%, rgba(255,250,220,0) 100%);background-size:200% 100%;background-repeat:no-repeat;background-position:200% 0%;}
+/* the stars and the gold dust: ONE canvas in the heading's px (cover_fly_js CV: x -70, y -90, 1236 x 260 round the heading's box),
+   drawn every frame from the sound's clock - as 50 elements they were 50 composited layers and the frames stalled */
+.sgf-gcv{position:absolute;left:-70px;top:-90px;width:1236px;height:260px;pointer-events:none;}
 .sgf-swiftie{position:absolute;left:5px;top:371px;width:245px;height:245px;object-fit:cover;z-index:2;}
 /* the wave animation's frame 0 sits exactly on the still (alpha-box matched: scale .4166 of 560x550) */
 .sgf-swiftie-anim{position:absolute;left:19.09px;top:376.5px;width:233.3px;height:229.14px;z-index:3;opacity:0;}

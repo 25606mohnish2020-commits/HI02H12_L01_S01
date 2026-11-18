@@ -1,6 +1,6 @@
 """[optimize] (2026-11-15) checks the optimised dist like a user, over HTTP (http_serve.py: Range, Content-Length, Vercel's caching):
- A. throttled network (CDP, 8 Mbit/s, 80 ms), [load-bar-off] (2026-11-16): no loading bar on the cover; the play button comes at
-    the welcome's end while the files are still loading and starts the lesson at once (page 1 within 12 s: the gate plays ~6.5 s);
+ A. throttled network (CDP, 8 Mbit/s, 80 ms), [load-bar-off] (2026-11-16): no loading bar on the cover; the play button comes after
+    the welcome, the flight and the title's sparkle ([title-seq]) while the files are still loading and starts the lesson at once (page 1 within 12 s: the gate plays ~6.5 s);
     page 1's music bed plays at once (it streams from its URL from the start, as before the preloader) and its pictures show
     before the preload is done; the preload still completes (never goes back, every file in or streamed), the queue is
     smallest-first and the cover's pictures are in before the button; no JS error, no 4xx / 5xx, no failed request (Chrome's own
@@ -89,9 +89,12 @@ with sync_playwright() as p:
               ready and not any(s.get("barAny") for s in S0) and not static_bar, (ready, sum(1 for s in S0 if s.get("barAny")), static_bar))
         ready_t = next((s["t"] for s in S0 if s.get("btnReady")), None)
         w_end = max((s["t"] for s in S0 if s.get("playing") and str(s.get("clip") or "").startswith("vo_landing")), default=None)
-        check("A. the play button comes at the welcome's end (as before the bar), not held for the downloads: they are still loading then",
-              ready_t is not None and w_end is not None and 0 <= ready_t - w_end <= 2500 and not at["done"] and at["frac"] < 1,
-              {"welcome_end_ms": w_end, "button_ms": ready_t, "preload_at_button": at})
+        # [title-seq] (2026-11-18) the button comes after the welcome, the symbols' flight (~6.1 s) and the title's golden sparkle (1.52 s):
+        # 5.5-11 s after the welcome's end, the flight then done (was: within 2.5 s of the welcome's end)
+        fly = pg.evaluate("window.__sgFly ? { phase: window.__sgFly.phase, gold: !!window.__sgFly.gold } : null")
+        check("A. the play button comes after the welcome, the symbols' flight and the title's sparkle ([title-seq]), not held for the downloads: they are still loading then",
+              ready_t is not None and w_end is not None and 5500 <= ready_t - w_end <= 11000 and fly == {"phase": "done", "gold": True} and not at["done"] and at["frac"] < 1,
+              {"welcome_end_ms": w_end, "button_ms": ready_t, "fly": fly, "preload_at_button": at})
         pg.wait_for_timeout(300)
         t_click = time.time(); pg.click("#sgBtn", force=True)
         try:

@@ -150,6 +150,13 @@
    "converted "
   ],
   [
+   "assets/Audio/sfx_title_badge.mp3",
+   "assets/Audio/sfx_title_badge.ogg",
+   47616,
+   22228,
+   "converted "
+  ],
+  [
    "assets/Audio/sfx_wrong_new.ogg",
    "assets/Audio/sfx_wrong_new.ogg",
    8753,
@@ -2284,8 +2291,8 @@
   "assets/UI/sw_head_tryagain.webp",
   "assets/UI/sw_head_tryagain_anim.webp"
  ],
- "bytes_before": 83386967,
- "bytes_after": 48747199,
- "manifest_files": 198,
- "manifest_bytes": 23974616
+ "bytes_before": 83478337,
+ "bytes_after": 48791003,
+ "manifest_files": 199,
+ "manifest_bytes": 23996844
 }

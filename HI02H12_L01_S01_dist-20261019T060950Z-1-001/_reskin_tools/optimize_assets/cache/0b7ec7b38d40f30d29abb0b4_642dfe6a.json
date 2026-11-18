@@ -1,0 +1,22 @@
+{
+ "keep": false,
+ "kbps": 96,
+ "src": {
+  "codec": "mp3",
+  "channels": 2,
+  "rate": 48000,
+  "duration": 1.488,
+  "bit_rate": 256000,
+  "size": 47616
+ },
+ "out": {
+  "codec": "opus",
+  "channels": 2,
+  "rate": 48000,
+  "duration": 1.4945,
+  "bit_rate": 118985,
+  "size": 22228
+ },
+ "src_bytes": 47616,
+ "out_bytes": 22228
+}
